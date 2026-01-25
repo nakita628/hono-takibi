@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -19,6 +19,12 @@ export function useGetUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.users.$get>
+        | (() => InferResponseType<typeof client.users.$get>)
+      initialData?:
+        | InferResponseType<typeof client.users.$get>
+        | (() => InferResponseType<typeof client.users.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -26,7 +32,13 @@ export function useGetUsers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -98,6 +110,12 @@ export function useGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.users)[':userId']['$get']>
+        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.users)[':userId']['$get']>
+        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -105,7 +123,13 @@ export function useGetUsersUserId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users[':userId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -179,6 +203,12 @@ export function useGetProductsProductIdVariants(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.products)[':productId']['variants']['$get']>
+        | (() => InferResponseType<(typeof client.products)[':productId']['variants']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.products)[':productId']['variants']['$get']>
+        | (() => InferResponseType<(typeof client.products)[':productId']['variants']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -186,8 +216,13 @@ export function useGetProductsProductIdVariants(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetProductsProductIdVariantsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.products[':productId'].variants.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.products[':productId'].variants.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

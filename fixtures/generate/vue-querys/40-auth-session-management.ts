@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -23,6 +23,12 @@ export function useGetSessions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.sessions.$get>
+        | (() => InferResponseType<typeof client.sessions.$get>)
+      initialData?:
+        | InferResponseType<typeof client.sessions.$get>
+        | (() => InferResponseType<typeof client.sessions.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -30,7 +36,13 @@ export function useGetSessions(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -106,13 +118,25 @@ export function useGetSessionsCurrent(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.sessions.current.$get>
+      | (() => InferResponseType<typeof client.sessions.current.$get>)
+    initialData?:
+      | InferResponseType<typeof client.sessions.current.$get>
+      | (() => InferResponseType<typeof client.sessions.current.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsCurrentQueryKey(),
-    queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions.current.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -290,6 +314,12 @@ export function useGetSessionsSessionId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.sessions)[':sessionId']['$get']>
+        | (() => InferResponseType<(typeof client.sessions)[':sessionId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.sessions)[':sessionId']['$get']>
+        | (() => InferResponseType<(typeof client.sessions)[':sessionId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -297,7 +327,13 @@ export function useGetSessionsSessionId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsSessionIdQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions[':sessionId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -456,6 +492,12 @@ export function useGetSessionsHistory(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.sessions.history.$get>
+        | (() => InferResponseType<typeof client.sessions.history.$get>)
+      initialData?:
+        | InferResponseType<typeof client.sessions.history.$get>
+        | (() => InferResponseType<typeof client.sessions.history.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -463,7 +505,13 @@ export function useGetSessionsHistory(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsHistoryQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions.history.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -512,6 +560,12 @@ export function useGetSessionsSecurityEvents(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.sessions)['security-events']['$get']>
+        | (() => InferResponseType<(typeof client.sessions)['security-events']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.sessions)['security-events']['$get']>
+        | (() => InferResponseType<(typeof client.sessions)['security-events']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -519,8 +573,13 @@ export function useGetSessionsSecurityEvents(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsSecurityEventsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions['security-events'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -566,13 +625,25 @@ export function useGetSessionsPolicies(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.sessions.policies.$get>
+      | (() => InferResponseType<typeof client.sessions.policies.$get>)
+    initialData?:
+      | InferResponseType<typeof client.sessions.policies.$get>
+      | (() => InferResponseType<typeof client.sessions.policies.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsPoliciesQueryKey(),
-    queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions.policies.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -646,14 +717,25 @@ export function useGetSessionsTrustedDevices(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>
+      | (() => InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>
+      | (() => InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsTrustedDevicesQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions['trusted-devices'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

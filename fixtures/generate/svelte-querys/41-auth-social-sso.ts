@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -23,6 +23,12 @@ export function createGetSocialAuthorizeProvider(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.social.authorize)[':provider']['$get']>
+        | (() => InferResponseType<(typeof client.social.authorize)[':provider']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.social.authorize)[':provider']['$get']>
+        | (() => InferResponseType<(typeof client.social.authorize)[':provider']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -30,8 +36,13 @@ export function createGetSocialAuthorizeProvider(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetSocialAuthorizeProviderQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.social.authorize[':provider'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.social.authorize[':provider'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -81,6 +92,12 @@ export function createGetSocialCallbackProvider(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.social.callback)[':provider']['$get']>
+        | (() => InferResponseType<(typeof client.social.callback)[':provider']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.social.callback)[':provider']['$get']>
+        | (() => InferResponseType<(typeof client.social.callback)[':provider']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -88,8 +105,13 @@ export function createGetSocialCallbackProvider(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetSocialCallbackProviderQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.social.callback[':provider'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.social.callback[':provider'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -204,13 +226,25 @@ export function createGetProviders(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.providers.$get>
+      | (() => InferResponseType<typeof client.providers.$get>)
+    initialData?:
+      | InferResponseType<typeof client.providers.$get>
+      | (() => InferResponseType<typeof client.providers.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetProvidersQueryKey(),
-    queryFn: async () => parseResponse(client.providers.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.providers.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -250,13 +284,25 @@ export function createGetProvidersAdmin(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.providers.admin.$get>
+      | (() => InferResponseType<typeof client.providers.admin.$get>)
+    initialData?:
+      | InferResponseType<typeof client.providers.admin.$get>
+      | (() => InferResponseType<typeof client.providers.admin.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetProvidersAdminQueryKey(),
-    queryFn: async () => parseResponse(client.providers.admin.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.providers.admin.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -332,6 +378,12 @@ export function createGetProvidersProviderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.providers)[':providerId']['$get']>
+        | (() => InferResponseType<(typeof client.providers)[':providerId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.providers)[':providerId']['$get']>
+        | (() => InferResponseType<(typeof client.providers)[':providerId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -339,7 +391,13 @@ export function createGetProvidersProviderId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetProvidersProviderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.providers[':providerId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.providers[':providerId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -496,13 +554,25 @@ export function createGetAccountLinked(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.account.linked.$get>
+      | (() => InferResponseType<typeof client.account.linked.$get>)
+    initialData?:
+      | InferResponseType<typeof client.account.linked.$get>
+      | (() => InferResponseType<typeof client.account.linked.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetAccountLinkedQueryKey(),
-    queryFn: async () => parseResponse(client.account.linked.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.account.linked.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -618,13 +688,25 @@ export function createGetEnterpriseSso(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.enterprise.sso.$get>
+      | (() => InferResponseType<typeof client.enterprise.sso.$get>)
+    initialData?:
+      | InferResponseType<typeof client.enterprise.sso.$get>
+      | (() => InferResponseType<typeof client.enterprise.sso.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetEnterpriseSsoQueryKey(),
-    queryFn: async () => parseResponse(client.enterprise.sso.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -700,6 +782,12 @@ export function createGetEnterpriseSsoConfigId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>
+        | (() => InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>
+        | (() => InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -707,8 +795,13 @@ export function createGetEnterpriseSsoConfigId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetEnterpriseSsoConfigIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.enterprise.sso[':configId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso[':configId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -830,6 +923,12 @@ export function createGetEnterpriseSsoDomainLookup(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>
+        | (() => InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>
+        | (() => InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -837,8 +936,13 @@ export function createGetEnterpriseSsoDomainLookup(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetEnterpriseSsoDomainLookupQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.enterprise.sso['domain-lookup'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso['domain-lookup'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -888,6 +992,12 @@ export function createGetEnterpriseSsoConfigIdMetadata(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>
+        | (() => InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>
+        | (() => InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -895,8 +1005,13 @@ export function createGetEnterpriseSsoConfigIdMetadata(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetEnterpriseSsoConfigIdMetadataQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.enterprise.sso[':configId'].metadata.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso[':configId'].metadata.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

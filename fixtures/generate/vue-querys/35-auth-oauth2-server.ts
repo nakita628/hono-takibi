@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -24,6 +24,12 @@ export function useGetOauthAuthorize(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.oauth.authorize.$get>
+        | (() => InferResponseType<typeof client.oauth.authorize.$get>)
+      initialData?:
+        | InferResponseType<typeof client.oauth.authorize.$get>
+        | (() => InferResponseType<typeof client.oauth.authorize.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -31,7 +37,13 @@ export function useGetOauthAuthorize(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetOauthAuthorizeQueryKey(args),
-    queryFn: async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth.authorize.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -217,13 +229,25 @@ export function useGetOauthUserinfo(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.oauth.userinfo.$get>
+      | (() => InferResponseType<typeof client.oauth.userinfo.$get>)
+    initialData?:
+      | InferResponseType<typeof client.oauth.userinfo.$get>
+      | (() => InferResponseType<typeof client.oauth.userinfo.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetOauthUserinfoQueryKey(),
-    queryFn: async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth.userinfo.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -265,14 +289,25 @@ export function useGetWellKnownOpenidConfiguration(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>
+      | (() => InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>
+      | (() => InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['.well-known']['openid-configuration'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -317,14 +352,25 @@ export function useGetWellKnownJwksJson(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>
+      | (() => InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>
+      | (() => InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetWellKnownJwksJsonQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['.well-known']['jwks.json'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -365,13 +411,25 @@ export function useGetOauthClients(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.oauth.clients.$get>
+      | (() => InferResponseType<typeof client.oauth.clients.$get>)
+    initialData?:
+      | InferResponseType<typeof client.oauth.clients.$get>
+      | (() => InferResponseType<typeof client.oauth.clients.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetOauthClientsQueryKey(),
-    queryFn: async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth.clients.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -444,6 +502,12 @@ export function useGetOauthClientsClientId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>
+        | (() => InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>
+        | (() => InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -451,7 +515,13 @@ export function useGetOauthClientsClientId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetOauthClientsClientIdQueryKey(args),
-    queryFn: async () => parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth.clients[':clientId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -611,13 +681,25 @@ export function useGetOauthConsents(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.oauth.consents.$get>
+      | (() => InferResponseType<typeof client.oauth.consents.$get>)
+    initialData?:
+      | InferResponseType<typeof client.oauth.consents.$get>
+      | (() => InferResponseType<typeof client.oauth.consents.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetOauthConsentsQueryKey(),
-    queryFn: async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth.consents.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

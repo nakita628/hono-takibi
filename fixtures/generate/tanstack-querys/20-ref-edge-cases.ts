@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
@@ -19,6 +19,12 @@ export function useGetTest(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.test.$get>
+        | (() => InferResponseType<typeof client.test.$get>)
+      initialData?:
+        | InferResponseType<typeof client.test.$get>
+        | (() => InferResponseType<typeof client.test.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -26,7 +32,13 @@ export function useGetTest(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetTestQueryKey(args),
-    queryFn: async () => parseResponse(client.test.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.test.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -67,13 +79,25 @@ export function useGetEmptyRefs(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['empty-refs']['$get']>
+      | (() => InferResponseType<(typeof client)['empty-refs']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['empty-refs']['$get']>
+      | (() => InferResponseType<(typeof client)['empty-refs']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetEmptyRefsQueryKey(),
-    queryFn: async () => parseResponse(client['empty-refs'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['empty-refs'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -111,13 +135,25 @@ export function useGetUnicodeRefs(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['unicode-refs']['$get']>
+      | (() => InferResponseType<(typeof client)['unicode-refs']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['unicode-refs']['$get']>
+      | (() => InferResponseType<(typeof client)['unicode-refs']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetUnicodeRefsQueryKey(),
-    queryFn: async () => parseResponse(client['unicode-refs'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['unicode-refs'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -155,13 +191,25 @@ export function useGetSpecialChars(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['special-chars']['$get']>
+      | (() => InferResponseType<(typeof client)['special-chars']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['special-chars']['$get']>
+      | (() => InferResponseType<(typeof client)['special-chars']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSpecialCharsQueryKey(),
-    queryFn: async () => parseResponse(client['special-chars'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['special-chars'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -199,13 +247,25 @@ export function useGetNumericStart(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['numeric-start']['$get']>
+      | (() => InferResponseType<(typeof client)['numeric-start']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['numeric-start']['$get']>
+      | (() => InferResponseType<(typeof client)['numeric-start']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetNumericStartQueryKey(),
-    queryFn: async () => parseResponse(client['numeric-start'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['numeric-start'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -243,13 +303,25 @@ export function useGetRefInAllof(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['ref-in-allof']['$get']>
+      | (() => InferResponseType<(typeof client)['ref-in-allof']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['ref-in-allof']['$get']>
+      | (() => InferResponseType<(typeof client)['ref-in-allof']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetRefInAllofQueryKey(),
-    queryFn: async () => parseResponse(client['ref-in-allof'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['ref-in-allof'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -287,13 +359,25 @@ export function useGetDeeplyNested(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['deeply-nested']['$get']>
+      | (() => InferResponseType<(typeof client)['deeply-nested']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['deeply-nested']['$get']>
+      | (() => InferResponseType<(typeof client)['deeply-nested']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetDeeplyNestedQueryKey(),
-    queryFn: async () => parseResponse(client['deeply-nested'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['deeply-nested'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -331,14 +415,25 @@ export function useGetSameNameDiffContext(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['same-name-diff-context']['$get']>
+      | (() => InferResponseType<(typeof client)['same-name-diff-context']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['same-name-diff-context']['$get']>
+      | (() => InferResponseType<(typeof client)['same-name-diff-context']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSameNameDiffContextQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['same-name-diff-context'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['same-name-diff-context'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
@@ -21,6 +21,20 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -28,11 +42,14 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
         client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
           ':p10'
-        ].$get(args, clientOptions),
+        ].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -87,6 +104,12 @@ export function useGetQueryStyles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['query-styles']['$get']>
+        | (() => InferResponseType<(typeof client)['query-styles']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['query-styles']['$get']>
+        | (() => InferResponseType<(typeof client)['query-styles']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -94,7 +117,13 @@ export function useGetQueryStyles(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetQueryStylesQueryKey(args),
-    queryFn: async () => parseResponse(client['query-styles'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['query-styles'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -139,6 +168,16 @@ export function useGetPathStylesSimpleLabelMatrix(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>
+        | (() => InferResponseType<
+            (typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>
+        | (() => InferResponseType<
+            (typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -146,9 +185,12 @@ export function useGetPathStylesSimpleLabelMatrix(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client['path-styles'][':simple'][':label'][':matrix'].$get(args, clientOptions),
+        client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -197,6 +239,12 @@ export function useGetHeaderStyles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['header-styles']['$get']>
+        | (() => InferResponseType<(typeof client)['header-styles']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['header-styles']['$get']>
+        | (() => InferResponseType<(typeof client)['header-styles']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -204,7 +252,13 @@ export function useGetHeaderStyles(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetHeaderStylesQueryKey(args),
-    queryFn: async () => parseResponse(client['header-styles'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['header-styles'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -249,6 +303,12 @@ export function useGetCookieStyles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['cookie-styles']['$get']>
+        | (() => InferResponseType<(typeof client)['cookie-styles']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['cookie-styles']['$get']>
+        | (() => InferResponseType<(typeof client)['cookie-styles']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -256,7 +316,13 @@ export function useGetCookieStyles(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetCookieStylesQueryKey(args),
-    queryFn: async () => parseResponse(client['cookie-styles'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['cookie-styles'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -301,6 +367,12 @@ export function useGetManyQueryParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['many-query-params']['$get']>
+        | (() => InferResponseType<(typeof client)['many-query-params']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['many-query-params']['$get']>
+        | (() => InferResponseType<(typeof client)['many-query-params']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -308,7 +380,13 @@ export function useGetManyQueryParams(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetManyQueryParamsQueryKey(args),
-    queryFn: async () => parseResponse(client['many-query-params'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['many-query-params'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -353,6 +431,12 @@ export function useGetParameterContent(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['parameter-content']['$get']>
+        | (() => InferResponseType<(typeof client)['parameter-content']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['parameter-content']['$get']>
+        | (() => InferResponseType<(typeof client)['parameter-content']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -360,7 +444,13 @@ export function useGetParameterContent(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetParameterContentQueryKey(args),
-    queryFn: async () => parseResponse(client['parameter-content'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['parameter-content'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -405,6 +495,12 @@ export function useGetDeprecatedParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['deprecated-params']['$get']>
+        | (() => InferResponseType<(typeof client)['deprecated-params']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['deprecated-params']['$get']>
+        | (() => InferResponseType<(typeof client)['deprecated-params']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -412,7 +508,13 @@ export function useGetDeprecatedParams(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetDeprecatedParamsQueryKey(args),
-    queryFn: async () => parseResponse(client['deprecated-params'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['deprecated-params'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -457,6 +559,12 @@ export function useGetExamplesParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['examples-params']['$get']>
+        | (() => InferResponseType<(typeof client)['examples-params']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['examples-params']['$get']>
+        | (() => InferResponseType<(typeof client)['examples-params']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -464,7 +572,13 @@ export function useGetExamplesParams(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetExamplesParamsQueryKey(args),
-    queryFn: async () => parseResponse(client['examples-params'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['examples-params'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

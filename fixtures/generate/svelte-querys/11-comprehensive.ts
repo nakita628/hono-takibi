@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
@@ -23,6 +23,12 @@ export function createGetProducts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.products.$get>
+        | (() => InferResponseType<typeof client.products.$get>)
+      initialData?:
+        | InferResponseType<typeof client.products.$get>
+        | (() => InferResponseType<typeof client.products.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -30,7 +36,13 @@ export function createGetProducts(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetProductsQueryKey(args),
-    queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.products.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -106,6 +118,12 @@ export function createGetProductsProductId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.products)[':productId']['$get']>
+        | (() => InferResponseType<(typeof client.products)[':productId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.products)[':productId']['$get']>
+        | (() => InferResponseType<(typeof client.products)[':productId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -113,7 +131,13 @@ export function createGetProductsProductId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetProductsProductIdQueryKey(args),
-    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.products[':productId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -23,6 +23,12 @@ export function useGetSamlSso(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.saml.sso.$get>
+        | (() => InferResponseType<typeof client.saml.sso.$get>)
+      initialData?:
+        | InferResponseType<typeof client.saml.sso.$get>
+        | (() => InferResponseType<typeof client.saml.sso.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -30,7 +36,13 @@ export function useGetSamlSso(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSamlSsoQueryKey(args),
-    queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.saml.sso.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -110,6 +122,12 @@ export function useGetSamlSlo(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.saml.slo.$get>
+        | (() => InferResponseType<typeof client.saml.slo.$get>)
+      initialData?:
+        | InferResponseType<typeof client.saml.slo.$get>
+        | (() => InferResponseType<typeof client.saml.slo.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -117,7 +135,13 @@ export function useGetSamlSlo(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSamlSloQueryKey(args),
-    queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.saml.slo.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -228,13 +252,25 @@ export function useGetSamlMetadata(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.saml.metadata.$get>
+      | (() => InferResponseType<typeof client.saml.metadata.$get>)
+    initialData?:
+      | InferResponseType<typeof client.saml.metadata.$get>
+      | (() => InferResponseType<typeof client.saml.metadata.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSamlMetadataQueryKey(),
-    queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.saml.metadata.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -276,6 +312,12 @@ export function useGetServiceProviders(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['service-providers']['$get']>
+        | (() => InferResponseType<(typeof client)['service-providers']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['service-providers']['$get']>
+        | (() => InferResponseType<(typeof client)['service-providers']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -283,7 +325,13 @@ export function useGetServiceProviders(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetServiceProvidersQueryKey(args),
-    queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['service-providers'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -364,6 +412,12 @@ export function useGetServiceProvidersSpId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['$get']>
+        | (() => InferResponseType<(typeof client)['service-providers'][':spId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['$get']>
+        | (() => InferResponseType<(typeof client)['service-providers'][':spId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -371,8 +425,13 @@ export function useGetServiceProvidersSpId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetServiceProvidersSpIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['service-providers'][':spId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -494,6 +553,16 @@ export function useGetServiceProvidersSpIdMetadata(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>
+        | (() => InferResponseType<
+            (typeof client)['service-providers'][':spId']['metadata']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>
+        | (() => InferResponseType<
+            (typeof client)['service-providers'][':spId']['metadata']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -501,8 +570,13 @@ export function useGetServiceProvidersSpIdMetadata(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['service-providers'][':spId'].metadata.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -597,6 +671,16 @@ export function useGetServiceProvidersSpIdAttributes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>
+        | (() => InferResponseType<
+            (typeof client)['service-providers'][':spId']['attributes']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>
+        | (() => InferResponseType<
+            (typeof client)['service-providers'][':spId']['attributes']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -604,8 +688,13 @@ export function useGetServiceProvidersSpIdAttributes(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['service-providers'][':spId'].attributes.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -698,13 +787,25 @@ export function useGetAttributes(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.attributes.$get>
+      | (() => InferResponseType<typeof client.attributes.$get>)
+    initialData?:
+      | InferResponseType<typeof client.attributes.$get>
+      | (() => InferResponseType<typeof client.attributes.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetAttributesQueryKey(),
-    queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.attributes.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -744,13 +845,25 @@ export function useGetCertificates(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.certificates.$get>
+      | (() => InferResponseType<typeof client.certificates.$get>)
+    initialData?:
+      | InferResponseType<typeof client.certificates.$get>
+      | (() => InferResponseType<typeof client.certificates.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetCertificatesQueryKey(),
-    queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.certificates.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -899,6 +1012,12 @@ export function useGetSessions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.sessions.$get>
+        | (() => InferResponseType<typeof client.sessions.$get>)
+      initialData?:
+        | InferResponseType<typeof client.sessions.$get>
+        | (() => InferResponseType<typeof client.sessions.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -906,7 +1025,13 @@ export function useGetSessions(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSessionsQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.sessions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -987,6 +1112,12 @@ export function useGetAuditLogs(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['audit-logs']['$get']>
+        | (() => InferResponseType<(typeof client)['audit-logs']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['audit-logs']['$get']>
+        | (() => InferResponseType<(typeof client)['audit-logs']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -994,7 +1125,13 @@ export function useGetAuditLogs(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetAuditLogsQueryKey(args),
-    queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['audit-logs'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

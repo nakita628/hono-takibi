@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -89,6 +89,12 @@ export function createGetPetFindByStatus(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.pet.findByStatus.$get>
+        | (() => InferResponseType<typeof client.pet.findByStatus.$get>)
+      initialData?:
+        | InferResponseType<typeof client.pet.findByStatus.$get>
+        | (() => InferResponseType<typeof client.pet.findByStatus.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -96,7 +102,13 @@ export function createGetPetFindByStatus(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetPetFindByStatusQueryKey(args),
-    queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.pet.findByStatus.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -145,6 +157,12 @@ export function createGetPetFindByTags(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.pet.findByTags.$get>
+        | (() => InferResponseType<typeof client.pet.findByTags.$get>)
+      initialData?:
+        | InferResponseType<typeof client.pet.findByTags.$get>
+        | (() => InferResponseType<typeof client.pet.findByTags.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -152,7 +170,13 @@ export function createGetPetFindByTags(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetPetFindByTagsQueryKey(args),
-    queryFn: async () => parseResponse(client.pet.findByTags.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.pet.findByTags.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -201,6 +225,12 @@ export function createGetPetPetId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.pet)[':petId']['$get']>
+        | (() => InferResponseType<(typeof client.pet)[':petId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.pet)[':petId']['$get']>
+        | (() => InferResponseType<(typeof client.pet)[':petId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -208,7 +238,13 @@ export function createGetPetPetId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetPetPetIdQueryKey(args),
-    queryFn: async () => parseResponse(client.pet[':petId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.pet[':petId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -362,13 +398,25 @@ export function createGetStoreInventory(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.store.inventory.$get>
+      | (() => InferResponseType<typeof client.store.inventory.$get>)
+    initialData?:
+      | InferResponseType<typeof client.store.inventory.$get>
+      | (() => InferResponseType<typeof client.store.inventory.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetStoreInventoryQueryKey(),
-    queryFn: async () => parseResponse(client.store.inventory.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.store.inventory.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -445,6 +493,12 @@ export function createGetStoreOrderOrderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.store.order)[':orderId']['$get']>
+        | (() => InferResponseType<(typeof client.store.order)[':orderId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.store.order)[':orderId']['$get']>
+        | (() => InferResponseType<(typeof client.store.order)[':orderId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -452,7 +506,13 @@ export function createGetStoreOrderOrderId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetStoreOrderOrderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.store.order[':orderId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.store.order[':orderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -607,6 +667,12 @@ export function createGetUserLogin(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.user.login.$get>
+        | (() => InferResponseType<typeof client.user.login.$get>)
+      initialData?:
+        | InferResponseType<typeof client.user.login.$get>
+        | (() => InferResponseType<typeof client.user.login.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -614,7 +680,13 @@ export function createGetUserLogin(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUserLoginQueryKey(args),
-    queryFn: async () => parseResponse(client.user.login.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.user.login.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -657,13 +729,25 @@ export function createGetUserLogout(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.user.logout.$get>
+      | (() => InferResponseType<typeof client.user.logout.$get>)
+    initialData?:
+      | InferResponseType<typeof client.user.logout.$get>
+      | (() => InferResponseType<typeof client.user.logout.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUserLogoutQueryKey(),
-    queryFn: async () => parseResponse(client.user.logout.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.user.logout.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -705,6 +789,12 @@ export function createGetUserUsername(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.user)[':username']['$get']>
+        | (() => InferResponseType<(typeof client.user)[':username']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.user)[':username']['$get']>
+        | (() => InferResponseType<(typeof client.user)[':username']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -712,7 +802,13 @@ export function createGetUserUsername(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUserUsernameQueryKey(args),
-    queryFn: async () => parseResponse(client.user[':username'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.user[':username'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

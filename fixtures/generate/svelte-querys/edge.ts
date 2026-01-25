@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -52,6 +52,12 @@ export function createGetSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.search.$get>
+        | (() => InferResponseType<typeof client.search.$get>)
+      initialData?:
+        | InferResponseType<typeof client.search.$get>
+        | (() => InferResponseType<typeof client.search.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -59,7 +65,13 @@ export function createGetSearch(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetSearchQueryKey(args),
-    queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.search.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

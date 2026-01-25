@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -19,6 +19,12 @@ export function createGetItems(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.items.$get>
+        | (() => InferResponseType<typeof client.items.$get>)
+      initialData?:
+        | InferResponseType<typeof client.items.$get>
+        | (() => InferResponseType<typeof client.items.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -26,7 +32,13 @@ export function createGetItems(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetItemsQueryKey(args),
-    queryFn: async () => parseResponse(client.items.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.items.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -69,6 +81,12 @@ export function createGetItemsItemId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.items)[':itemId']['$get']>
+        | (() => InferResponseType<(typeof client.items)[':itemId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.items)[':itemId']['$get']>
+        | (() => InferResponseType<(typeof client.items)[':itemId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -76,7 +94,13 @@ export function createGetItemsItemId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetItemsItemIdQueryKey(args),
-    queryFn: async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.items[':itemId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

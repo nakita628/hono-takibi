@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -169,13 +169,25 @@ export function useGetWebauthnCredentials(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.webauthn.credentials.$get>
+      | (() => InferResponseType<typeof client.webauthn.credentials.$get>)
+    initialData?:
+      | InferResponseType<typeof client.webauthn.credentials.$get>
+      | (() => InferResponseType<typeof client.webauthn.credentials.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetWebauthnCredentialsQueryKey(),
-    queryFn: async () => parseResponse(client.webauthn.credentials.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.webauthn.credentials.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -217,6 +229,12 @@ export function useGetWebauthnCredentialsCredentialId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>
+        | (() => InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>
+        | (() => InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -224,8 +242,13 @@ export function useGetWebauthnCredentialsCredentialId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetWebauthnCredentialsCredentialIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.webauthn.credentials[':credentialId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.webauthn.credentials[':credentialId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -357,13 +380,25 @@ export function useGetWebauthnSettings(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.webauthn.settings.$get>
+      | (() => InferResponseType<typeof client.webauthn.settings.$get>)
+    initialData?:
+      | InferResponseType<typeof client.webauthn.settings.$get>
+      | (() => InferResponseType<typeof client.webauthn.settings.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetWebauthnSettingsQueryKey(),
-    queryFn: async () => parseResponse(client.webauthn.settings.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.webauthn.settings.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -403,13 +438,25 @@ export function useGetWebauthnSettingsRp(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.webauthn.settings.rp.$get>
+      | (() => InferResponseType<typeof client.webauthn.settings.rp.$get>)
+    initialData?:
+      | InferResponseType<typeof client.webauthn.settings.rp.$get>
+      | (() => InferResponseType<typeof client.webauthn.settings.rp.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetWebauthnSettingsRpQueryKey(),
-    queryFn: async () => parseResponse(client.webauthn.settings.rp.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.webauthn.settings.rp.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -485,14 +532,25 @@ export function useGetWebauthnAuthenticators(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.webauthn.authenticators.$get>
+      | (() => InferResponseType<typeof client.webauthn.authenticators.$get>)
+    initialData?:
+      | InferResponseType<typeof client.webauthn.authenticators.$get>
+      | (() => InferResponseType<typeof client.webauthn.authenticators.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetWebauthnAuthenticatorsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.webauthn.authenticators.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.webauthn.authenticators.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

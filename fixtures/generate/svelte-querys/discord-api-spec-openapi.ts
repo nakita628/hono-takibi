@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi'
 
@@ -17,13 +17,25 @@ export function createGetApplicationsMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.applications)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.applications)['@me']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.applications)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.applications)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsMeQueryKey(),
-    queryFn: async () => parseResponse(client.applications['@me'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.applications['@me'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -95,6 +107,12 @@ export function createGetApplicationsApplicationId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['$get']>
+        | (() => InferResponseType<(typeof client.applications)[':application_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['$get']>
+        | (() => InferResponseType<(typeof client.applications)[':application_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -102,8 +120,13 @@ export function createGetApplicationsApplicationId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.applications[':application_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.applications[':application_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -188,6 +211,20 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -195,12 +232,12 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.applications[':application_id']['activity-instances'][':instance_id'].$get(
-          args,
-          clientOptions,
-        ),
+        client.applications[':application_id']['activity-instances'][':instance_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -306,6 +343,16 @@ export function createGetApplicationsApplicationIdCommands(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['commands']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['commands']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -313,8 +360,13 @@ export function createGetApplicationsApplicationIdCommands(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdCommandsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.applications[':application_id'].commands.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.applications[':application_id'].commands.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -452,6 +504,20 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -459,9 +525,12 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdCommandsCommandIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.applications[':application_id'].commands[':command_id'].$get(args, clientOptions),
+        client.applications[':application_id'].commands[':command_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -624,6 +693,16 @@ export function createGetApplicationsApplicationIdEmojis(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['emojis']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['emojis']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -631,8 +710,13 @@ export function createGetApplicationsApplicationIdEmojis(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdEmojisQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.applications[':application_id'].emojis.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.applications[':application_id'].emojis.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -725,6 +809,20 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -732,9 +830,12 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.applications[':application_id'].emojis[':emoji_id'].$get(args, clientOptions),
+        client.applications[':application_id'].emojis[':emoji_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -897,6 +998,16 @@ export function createGetApplicationsApplicationIdEntitlements(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -904,8 +1015,13 @@ export function createGetApplicationsApplicationIdEntitlements(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdEntitlementsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.applications[':application_id'].entitlements.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.applications[':application_id'].entitlements.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1005,6 +1121,20 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -1012,12 +1142,12 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.applications[':application_id'].entitlements[':entitlement_id'].$get(
-          args,
-          clientOptions,
-        ),
+        client.applications[':application_id'].entitlements[':entitlement_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -1193,6 +1323,20 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -1200,12 +1344,12 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands.$get(
-          args,
-          clientOptions,
-        ),
+        client.applications[':application_id'].guilds[':guild_id'].commands.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -1377,6 +1521,20 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -1384,12 +1542,12 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$get(
-          args,
-          clientOptions,
-        ),
+        client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -1447,6 +1605,20 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -1454,11 +1626,11 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
         ),
       ),
     ...queryOptions,
@@ -1633,6 +1805,20 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -1641,11 +1827,14 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
   return createQuery({
     queryKey:
       getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
         client.applications[':application_id'].guilds[':guild_id'].commands[
           ':command_id'
-        ].permissions.$get(args, clientOptions),
+        ].permissions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -1762,6 +1951,20 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -1769,12 +1972,12 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.applications[':application_id']['role-connections'].metadata.$get(
-          args,
-          clientOptions,
-        ),
+        client.applications[':application_id']['role-connections'].metadata.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -1887,6 +2090,12 @@ export function createGetChannelsChannelId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -1894,7 +2103,13 @@ export function createGetChannelsChannelId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdQueryKey(args),
-    queryFn: async () => parseResponse(client.channels[':channel_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -2045,6 +2260,12 @@ export function createGetChannelsChannelIdInvites(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -2052,8 +2273,13 @@ export function createGetChannelsChannelIdInvites(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdInvitesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.channels[':channel_id'].invites.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id'].invites.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -2138,6 +2364,12 @@ export function createGetChannelsChannelIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -2145,8 +2377,13 @@ export function createGetChannelsChannelIdMessages(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdMessagesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.channels[':channel_id'].messages.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id'].messages.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -2285,6 +2522,16 @@ export function createGetChannelsChannelIdMessagesPins(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['messages']['pins']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -2292,8 +2539,13 @@ export function createGetChannelsChannelIdMessagesPins(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdMessagesPinsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.channels[':channel_id'].messages.pins.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id'].messages.pins.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -2453,6 +2705,20 @@ export function createGetChannelsChannelIdMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -2460,9 +2726,12 @@ export function createGetChannelsChannelIdMessagesMessageId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdMessagesMessageIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].$get(args, clientOptions),
+        client.channels[':channel_id'].messages[':message_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -2740,6 +3009,20 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -2747,12 +3030,12 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$get(
-          args,
-          clientOptions,
-        ),
+        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -3208,6 +3491,12 @@ export function createGetChannelsChannelIdPins(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -3215,8 +3504,13 @@ export function createGetChannelsChannelIdPins(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdPinsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.channels[':channel_id'].pins.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id'].pins.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -3370,6 +3664,20 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -3377,12 +3685,12 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$get(
-          args,
-          clientOptions,
-        ),
+        client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -3660,6 +3968,16 @@ export function createGetChannelsChannelIdThreadMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -3667,8 +3985,13 @@ export function createGetChannelsChannelIdThreadMembers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdThreadMembersQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.channels[':channel_id']['thread-members'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id']['thread-members'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -3828,6 +4151,20 @@ export function createGetChannelsChannelIdThreadMembersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -3835,9 +4172,12 @@ export function createGetChannelsChannelIdThreadMembersUserId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdThreadMembersUserIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.channels[':channel_id']['thread-members'][':user_id'].$get(args, clientOptions),
+        client.channels[':channel_id']['thread-members'][':user_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -4041,6 +4381,20 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -4048,9 +4402,12 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.channels[':channel_id'].threads.archived.private.$get(args, clientOptions),
+        client.channels[':channel_id'].threads.archived.private.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -4105,6 +4462,20 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -4112,9 +4483,12 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdThreadsArchivedPublicQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.channels[':channel_id'].threads.archived.public.$get(args, clientOptions),
+        client.channels[':channel_id'].threads.archived.public.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -4167,6 +4541,16 @@ export function createGetChannelsChannelIdThreadsSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['search']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['threads']['search']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -4174,8 +4558,13 @@ export function createGetChannelsChannelIdThreadsSearch(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdThreadsSearchQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.channels[':channel_id'].threads.search.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id'].threads.search.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4262,6 +4651,20 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -4269,12 +4672,12 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.channels[':channel_id'].users['@me'].threads.archived.private.$get(
-          args,
-          clientOptions,
-        ),
+        client.channels[':channel_id'].users['@me'].threads.archived.private.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -4330,6 +4733,12 @@ export function createGetChannelsChannelIdWebhooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>
+        | (() => InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -4337,8 +4746,13 @@ export function createGetChannelsChannelIdWebhooks(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetChannelsChannelIdWebhooksQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.channels[':channel_id'].webhooks.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.channels[':channel_id'].webhooks.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4419,13 +4833,25 @@ export function createGetGateway(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.gateway.$get>
+      | (() => InferResponseType<typeof client.gateway.$get>)
+    initialData?:
+      | InferResponseType<typeof client.gateway.$get>
+      | (() => InferResponseType<typeof client.gateway.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGatewayQueryKey(),
-    queryFn: async () => parseResponse(client.gateway.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.gateway.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4463,13 +4889,25 @@ export function createGetGatewayBot(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.gateway.bot.$get>
+      | (() => InferResponseType<typeof client.gateway.bot.$get>)
+    initialData?:
+      | InferResponseType<typeof client.gateway.bot.$get>
+      | (() => InferResponseType<typeof client.gateway.bot.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGatewayBotQueryKey(),
-    queryFn: async () => parseResponse(client.gateway.bot.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.gateway.bot.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4509,6 +4947,12 @@ export function createGetGuildsTemplatesCode(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds.templates)[':code']['$get']>
+        | (() => InferResponseType<(typeof client.guilds.templates)[':code']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds.templates)[':code']['$get']>
+        | (() => InferResponseType<(typeof client.guilds.templates)[':code']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -4516,7 +4960,13 @@ export function createGetGuildsTemplatesCode(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsTemplatesCodeQueryKey(args),
-    queryFn: async () => parseResponse(client.guilds.templates[':code'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds.templates[':code'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4561,6 +5011,12 @@ export function createGetGuildsGuildId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -4568,7 +5024,13 @@ export function createGetGuildsGuildId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdQueryKey(args),
-    queryFn: async () => parseResponse(client.guilds[':guild_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4645,6 +5107,12 @@ export function createGetGuildsGuildIdAuditLogs(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -4652,8 +5120,13 @@ export function createGetGuildsGuildIdAuditLogs(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdAuditLogsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['audit-logs'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4699,6 +5172,16 @@ export function createGetGuildsGuildIdAutoModerationRules(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -4706,8 +5189,13 @@ export function createGetGuildsGuildIdAutoModerationRules(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdAutoModerationRulesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['auto-moderation'].rules.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -4807,6 +5295,20 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -4814,9 +5316,12 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, clientOptions),
+        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -4982,6 +5487,12 @@ export function createGetGuildsGuildIdBans(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -4989,7 +5500,13 @@ export function createGetGuildsGuildIdBans(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdBansQueryKey(args),
-    queryFn: async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].bans.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5034,6 +5551,12 @@ export function createGetGuildsGuildIdBansUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -5041,8 +5564,13 @@ export function createGetGuildsGuildIdBansUserId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdBansUserIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].bans[':user_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5209,6 +5737,12 @@ export function createGetGuildsGuildIdChannels(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -5216,8 +5750,13 @@ export function createGetGuildsGuildIdChannels(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdChannelsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].channels.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].channels.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5337,6 +5876,12 @@ export function createGetGuildsGuildIdEmojis(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -5344,7 +5889,13 @@ export function createGetGuildsGuildIdEmojis(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdEmojisQueryKey(args),
-    queryFn: async () => parseResponse(client.guilds[':guild_id'].emojis.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].emojis.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5424,6 +5975,16 @@ export function createGetGuildsGuildIdEmojisEmojiId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -5431,8 +5992,13 @@ export function createGetGuildsGuildIdEmojisEmojiId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdEmojisEmojiIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5570,6 +6136,12 @@ export function createGetGuildsGuildIdIntegrations(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -5577,8 +6149,13 @@ export function createGetGuildsGuildIdIntegrations(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdIntegrationsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].integrations.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].integrations.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5680,6 +6257,12 @@ export function createGetGuildsGuildIdInvites(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -5687,8 +6270,13 @@ export function createGetGuildsGuildIdInvites(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdInvitesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].invites.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].invites.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5734,6 +6322,12 @@ export function createGetGuildsGuildIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -5741,8 +6335,13 @@ export function createGetGuildsGuildIdMembers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdMembersQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].members.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].members.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5825,6 +6424,16 @@ export function createGetGuildsGuildIdMembersSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['members']['search']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['members']['search']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -5832,8 +6441,13 @@ export function createGetGuildsGuildIdMembersSearch(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdMembersSearchQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].members.search.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].members.search.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -5879,6 +6493,16 @@ export function createGetGuildsGuildIdMembersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['members'][':user_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -5886,8 +6510,13 @@ export function createGetGuildsGuildIdMembersUserId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdMembersUserIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].members[':user_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6189,6 +6818,16 @@ export function createGetGuildsGuildIdNewMemberWelcome(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['new-member-welcome']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['new-member-welcome']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -6196,8 +6835,13 @@ export function createGetGuildsGuildIdNewMemberWelcome(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdNewMemberWelcomeQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['new-member-welcome'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6243,6 +6887,12 @@ export function createGetGuildsGuildIdOnboarding(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -6250,8 +6900,13 @@ export function createGetGuildsGuildIdOnboarding(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdOnboardingQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].onboarding.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].onboarding.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6334,6 +6989,12 @@ export function createGetGuildsGuildIdPreview(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -6341,8 +7002,13 @@ export function createGetGuildsGuildIdPreview(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdPreviewQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].preview.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].preview.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6388,6 +7054,12 @@ export function createGetGuildsGuildIdPrune(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -6395,7 +7067,13 @@ export function createGetGuildsGuildIdPrune(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdPruneQueryKey(args),
-    queryFn: async () => parseResponse(client.guilds[':guild_id'].prune.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].prune.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6475,6 +7153,12 @@ export function createGetGuildsGuildIdRegions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -6482,8 +7166,13 @@ export function createGetGuildsGuildIdRegions(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdRegionsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].regions.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].regions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6529,6 +7218,12 @@ export function createGetGuildsGuildIdRoles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -6536,7 +7231,13 @@ export function createGetGuildsGuildIdRoles(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdRolesQueryKey(args),
-    queryFn: async () => parseResponse(client.guilds[':guild_id'].roles.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].roles.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6651,6 +7352,16 @@ export function createGetGuildsGuildIdRolesRoleId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -6658,8 +7369,13 @@ export function createGetGuildsGuildIdRolesRoleId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdRolesRoleIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].roles[':role_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6797,6 +7513,12 @@ export function createGetGuildsGuildIdScheduledEvents(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -6804,8 +7526,13 @@ export function createGetGuildsGuildIdScheduledEvents(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdScheduledEventsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['scheduled-events'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -6890,6 +7617,20 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -6897,12 +7638,12 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$get(
-          args,
-          clientOptions,
-        ),
+        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -7076,6 +7817,20 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -7083,11 +7838,11 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
         client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
         ),
       ),
     ...queryOptions,
@@ -7144,6 +7899,16 @@ export function createGetGuildsGuildIdSoundboardSounds(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -7151,8 +7916,13 @@ export function createGetGuildsGuildIdSoundboardSounds(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdSoundboardSoundsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['soundboard-sounds'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -7245,6 +8015,20 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -7252,9 +8036,12 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, clientOptions),
+        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -7417,6 +8204,12 @@ export function createGetGuildsGuildIdStickers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -7424,8 +8217,13 @@ export function createGetGuildsGuildIdStickers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdStickersQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].stickers.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].stickers.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -7506,6 +8304,16 @@ export function createGetGuildsGuildIdStickersStickerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -7513,8 +8321,13 @@ export function createGetGuildsGuildIdStickersStickerId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdStickersStickerIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -7668,6 +8481,12 @@ export function createGetGuildsGuildIdTemplates(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -7675,8 +8494,13 @@ export function createGetGuildsGuildIdTemplates(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdTemplatesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].templates.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].templates.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -7894,6 +8718,16 @@ export function createGetGuildsGuildIdThreadsActive(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['threads']['active']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['threads']['active']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -7901,8 +8735,13 @@ export function createGetGuildsGuildIdThreadsActive(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdThreadsActiveQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].threads.active.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].threads.active.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -7948,6 +8787,12 @@ export function createGetGuildsGuildIdVanityUrl(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -7955,8 +8800,13 @@ export function createGetGuildsGuildIdVanityUrl(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdVanityUrlQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['vanity-url'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8002,6 +8852,16 @@ export function createGetGuildsGuildIdVoiceStatesMe(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -8009,8 +8869,13 @@ export function createGetGuildsGuildIdVoiceStatesMe(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdVoiceStatesMeQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['voice-states']['@me'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8104,6 +8969,16 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>
+        | (() => InferResponseType<
+            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -8111,9 +8986,12 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdVoiceStatesUserIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, clientOptions),
+        client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -8218,6 +9096,12 @@ export function createGetGuildsGuildIdWebhooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -8225,8 +9109,13 @@ export function createGetGuildsGuildIdWebhooks(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdWebhooksQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id'].webhooks.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].webhooks.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8272,6 +9161,12 @@ export function createGetGuildsGuildIdWelcomeScreen(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -8279,8 +9174,13 @@ export function createGetGuildsGuildIdWelcomeScreen(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdWelcomeScreenQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['welcome-screen'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8363,6 +9263,12 @@ export function createGetGuildsGuildIdWidget(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -8370,7 +9276,13 @@ export function createGetGuildsGuildIdWidget(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdWidgetQueryKey(args),
-    queryFn: async () => parseResponse(client.guilds[':guild_id'].widget.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id'].widget.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8450,6 +9362,12 @@ export function createGetGuildsGuildIdWidgetJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -8457,8 +9375,13 @@ export function createGetGuildsGuildIdWidgetJson(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdWidgetJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['widget.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8504,6 +9427,12 @@ export function createGetGuildsGuildIdWidgetPng(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>
+        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -8511,8 +9440,13 @@ export function createGetGuildsGuildIdWidgetPng(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetGuildsGuildIdWidgetPngQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.guilds[':guild_id']['widget.png'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8617,6 +9551,12 @@ export function createGetInvitesCode(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.invites)[':code']['$get']>
+        | (() => InferResponseType<(typeof client.invites)[':code']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.invites)[':code']['$get']>
+        | (() => InferResponseType<(typeof client.invites)[':code']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -8624,7 +9564,13 @@ export function createGetInvitesCode(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetInvitesCodeQueryKey(args),
-    queryFn: async () => parseResponse(client.invites[':code'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.invites[':code'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -8759,6 +9705,12 @@ export function createGetLobbiesLobbyId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>
+        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>
+        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -8766,7 +9718,13 @@ export function createGetLobbiesLobbyId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetLobbiesLobbyIdQueryKey(args),
-    queryFn: async () => parseResponse(client.lobbies[':lobby_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.lobbies[':lobby_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9173,6 +10131,12 @@ export function createGetLobbiesLobbyIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>
+        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>
+        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -9180,8 +10144,13 @@ export function createGetLobbiesLobbyIdMessages(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetLobbiesLobbyIdMessagesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.lobbies[':lobby_id'].messages.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.lobbies[':lobby_id'].messages.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9262,13 +10231,25 @@ export function createGetOauth2Me(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.oauth2)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.oauth2)['@me']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.oauth2)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.oauth2)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetOauth2MeQueryKey(),
-    queryFn: async () => parseResponse(client.oauth2['@me'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth2['@me'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9306,14 +10287,25 @@ export function createGetOauth2ApplicationsMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetOauth2ApplicationsMeQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.oauth2.applications['@me'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth2.applications['@me'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9352,13 +10344,25 @@ export function createGetOauth2Keys(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.oauth2.keys.$get>
+      | (() => InferResponseType<typeof client.oauth2.keys.$get>)
+    initialData?:
+      | InferResponseType<typeof client.oauth2.keys.$get>
+      | (() => InferResponseType<typeof client.oauth2.keys.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetOauth2KeysQueryKey(),
-    queryFn: async () => parseResponse(client.oauth2.keys.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth2.keys.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9396,13 +10400,25 @@ export function createGetOauth2Userinfo(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.oauth2.userinfo.$get>
+      | (() => InferResponseType<typeof client.oauth2.userinfo.$get>)
+    initialData?:
+      | InferResponseType<typeof client.oauth2.userinfo.$get>
+      | (() => InferResponseType<typeof client.oauth2.userinfo.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetOauth2UserinfoQueryKey(),
-    queryFn: async () => parseResponse(client.oauth2.userinfo.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.oauth2.userinfo.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9621,14 +10637,25 @@ export function createGetSoundboardDefaultSounds(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>
+      | (() => InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>
+      | (() => InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetSoundboardDefaultSoundsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['soundboard-default-sounds'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['soundboard-default-sounds'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9701,6 +10728,12 @@ export function createGetStageInstancesChannelId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>
+        | (() => InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>
+        | (() => InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -9708,8 +10741,13 @@ export function createGetStageInstancesChannelId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetStageInstancesChannelIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['stage-instances'][':channel_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['stage-instances'][':channel_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9829,13 +10867,25 @@ export function createGetStickerPacks(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client)['sticker-packs']['$get']>
+      | (() => InferResponseType<(typeof client)['sticker-packs']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client)['sticker-packs']['$get']>
+      | (() => InferResponseType<(typeof client)['sticker-packs']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetStickerPacksQueryKey(),
-    queryFn: async () => parseResponse(client['sticker-packs'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['sticker-packs'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9875,6 +10925,12 @@ export function createGetStickerPacksPackId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>
+        | (() => InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>
+        | (() => InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -9882,8 +10938,13 @@ export function createGetStickerPacksPackId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetStickerPacksPackIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['sticker-packs'][':pack_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['sticker-packs'][':pack_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9929,6 +10990,12 @@ export function createGetStickersStickerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>
+        | (() => InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>
+        | (() => InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -9936,7 +11003,13 @@ export function createGetStickersStickerId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetStickersStickerIdQueryKey(args),
-    queryFn: async () => parseResponse(client.stickers[':sticker_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.stickers[':sticker_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -9979,13 +11052,25 @@ export function createGetUsersMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.users)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.users)['@me']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.users)['@me']['$get']>
+      | (() => InferResponseType<(typeof client.users)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersMeQueryKey(),
-    queryFn: async () => parseResponse(client.users['@me'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users['@me'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -10059,6 +11144,20 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -10066,9 +11165,12 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.users['@me'].applications[':application_id'].entitlements.$get(args, clientOptions),
+        client.users['@me'].applications[':application_id'].entitlements.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -10123,6 +11225,20 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -10130,12 +11246,12 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.users['@me'].applications[':application_id']['role-connection'].$get(
-          args,
-          clientOptions,
-        ),
+        client.users['@me'].applications[':application_id']['role-connection'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -10339,14 +11455,25 @@ export function createGetUsersMeConnections(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.users)['@me']['connections']['$get']>
+      | (() => InferResponseType<(typeof client.users)['@me']['connections']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.users)['@me']['connections']['$get']>
+      | (() => InferResponseType<(typeof client.users)['@me']['connections']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersMeConnectionsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.users['@me'].connections.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users['@me'].connections.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -10387,6 +11514,12 @@ export function createGetUsersMeGuilds(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.users)['@me']['guilds']['$get']>
+        | (() => InferResponseType<(typeof client.users)['@me']['guilds']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.users)['@me']['guilds']['$get']>
+        | (() => InferResponseType<(typeof client.users)['@me']['guilds']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -10394,7 +11527,13 @@ export function createGetUsersMeGuilds(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersMeGuildsQueryKey(args),
-    queryFn: async () => parseResponse(client.users['@me'].guilds.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users['@me'].guilds.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -10478,6 +11617,16 @@ export function createGetUsersMeGuildsGuildIdMember(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
+        | (() => InferResponseType<
+            (typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
+        | (() => InferResponseType<
+            (typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -10485,8 +11634,13 @@ export function createGetUsersMeGuildsGuildIdMember(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersMeGuildsGuildIdMemberQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users['@me'].guilds[':guild_id'].member.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -10532,6 +11686,12 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.users)[':user_id']['$get']>
+        | (() => InferResponseType<(typeof client.users)[':user_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.users)[':user_id']['$get']>
+        | (() => InferResponseType<(typeof client.users)[':user_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -10539,7 +11699,13 @@ export function createGetUsersUserId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users[':user_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -10582,13 +11748,25 @@ export function createGetVoiceRegions(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.voice.regions.$get>
+      | (() => InferResponseType<typeof client.voice.regions.$get>)
+    initialData?:
+      | InferResponseType<typeof client.voice.regions.$get>
+      | (() => InferResponseType<typeof client.voice.regions.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetVoiceRegionsQueryKey(),
-    queryFn: async () => parseResponse(client.voice.regions.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.voice.regions.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -10628,6 +11806,12 @@ export function createGetWebhooksWebhookId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>
+        | (() => InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>
+        | (() => InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -10635,7 +11819,13 @@ export function createGetWebhooksWebhookId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetWebhooksWebhookIdQueryKey(args),
-    queryFn: async () => parseResponse(client.webhooks[':webhook_id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.webhooks[':webhook_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -10749,6 +11939,16 @@ export function createGetWebhooksWebhookIdWebhookToken(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
+        | (() => InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
+        | (() => InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -10756,8 +11956,13 @@ export function createGetWebhooksWebhookIdWebhookToken(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetWebhooksWebhookIdWebhookTokenQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.webhooks[':webhook_id'][':webhook_token'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -11002,6 +12207,20 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -11009,12 +12228,12 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$get(
-          args,
-          clientOptions,
-        ),
+        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })
@@ -11188,6 +12407,20 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+          >)
+      initialData?:
+        | InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+          >
+        | (() => InferResponseType<
+            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -11195,12 +12428,12 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: async ({ signal }) =>
       parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$get(
-          args,
-          clientOptions,
-        ),
+        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
       ),
     ...queryOptions,
   })

@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -21,6 +21,12 @@ export function useGetFiles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.files.$get>
+        | (() => InferResponseType<typeof client.files.$get>)
+      initialData?:
+        | InferResponseType<typeof client.files.$get>
+        | (() => InferResponseType<typeof client.files.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -28,7 +34,13 @@ export function useGetFiles(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFilesQueryKey(args),
-    queryFn: async () => parseResponse(client.files.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.files.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -243,6 +255,12 @@ export function useGetFilesFileId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.files)[':fileId']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.files)[':fileId']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -250,7 +268,13 @@ export function useGetFilesFileId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFilesFileIdQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -365,6 +389,12 @@ export function useGetFilesFileIdDownload(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.files)[':fileId']['download']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['download']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.files)[':fileId']['download']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['download']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -372,7 +402,13 @@ export function useGetFilesFileIdDownload(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFilesFileIdDownloadQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].download.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -419,6 +455,12 @@ export function useGetFilesFileIdDownloadUrl(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -426,8 +468,13 @@ export function useGetFilesFileIdDownloadUrl(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.files[':fileId']['download-url'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -547,6 +594,12 @@ export function useGetFilesFileIdThumbnail(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -554,7 +607,13 @@ export function useGetFilesFileIdThumbnail(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFilesFileIdThumbnailQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].thumbnail.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -632,6 +691,12 @@ export function useGetFoldersFolderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.folders)[':folderId']['$get']>
+        | (() => InferResponseType<(typeof client.folders)[':folderId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.folders)[':folderId']['$get']>
+        | (() => InferResponseType<(typeof client.folders)[':folderId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -639,7 +704,13 @@ export function useGetFoldersFolderId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFoldersFolderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.folders[':folderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -756,6 +827,12 @@ export function useGetFilesFileIdShare(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.files)[':fileId']['share']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['share']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.files)[':fileId']['share']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['share']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -763,7 +840,13 @@ export function useGetFilesFileIdShare(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFilesFileIdShareQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].share.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -923,6 +1006,12 @@ export function useGetFilesFileIdVersions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>
+        | (() => InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -930,7 +1019,13 @@ export function useGetFilesFileIdVersions(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetFilesFileIdVersionsQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].versions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1033,6 +1128,12 @@ export function useGetTrash(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.trash.$get>
+        | (() => InferResponseType<typeof client.trash.$get>)
+      initialData?:
+        | InferResponseType<typeof client.trash.$get>
+        | (() => InferResponseType<typeof client.trash.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -1040,7 +1141,13 @@ export function useGetTrash(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetTrashQueryKey(args),
-    queryFn: async () => parseResponse(client.trash.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.trash.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1150,13 +1257,25 @@ export function useGetStorageUsage(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.storage.usage.$get>
+      | (() => InferResponseType<typeof client.storage.usage.$get>)
+    initialData?:
+      | InferResponseType<typeof client.storage.usage.$get>
+      | (() => InferResponseType<typeof client.storage.usage.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetStorageUsageQueryKey(),
-    queryFn: async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.storage.usage.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

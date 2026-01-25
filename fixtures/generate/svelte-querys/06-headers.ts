@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -19,6 +19,12 @@ export function createGetResources(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.resources.$get>
+        | (() => InferResponseType<typeof client.resources.$get>)
+      initialData?:
+        | InferResponseType<typeof client.resources.$get>
+        | (() => InferResponseType<typeof client.resources.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -26,7 +32,13 @@ export function createGetResources(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetResourcesQueryKey(args),
-    queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.resources.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -69,6 +81,12 @@ export function createGetResourcesId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.resources)[':id']['$get']>
+        | (() => InferResponseType<(typeof client.resources)[':id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.resources)[':id']['$get']>
+        | (() => InferResponseType<(typeof client.resources)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -76,7 +94,13 @@ export function createGetResourcesId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetResourcesIdQueryKey(args),
-    queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.resources[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -153,6 +177,12 @@ export function createGetDownloadId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.download)[':id']['$get']>
+        | (() => InferResponseType<(typeof client.download)[':id']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.download)[':id']['$get']>
+        | (() => InferResponseType<(typeof client.download)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -160,7 +190,13 @@ export function createGetDownloadId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetDownloadIdQueryKey(args),
-    queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.download[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

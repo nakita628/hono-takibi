@@ -1,5 +1,5 @@
 import { createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-complex-array'
 
@@ -21,13 +21,25 @@ export function createGetArray(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.array.$get>
+      | (() => InferResponseType<typeof client.array.$get>)
+    initialData?:
+      | InferResponseType<typeof client.array.$get>
+      | (() => InferResponseType<typeof client.array.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetArrayQueryKey(),
-    queryFn: async () => parseResponse(client.array.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.array.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

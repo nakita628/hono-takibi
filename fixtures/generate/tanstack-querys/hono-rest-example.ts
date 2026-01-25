@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -21,13 +21,25 @@ export function useGet(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.index.$get>
+      | (() => InferResponseType<typeof client.index.$get>)
+    initialData?:
+      | InferResponseType<typeof client.index.$get>
+      | (() => InferResponseType<typeof client.index.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetQueryKey(),
-    queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.index.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -71,6 +83,12 @@ export function useGetPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.posts.$get>
+        | (() => InferResponseType<typeof client.posts.$get>)
+      initialData?:
+        | InferResponseType<typeof client.posts.$get>
+        | (() => InferResponseType<typeof client.posts.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -78,7 +96,13 @@ export function useGetPosts(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetPostsQueryKey(args),
-    queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.posts.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

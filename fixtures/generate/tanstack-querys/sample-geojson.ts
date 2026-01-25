@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
@@ -21,13 +21,25 @@ export function useGet(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.index.$get>
+      | (() => InferResponseType<typeof client.index.$get>)
+    initialData?:
+      | InferResponseType<typeof client.index.$get>
+      | (() => InferResponseType<typeof client.index.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetQueryKey(),
-    queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.index.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -71,6 +83,12 @@ export function useGetProjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.projects.$get>
+        | (() => InferResponseType<typeof client.projects.$get>)
+      initialData?:
+        | InferResponseType<typeof client.projects.$get>
+        | (() => InferResponseType<typeof client.projects.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -78,7 +96,13 @@ export function useGetProjects(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetProjectsQueryKey(args),
-    queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.projects.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

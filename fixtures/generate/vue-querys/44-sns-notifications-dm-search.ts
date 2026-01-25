@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
@@ -21,6 +21,12 @@ export function useGetNotifications(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.notifications.$get>
+        | (() => InferResponseType<typeof client.notifications.$get>)
+      initialData?:
+        | InferResponseType<typeof client.notifications.$get>
+        | (() => InferResponseType<typeof client.notifications.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -28,7 +34,13 @@ export function useGetNotifications(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetNotificationsQueryKey(args),
-    queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.notifications.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -73,14 +85,25 @@ export function useGetNotificationsUnreadCount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.notifications)['unread-count']['$get']>
+      | (() => InferResponseType<(typeof client.notifications)['unread-count']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.notifications)['unread-count']['$get']>
+      | (() => InferResponseType<(typeof client.notifications)['unread-count']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetNotificationsUnreadCountQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.notifications['unread-count'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -158,14 +181,25 @@ export function useGetNotificationsSettings(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.notifications.settings.$get>
+      | (() => InferResponseType<typeof client.notifications.settings.$get>)
+    initialData?:
+      | InferResponseType<typeof client.notifications.settings.$get>
+      | (() => InferResponseType<typeof client.notifications.settings.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetNotificationsSettingsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.notifications.settings.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.notifications.settings.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -242,6 +276,12 @@ export function useGetDmConversations(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.dm.conversations.$get>
+        | (() => InferResponseType<typeof client.dm.conversations.$get>)
+      initialData?:
+        | InferResponseType<typeof client.dm.conversations.$get>
+        | (() => InferResponseType<typeof client.dm.conversations.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -249,7 +289,13 @@ export function useGetDmConversations(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetDmConversationsQueryKey(args),
-    queryFn: async () => parseResponse(client.dm.conversations.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.dm.conversations.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -330,6 +376,12 @@ export function useGetDmConversationsConversationId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>
+        | (() => InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>
+        | (() => InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -337,8 +389,13 @@ export function useGetDmConversationsConversationId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetDmConversationsConversationIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.dm.conversations[':conversationId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.dm.conversations[':conversationId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -427,6 +484,16 @@ export function useGetDmConversationsConversationIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>
+        | (() => InferResponseType<
+            (typeof client.dm.conversations)[':conversationId']['messages']['$get']
+          >)
+      initialData?:
+        | InferResponseType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>
+        | (() => InferResponseType<
+            (typeof client.dm.conversations)[':conversationId']['messages']['$get']
+          >)
     }
     client?: ClientRequestOptions
   },
@@ -434,8 +501,13 @@ export function useGetDmConversationsConversationIdMessages(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetDmConversationsConversationIdMessagesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.dm.conversations[':conversationId'].messages.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.dm.conversations[':conversationId'].messages.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -757,13 +829,25 @@ export function useGetDmUnreadCount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.dm)['unread-count']['$get']>
+      | (() => InferResponseType<(typeof client.dm)['unread-count']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.dm)['unread-count']['$get']>
+      | (() => InferResponseType<(typeof client.dm)['unread-count']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetDmUnreadCountQueryKey(),
-    queryFn: async () => parseResponse(client.dm['unread-count'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.dm['unread-count'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -805,6 +889,12 @@ export function useGetSearchPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.search.posts.$get>
+        | (() => InferResponseType<typeof client.search.posts.$get>)
+      initialData?:
+        | InferResponseType<typeof client.search.posts.$get>
+        | (() => InferResponseType<typeof client.search.posts.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -812,7 +902,13 @@ export function useGetSearchPosts(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSearchPostsQueryKey(args),
-    queryFn: async () => parseResponse(client.search.posts.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.search.posts.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -857,6 +953,12 @@ export function useGetSearchUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.search.users.$get>
+        | (() => InferResponseType<typeof client.search.users.$get>)
+      initialData?:
+        | InferResponseType<typeof client.search.users.$get>
+        | (() => InferResponseType<typeof client.search.users.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -864,7 +966,13 @@ export function useGetSearchUsers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSearchUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.search.users.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.search.users.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -909,6 +1017,12 @@ export function useGetSearchHashtags(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.search.hashtags.$get>
+        | (() => InferResponseType<typeof client.search.hashtags.$get>)
+      initialData?:
+        | InferResponseType<typeof client.search.hashtags.$get>
+        | (() => InferResponseType<typeof client.search.hashtags.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -916,7 +1030,13 @@ export function useGetSearchHashtags(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSearchHashtagsQueryKey(args),
-    queryFn: async () => parseResponse(client.search.hashtags.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.search.hashtags.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -961,13 +1081,25 @@ export function useGetSearchRecent(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.search.recent.$get>
+      | (() => InferResponseType<typeof client.search.recent.$get>)
+    initialData?:
+      | InferResponseType<typeof client.search.recent.$get>
+      | (() => InferResponseType<typeof client.search.recent.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSearchRecentQueryKey(),
-    queryFn: async () => parseResponse(client.search.recent.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.search.recent.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1039,6 +1171,12 @@ export function useGetTrends(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.trends.$get>
+        | (() => InferResponseType<typeof client.trends.$get>)
+      initialData?:
+        | InferResponseType<typeof client.trends.$get>
+        | (() => InferResponseType<typeof client.trends.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -1046,7 +1184,13 @@ export function useGetTrends(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetTrendsQueryKey(args),
-    queryFn: async () => parseResponse(client.trends.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.trends.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1089,13 +1233,25 @@ export function useGetTrendsLocations(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.trends.locations.$get>
+      | (() => InferResponseType<typeof client.trends.locations.$get>)
+    initialData?:
+      | InferResponseType<typeof client.trends.locations.$get>
+      | (() => InferResponseType<typeof client.trends.locations.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetTrendsLocationsQueryKey(),
-    queryFn: async () => parseResponse(client.trends.locations.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.trends.locations.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1137,6 +1293,12 @@ export function useGetSuggestionsUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.suggestions.users.$get>
+        | (() => InferResponseType<typeof client.suggestions.users.$get>)
+      initialData?:
+        | InferResponseType<typeof client.suggestions.users.$get>
+        | (() => InferResponseType<typeof client.suggestions.users.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -1144,7 +1306,13 @@ export function useGetSuggestionsUsers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSuggestionsUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.suggestions.users.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.suggestions.users.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1228,13 +1396,25 @@ export function useGetSuggestionsTopics(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.suggestions.topics.$get>
+      | (() => InferResponseType<typeof client.suggestions.topics.$get>)
+    initialData?:
+      | InferResponseType<typeof client.suggestions.topics.$get>
+      | (() => InferResponseType<typeof client.suggestions.topics.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSuggestionsTopicsQueryKey(),
-    queryFn: async () => parseResponse(client.suggestions.topics.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.suggestions.topics.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

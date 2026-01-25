@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -19,6 +19,12 @@ export function createGetEntities(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.entities.$get>
+        | (() => InferResponseType<typeof client.entities.$get>)
+      initialData?:
+        | InferResponseType<typeof client.entities.$get>
+        | (() => InferResponseType<typeof client.entities.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -26,7 +32,13 @@ export function createGetEntities(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetEntitiesQueryKey(args),
-    queryFn: async () => parseResponse(client.entities.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.entities.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -98,6 +110,12 @@ export function createGetEntitiesEntityId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.entities)[':entityId']['$get']>
+        | (() => InferResponseType<(typeof client.entities)[':entityId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.entities)[':entityId']['$get']>
+        | (() => InferResponseType<(typeof client.entities)[':entityId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -105,7 +123,13 @@ export function createGetEntitiesEntityId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetEntitiesEntityIdQueryKey(args),
-    queryFn: async () => parseResponse(client.entities[':entityId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.entities[':entityId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -216,6 +240,12 @@ export function createGetEntitiesEntityIdRelationships(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>
+        | (() => InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>
+        | (() => InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -223,8 +253,13 @@ export function createGetEntitiesEntityIdRelationships(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.entities[':entityId'].relationships.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.entities[':entityId'].relationships.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

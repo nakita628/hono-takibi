@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference-random'
 
@@ -19,13 +19,25 @@ export function useGetTest(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.test.$get>
+      | (() => InferResponseType<typeof client.test.$get>)
+    initialData?:
+      | InferResponseType<typeof client.test.$get>
+      | (() => InferResponseType<typeof client.test.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetTestQueryKey(),
-    queryFn: async () => parseResponse(client.test.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.test.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

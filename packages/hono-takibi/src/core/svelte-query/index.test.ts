@@ -78,7 +78,13 @@ export function createGetHono(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetHonoQueryKey(),
-    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.hono.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -129,7 +135,13 @@ export function createGetUsers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -251,7 +263,13 @@ export function createGetHono(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetHonoQueryKey(),
-    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.hono.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -311,7 +329,13 @@ export function createGetUsers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -447,7 +471,8 @@ export function createGetUsers(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersQueryKey(),
-    queryFn: async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
+      parseResponse(authClient.users.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
     ...queryOptions,
   })
 }
@@ -535,7 +560,8 @@ export function createGetPing(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetPingQueryKey(),
-    queryFn: async () => parseResponse(client.ping.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
+      parseResponse(client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
     ...queryOptions,
   })
 }
@@ -645,7 +671,8 @@ export function createGetHonoX(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetHonoXQueryKey(),
-    queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
+      parseResponse(client['hono-x'].$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
     ...queryOptions,
   })
 }
@@ -737,7 +764,8 @@ export function createGetUsersId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
+    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
+      parseResponse(client.users[':id'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
     ...queryOptions,
   })
 }

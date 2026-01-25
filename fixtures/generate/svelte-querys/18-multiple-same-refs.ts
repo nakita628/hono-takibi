@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -19,6 +19,12 @@ export function createGetDocuments(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.documents.$get>
+        | (() => InferResponseType<typeof client.documents.$get>)
+      initialData?:
+        | InferResponseType<typeof client.documents.$get>
+        | (() => InferResponseType<typeof client.documents.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -26,7 +32,13 @@ export function createGetDocuments(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetDocumentsQueryKey(args),
-    queryFn: async () => parseResponse(client.documents.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.documents.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -98,6 +110,12 @@ export function createGetDocumentsDocumentId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.documents)[':documentId']['$get']>
+        | (() => InferResponseType<(typeof client.documents)[':documentId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.documents)[':documentId']['$get']>
+        | (() => InferResponseType<(typeof client.documents)[':documentId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -105,7 +123,13 @@ export function createGetDocumentsDocumentId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetDocumentsDocumentIdQueryKey(args),
-    queryFn: async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.documents[':documentId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -184,6 +208,12 @@ export function createGetDocumentsDocumentIdVersions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>
+        | (() => InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>
+        | (() => InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -191,8 +221,13 @@ export function createGetDocumentsDocumentIdVersions(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetDocumentsDocumentIdVersionsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.documents[':documentId'].versions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -275,6 +310,12 @@ export function createGetUsersUserIdDocuments(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.users)[':userId']['documents']['$get']>
+        | (() => InferResponseType<(typeof client.users)[':userId']['documents']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.users)[':userId']['documents']['$get']>
+        | (() => InferResponseType<(typeof client.users)[':userId']['documents']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -282,7 +323,13 @@ export function createGetUsersUserIdDocuments(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersUserIdDocumentsQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users[':userId'].documents.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -354,13 +401,25 @@ export function createGetTemplates(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.templates.$get>
+      | (() => InferResponseType<typeof client.templates.$get>)
+    initialData?:
+      | InferResponseType<typeof client.templates.$get>
+      | (() => InferResponseType<typeof client.templates.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetTemplatesQueryKey(),
-    queryFn: async () => parseResponse(client.templates.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.templates.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -19,13 +19,25 @@ export function createGetMfaStatus(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.mfa.status.$get>
+      | (() => InferResponseType<typeof client.mfa.status.$get>)
+    initialData?:
+      | InferResponseType<typeof client.mfa.status.$get>
+      | (() => InferResponseType<typeof client.mfa.status.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetMfaStatusQueryKey(),
-    queryFn: async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.mfa.status.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -65,13 +77,25 @@ export function createGetMfaMethods(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.mfa.methods.$get>
+      | (() => InferResponseType<typeof client.mfa.methods.$get>)
+    initialData?:
+      | InferResponseType<typeof client.mfa.methods.$get>
+      | (() => InferResponseType<typeof client.mfa.methods.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetMfaMethodsQueryKey(),
-    queryFn: async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.mfa.methods.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -490,14 +514,25 @@ export function createGetMfaWebauthnCredentials(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.mfa.webauthn.credentials.$get>
+      | (() => InferResponseType<typeof client.mfa.webauthn.credentials.$get>)
+    initialData?:
+      | InferResponseType<typeof client.mfa.webauthn.credentials.$get>
+      | (() => InferResponseType<typeof client.mfa.webauthn.credentials.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetMfaWebauthnCredentialsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.mfa.webauthn.credentials.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -675,14 +710,25 @@ export function createGetMfaBackupCodesStatus(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>
+      | (() => InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>
+      | (() => InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetMfaBackupCodesStatusQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.mfa['backup-codes'].status.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

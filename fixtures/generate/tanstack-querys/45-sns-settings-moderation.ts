@@ -1,5 +1,5 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -19,13 +19,25 @@ export function useGetSettingsAccount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.settings.account.$get>
+      | (() => InferResponseType<typeof client.settings.account.$get>)
+    initialData?:
+      | InferResponseType<typeof client.settings.account.$get>
+      | (() => InferResponseType<typeof client.settings.account.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsAccountQueryKey(),
-    queryFn: async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings.account.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -101,6 +113,12 @@ export function useGetSettingsUsernameCheck(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.settings.username.check.$get>
+        | (() => InferResponseType<typeof client.settings.username.check.$get>)
+      initialData?:
+        | InferResponseType<typeof client.settings.username.check.$get>
+        | (() => InferResponseType<typeof client.settings.username.check.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -108,7 +126,13 @@ export function useGetSettingsUsernameCheck(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsUsernameCheckQueryKey(args),
-    queryFn: async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings.username.check.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -153,13 +177,25 @@ export function useGetSettingsPrivacy(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.settings.privacy.$get>
+      | (() => InferResponseType<typeof client.settings.privacy.$get>)
+    initialData?:
+      | InferResponseType<typeof client.settings.privacy.$get>
+      | (() => InferResponseType<typeof client.settings.privacy.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsPrivacyQueryKey(),
-    queryFn: async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings.privacy.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -233,14 +269,25 @@ export function useGetSettingsContentPreferences(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.settings)['content-preferences']['$get']>
+      | (() => InferResponseType<(typeof client.settings)['content-preferences']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.settings)['content-preferences']['$get']>
+      | (() => InferResponseType<(typeof client.settings)['content-preferences']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsContentPreferencesQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings['content-preferences'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -318,14 +365,25 @@ export function useGetSettingsMutedWords(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.settings)['muted-words']['$get']>
+      | (() => InferResponseType<(typeof client.settings)['muted-words']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.settings)['muted-words']['$get']>
+      | (() => InferResponseType<(typeof client.settings)['muted-words']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsMutedWordsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings['muted-words'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -443,13 +501,25 @@ export function useGetSettingsSessions(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.settings.sessions.$get>
+      | (() => InferResponseType<typeof client.settings.sessions.$get>)
+    initialData?:
+      | InferResponseType<typeof client.settings.sessions.$get>
+      | (() => InferResponseType<typeof client.settings.sessions.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsSessionsQueryKey(),
-    queryFn: async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings.sessions.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -530,14 +600,25 @@ export function useGetSettingsConnectedApps(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<(typeof client.settings)['connected-apps']['$get']>
+      | (() => InferResponseType<(typeof client.settings)['connected-apps']['$get']>)
+    initialData?:
+      | InferResponseType<(typeof client.settings)['connected-apps']['$get']>
+      | (() => InferResponseType<(typeof client.settings)['connected-apps']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsConnectedAppsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings['connected-apps'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -652,6 +733,12 @@ export function useGetSettingsDataExportRequestId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>
+        | (() => InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>
+        | (() => InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -659,8 +746,13 @@ export function useGetSettingsDataExportRequestId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetSettingsDataExportRequestIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.settings['data-export'][':requestId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -773,6 +865,12 @@ export function useGetReportsReportId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.reports)[':reportId']['$get']>
+        | (() => InferResponseType<(typeof client.reports)[':reportId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.reports)[':reportId']['$get']>
+        | (() => InferResponseType<(typeof client.reports)[':reportId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -780,7 +878,13 @@ export function useGetReportsReportId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetReportsReportIdQueryKey(args),
-    queryFn: async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.reports[':reportId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -829,6 +933,12 @@ export function useGetModerationQueue(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.moderation.queue.$get>
+        | (() => InferResponseType<typeof client.moderation.queue.$get>)
+      initialData?:
+        | InferResponseType<typeof client.moderation.queue.$get>
+        | (() => InferResponseType<typeof client.moderation.queue.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -836,7 +946,13 @@ export function useGetModerationQueue(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetModerationQueueQueryKey(args),
-    queryFn: async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.moderation.queue.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -883,6 +999,12 @@ export function useGetModerationItemsItemId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>
+        | (() => InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>
+        | (() => InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -890,8 +1012,13 @@ export function useGetModerationItemsItemId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetModerationItemsItemIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.moderation.items[':itemId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -978,6 +1105,12 @@ export function useGetModerationUsersUserIdHistory(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>
+        | (() => InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>
+        | (() => InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -985,8 +1118,13 @@ export function useGetModerationUsersUserIdHistory(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetModerationUsersUserIdHistoryQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.moderation.users[':userId'].history.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1120,6 +1258,12 @@ export function useGetAnalyticsPostsPostId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>
+        | (() => InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>
+        | (() => InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -1127,7 +1271,13 @@ export function useGetAnalyticsPostsPostId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetAnalyticsPostsPostIdQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.analytics.posts[':postId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1174,6 +1324,12 @@ export function useGetAnalyticsAccount(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.analytics.account.$get>
+        | (() => InferResponseType<typeof client.analytics.account.$get>)
+      initialData?:
+        | InferResponseType<typeof client.analytics.account.$get>
+        | (() => InferResponseType<typeof client.analytics.account.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -1181,7 +1337,13 @@ export function useGetAnalyticsAccount(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetAnalyticsAccountQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.analytics.account.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1228,6 +1390,12 @@ export function useGetAnalyticsFollowers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.analytics.followers.$get>
+        | (() => InferResponseType<typeof client.analytics.followers.$get>)
+      initialData?:
+        | InferResponseType<typeof client.analytics.followers.$get>
+        | (() => InferResponseType<typeof client.analytics.followers.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -1235,7 +1403,13 @@ export function useGetAnalyticsFollowers(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetAnalyticsFollowersQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.analytics.followers.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -1282,6 +1456,12 @@ export function useGetAnalyticsTopPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<(typeof client.analytics)['top-posts']['$get']>
+        | (() => InferResponseType<(typeof client.analytics)['top-posts']['$get']>)
+      initialData?:
+        | InferResponseType<(typeof client.analytics)['top-posts']['$get']>
+        | (() => InferResponseType<(typeof client.analytics)['top-posts']['$get']>)
     }
     client?: ClientRequestOptions
   },
@@ -1289,7 +1469,13 @@ export function useGetAnalyticsTopPosts(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetAnalyticsTopPostsQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.analytics['top-posts'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

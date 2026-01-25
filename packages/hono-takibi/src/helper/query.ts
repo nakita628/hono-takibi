@@ -236,6 +236,9 @@ const makeQueryOptionsGetterCode = (
   const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
   const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
 
+  // Build client call without signal for getQueryOptions
+  // Signal handling is done in the hook (useQuery/createQuery) where it's guaranteed to be provided
+  // getQueryOptions is used for prefetchQuery/ensureQueryData where signal handling differs
   const clientCall = hasArgs
     ? `${clientPath}.$${method}(args,clientOptions)`
     : `${clientPath}.$${method}(undefined,clientOptions)`
@@ -265,15 +268,18 @@ const makeQueryHookCode = (
   keyGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
+  inferResponseType: string,
   clientPath: string,
   method: string,
   docs: string,
   config: QueryFrameworkConfig,
 ): string => {
-  const clientCall = hasArgs
-    ? `${clientPath}.$${method}(args,clientOptions)`
-    : `${clientPath}.$${method}(undefined,clientOptions)`
-  const fetcherBody = buildFetcher(clientCall)
+  // Build client call with signal using conditional spread to avoid undefined vs null type mismatch
+  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation
+  const clientCallWithSignal = hasArgs
+    ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,...(signal?{signal}:{})}})`
+    : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,...(signal?{signal}:{})}})`
+  const fetcherBody = buildFetcher(clientCallWithSignal)
 
   // Use key getter function
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
@@ -281,13 +287,14 @@ const makeQueryHookCode = (
   // Build hook with inline query options type
   // Note: select is intentionally excluded to ensure proper type inference of data.
   // If users need select, they can use the underlying queryOptions helper.
+  // placeholderData and initialData are typed with the response type for proper inference.
   const inlineQueryOptionsType =
-    '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
+    `{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number;placeholderData?:${inferResponseType}|(()=>${inferResponseType});initialData?:${inferResponseType}|(()=>${inferResponseType})}`
   const optionsType = `{query?:${inlineQueryOptionsType};client?:ClientRequestOptions}`
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
 
   return `${docs}
-export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${config.queryFn}({queryKey:${queryKeyCall},queryFn:async()=>${fetcherBody},...queryOptions})}`
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${config.queryFn}({queryKey:${queryKeyCall},queryFn:async({signal})=>${fetcherBody},...queryOptions})}`
 }
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
@@ -383,6 +390,7 @@ const makeHookCode = (
       keyGetterName,
       hasArgs,
       inferRequestType,
+      baseInferResponseType,
       clientPath,
       method,
       docs,
@@ -460,10 +468,10 @@ const makeHeader = (
 
   // Hono client type imports
   // InferRequestType: needed when operation has args
-  // InferResponseType: needed for mutation option types (onSuccess, onError, etc.)
+  // InferResponseType: needed for mutation option types AND query placeholderData/initialData
   const honoTypeImportParts = [
     ...(needsInferRequestType ? ['InferRequestType'] : []),
-    ...(hasMutation ? ['InferResponseType'] : []),
+    ...(hasQuery || hasMutation ? ['InferResponseType'] : []),
     'ClientRequestOptions',
   ]
 
