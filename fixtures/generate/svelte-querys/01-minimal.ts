@@ -17,9 +17,6 @@ export function createGetHealth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.health.$get>,
-    ) => InferResponseType<typeof client.health.$get>
   }
   client?: ClientRequestOptions
 }) {

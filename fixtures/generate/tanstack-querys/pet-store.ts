@@ -89,9 +89,6 @@ export function useGetPetFindByStatus(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.pet.findByStatus.$get>,
-      ) => InferResponseType<typeof client.pet.findByStatus.$get>
     }
     client?: ClientRequestOptions
   },
@@ -133,9 +130,6 @@ export function useGetPetFindByTags(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.pet.findByTags.$get>,
-      ) => InferResponseType<typeof client.pet.findByTags.$get>
     }
     client?: ClientRequestOptions
   },
@@ -177,9 +171,6 @@ export function useGetPetPetId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.pet)[':petId']['$get']>,
-      ) => InferResponseType<(typeof client.pet)[':petId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -326,9 +317,6 @@ export function useGetStoreInventory(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.store.inventory.$get>,
-    ) => InferResponseType<typeof client.store.inventory.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -400,9 +388,6 @@ export function useGetStoreOrderOrderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.store.order)[':orderId']['$get']>,
-      ) => InferResponseType<(typeof client.store.order)[':orderId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -550,9 +535,6 @@ export function useGetUserLogin(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.user.login.$get>,
-      ) => InferResponseType<typeof client.user.login.$get>
     }
     client?: ClientRequestOptions
   },
@@ -588,9 +570,6 @@ export function useGetUserLogout(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.user.logout.$get>,
-    ) => InferResponseType<typeof client.user.logout.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -627,9 +606,6 @@ export function useGetUserUsername(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.user)[':username']['$get']>,
-      ) => InferResponseType<(typeof client.user)[':username']['$get']>
     }
     client?: ClientRequestOptions
   },

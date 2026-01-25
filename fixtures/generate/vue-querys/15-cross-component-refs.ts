@@ -19,9 +19,6 @@ export function useGetEntities(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.entities.$get>,
-      ) => InferResponseType<typeof client.entities.$get>
     }
     client?: ClientRequestOptions
   },
@@ -86,9 +83,6 @@ export function useGetEntitiesEntityId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.entities)[':entityId']['$get']>,
-      ) => InferResponseType<(typeof client.entities)[':entityId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -192,9 +186,6 @@ export function useGetEntitiesEntityIdRelationships(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>,
-      ) => InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>
     }
     client?: ClientRequestOptions
   },

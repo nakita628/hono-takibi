@@ -21,9 +21,6 @@ export function createGetHono(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.hono.$get>,
-    ) => InferResponseType<typeof client.hono.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -60,9 +57,6 @@ export function createGetHonoX(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['hono-x']['$get']>,
-    ) => InferResponseType<(typeof client)['hono-x']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -99,9 +93,6 @@ export function createGetZodOpenapiHono(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['zod-openapi-hono']['$get']>,
-    ) => InferResponseType<(typeof client)['zod-openapi-hono']['$get']>
   }
   client?: ClientRequestOptions
 }) {

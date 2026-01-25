@@ -21,9 +21,6 @@ export function createGetProjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.projects.$get>,
-      ) => InferResponseType<typeof client.projects.$get>
     }
     client?: ClientRequestOptions
   },
@@ -92,9 +89,6 @@ export function createGetProjectsProjectId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.projects)[':projectId']['$get']>,
-      ) => InferResponseType<(typeof client.projects)[':projectId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -204,9 +198,6 @@ export function createGetProjectsProjectIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>,
-      ) => InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -286,9 +277,6 @@ export function createGetProjectsProjectIdTasks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>,
-      ) => InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -366,9 +354,6 @@ export function createGetTasksTaskId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.tasks)[':taskId']['$get']>,
-      ) => InferResponseType<(typeof client.tasks)[':taskId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -513,9 +498,6 @@ export function createGetTasksTaskIdComments(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>,
-      ) => InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -592,9 +574,6 @@ export function createGetTasksTaskIdTimeEntries(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
-      ) => InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -674,9 +653,6 @@ export function createGetProjectsProjectIdMilestones(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>,
-      ) => InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -754,9 +730,6 @@ export function createGetTeams(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.teams.$get>,
-    ) => InferResponseType<typeof client.teams.$get>
   }
   client?: ClientRequestOptions
 }) {

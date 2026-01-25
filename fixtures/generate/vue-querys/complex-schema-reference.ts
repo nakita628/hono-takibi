@@ -19,9 +19,6 @@ export function useGetTest(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.test.$get>,
-    ) => InferResponseType<typeof client.test.$get>
   }
   client?: ClientRequestOptions
 }) {

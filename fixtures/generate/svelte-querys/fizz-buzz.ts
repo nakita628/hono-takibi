@@ -23,9 +23,6 @@ export function createGetFizzbuzz(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.fizzbuzz.$get>,
-      ) => InferResponseType<typeof client.fizzbuzz.$get>
     }
     client?: ClientRequestOptions
   },

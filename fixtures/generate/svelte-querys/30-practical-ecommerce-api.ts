@@ -21,9 +21,6 @@ export function createGetProducts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.products.$get>,
-      ) => InferResponseType<typeof client.products.$get>
     }
     client?: ClientRequestOptions
   },
@@ -92,9 +89,6 @@ export function createGetProductsProductId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.products)[':productId']['$get']>,
-      ) => InferResponseType<(typeof client.products)[':productId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -241,9 +235,6 @@ export function createGetCategories(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.categories.$get>,
-    ) => InferResponseType<typeof client.categories.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -309,9 +300,6 @@ export function createGetCart(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.cart.$get>,
-    ) => InferResponseType<typeof client.cart.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -479,9 +467,6 @@ export function createGetOrders(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.orders.$get>,
-      ) => InferResponseType<typeof client.orders.$get>
     }
     client?: ClientRequestOptions
   },
@@ -552,9 +537,6 @@ export function createGetOrdersOrderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.orders)[':orderId']['$get']>,
-      ) => InferResponseType<(typeof client.orders)[':orderId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -631,9 +613,6 @@ export function createGetInventoryProductId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.inventory)[':productId']['$get']>,
-      ) => InferResponseType<(typeof client.inventory)[':productId']['$get']>
     }
     client?: ClientRequestOptions
   },

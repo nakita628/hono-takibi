@@ -21,9 +21,6 @@ export function useGetNotifications(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.notifications.$get>,
-      ) => InferResponseType<typeof client.notifications.$get>
     }
     client?: ClientRequestOptions
   },
@@ -63,9 +60,6 @@ export function useGetNotificationsNotificationId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.notifications)[':notificationId']['$get']>,
-      ) => InferResponseType<(typeof client.notifications)[':notificationId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -223,9 +217,6 @@ export function useGetNotificationsUnreadCount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-    ) => InferResponseType<(typeof client.notifications)['unread-count']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -332,9 +323,6 @@ export function useGetMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.messages)[':messageId']['$get']>,
-      ) => InferResponseType<(typeof client.messages)[':messageId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -374,9 +362,6 @@ export function useGetTemplates(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.templates.$get>,
-      ) => InferResponseType<typeof client.templates.$get>
     }
     client?: ClientRequestOptions
   },
@@ -445,9 +430,6 @@ export function useGetTemplatesTemplateId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.templates)[':templateId']['$get']>,
-      ) => InferResponseType<(typeof client.templates)[':templateId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -597,9 +579,6 @@ export function useGetChannelsPreferences(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.channels.preferences.$get>,
-    ) => InferResponseType<typeof client.channels.preferences.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -668,9 +647,6 @@ export function useGetChannelsDevices(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.channels.devices.$get>,
-    ) => InferResponseType<typeof client.channels.devices.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -776,9 +752,6 @@ export function useGetWebhooks(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.webhooks.$get>,
-    ) => InferResponseType<typeof client.webhooks.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -846,9 +819,6 @@ export function useGetWebhooksWebhookId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>,
-      ) => InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>
     }
     client?: ClientRequestOptions
   },

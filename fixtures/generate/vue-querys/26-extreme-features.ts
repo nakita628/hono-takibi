@@ -19,9 +19,6 @@ export function useGetStream(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.stream.$get>,
-    ) => InferResponseType<typeof client.stream.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -125,9 +122,6 @@ export function useGetDeprecatedEndpoint(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['deprecated-endpoint']['$get']>,
-    ) => InferResponseType<(typeof client)['deprecated-endpoint']['$get']>
   }
   client?: ClientRequestOptions
 }) {

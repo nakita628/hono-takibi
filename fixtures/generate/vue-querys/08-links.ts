@@ -48,9 +48,6 @@ export function useGetOrdersOrderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.orders)[':orderId']['$get']>,
-      ) => InferResponseType<(typeof client.orders)[':orderId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -120,9 +117,6 @@ export function useGetOrdersOrderIdItems(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>,
-      ) => InferResponseType<(typeof client.orders)[':orderId']['items']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -160,9 +154,6 @@ export function useGetCustomersCustomerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.customers)[':customerId']['$get']>,
-      ) => InferResponseType<(typeof client.customers)[':customerId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -200,9 +191,6 @@ export function useGetCustomersCustomerIdOrders(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>,
-      ) => InferResponseType<(typeof client.customers)[':customerId']['orders']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -241,9 +229,6 @@ export function useGetPaymentsPaymentId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.payments)[':paymentId']['$get']>,
-      ) => InferResponseType<(typeof client.payments)[':paymentId']['$get']>
     }
     client?: ClientRequestOptions
   },

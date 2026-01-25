@@ -19,9 +19,6 @@ export function createGetItems(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.items.$get>,
-      ) => InferResponseType<typeof client.items.$get>
     }
     client?: ClientRequestOptions
   },
@@ -57,9 +54,6 @@ export function createGetItemsItemId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.items)[':itemId']['$get']>,
-      ) => InferResponseType<(typeof client.items)[':itemId']['$get']>
     }
     client?: ClientRequestOptions
   },

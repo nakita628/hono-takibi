@@ -21,9 +21,6 @@ export function useGetFiles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.files.$get>,
-      ) => InferResponseType<typeof client.files.$get>
     }
     client?: ClientRequestOptions
   },
@@ -231,9 +228,6 @@ export function useGetFilesFileId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.files)[':fileId']['$get']>,
-      ) => InferResponseType<(typeof client.files)[':fileId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -341,9 +335,6 @@ export function useGetFilesFileIdDownload(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.files)[':fileId']['download']['$get']>,
-      ) => InferResponseType<(typeof client.files)[':fileId']['download']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -383,9 +374,6 @@ export function useGetFilesFileIdDownloadUrl(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>,
-      ) => InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -498,9 +486,6 @@ export function useGetFilesFileIdThumbnail(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
-      ) => InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -571,9 +556,6 @@ export function useGetFoldersFolderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.folders)[':folderId']['$get']>,
-      ) => InferResponseType<(typeof client.folders)[':folderId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -683,9 +665,6 @@ export function useGetFilesFileIdShare(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.files)[':fileId']['share']['$get']>,
-      ) => InferResponseType<(typeof client.files)[':fileId']['share']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -838,9 +817,6 @@ export function useGetFilesFileIdVersions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>,
-      ) => InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -936,9 +912,6 @@ export function useGetTrash(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.trash.$get>,
-      ) => InferResponseType<typeof client.trash.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1041,9 +1014,6 @@ export function useGetStorageUsage(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.storage.usage.$get>,
-    ) => InferResponseType<typeof client.storage.usage.$get>
   }
   client?: ClientRequestOptions
 }) {

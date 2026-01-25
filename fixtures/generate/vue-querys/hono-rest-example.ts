@@ -21,9 +21,6 @@ export function useGet(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.index.$get>,
-    ) => InferResponseType<typeof client.index.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -62,9 +59,6 @@ export function useGetPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.posts.$get>,
-      ) => InferResponseType<typeof client.posts.$get>
     }
     client?: ClientRequestOptions
   },

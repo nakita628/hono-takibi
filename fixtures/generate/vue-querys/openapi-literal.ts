@@ -21,9 +21,6 @@ export function useGetPrimitive(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.primitive.$get>,
-    ) => InferResponseType<typeof client.primitive.$get>
   }
   client?: ClientRequestOptions
 }) {

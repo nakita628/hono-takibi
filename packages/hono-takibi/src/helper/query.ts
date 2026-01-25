@@ -198,10 +198,8 @@ const makeQueryHookCode = (
   keyGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
-  inferResponseType: string,
   clientPath: string,
   method: string,
-  honoPath: string,
   docs: string,
   config: QueryFrameworkConfig,
 ): string => {
@@ -214,7 +212,9 @@ const makeQueryHookCode = (
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
 
   // Build hook with inline query options type
-  const inlineQueryOptionsType = `{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number;select?:(data:${inferResponseType})=>${inferResponseType}}`
+  // Note: select is intentionally excluded to ensure proper type inference of data.
+  // If users need select, they can use the underlying queryOptions helper.
+  const inlineQueryOptionsType = '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
   const optionsType = `{query?:${inlineQueryOptionsType};client?:ClientRequestOptions}`
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
 
@@ -281,9 +281,6 @@ const makeHookCode = (
   const baseInferResponseType = buildInferResponseType(deps.client, pathResult, method)
   // parseResponse returns undefined for 204/205 No Content responses
   const hasNoContent = hasNoContentResponse(op)
-  const inferResponseType = hasNoContent
-    ? `${baseInferResponseType}|undefined`
-    : baseInferResponseType
 
   // Convert {param} to :param for key path display
   const honoPath = pathStr.replace(/\{([^}]+)\}/g, ':$1')
@@ -307,10 +304,8 @@ const makeHookCode = (
       keyGetterName,
       hasArgs,
       inferRequestType,
-      inferResponseType,
       clientPath,
       method,
-      honoPath,
       docs,
       config,
     )

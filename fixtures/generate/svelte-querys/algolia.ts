@@ -23,9 +23,6 @@ export function createGetPath(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)[':path']['$get']>,
-      ) => InferResponseType<(typeof client)[':path']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -480,9 +477,6 @@ export function createGet1IndexesIndexNameObjectID(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -952,9 +946,6 @@ export function createGet1IndexesIndexNameSettings(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1055,13 +1046,6 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1394,9 +1378,6 @@ export function createGet1Keys(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['1']['keys']['$get']>,
-    ) => InferResponseType<(typeof client)['1']['keys']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -1475,9 +1456,6 @@ export function createGet1KeysKey(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['keys'][':key']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['keys'][':key']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1642,13 +1620,6 @@ export function createGet1IndexesIndexNameRulesObjectID(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2092,9 +2063,6 @@ export function createGet1DictionariesSettings(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>,
-    ) => InferResponseType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -2173,9 +2141,6 @@ export function createGet1DictionariesLanguages(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>,
-    ) => InferResponseType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -2218,9 +2183,6 @@ export function createGet1ClustersMapping(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['clusters']['mapping']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2347,9 +2309,6 @@ export function createGet1ClustersMappingTop(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>,
-    ) => InferResponseType<(typeof client)['1']['clusters']['mapping']['top']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -2392,9 +2351,6 @@ export function createGet1ClustersMappingUserID(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2484,9 +2440,6 @@ export function createGet1Clusters(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['1']['clusters']['$get']>,
-    ) => InferResponseType<(typeof client)['1']['clusters']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -2569,9 +2522,6 @@ export function createGet1ClustersMappingPending(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2612,9 +2562,6 @@ export function createGet1SecuritySources(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['1']['security']['sources']['$get']>,
-    ) => InferResponseType<(typeof client)['1']['security']['sources']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -2786,9 +2733,6 @@ export function createGet1Logs(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['logs']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['logs']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2828,9 +2772,6 @@ export function createGet1TaskTaskID(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['task'][':taskID']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2878,13 +2819,6 @@ export function createGet1IndexesIndexNameTaskTaskID(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3001,9 +2935,6 @@ export function createGet1Indexes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['1']['indexes']['$get']>,
-      ) => InferResponseType<(typeof client)['1']['indexes']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3045,9 +2976,6 @@ export function createGetWaitForApiKey(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.waitForApiKey.$get>,
-      ) => InferResponseType<typeof client.waitForApiKey.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3091,9 +3019,6 @@ export function createGetWaitForTask(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.waitForTask.$get>,
-      ) => InferResponseType<typeof client.waitForTask.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3133,9 +3058,6 @@ export function createGetWaitForAppTask(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.waitForAppTask.$get>,
-      ) => InferResponseType<typeof client.waitForAppTask.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3181,9 +3103,6 @@ export function createGetBrowseObjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.browseObjects.$get> | undefined,
-      ) => InferResponseType<typeof client.browseObjects.$get> | undefined
     }
     client?: ClientRequestOptions
   },
@@ -3237,9 +3156,6 @@ export function createGetGenerateSecuredApiKey(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.generateSecuredApiKey.$get>,
-      ) => InferResponseType<typeof client.generateSecuredApiKey.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3281,9 +3197,6 @@ export function createGetAccountCopyIndex(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.accountCopyIndex.$get>,
-      ) => InferResponseType<typeof client.accountCopyIndex.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3340,9 +3253,6 @@ export function createGetReplaceAllObjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.replaceAllObjects.$get>,
-      ) => InferResponseType<typeof client.replaceAllObjects.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3396,9 +3306,6 @@ export function createGetReplaceAllObjectsWithTransformation(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>,
-      ) => InferResponseType<typeof client.replaceAllObjectsWithTransformation.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3441,9 +3348,6 @@ export function createGetChunkedBatch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.chunkedBatch.$get>,
-      ) => InferResponseType<typeof client.chunkedBatch.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3485,9 +3389,6 @@ export function createGetSaveObjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.saveObjects.$get>,
-      ) => InferResponseType<typeof client.saveObjects.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3527,9 +3428,6 @@ export function createGetSaveObjectsWithTransformation(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.saveObjectsWithTransformation.$get>,
-      ) => InferResponseType<typeof client.saveObjectsWithTransformation.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3682,9 +3580,6 @@ export function createGetIndexExists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.indexExists.$get>,
-      ) => InferResponseType<typeof client.indexExists.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3724,9 +3619,6 @@ export function createGetSetClientApiKey(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.setClientApiKey.$get> | undefined,
-      ) => InferResponseType<typeof client.setClientApiKey.$get> | undefined
     }
     client?: ClientRequestOptions
   },

@@ -17,9 +17,6 @@ export function useGetExtremeResponses(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['extreme-responses']['$get']> | undefined,
-    ) => InferResponseType<(typeof client)['extreme-responses']['$get']> | undefined
   }
   client?: ClientRequestOptions
 }) {

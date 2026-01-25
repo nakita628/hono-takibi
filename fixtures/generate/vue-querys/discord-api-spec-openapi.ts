@@ -17,9 +17,6 @@ export function useGetApplicationsMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.applications)['@me']['$get']>,
-    ) => InferResponseType<(typeof client.applications)['@me']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -86,9 +83,6 @@ export function useGetApplicationsApplicationId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.applications)[':application_id']['$get']>,
-      ) => InferResponseType<(typeof client.applications)[':application_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -166,13 +160,6 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -268,11 +255,6 @@ export function useGetApplicationsApplicationIdCommands(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['commands']['$get']
-        >,
-      ) => InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -403,13 +385,6 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -562,9 +537,6 @@ export function useGetApplicationsApplicationIdEmojis(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-      ) => InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -650,13 +622,6 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -809,13 +774,6 @@ export function useGetApplicationsApplicationIdEntitlements(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['entitlements']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -908,13 +866,6 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1080,13 +1031,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1248,13 +1192,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1302,13 +1239,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1472,13 +1402,6 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1585,13 +1508,6 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1694,9 +1610,6 @@ export function useGetChannelsChannelId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.channels)[':channel_id']['$get']>,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1840,9 +1753,6 @@ export function useGetChannelsChannelIdInvites(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1920,9 +1830,6 @@ export function useGetChannelsChannelIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2054,11 +1961,6 @@ export function useGetChannelsChannelIdMessagesPins(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['messages']['pins']['$get']
-        >,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2211,13 +2113,6 @@ export function useGetChannelsChannelIdMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2485,13 +2380,6 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2937,9 +2825,6 @@ export function useGetChannelsChannelIdPins(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3086,13 +2971,6 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3360,9 +3238,6 @@ export function useGetChannelsChannelIdThreadMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3515,13 +3390,6 @@ export function useGetChannelsChannelIdThreadMembersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3715,13 +3583,6 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3766,13 +3627,6 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3815,11 +3669,6 @@ export function useGetChannelsChannelIdThreadsSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['threads']['search']['$get']
-        >,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3899,13 +3748,6 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3951,9 +3793,6 @@ export function useGetChannelsChannelIdWebhooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-      ) => InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4027,9 +3866,6 @@ export function useGetGateway(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.gateway.$get>,
-    ) => InferResponseType<typeof client.gateway.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -4062,9 +3898,6 @@ export function useGetGatewayBot(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.gateway.bot.$get>,
-    ) => InferResponseType<typeof client.gateway.bot.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -4099,9 +3932,6 @@ export function useGetGuildsTemplatesCode(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds.templates)[':code']['$get']>,
-      ) => InferResponseType<(typeof client.guilds.templates)[':code']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4139,9 +3969,6 @@ export function useGetGuildsGuildId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4211,9 +4038,6 @@ export function useGetGuildsGuildIdAuditLogs(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4252,13 +4076,6 @@ export function useGetGuildsGuildIdAutoModerationRules(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4351,13 +4168,6 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4513,9 +4323,6 @@ export function useGetGuildsGuildIdBans(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4553,9 +4360,6 @@ export function useGetGuildsGuildIdBansUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4715,9 +4519,6 @@ export function useGetGuildsGuildIdChannels(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4830,9 +4631,6 @@ export function useGetGuildsGuildIdEmojis(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -4905,9 +4703,6 @@ export function useGetGuildsGuildIdEmojisEmojiId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5038,9 +4833,6 @@ export function useGetGuildsGuildIdIntegrations(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5135,9 +4927,6 @@ export function useGetGuildsGuildIdInvites(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5176,9 +4965,6 @@ export function useGetGuildsGuildIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5254,9 +5040,6 @@ export function useGetGuildsGuildIdMembersSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5295,9 +5078,6 @@ export function useGetGuildsGuildIdMembersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5592,13 +5372,6 @@ export function useGetGuildsGuildIdNewMemberWelcome(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data:
-          | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
-          | undefined,
-      ) =>
-        | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
-        | undefined
     }
     client?: ClientRequestOptions
   },
@@ -5637,9 +5410,6 @@ export function useGetGuildsGuildIdOnboarding(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5715,9 +5485,6 @@ export function useGetGuildsGuildIdPreview(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5756,9 +5523,6 @@ export function useGetGuildsGuildIdPrune(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5831,9 +5595,6 @@ export function useGetGuildsGuildIdRegions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5872,9 +5633,6 @@ export function useGetGuildsGuildIdRoles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -5982,9 +5740,6 @@ export function useGetGuildsGuildIdRolesRoleId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -6115,9 +5870,6 @@ export function useGetGuildsGuildIdScheduledEvents(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -6195,13 +5947,6 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6365,13 +6110,6 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6417,9 +6155,6 @@ export function useGetGuildsGuildIdSoundboardSounds(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -6505,13 +6240,6 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6664,9 +6392,6 @@ export function useGetGuildsGuildIdStickers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -6740,11 +6465,6 @@ export function useGetGuildsGuildIdStickersStickerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']
-        >,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -6891,9 +6611,6 @@ export function useGetGuildsGuildIdTemplates(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7104,9 +6821,6 @@ export function useGetGuildsGuildIdThreadsActive(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7145,9 +6859,6 @@ export function useGetGuildsGuildIdVanityUrl(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7186,9 +6897,6 @@ export function useGetGuildsGuildIdVoiceStatesMe(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7275,13 +6983,6 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7378,9 +7079,6 @@ export function useGetGuildsGuildIdWebhooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7419,9 +7117,6 @@ export function useGetGuildsGuildIdWelcomeScreen(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7497,9 +7192,6 @@ export function useGetGuildsGuildIdWidget(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7572,9 +7264,6 @@ export function useGetGuildsGuildIdWidgetJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7613,9 +7302,6 @@ export function useGetGuildsGuildIdWidgetPng(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-      ) => InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7713,9 +7399,6 @@ export function useGetInvitesCode(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.invites)[':code']['$get']>,
-      ) => InferResponseType<(typeof client.invites)[':code']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -7843,9 +7526,6 @@ export function useGetLobbiesLobbyId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>,
-      ) => InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -8245,9 +7925,6 @@ export function useGetLobbiesLobbyIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-      ) => InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -8321,9 +7998,6 @@ export function useGetOauth2Me(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.oauth2)['@me']['$get']>,
-    ) => InferResponseType<(typeof client.oauth2)['@me']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -8356,9 +8030,6 @@ export function useGetOauth2ApplicationsMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>,
-    ) => InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -8392,9 +8063,6 @@ export function useGetOauth2Keys(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.oauth2.keys.$get>,
-    ) => InferResponseType<typeof client.oauth2.keys.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -8427,9 +8095,6 @@ export function useGetOauth2Userinfo(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.oauth2.userinfo.$get>,
-    ) => InferResponseType<typeof client.oauth2.userinfo.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -8643,9 +8308,6 @@ export function useGetSoundboardDefaultSounds(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>,
-    ) => InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -8713,9 +8375,6 @@ export function useGetStageInstancesChannelId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-      ) => InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -8828,9 +8487,6 @@ export function useGetStickerPacks(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['sticker-packs']['$get']>,
-    ) => InferResponseType<(typeof client)['sticker-packs']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -8865,9 +8521,6 @@ export function useGetStickerPacksPackId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-      ) => InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -8906,9 +8559,6 @@ export function useGetStickersStickerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>,
-      ) => InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -8944,9 +8594,6 @@ export function useGetUsersMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.users)['@me']['$get']>,
-    ) => InferResponseType<(typeof client.users)['@me']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -9015,13 +8662,6 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9066,13 +8706,6 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9266,9 +8899,6 @@ export function useGetUsersMeConnections(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.users)['@me']['connections']['$get']>,
-    ) => InferResponseType<(typeof client.users)['@me']['connections']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -9304,9 +8934,6 @@ export function useGetUsersMeGuilds(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)['@me']['guilds']['$get']>,
-      ) => InferResponseType<(typeof client.users)['@me']['guilds']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -9383,11 +9010,6 @@ export function useGetUsersMeGuildsGuildIdMember(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']
-        >,
-      ) => InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -9426,9 +9048,6 @@ export function useGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':user_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -9464,9 +9083,6 @@ export function useGetVoiceRegions(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.voice.regions.$get>,
-    ) => InferResponseType<typeof client.voice.regions.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -9501,9 +9117,6 @@ export function useGetWebhooksWebhookId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>,
-      ) => InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -9610,9 +9223,6 @@ export function useGetWebhooksWebhookIdWebhookToken(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-      ) => InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -9850,13 +9460,6 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10020,13 +9623,6 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-      >
     }
     client?: ClientRequestOptions
   },

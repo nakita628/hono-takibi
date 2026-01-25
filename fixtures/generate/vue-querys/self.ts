@@ -17,9 +17,6 @@ export function useGetCategories(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.categories.$get>,
-    ) => InferResponseType<typeof client.categories.$get>
   }
   client?: ClientRequestOptions
 }) {

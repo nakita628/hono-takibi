@@ -21,13 +21,6 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -128,9 +121,6 @@ export function useGetReportsOrganizationSummary(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.reports)['organization-summary']['$get']>,
-    ) => InferResponseType<(typeof client.reports)['organization-summary']['$get']>
   }
   client?: ClientRequestOptions
 }) {

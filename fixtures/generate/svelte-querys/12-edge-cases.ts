@@ -17,9 +17,6 @@ export function createGetAllMethods(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['all-methods']['$get']>,
-    ) => InferResponseType<(typeof client)['all-methods']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -252,13 +249,6 @@ export function createGetUsersUserIdPostsPostIdCommentsCommentId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -301,9 +291,6 @@ export function createGetParamsTestPathParam(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>,
-      ) => InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -368,9 +355,6 @@ export function createGetMultiContent(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['multi-content']['$get']>,
-    ) => InferResponseType<(typeof client)['multi-content']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -435,9 +419,6 @@ export function createGetResponseRanges(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['response-ranges']['$get']> | undefined,
-    ) => InferResponseType<(typeof client)['response-ranges']['$get']> | undefined
   }
   client?: ClientRequestOptions
 }) {
@@ -472,9 +453,6 @@ export function createGetDeprecated(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.deprecated.$get>,
-    ) => InferResponseType<typeof client.deprecated.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -509,9 +487,6 @@ export function createGetNoOperationId(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['no-operation-id']['$get']>,
-    ) => InferResponseType<(typeof client)['no-operation-id']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -576,9 +551,6 @@ export function createGetCircular(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.circular.$get>,
-    ) => InferResponseType<typeof client.circular.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -611,9 +583,6 @@ export function createGetDeepNesting(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['deep-nesting']['$get']>,
-    ) => InferResponseType<(typeof client)['deep-nesting']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -648,9 +617,6 @@ export function createGetArrayParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['array-params']['$get']>,
-      ) => InferResponseType<(typeof client)['array-params']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -688,9 +654,6 @@ export function createGetObjectParam(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['object-param']['$get']>,
-      ) => InferResponseType<(typeof client)['object-param']['$get']>
     }
     client?: ClientRequestOptions
   },

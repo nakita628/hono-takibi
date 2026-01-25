@@ -21,9 +21,6 @@ export function createGetString(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.string.$get>,
-    ) => InferResponseType<typeof client.string.$get>
   }
   client?: ClientRequestOptions
 }) {

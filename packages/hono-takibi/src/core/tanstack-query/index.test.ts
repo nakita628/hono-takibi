@@ -72,9 +72,6 @@ export function useGetHono(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.hono.$get>,
-    ) => InferResponseType<typeof client.hono.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -113,9 +110,6 @@ export function useGetUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.users.$get>,
-      ) => InferResponseType<typeof client.users.$get>
     }
     client?: ClientRequestOptions
   },
@@ -224,9 +218,6 @@ export function useGetHono(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.hono.$get>,
-    ) => InferResponseType<typeof client.hono.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -274,9 +265,6 @@ export function useGetUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.users.$get>,
-      ) => InferResponseType<typeof client.users.$get>
     }
     client?: ClientRequestOptions
   },
@@ -396,9 +384,6 @@ export function useGetUsers(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof authClient.users.$get>,
-    ) => InferResponseType<typeof authClient.users.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -475,9 +460,6 @@ export function useGetPing(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.ping.$get>,
-    ) => InferResponseType<typeof client.ping.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -576,9 +558,6 @@ export function useGetHonoX(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['hono-x']['$get']>,
-    ) => InferResponseType<(typeof client)['hono-x']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -658,9 +637,6 @@ export function useGetUsersId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },

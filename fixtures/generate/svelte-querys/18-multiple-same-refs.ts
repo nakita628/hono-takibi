@@ -19,9 +19,6 @@ export function createGetDocuments(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.documents.$get>,
-      ) => InferResponseType<typeof client.documents.$get>
     }
     client?: ClientRequestOptions
   },
@@ -86,9 +83,6 @@ export function createGetDocumentsDocumentId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.documents)[':documentId']['$get']>,
-      ) => InferResponseType<(typeof client.documents)[':documentId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -160,9 +154,6 @@ export function createGetDocumentsDocumentIdVersions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>,
-      ) => InferResponseType<(typeof client.documents)[':documentId']['versions']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -238,9 +229,6 @@ export function createGetUsersUserIdDocuments(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':userId']['documents']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':userId']['documents']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -305,9 +293,6 @@ export function createGetTemplates(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.templates.$get>,
-    ) => InferResponseType<typeof client.templates.$get>
   }
   client?: ClientRequestOptions
 }) {

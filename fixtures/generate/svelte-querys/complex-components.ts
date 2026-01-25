@@ -52,9 +52,6 @@ export function createGetUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.users.$get>,
-      ) => InferResponseType<typeof client.users.$get>
     }
     client?: ClientRequestOptions
   },
@@ -123,9 +120,6 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':userId']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':userId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -199,9 +193,6 @@ export function createGetCompaniesCompanyId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.companies)[':companyId']['$get']>,
-      ) => InferResponseType<(typeof client.companies)[':companyId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -241,9 +232,6 @@ export function createGetOrders(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.orders.$get>,
-      ) => InferResponseType<typeof client.orders.$get>
     }
     client?: ClientRequestOptions
   },
@@ -312,9 +300,6 @@ export function createGetOrdersOrderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.orders)[':orderId']['$get']>,
-      ) => InferResponseType<(typeof client.orders)[':orderId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -354,9 +339,6 @@ export function createGetFilesFileId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.files)[':fileId']['$get']>,
-      ) => InferResponseType<(typeof client.files)[':fileId']['$get']>
     }
     client?: ClientRequestOptions
   },

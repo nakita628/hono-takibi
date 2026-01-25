@@ -75,9 +75,6 @@ export function createGetConfigs(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.configs.$get>,
-    ) => InferResponseType<typeof client.configs.$get>
   }
   client?: ClientRequestOptions
 }) {

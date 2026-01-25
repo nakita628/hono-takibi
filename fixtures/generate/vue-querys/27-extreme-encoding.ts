@@ -51,9 +51,6 @@ export function useGetContentNegotiation(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['content-negotiation']['$get']>,
-      ) => InferResponseType<(typeof client)['content-negotiation']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -121,9 +118,6 @@ export function useGetStreaming(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.streaming.$get>,
-    ) => InferResponseType<typeof client.streaming.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -219,9 +213,6 @@ export function useGetResponseEncoding(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['response-encoding']['$get']>,
-    ) => InferResponseType<(typeof client)['response-encoding']['$get']>
   }
   client?: ClientRequestOptions
 }) {

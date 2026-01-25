@@ -17,9 +17,6 @@ export function createGetPublic(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.public.$get>,
-    ) => InferResponseType<typeof client.public.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -52,9 +49,6 @@ export function createGetProtected(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.protected.$get>,
-    ) => InferResponseType<typeof client.protected.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -87,9 +81,6 @@ export function createGetAdmin(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.admin.$get>,
-    ) => InferResponseType<typeof client.admin.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -122,9 +113,6 @@ export function createGetOauthResource(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['oauth-resource']['$get']>,
-    ) => InferResponseType<(typeof client)['oauth-resource']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -157,9 +145,6 @@ export function createGetMultiAuth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['multi-auth']['$get']>,
-    ) => InferResponseType<(typeof client)['multi-auth']['$get']>
   }
   client?: ClientRequestOptions
 }) {

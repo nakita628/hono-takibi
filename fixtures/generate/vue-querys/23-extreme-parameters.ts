@@ -21,13 +21,6 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -72,9 +65,6 @@ export function useGetQueryStyles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['query-styles']['$get']>,
-      ) => InferResponseType<(typeof client)['query-styles']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -112,11 +102,6 @@ export function useGetPathStylesSimpleLabelMatrix(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']
-        >,
-      ) => InferResponseType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -157,9 +142,6 @@ export function useGetHeaderStyles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['header-styles']['$get']>,
-      ) => InferResponseType<(typeof client)['header-styles']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -197,9 +179,6 @@ export function useGetCookieStyles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['cookie-styles']['$get']>,
-      ) => InferResponseType<(typeof client)['cookie-styles']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -237,9 +216,6 @@ export function useGetManyQueryParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['many-query-params']['$get']>,
-      ) => InferResponseType<(typeof client)['many-query-params']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -277,9 +253,6 @@ export function useGetParameterContent(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['parameter-content']['$get']>,
-      ) => InferResponseType<(typeof client)['parameter-content']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -317,9 +290,6 @@ export function useGetDeprecatedParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['deprecated-params']['$get']>,
-      ) => InferResponseType<(typeof client)['deprecated-params']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -357,9 +327,6 @@ export function useGetExamplesParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['examples-params']['$get']>,
-      ) => InferResponseType<(typeof client)['examples-params']['$get']>
     }
     client?: ClientRequestOptions
   },

@@ -52,9 +52,6 @@ export function useGetSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.search.$get>,
-      ) => InferResponseType<typeof client.search.$get>
     }
     client?: ClientRequestOptions
   },

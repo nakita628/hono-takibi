@@ -17,9 +17,6 @@ export function createGetTrees(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.trees.$get>,
-    ) => InferResponseType<typeof client.trees.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -81,9 +78,6 @@ export function createGetGraphs(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.graphs.$get>,
-    ) => InferResponseType<typeof client.graphs.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -116,9 +110,6 @@ export function createGetLinkedLists(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['linked-lists']['$get']>,
-    ) => InferResponseType<(typeof client)['linked-lists']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -151,9 +142,6 @@ export function createGetSocialNetwork(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['social-network']['$get']>,
-    ) => InferResponseType<(typeof client)['social-network']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -186,9 +174,6 @@ export function createGetFileSystem(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['file-system']['$get']>,
-    ) => InferResponseType<(typeof client)['file-system']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -221,9 +206,6 @@ export function createGetComments(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.comments.$get>,
-    ) => InferResponseType<typeof client.comments.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -256,9 +238,6 @@ export function createGetPolymorphic(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.polymorphic.$get>,
-    ) => InferResponseType<typeof client.polymorphic.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -291,9 +270,6 @@ export function createGetCategories(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.categories.$get>,
-    ) => InferResponseType<typeof client.categories.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -326,9 +302,6 @@ export function createGetWorkflow(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.workflow.$get>,
-    ) => InferResponseType<typeof client.workflow.$get>
   }
   client?: ClientRequestOptions
 }) {

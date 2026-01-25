@@ -23,9 +23,6 @@ export function createGetSamlSso(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.saml.sso.$get>,
-      ) => InferResponseType<typeof client.saml.sso.$get>
     }
     client?: ClientRequestOptions
   },
@@ -98,9 +95,6 @@ export function createGetSamlSlo(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.saml.slo.$get>,
-      ) => InferResponseType<typeof client.saml.slo.$get>
     }
     client?: ClientRequestOptions
   },
@@ -204,9 +198,6 @@ export function createGetSamlMetadata(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.saml.metadata.$get>,
-    ) => InferResponseType<typeof client.saml.metadata.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -243,9 +234,6 @@ export function createGetServiceProviders(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['service-providers']['$get']>,
-      ) => InferResponseType<(typeof client)['service-providers']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -319,9 +307,6 @@ export function createGetServiceProvidersSpId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['service-providers'][':spId']['$get']>,
-      ) => InferResponseType<(typeof client)['service-providers'][':spId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -436,9 +421,6 @@ export function createGetServiceProvidersSpIdMetadata(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
-      ) => InferResponseType<(typeof client)['service-providers'][':spId']['metadata']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -526,11 +508,6 @@ export function createGetServiceProvidersSpIdAttributes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['service-providers'][':spId']['attributes']['$get']
-        >,
-      ) => InferResponseType<(typeof client)['service-providers'][':spId']['attributes']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -616,9 +593,6 @@ export function createGetAttributes(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.attributes.$get>,
-    ) => InferResponseType<typeof client.attributes.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -653,9 +627,6 @@ export function createGetCertificates(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.certificates.$get>,
-    ) => InferResponseType<typeof client.certificates.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -799,9 +770,6 @@ export function createGetSessions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.sessions.$get>,
-      ) => InferResponseType<typeof client.sessions.$get>
     }
     client?: ClientRequestOptions
   },
@@ -875,9 +843,6 @@ export function createGetAuditLogs(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['audit-logs']['$get']>,
-      ) => InferResponseType<(typeof client)['audit-logs']['$get']>
     }
     client?: ClientRequestOptions
   },

@@ -23,9 +23,6 @@ export function createGetAlbums(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.albums.$get>,
-      ) => InferResponseType<typeof client.albums.$get>
     }
     client?: ClientRequestOptions
   },
@@ -65,9 +62,6 @@ export function createGetAlbumsId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.albums)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.albums)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -110,9 +104,6 @@ export function createGetAlbumsIdTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>,
-      ) => InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -154,9 +145,6 @@ export function createGetArtists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.artists.$get>,
-      ) => InferResponseType<typeof client.artists.$get>
     }
     client?: ClientRequestOptions
   },
@@ -196,9 +184,6 @@ export function createGetArtistsId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.artists)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.artists)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -240,9 +225,6 @@ export function createGetArtistsIdAlbums(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.artists)[':id']['albums']['$get']>,
-      ) => InferResponseType<(typeof client.artists)[':id']['albums']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -284,9 +266,6 @@ export function createGetArtistsIdRelatedArtists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>,
-      ) => InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -329,9 +308,6 @@ export function createGetArtistsIdTopTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-      ) => InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -374,9 +350,6 @@ export function createGetAudioAnalysisId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>,
-      ) => InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -418,9 +391,6 @@ export function createGetAudioFeatures(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['audio-features']['$get']>,
-      ) => InferResponseType<(typeof client)['audio-features']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -463,9 +433,6 @@ export function createGetAudioFeaturesId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['audio-features'][':id']['$get']>,
-      ) => InferResponseType<(typeof client)['audio-features'][':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -508,9 +475,6 @@ export function createGetAudiobooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.audiobooks.$get>,
-      ) => InferResponseType<typeof client.audiobooks.$get>
     }
     client?: ClientRequestOptions
   },
@@ -551,9 +515,6 @@ export function createGetAudiobooksId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.audiobooks)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.audiobooks)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -596,9 +557,6 @@ export function createGetAudiobooksIdChapters(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-      ) => InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -640,9 +598,6 @@ export function createGetBrowseCategories(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.browse.categories.$get>,
-      ) => InferResponseType<typeof client.browse.categories.$get>
     }
     client?: ClientRequestOptions
   },
@@ -684,9 +639,6 @@ export function createGetBrowseCategoriesCategoryId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>,
-      ) => InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -729,11 +681,6 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.browse.categories)[':category_id']['playlists']['$get']
-        >,
-      ) => InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -776,9 +723,6 @@ export function createGetBrowseFeaturedPlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.browse)['featured-playlists']['$get']>,
-      ) => InferResponseType<(typeof client.browse)['featured-playlists']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -821,9 +765,6 @@ export function createGetBrowseNewReleases(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.browse)['new-releases']['$get']>,
-      ) => InferResponseType<(typeof client.browse)['new-releases']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -866,9 +807,6 @@ export function createGetChapters(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.chapters.$get>,
-      ) => InferResponseType<typeof client.chapters.$get>
     }
     client?: ClientRequestOptions
   },
@@ -909,9 +847,6 @@ export function createGetChaptersId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.chapters)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.chapters)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -953,9 +888,6 @@ export function createGetEpisodes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.episodes.$get>,
-      ) => InferResponseType<typeof client.episodes.$get>
     }
     client?: ClientRequestOptions
   },
@@ -996,9 +928,6 @@ export function createGetEpisodesId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.episodes)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.episodes)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1038,9 +967,6 @@ export function createGetMarkets(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.markets.$get>,
-    ) => InferResponseType<typeof client.markets.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1078,9 +1004,6 @@ export function createGetMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.me.$get>,
-    ) => InferResponseType<typeof client.me.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1119,9 +1042,6 @@ export function createGetMeAlbums(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.albums.$get>,
-      ) => InferResponseType<typeof client.me.albums.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1227,9 +1147,6 @@ export function createGetMeAlbumsContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.albums.contains.$get>,
-      ) => InferResponseType<typeof client.me.albums.contains.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1271,9 +1188,6 @@ export function createGetMeAudiobooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.audiobooks.$get>,
-      ) => InferResponseType<typeof client.me.audiobooks.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1384,9 +1298,6 @@ export function createGetMeAudiobooksContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.audiobooks.contains.$get>,
-      ) => InferResponseType<typeof client.me.audiobooks.contains.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1429,9 +1340,6 @@ export function createGetMeEpisodes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.episodes.$get>,
-      ) => InferResponseType<typeof client.me.episodes.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1540,9 +1448,6 @@ export function createGetMeEpisodesContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.episodes.contains.$get>,
-      ) => InferResponseType<typeof client.me.episodes.contains.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1584,9 +1489,6 @@ export function createGetMeFollowing(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.following.$get>,
-      ) => InferResponseType<typeof client.me.following.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1695,9 +1597,6 @@ export function createGetMeFollowingContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.following.contains.$get>,
-      ) => InferResponseType<typeof client.me.following.contains.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1739,9 +1638,6 @@ export function createGetMePlayer(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.player.$get> | undefined,
-      ) => InferResponseType<typeof client.me.player.$get> | undefined
     }
     client?: ClientRequestOptions
   },
@@ -1814,9 +1710,6 @@ export function createGetMePlayerCurrentlyPlaying(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.me.player)['currently-playing']['$get']>,
-      ) => InferResponseType<(typeof client.me.player)['currently-playing']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1857,9 +1750,6 @@ export function createGetMePlayerDevices(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.me.player.devices.$get>,
-    ) => InferResponseType<typeof client.me.player.devices.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -2037,9 +1927,6 @@ export function createGetMePlayerQueue(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.me.player.queue.$get>,
-    ) => InferResponseType<typeof client.me.player.queue.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -2115,9 +2002,6 @@ export function createGetMePlayerRecentlyPlayed(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.me.player)['recently-played']['$get']>,
-      ) => InferResponseType<(typeof client.me.player)['recently-played']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2303,9 +2187,6 @@ export function createGetMePlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.playlists.$get>,
-      ) => InferResponseType<typeof client.me.playlists.$get>
     }
     client?: ClientRequestOptions
   },
@@ -2345,9 +2226,6 @@ export function createGetMeShows(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.shows.$get>,
-      ) => InferResponseType<typeof client.me.shows.$get>
     }
     client?: ClientRequestOptions
   },
@@ -2453,9 +2331,6 @@ export function createGetMeShowsContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.shows.contains.$get>,
-      ) => InferResponseType<typeof client.me.shows.contains.$get>
     }
     client?: ClientRequestOptions
   },
@@ -2497,9 +2372,6 @@ export function createGetMeTopType(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.me.top)[':type']['$get']>,
-      ) => InferResponseType<(typeof client.me.top)[':type']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2541,9 +2413,6 @@ export function createGetMeTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.tracks.$get>,
-      ) => InferResponseType<typeof client.me.tracks.$get>
     }
     client?: ClientRequestOptions
   },
@@ -2649,9 +2518,6 @@ export function createGetMeTracksContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.me.tracks.contains.$get>,
-      ) => InferResponseType<typeof client.me.tracks.contains.$get>
     }
     client?: ClientRequestOptions
   },
@@ -2693,9 +2559,6 @@ export function createGetPlaylistsPlaylistId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>,
-      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -2868,13 +2731,6 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2919,9 +2775,6 @@ export function createGetPlaylistsPlaylistIdImages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3005,9 +2858,6 @@ export function createGetPlaylistsPlaylistIdTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-      ) => InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3181,9 +3031,6 @@ export function createGetRecommendations(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.recommendations.$get>,
-      ) => InferResponseType<typeof client.recommendations.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3223,9 +3070,6 @@ export function createGetRecommendationsAvailableGenreSeeds(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>,
-    ) => InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -3267,9 +3111,6 @@ export function createGetSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.search.$get>,
-      ) => InferResponseType<typeof client.search.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3309,9 +3150,6 @@ export function createGetShows(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.shows.$get>,
-      ) => InferResponseType<typeof client.shows.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3352,9 +3190,6 @@ export function createGetShowsId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.shows)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.shows)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3396,9 +3231,6 @@ export function createGetShowsIdEpisodes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>,
-      ) => InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3440,9 +3272,6 @@ export function createGetTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.tracks.$get>,
-      ) => InferResponseType<typeof client.tracks.$get>
     }
     client?: ClientRequestOptions
   },
@@ -3483,9 +3312,6 @@ export function createGetTracksId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.tracks)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.tracks)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3527,9 +3353,6 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':user_id']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':user_id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -3571,9 +3394,6 @@ export function createGetUsersUserIdPlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>
     }
     client?: ClientRequestOptions
   },

@@ -21,9 +21,6 @@ export function useGetNotifications(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.notifications.$get>,
-      ) => InferResponseType<typeof client.notifications.$get>
     }
     client?: ClientRequestOptions
   },
@@ -61,9 +58,6 @@ export function useGetNotificationsUnreadCount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.notifications)['unread-count']['$get']>,
-    ) => InferResponseType<(typeof client.notifications)['unread-count']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -136,9 +130,6 @@ export function useGetNotificationsSettings(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.notifications.settings.$get>,
-    ) => InferResponseType<typeof client.notifications.settings.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -210,9 +201,6 @@ export function useGetDmConversations(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.dm.conversations.$get>,
-      ) => InferResponseType<typeof client.dm.conversations.$get>
     }
     client?: ClientRequestOptions
   },
@@ -286,9 +274,6 @@ export function useGetDmConversationsConversationId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-      ) => InferResponseType<(typeof client.dm.conversations)[':conversationId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -370,13 +355,6 @@ export function useGetDmConversationsConversationIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client.dm.conversations)[':conversationId']['messages']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client.dm.conversations)[':conversationId']['messages']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -691,9 +669,6 @@ export function useGetDmUnreadCount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.dm)['unread-count']['$get']>,
-    ) => InferResponseType<(typeof client.dm)['unread-count']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -730,9 +705,6 @@ export function useGetSearchPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.search.posts.$get>,
-      ) => InferResponseType<typeof client.search.posts.$get>
     }
     client?: ClientRequestOptions
   },
@@ -770,9 +742,6 @@ export function useGetSearchUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.search.users.$get>,
-      ) => InferResponseType<typeof client.search.users.$get>
     }
     client?: ClientRequestOptions
   },
@@ -810,9 +779,6 @@ export function useGetSearchHashtags(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.search.hashtags.$get>,
-      ) => InferResponseType<typeof client.search.hashtags.$get>
     }
     client?: ClientRequestOptions
   },
@@ -850,9 +816,6 @@ export function useGetSearchRecent(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.search.recent.$get>,
-    ) => InferResponseType<typeof client.search.recent.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -919,9 +882,6 @@ export function useGetTrends(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.trends.$get>,
-      ) => InferResponseType<typeof client.trends.$get>
     }
     client?: ClientRequestOptions
   },
@@ -957,9 +917,6 @@ export function useGetTrendsLocations(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.trends.locations.$get>,
-    ) => InferResponseType<typeof client.trends.locations.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -996,9 +953,6 @@ export function useGetSuggestionsUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.suggestions.users.$get>,
-      ) => InferResponseType<typeof client.suggestions.users.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1075,9 +1029,6 @@ export function useGetSuggestionsTopics(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.suggestions.topics.$get>,
-    ) => InferResponseType<typeof client.suggestions.topics.$get>
   }
   client?: ClientRequestOptions
 }) {

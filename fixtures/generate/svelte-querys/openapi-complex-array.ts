@@ -21,9 +21,6 @@ export function createGetArray(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.array.$get>,
-    ) => InferResponseType<typeof client.array.$get>
   }
   client?: ClientRequestOptions
 }) {

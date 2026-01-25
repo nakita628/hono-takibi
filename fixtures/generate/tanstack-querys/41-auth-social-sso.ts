@@ -23,9 +23,6 @@ export function useGetSocialAuthorizeProvider(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.social.authorize)[':provider']['$get']>,
-      ) => InferResponseType<(typeof client.social.authorize)[':provider']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -68,9 +65,6 @@ export function useGetSocialCallbackProvider(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.social.callback)[':provider']['$get']>,
-      ) => InferResponseType<(typeof client.social.callback)[':provider']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -178,9 +172,6 @@ export function useGetProviders(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.providers.$get>,
-    ) => InferResponseType<typeof client.providers.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -215,9 +206,6 @@ export function useGetProvidersAdmin(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.providers.admin.$get>,
-    ) => InferResponseType<typeof client.providers.admin.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -288,9 +276,6 @@ export function useGetProvidersProviderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.providers)[':providerId']['$get']>,
-      ) => InferResponseType<(typeof client.providers)[':providerId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -440,9 +425,6 @@ export function useGetAccountLinked(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.account.linked.$get>,
-    ) => InferResponseType<typeof client.account.linked.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -553,9 +535,6 @@ export function useGetEnterpriseSso(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.enterprise.sso.$get>,
-    ) => InferResponseType<typeof client.enterprise.sso.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -626,9 +605,6 @@ export function useGetEnterpriseSsoConfigId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>,
-      ) => InferResponseType<(typeof client.enterprise.sso)[':configId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -743,9 +719,6 @@ export function useGetEnterpriseSsoDomainLookup(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
-      ) => InferResponseType<(typeof client.enterprise.sso)['domain-lookup']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -788,9 +761,6 @@ export function useGetEnterpriseSsoConfigIdMetadata(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
-      ) => InferResponseType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>
     }
     client?: ClientRequestOptions
   },

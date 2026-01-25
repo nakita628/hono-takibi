@@ -21,9 +21,6 @@ export function createGet(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.index.$get>,
-    ) => InferResponseType<typeof client.index.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -62,9 +59,6 @@ export function createGetProjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.projects.$get>,
-      ) => InferResponseType<typeof client.projects.$get>
     }
     client?: ClientRequestOptions
   },

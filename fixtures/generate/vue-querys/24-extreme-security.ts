@@ -19,9 +19,6 @@ export function useGetPublic(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.public.$get>,
-    ) => InferResponseType<typeof client.public.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -56,9 +53,6 @@ export function useGetSingleAuth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['single-auth']['$get']>,
-    ) => InferResponseType<(typeof client)['single-auth']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -93,9 +87,6 @@ export function useGetAnyAuth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['any-auth']['$get']>,
-    ) => InferResponseType<(typeof client)['any-auth']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -130,9 +121,6 @@ export function useGetAllAuth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['all-auth']['$get']>,
-    ) => InferResponseType<(typeof client)['all-auth']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -167,9 +155,6 @@ export function useGetComplexAuth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['complex-auth']['$get']>,
-    ) => InferResponseType<(typeof client)['complex-auth']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -204,9 +189,6 @@ export function useGetScopedOauth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['scoped-oauth']['$get']>,
-    ) => InferResponseType<(typeof client)['scoped-oauth']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -241,9 +223,6 @@ export function useGetMixedLevelSecurity(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['mixed-level-security']['$get']>,
-    ) => InferResponseType<(typeof client)['mixed-level-security']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -372,9 +351,6 @@ export function useGetOverrideGlobal(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['override-global']['$get']>,
-    ) => InferResponseType<(typeof client)['override-global']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -409,9 +385,6 @@ export function useGetOptionalEnhanced(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['optional-enhanced']['$get']>,
-    ) => InferResponseType<(typeof client)['optional-enhanced']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -446,9 +419,6 @@ export function useGetMultiTenant(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['multi-tenant']['$get']>,
-    ) => InferResponseType<(typeof client)['multi-tenant']['$get']>
   }
   client?: ClientRequestOptions
 }) {

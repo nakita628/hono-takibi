@@ -21,9 +21,6 @@ export function createGetApiKeys(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['api-keys']['$get']>,
-      ) => InferResponseType<(typeof client)['api-keys']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -95,9 +92,6 @@ export function createGetApiKeysKeyId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>,
-      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -283,9 +277,6 @@ export function createGetApiKeysKeyIdUsage(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
-      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -326,11 +317,6 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']
-        >,
-      ) => InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -403,9 +389,6 @@ export function createGetScopes(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.scopes.$get>,
-    ) => InferResponseType<typeof client.scopes.$get>
   }
   client?: ClientRequestOptions
 }) {

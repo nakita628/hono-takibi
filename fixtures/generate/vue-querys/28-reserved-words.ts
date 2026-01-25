@@ -17,9 +17,6 @@ export function useGetClass(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.class.$get>,
-    ) => InferResponseType<typeof client.class.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -52,9 +49,6 @@ export function useGetInterface(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.interface.$get>,
-    ) => InferResponseType<typeof client.interface.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -87,9 +81,6 @@ export function useGetType(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.type.$get>,
-    ) => InferResponseType<typeof client.type.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -147,9 +138,6 @@ export function useGetReturn(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.return.$get>,
-    ) => InferResponseType<typeof client.return.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -182,9 +170,6 @@ export function useGetImport(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.import.$get>,
-    ) => InferResponseType<typeof client.import.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -217,9 +202,6 @@ export function useGetExport(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.export.$get>,
-    ) => InferResponseType<typeof client.export.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -252,9 +234,6 @@ export function useGetDefault(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.default.$get>,
-    ) => InferResponseType<typeof client.default.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -337,9 +316,6 @@ export function useGetVoid(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.void.$get>,
-    ) => InferResponseType<typeof client.void.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -372,9 +348,6 @@ export function useGetNull(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.null.$get>,
-    ) => InferResponseType<typeof client.null.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -407,9 +380,6 @@ export function useGetTrue(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.true.$get>,
-    ) => InferResponseType<typeof client.true.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -442,9 +412,6 @@ export function useGetFalse(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.false.$get>,
-    ) => InferResponseType<typeof client.false.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -477,9 +444,6 @@ export function useGetIf(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.if.$get>,
-    ) => InferResponseType<typeof client.if.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -512,9 +476,6 @@ export function useGetElse(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.else.$get>,
-    ) => InferResponseType<typeof client.else.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -547,9 +508,6 @@ export function useGetFor(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.for.$get>,
-    ) => InferResponseType<typeof client.for.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -582,9 +540,6 @@ export function useGetWhile(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.while.$get>,
-    ) => InferResponseType<typeof client.while.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -617,9 +572,6 @@ export function useGetSwitch(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.switch.$get>,
-    ) => InferResponseType<typeof client.switch.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -652,9 +604,6 @@ export function useGetCase(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.case.$get>,
-    ) => InferResponseType<typeof client.case.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -687,9 +636,6 @@ export function useGetBreak(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.break.$get>,
-    ) => InferResponseType<typeof client.break.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -722,9 +668,6 @@ export function useGetContinue(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.continue.$get>,
-    ) => InferResponseType<typeof client.continue.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -757,9 +700,6 @@ export function useGetTry(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.try.$get>,
-    ) => InferResponseType<typeof client.try.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -792,9 +732,6 @@ export function useGetCatch(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.catch.$get>,
-    ) => InferResponseType<typeof client.catch.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -827,9 +764,6 @@ export function useGetFinally(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.finally.$get>,
-    ) => InferResponseType<typeof client.finally.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -862,9 +796,6 @@ export function useGetThrow(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.throw.$get>,
-    ) => InferResponseType<typeof client.throw.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -897,9 +828,6 @@ export function useGetAsync(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.async.$get>,
-    ) => InferResponseType<typeof client.async.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -932,9 +860,6 @@ export function useGetAwait(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.await.$get>,
-    ) => InferResponseType<typeof client.await.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -967,9 +892,6 @@ export function useGetYield(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.yield.$get>,
-    ) => InferResponseType<typeof client.yield.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1002,9 +924,6 @@ export function useGetStatic(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.static.$get>,
-    ) => InferResponseType<typeof client.static.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1037,9 +956,6 @@ export function useGetPublic(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.public.$get>,
-    ) => InferResponseType<typeof client.public.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1072,9 +988,6 @@ export function useGetPrivate(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.private.$get>,
-    ) => InferResponseType<typeof client.private.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1107,9 +1020,6 @@ export function useGetProtected(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.protected.$get>,
-    ) => InferResponseType<typeof client.protected.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1142,9 +1052,6 @@ export function useGetAbstract(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.abstract.$get>,
-    ) => InferResponseType<typeof client.abstract.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1177,9 +1084,6 @@ export function useGetFinal(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.final.$get>,
-    ) => InferResponseType<typeof client.final.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1212,9 +1116,6 @@ export function useGetExtends(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.extends.$get>,
-    ) => InferResponseType<typeof client.extends.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1247,9 +1148,6 @@ export function useGetImplements(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.implements.$get>,
-    ) => InferResponseType<typeof client.implements.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1282,9 +1180,6 @@ export function useGetPackage(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.package.$get>,
-    ) => InferResponseType<typeof client.package.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1317,9 +1212,6 @@ export function useGetEnum(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.enum.$get>,
-    ) => InferResponseType<typeof client.enum.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1352,9 +1244,6 @@ export function useGetConst(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.const.$get>,
-    ) => InferResponseType<typeof client.const.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1387,9 +1276,6 @@ export function useGetLet(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.let.$get>,
-    ) => InferResponseType<typeof client.let.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1422,9 +1308,6 @@ export function useGetVar(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.var.$get>,
-    ) => InferResponseType<typeof client.var.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1457,9 +1340,6 @@ export function useGetThis(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.this.$get>,
-    ) => InferResponseType<typeof client.this.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1492,9 +1372,6 @@ export function useGetSuper(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.super.$get>,
-    ) => InferResponseType<typeof client.super.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1527,9 +1404,6 @@ export function useGetSelf(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.self.$get>,
-    ) => InferResponseType<typeof client.self.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1562,9 +1436,6 @@ export function useGetConstructor(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.constructor.$get>,
-    ) => InferResponseType<typeof client.constructor.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1597,9 +1468,6 @@ export function useGetPrototype(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.prototype.$get>,
-    ) => InferResponseType<typeof client.prototype.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1632,9 +1500,6 @@ export function useGetToString(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.toString.$get>,
-    ) => InferResponseType<typeof client.toString.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1667,9 +1532,6 @@ export function useGetValueOf(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.valueOf.$get>,
-    ) => InferResponseType<typeof client.valueOf.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1702,9 +1564,6 @@ export function useGetHasOwnProperty(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.hasOwnProperty.$get>,
-    ) => InferResponseType<typeof client.hasOwnProperty.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1737,9 +1596,6 @@ export function useGetNameCollisions(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['name-collisions']['$get']>,
-    ) => InferResponseType<(typeof client)['name-collisions']['$get']>
   }
   client?: ClientRequestOptions
 }) {

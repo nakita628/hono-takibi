@@ -23,9 +23,6 @@ export function useGetSessions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.sessions.$get>,
-      ) => InferResponseType<typeof client.sessions.$get>
     }
     client?: ClientRequestOptions
   },
@@ -94,9 +91,6 @@ export function useGetSessionsCurrent(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.sessions.current.$get>,
-    ) => InferResponseType<typeof client.sessions.current.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -269,9 +263,6 @@ export function useGetSessionsSessionId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.sessions)[':sessionId']['$get']>,
-      ) => InferResponseType<(typeof client.sessions)[':sessionId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -423,9 +414,6 @@ export function useGetSessionsHistory(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.sessions.history.$get>,
-      ) => InferResponseType<typeof client.sessions.history.$get>
     }
     client?: ClientRequestOptions
   },
@@ -467,9 +455,6 @@ export function useGetSessionsSecurityEvents(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.sessions)['security-events']['$get']>,
-      ) => InferResponseType<(typeof client.sessions)['security-events']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -508,9 +493,6 @@ export function useGetSessionsPolicies(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.sessions.policies.$get>,
-    ) => InferResponseType<typeof client.sessions.policies.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -579,9 +561,6 @@ export function useGetSessionsTrustedDevices(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>,
-    ) => InferResponseType<(typeof client.sessions)['trusted-devices']['$get']>
   }
   client?: ClientRequestOptions
 }) {

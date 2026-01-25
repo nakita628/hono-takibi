@@ -21,9 +21,6 @@ export function useGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':userId']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':userId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -63,9 +60,6 @@ export function useGetUsersByUsernameUsername(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users.by.username)[':username']['$get']>,
-      ) => InferResponseType<(typeof client.users.by.username)[':username']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -106,9 +100,6 @@ export function useGetUsersSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.users.search.$get>,
-      ) => InferResponseType<typeof client.users.search.$get>
     }
     client?: ClientRequestOptions
   },
@@ -146,9 +137,6 @@ export function useGetUsersLookup(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.users.lookup.$get>,
-      ) => InferResponseType<typeof client.users.lookup.$get>
     }
     client?: ClientRequestOptions
   },
@@ -184,9 +172,6 @@ export function useGetMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.me.$get>,
-    ) => InferResponseType<typeof client.me.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -450,9 +435,6 @@ export function useGetUsersUserIdFollowers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':userId']['followers']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':userId']['followers']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -492,9 +474,6 @@ export function useGetUsersUserIdFollowing(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':userId']['following']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':userId']['following']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -575,9 +554,6 @@ export function useGetRelationships(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.relationships.$get>,
-      ) => InferResponseType<typeof client.relationships.$get>
     }
     client?: ClientRequestOptions
   },
@@ -619,9 +595,6 @@ export function useGetFollowRequests(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['follow-requests']['$get']>,
-      ) => InferResponseType<(typeof client)['follow-requests']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -886,9 +859,6 @@ export function useGetBlocks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.blocks.$get>,
-      ) => InferResponseType<typeof client.blocks.$get>
     }
     client?: ClientRequestOptions
   },
@@ -926,9 +896,6 @@ export function useGetMutes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.mutes.$get>,
-      ) => InferResponseType<typeof client.mutes.$get>
     }
     client?: ClientRequestOptions
   },
@@ -964,9 +931,6 @@ export function useGetLists(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.lists.$get>,
-    ) => InferResponseType<typeof client.lists.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -1034,9 +998,6 @@ export function useGetListsListId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.lists)[':listId']['$get']>,
-      ) => InferResponseType<(typeof client.lists)[':listId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1144,9 +1105,6 @@ export function useGetListsListIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.lists)[':listId']['members']['$get']>,
-      ) => InferResponseType<(typeof client.lists)[':listId']['members']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1272,9 +1230,6 @@ export function useGetListsListIdTimeline(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>,
-      ) => InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1314,9 +1269,6 @@ export function useGetUsersUserIdLists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':userId']['lists']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':userId']['lists']['$get']>
     }
     client?: ClientRequestOptions
   },

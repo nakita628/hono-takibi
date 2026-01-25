@@ -17,9 +17,6 @@ export function useGetEntities(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.entities.$get>,
-    ) => InferResponseType<typeof client.entities.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -81,9 +78,6 @@ export function useGetGraph(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.graph.$get>,
-    ) => InferResponseType<typeof client.graph.$get>
   }
   client?: ClientRequestOptions
 }) {

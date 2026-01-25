@@ -21,9 +21,6 @@ export function useGetNullable(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.nullable.$get>,
-    ) => InferResponseType<typeof client.nullable.$get>
   }
   client?: ClientRequestOptions
 }) {

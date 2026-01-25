@@ -24,9 +24,6 @@ export function useGetOauthAuthorize(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.oauth.authorize.$get>,
-      ) => InferResponseType<typeof client.oauth.authorize.$get>
     }
     client?: ClientRequestOptions
   },
@@ -205,9 +202,6 @@ export function useGetOauthUserinfo(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.oauth.userinfo.$get>,
-    ) => InferResponseType<typeof client.oauth.userinfo.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -244,9 +238,6 @@ export function useGetWellKnownOpenidConfiguration(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>,
-    ) => InferResponseType<(typeof client)['.well-known']['openid-configuration']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -284,9 +275,6 @@ export function useGetWellKnownJwksJson(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>,
-    ) => InferResponseType<(typeof client)['.well-known']['jwks.json']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -322,9 +310,6 @@ export function useGetOauthClients(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.oauth.clients.$get>,
-    ) => InferResponseType<typeof client.oauth.clients.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -392,9 +377,6 @@ export function useGetOauthClientsClientId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>,
-      ) => InferResponseType<(typeof client.oauth.clients)[':clientId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -547,9 +529,6 @@ export function useGetOauthConsents(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.oauth.consents.$get>,
-    ) => InferResponseType<typeof client.oauth.consents.$get>
   }
   client?: ClientRequestOptions
 }) {

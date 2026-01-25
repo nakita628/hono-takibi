@@ -21,9 +21,6 @@ export function createGetBoolean(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.boolean.$get>,
-    ) => InferResponseType<typeof client.boolean.$get>
   }
   client?: ClientRequestOptions
 }) {

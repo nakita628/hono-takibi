@@ -17,9 +17,6 @@ export function createGetUsers(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.users.$get>,
-    ) => InferResponseType<typeof client.users.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -83,9 +80,6 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.users)[':userId']['$get']>,
-      ) => InferResponseType<(typeof client.users)[':userId']['$get']>
     }
     client?: ClientRequestOptions
   },

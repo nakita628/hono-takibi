@@ -19,9 +19,6 @@ export function useGetMfaStatus(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.mfa.status.$get>,
-    ) => InferResponseType<typeof client.mfa.status.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -56,9 +53,6 @@ export function useGetMfaMethods(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.mfa.methods.$get>,
-    ) => InferResponseType<typeof client.mfa.methods.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -472,9 +466,6 @@ export function useGetMfaWebauthnCredentials(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.mfa.webauthn.credentials.$get>,
-    ) => InferResponseType<typeof client.mfa.webauthn.credentials.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -647,9 +638,6 @@ export function useGetMfaBackupCodesStatus(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>,
-    ) => InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>
   }
   client?: ClientRequestOptions
 }) {

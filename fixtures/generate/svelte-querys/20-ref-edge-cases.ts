@@ -19,9 +19,6 @@ export function createGetTest(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.test.$get>,
-      ) => InferResponseType<typeof client.test.$get>
     }
     client?: ClientRequestOptions
   },
@@ -55,9 +52,6 @@ export function createGetEmptyRefs(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['empty-refs']['$get']>,
-    ) => InferResponseType<(typeof client)['empty-refs']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -90,9 +84,6 @@ export function createGetUnicodeRefs(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['unicode-refs']['$get']>,
-    ) => InferResponseType<(typeof client)['unicode-refs']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -125,9 +116,6 @@ export function createGetSpecialChars(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['special-chars']['$get']>,
-    ) => InferResponseType<(typeof client)['special-chars']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -160,9 +148,6 @@ export function createGetNumericStart(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['numeric-start']['$get']>,
-    ) => InferResponseType<(typeof client)['numeric-start']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -195,9 +180,6 @@ export function createGetRefInAllof(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['ref-in-allof']['$get']>,
-    ) => InferResponseType<(typeof client)['ref-in-allof']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -230,9 +212,6 @@ export function createGetDeeplyNested(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['deeply-nested']['$get']>,
-    ) => InferResponseType<(typeof client)['deeply-nested']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -265,9 +244,6 @@ export function createGetSameNameDiffContext(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client)['same-name-diff-context']['$get']>,
-    ) => InferResponseType<(typeof client)['same-name-diff-context']['$get']>
   }
   client?: ClientRequestOptions
 }) {

@@ -23,9 +23,6 @@ export function createGet20100401AccountsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-      ) => InferResponseType<(typeof client)['2010-04-01']['Accounts.json']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -107,9 +104,6 @@ export function createGet20100401AccountsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-      ) => InferResponseType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -191,13 +185,6 @@ export function createGet20100401AccountsAccountSidAddressesJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -296,13 +283,6 @@ export function createGet20100401AccountsAccountSidAddressesSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -470,13 +450,6 @@ export function createGet20100401AccountsAccountSidApplicationsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -586,13 +559,6 @@ export function createGet20100401AccountsAccountSidApplicationsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -768,13 +734,6 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsConnectA
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -828,13 +787,6 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -882,13 +834,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -936,13 +881,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -989,13 +927,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1046,13 +977,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1105,13 +1029,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1162,13 +1079,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1219,13 +1129,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1276,13 +1179,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1333,13 +1229,6 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1394,13 +1283,6 @@ export function createGet20100401AccountsAccountSidBalanceJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1449,13 +1331,6 @@ export function createGet20100401AccountsAccountSidCallsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1562,13 +1437,6 @@ export function createGet20100401AccountsAccountSidCallsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1738,13 +1606,6 @@ export function createGet20100401AccountsAccountSidCallsCallSidEventsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1792,13 +1653,6 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsSidJ
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1845,13 +1699,6 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsJson
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -1903,13 +1750,6 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2022,13 +1862,6 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2202,13 +2035,6 @@ export function createGet20100401AccountsAccountSidConferencesSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2317,13 +2143,6 @@ export function createGet20100401AccountsAccountSidConferencesJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2372,13 +2191,6 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2432,13 +2244,6 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2615,13 +2420,6 @@ export function createGet20100401AccountsAccountSidConnectAppsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2797,13 +2595,6 @@ export function createGet20100401AccountsAccountSidConnectAppsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2848,13 +2639,6 @@ export function createGet20100401AccountsAccountSidAddressesAddressSidDependentP
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -2909,13 +2693,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3091,13 +2868,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3210,13 +2980,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3335,13 +3098,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3458,13 +3214,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3521,13 +3270,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3580,13 +3322,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3691,13 +3426,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJso
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3802,13 +3530,6 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJ
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -3913,13 +3634,6 @@ export function createGet20100401AccountsAccountSidKeysSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4074,13 +3788,6 @@ export function createGet20100401AccountsAccountSidKeysJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4183,13 +3890,6 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaSidJso
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4302,13 +4002,6 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4360,13 +4053,6 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJ
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4477,13 +4163,6 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4535,13 +4214,6 @@ export function createGet20100401AccountsAccountSidMessagesJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4648,13 +4320,6 @@ export function createGet20100401AccountsAccountSidMessagesSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -4887,13 +4552,6 @@ export function createGet20100401AccountsAccountSidSigningKeysJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -5000,13 +4658,6 @@ export function createGet20100401AccountsAccountSidNotificationsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -5058,13 +4709,6 @@ export function createGet20100401AccountsAccountSidNotificationsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -5116,13 +4760,6 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -5298,13 +4935,6 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -5413,13 +5043,6 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -5596,13 +5219,6 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -5835,13 +5451,6 @@ export function createGet20100401AccountsAccountSidQueuesSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6011,13 +5620,6 @@ export function createGet20100401AccountsAccountSidQueuesJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6245,13 +5847,6 @@ export function createGet20100401AccountsAccountSidRecordingsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6366,13 +5961,6 @@ export function createGet20100401AccountsAccountSidRecordingsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6421,13 +6009,6 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6544,13 +6125,6 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6604,13 +6178,6 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6729,13 +6296,6 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6792,13 +6352,6 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6851,13 +6404,6 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -6966,13 +6512,6 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7027,13 +6566,6 @@ export function createGet20100401AccountsAccountSidSMSShortCodesSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7146,13 +6678,6 @@ export function createGet20100401AccountsAccountSidSMSShortCodesJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7200,13 +6725,6 @@ export function createGet20100401AccountsAccountSidSigningKeysSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7374,13 +6892,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7497,13 +7008,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7622,13 +7126,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7745,13 +7242,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7870,13 +7360,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -7993,13 +7476,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -8118,13 +7594,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -8241,13 +7710,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -8426,13 +7888,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -8545,13 +8000,6 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -8727,13 +8175,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -8848,13 +8289,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -8973,13 +8407,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9086,13 +8513,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9268,13 +8688,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9387,13 +8800,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsSidJso
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9569,13 +8975,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9694,13 +9093,6 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9817,13 +9209,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -9940,13 +9325,6 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10427,13 +9805,6 @@ export function createGet20100401AccountsAccountSidTranscriptionsSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10548,13 +9919,6 @@ export function createGet20100401AccountsAccountSidTranscriptionsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10606,13 +9970,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10660,13 +10017,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10714,13 +10064,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsDailyJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10768,13 +10111,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10822,13 +10158,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10876,13 +10205,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10930,13 +10252,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsTodayJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -10984,13 +10299,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsYearlyJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -11038,13 +10346,6 @@ export function createGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -11096,13 +10397,6 @@ export function createGet20100401AccountsAccountSidUsageTriggersSidJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },
@@ -11274,13 +10568,6 @@ export function createGet20100401AccountsAccountSidUsageTriggersJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<
-          (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
-        >,
-      ) => InferResponseType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
-      >
     }
     client?: ClientRequestOptions
   },

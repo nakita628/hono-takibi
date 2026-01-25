@@ -23,9 +23,6 @@ export function createGetPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.posts.$get>,
-      ) => InferResponseType<typeof client.posts.$get>
     }
     client?: ClientRequestOptions
   },
@@ -94,9 +91,6 @@ export function createGetPostsPostId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -172,9 +166,6 @@ export function createGetPostsPostIdThread(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -216,9 +207,6 @@ export function createGetPostsPostIdContext(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['context']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['context']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -260,9 +248,6 @@ export function createGetTimelineHome(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.timeline.home.$get>,
-      ) => InferResponseType<typeof client.timeline.home.$get>
     }
     client?: ClientRequestOptions
   },
@@ -304,9 +289,6 @@ export function createGetTimelineForYou(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.timeline)['for-you']['$get']>,
-      ) => InferResponseType<(typeof client.timeline)['for-you']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -346,9 +328,6 @@ export function createGetTimelineUserUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.timeline.user)[':userId']['$get']>,
-      ) => InferResponseType<(typeof client.timeline.user)[':userId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -388,9 +367,6 @@ export function createGetTimelineHashtagHashtag(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
-      ) => InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -689,9 +665,6 @@ export function createGetBookmarks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.bookmarks.$get>,
-      ) => InferResponseType<typeof client.bookmarks.$get>
     }
     client?: ClientRequestOptions
   },
@@ -729,9 +702,6 @@ export function createGetPostsPostIdLikes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -771,9 +741,6 @@ export function createGetPostsPostIdReposts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -813,9 +780,6 @@ export function createGetPostsPostIdQuotes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -855,9 +819,6 @@ export function createGetPostsPostIdReplies(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -965,9 +926,6 @@ export function createGetMediaMediaId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.media)[':mediaId']['$get']>,
-      ) => InferResponseType<(typeof client.media)[':mediaId']['$get']>
     }
     client?: ClientRequestOptions
   },

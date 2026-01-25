@@ -169,9 +169,6 @@ export function useGetWebauthnCredentials(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.webauthn.credentials.$get>,
-    ) => InferResponseType<typeof client.webauthn.credentials.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -208,9 +205,6 @@ export function useGetWebauthnCredentialsCredentialId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-      ) => InferResponseType<(typeof client.webauthn.credentials)[':credentialId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -335,9 +329,6 @@ export function useGetWebauthnSettings(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.webauthn.settings.$get>,
-    ) => InferResponseType<typeof client.webauthn.settings.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -372,9 +363,6 @@ export function useGetWebauthnSettingsRp(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.webauthn.settings.rp.$get>,
-    ) => InferResponseType<typeof client.webauthn.settings.rp.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -445,9 +433,6 @@ export function useGetWebauthnAuthenticators(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.webauthn.authenticators.$get>,
-    ) => InferResponseType<typeof client.webauthn.authenticators.$get>
   }
   client?: ClientRequestOptions
 }) {

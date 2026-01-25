@@ -19,9 +19,6 @@ export function createGetSettingsAccount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.settings.account.$get>,
-    ) => InferResponseType<typeof client.settings.account.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -92,9 +89,6 @@ export function createGetSettingsUsernameCheck(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.settings.username.check.$get>,
-      ) => InferResponseType<typeof client.settings.username.check.$get>
     }
     client?: ClientRequestOptions
   },
@@ -132,9 +126,6 @@ export function createGetSettingsPrivacy(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.settings.privacy.$get>,
-    ) => InferResponseType<typeof client.settings.privacy.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -203,9 +194,6 @@ export function createGetSettingsContentPreferences(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.settings)['content-preferences']['$get']>,
-    ) => InferResponseType<(typeof client.settings)['content-preferences']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -278,9 +266,6 @@ export function createGetSettingsMutedWords(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.settings)['muted-words']['$get']>,
-    ) => InferResponseType<(typeof client.settings)['muted-words']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -393,9 +378,6 @@ export function createGetSettingsSessions(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.settings.sessions.$get>,
-    ) => InferResponseType<typeof client.settings.sessions.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -471,9 +453,6 @@ export function createGetSettingsConnectedApps(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<(typeof client.settings)['connected-apps']['$get']>,
-    ) => InferResponseType<(typeof client.settings)['connected-apps']['$get']>
   }
   client?: ClientRequestOptions
 }) {
@@ -583,9 +562,6 @@ export function createGetSettingsDataExportRequestId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>,
-      ) => InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -691,9 +667,6 @@ export function createGetReportsReportId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.reports)[':reportId']['$get']>,
-      ) => InferResponseType<(typeof client.reports)[':reportId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -735,9 +708,6 @@ export function createGetModerationQueue(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.moderation.queue.$get>,
-      ) => InferResponseType<typeof client.moderation.queue.$get>
     }
     client?: ClientRequestOptions
   },
@@ -777,9 +747,6 @@ export function createGetModerationItemsItemId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>,
-      ) => InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -859,9 +826,6 @@ export function createGetModerationUsersUserIdHistory(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>,
-      ) => InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -988,9 +952,6 @@ export function createGetAnalyticsPostsPostId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>,
-      ) => InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -1030,9 +991,6 @@ export function createGetAnalyticsAccount(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.analytics.account.$get>,
-      ) => InferResponseType<typeof client.analytics.account.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1072,9 +1030,6 @@ export function createGetAnalyticsFollowers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.analytics.followers.$get>,
-      ) => InferResponseType<typeof client.analytics.followers.$get>
     }
     client?: ClientRequestOptions
   },
@@ -1114,9 +1069,6 @@ export function createGetAnalyticsTopPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.analytics)['top-posts']['$get']>,
-      ) => InferResponseType<(typeof client.analytics)['top-posts']['$get']>
     }
     client?: ClientRequestOptions
   },

@@ -21,9 +21,6 @@ export function createGetPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.posts.$get>,
-      ) => InferResponseType<typeof client.posts.$get>
     }
     client?: ClientRequestOptions
   },
@@ -92,9 +89,6 @@ export function createGetPostsPostId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -202,9 +196,6 @@ export function createGetPostsSlugSlug(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts.slug)[':slug']['$get']>,
-      ) => InferResponseType<(typeof client.posts.slug)[':slug']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -318,9 +309,6 @@ export function createGetPostsPostIdComments(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.posts)[':postId']['comments']['$get']>,
-      ) => InferResponseType<(typeof client.posts)[':postId']['comments']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -470,9 +458,6 @@ export function createGetCategories(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.categories.$get>,
-    ) => InferResponseType<typeof client.categories.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -540,9 +525,6 @@ export function createGetCategoriesCategoryId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.categories)[':categoryId']['$get']>,
-      ) => InferResponseType<(typeof client.categories)[':categoryId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -655,9 +637,6 @@ export function createGetTags(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.tags.$get>,
-      ) => InferResponseType<typeof client.tags.$get>
     }
     client?: ClientRequestOptions
   },
@@ -726,9 +705,6 @@ export function createGetMedia(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.media.$get>,
-      ) => InferResponseType<typeof client.media.$get>
     }
     client?: ClientRequestOptions
   },
@@ -797,9 +773,6 @@ export function createGetMediaMediaId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.media)[':mediaId']['$get']>,
-      ) => InferResponseType<(typeof client.media)[':mediaId']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -905,9 +878,6 @@ export function createGetAuthors(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    select?: (
-      data: InferResponseType<typeof client.authors.$get>,
-    ) => InferResponseType<typeof client.authors.$get>
   }
   client?: ClientRequestOptions
 }) {
@@ -944,9 +914,6 @@ export function createGetAuthorsAuthorId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.authors)[':authorId']['$get']>,
-      ) => InferResponseType<(typeof client.authors)[':authorId']['$get']>
     }
     client?: ClientRequestOptions
   },

@@ -19,9 +19,6 @@ export function useGetResources(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<typeof client.resources.$get>,
-      ) => InferResponseType<typeof client.resources.$get>
     }
     client?: ClientRequestOptions
   },
@@ -57,9 +54,6 @@ export function useGetResourcesId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.resources)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.resources)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
@@ -129,9 +123,6 @@ export function useGetDownloadId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      select?: (
-        data: InferResponseType<(typeof client.download)[':id']['$get']>,
-      ) => InferResponseType<(typeof client.download)[':id']['$get']>
     }
     client?: ClientRequestOptions
   },
