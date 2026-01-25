@@ -110,7 +110,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId
+ * Generates SWR cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdKey(
   args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -169,7 +169,7 @@ export function useGetCompaniesCompanyId(
 }
 
 /**
- * Generates SWR cache key for GET /companies/{companyId
+ * Generates SWR cache key for GET /companies/{companyId}
  */
 export function getGetCompaniesCompanyIdKey(
   args?: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
@@ -258,7 +258,7 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId
+ * Generates SWR cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdKey(
   args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -292,7 +292,7 @@ export function useGetFilesFileId(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId
+ * Generates SWR cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,

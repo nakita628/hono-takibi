@@ -220,7 +220,7 @@ export function useGetSessionsSessionId(
 }
 
 /**
- * Generates SWR cache key for GET /sessions/{sessionId
+ * Generates SWR cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdKey(
   args?: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,

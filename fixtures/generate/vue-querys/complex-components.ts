@@ -139,7 +139,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId
+ * Generates Vue Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -215,7 +215,7 @@ export function useGetCompaniesCompanyId(
 }
 
 /**
- * Generates Vue Query cache key for GET /companies/{companyId
+ * Generates Vue Query cache key for GET /companies/{companyId}
  */
 export function getGetCompaniesCompanyIdQueryKey(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
@@ -328,7 +328,7 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates Vue Query cache key for GET /orders/{orderId
+ * Generates Vue Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -370,7 +370,7 @@ export function useGetFilesFileId(
 }
 
 /**
- * Generates Vue Query cache key for GET /files/{fileId
+ * Generates Vue Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,

@@ -73,7 +73,7 @@ export function createGetItemsItemId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /items/{itemId
+ * Generates Svelte Query cache key for GET /items/{itemId}
  */
 export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,

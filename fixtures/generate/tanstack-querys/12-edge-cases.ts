@@ -275,7 +275,7 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{userId/posts/{postId/comments/{commentId
+ * Generates TanStack Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
   args: InferRequestType<
@@ -318,7 +318,7 @@ export function useGetParamsTestPathParam(
 }
 
 /**
- * Generates TanStack Query cache key for GET /params-test/{pathParam
+ * Generates TanStack Query cache key for GET /params-test/{pathParam}
  */
 export function getGetParamsTestPathParamQueryKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,

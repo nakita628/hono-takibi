@@ -80,7 +80,7 @@ export function createGetNotificationsNotificationId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /notifications/{notificationId
+ * Generates Svelte Query cache key for GET /notifications/{notificationId}
  */
 export function getGetNotificationsNotificationIdQueryKey(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
@@ -348,7 +348,7 @@ export function createGetMessagesMessageId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /messages/{messageId
+ * Generates Svelte Query cache key for GET /messages/{messageId}
  */
 export function getGetMessagesMessageIdQueryKey(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
@@ -461,7 +461,7 @@ export function createGetTemplatesTemplateId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /templates/{templateId
+ * Generates Svelte Query cache key for GET /templates/{templateId}
  */
 export function getGetTemplatesTemplateIdQueryKey(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
@@ -862,7 +862,7 @@ export function createGetWebhooksWebhookId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webhooks/{webhookId
+ * Generates Svelte Query cache key for GET /webhooks/{webhookId}
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,

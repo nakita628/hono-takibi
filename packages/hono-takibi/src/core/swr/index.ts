@@ -79,14 +79,17 @@ const makeKeyGetterCode = (
   inferRequestType: string,
   honoPath: string,
 ): string => {
+  // Add space between * and / to prevent early comment termination (* / instead of */)
+  const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
+  const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
   if (hasArgs) {
     return `/**
- * Generates SWR cache key for GET ${honoPath.replace(/:([^/]+)/g, '{$1}')}
+ * Generates SWR cache key for GET ${safeCommentPath}
  */
 export function ${keyGetterName}(args?:${inferRequestType}){return['${honoPath}',...(args?[args]:[])]as const}`
   }
   return `/**
- * Generates SWR cache key for GET ${honoPath}
+ * Generates SWR cache key for GET ${safeCommentPathNoParam}
  */
 export function ${keyGetterName}(){return['${honoPath}']as const}`
 }

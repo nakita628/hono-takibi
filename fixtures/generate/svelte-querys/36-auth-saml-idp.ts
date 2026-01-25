@@ -336,7 +336,7 @@ export function createGetServiceProvidersSpId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId
+ * Generates Svelte Query cache key for GET /service-providers/{spId}
  */
 export function getGetServiceProvidersSpIdQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
@@ -453,7 +453,7 @@ export function createGetServiceProvidersSpIdMetadata(
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId/metadata
+ * Generates Svelte Query cache key for GET /service-providers/{spId}/metadata
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
@@ -545,7 +545,7 @@ export function createGetServiceProvidersSpIdAttributes(
 }
 
 /**
- * Generates Svelte Query cache key for GET /service-providers/{spId/attributes
+ * Generates Svelte Query cache key for GET /service-providers/{spId}/attributes
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,

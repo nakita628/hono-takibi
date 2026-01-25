@@ -285,7 +285,7 @@ export function createGetSessionsSessionId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /sessions/{sessionId
+ * Generates Svelte Query cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdQueryKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,

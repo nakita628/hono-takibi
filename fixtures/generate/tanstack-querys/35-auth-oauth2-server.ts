@@ -408,7 +408,7 @@ export function useGetOauthClientsClientId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /oauth/clients/{clientId
+ * Generates TanStack Query cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,

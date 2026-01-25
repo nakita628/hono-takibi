@@ -60,7 +60,7 @@ export function useGetItemsItemId(
 }
 
 /**
- * Generates SWR cache key for GET /items/{itemId
+ * Generates SWR cache key for GET /items/{itemId}
  */
 export function getGetItemsItemIdKey(
   args?: InferRequestType<(typeof client.items)[':itemId']['$get']>,

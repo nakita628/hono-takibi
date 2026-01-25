@@ -408,7 +408,7 @@ export function createGetOauthClientsClientId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /oauth/clients/{clientId
+ * Generates Svelte Query cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,

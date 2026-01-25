@@ -225,7 +225,7 @@ export function useGetWebauthnCredentialsCredentialId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /webauthn/credentials/{credentialId
+ * Generates TanStack Query cache key for GET /webauthn/credentials/{credentialId}
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,

@@ -87,7 +87,7 @@ export function useGetProductsProductId(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId
+ * Generates SWR cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdKey(
   args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
@@ -429,7 +429,7 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId
+ * Generates SWR cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdKey(
   args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -488,7 +488,7 @@ export function useGetInventoryProductId(
 }
 
 /**
- * Generates SWR cache key for GET /inventory/{productId
+ * Generates SWR cache key for GET /inventory/{productId}
  */
 export function getGetInventoryProductIdKey(
   args?: InferRequestType<(typeof client.inventory)[':productId']['$get']>,

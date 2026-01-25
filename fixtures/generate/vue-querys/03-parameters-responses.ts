@@ -73,7 +73,7 @@ export function useGetItemsItemId(
 }
 
 /**
- * Generates Vue Query cache key for GET /items/{itemId
+ * Generates Vue Query cache key for GET /items/{itemId}
  */
 export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,

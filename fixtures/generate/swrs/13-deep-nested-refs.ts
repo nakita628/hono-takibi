@@ -40,7 +40,7 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 }
 
 /**
- * Generates SWR cache key for GET /organizations/{orgId/departments/{deptId/teams/{teamId/members
+ * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
   args?: InferRequestType<

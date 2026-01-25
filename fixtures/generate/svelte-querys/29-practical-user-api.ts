@@ -278,7 +278,7 @@ export function createGetUsersUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId
+ * Generates Svelte Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,

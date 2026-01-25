@@ -73,7 +73,7 @@ export function createGetResourcesId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /resources/{id
+ * Generates Svelte Query cache key for GET /resources/{id}
  */
 export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
@@ -145,7 +145,7 @@ export function createGetDownloadId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /download/{id
+ * Generates Svelte Query cache key for GET /download/{id}
  */
 export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,

@@ -303,7 +303,7 @@ export function useGetDmConversationsConversationId(
 }
 
 /**
- * Generates Vue Query cache key for GET /dm/conversations/{conversationId
+ * Generates Vue Query cache key for GET /dm/conversations/{conversationId}
  */
 export function getGetDmConversationsConversationIdQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
@@ -391,7 +391,7 @@ export function useGetDmConversationsConversationIdMessages(
 }
 
 /**
- * Generates Vue Query cache key for GET /dm/conversations/{conversationId/messages
+ * Generates Vue Query cache key for GET /dm/conversations/{conversationId}/messages
  */
 export function getGetDmConversationsConversationIdMessagesQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,

@@ -81,7 +81,7 @@ export function useGetEntitiesEntityId(
 }
 
 /**
- * Generates SWR cache key for GET /entities/{entityId
+ * Generates SWR cache key for GET /entities/{entityId}
  */
 export function getGetEntitiesEntityIdKey(
   args?: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
@@ -161,7 +161,7 @@ export function useGetEntitiesEntityIdRelationships(
 }
 
 /**
- * Generates SWR cache key for GET /entities/{entityId/relationships
+ * Generates SWR cache key for GET /entities/{entityId}/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsKey(
   args?: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,

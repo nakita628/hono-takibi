@@ -278,7 +278,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId
+ * Generates Vue Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,

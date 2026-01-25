@@ -103,7 +103,7 @@ export function createGetApplicationsApplicationId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id
+ * Generates Svelte Query cache key for GET /applications/{application_id}
  */
 export function getGetApplicationsApplicationIdQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
@@ -192,7 +192,7 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/activity-instances/{instance_id
+ * Generates Svelte Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
   args: InferRequestType<
@@ -287,7 +287,7 @@ export function createGetApplicationsApplicationIdCommands(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/commands
+ * Generates Svelte Query cache key for GET /applications/{application_id}/commands
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
@@ -426,7 +426,7 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/commands/{command_id
+ * Generates Svelte Query cache key for GET /applications/{application_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -579,7 +579,7 @@ export function createGetApplicationsApplicationIdEmojis(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/emojis
+ * Generates Svelte Query cache key for GET /applications/{application_id}/emojis
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
@@ -673,7 +673,7 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/emojis/{emoji_id
+ * Generates Svelte Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
   args: InferRequestType<
@@ -830,7 +830,7 @@ export function createGetApplicationsApplicationIdEntitlements(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/entitlements
+ * Generates Svelte Query cache key for GET /applications/{application_id}/entitlements
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
@@ -934,7 +934,7 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/entitlements/{entitlement_id
+ * Generates Svelte Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
   args: InferRequestType<
@@ -1106,7 +1106,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/guilds/{guild_id/commands
+ * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
   args: InferRequestType<
@@ -1274,7 +1274,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/permissions
+ * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
   args: InferRequestType<
@@ -1328,7 +1328,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id
+ * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -1498,7 +1498,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id/permissions
+ * Generates Svelte Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
   args: InferRequestType<
@@ -1611,7 +1611,7 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
 }
 
 /**
- * Generates Svelte Query cache key for GET /applications/{application_id/role-connections/metadata
+ * Generates Svelte Query cache key for GET /applications/{application_id}/role-connections/metadata
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
   args: InferRequestType<
@@ -1710,7 +1710,7 @@ export function createGetChannelsChannelId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id
+ * Generates Svelte Query cache key for GET /channels/{channel_id}
  */
 export function getGetChannelsChannelIdQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
@@ -1857,7 +1857,7 @@ export function createGetChannelsChannelIdInvites(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/invites
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/invites
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
@@ -1937,7 +1937,7 @@ export function createGetChannelsChannelIdMessages(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/messages
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/messages
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
@@ -2073,7 +2073,7 @@ export function createGetChannelsChannelIdMessagesPins(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/messages/pins
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/messages/pins
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
@@ -2234,7 +2234,7 @@ export function createGetChannelsChannelIdMessagesMessageId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/messages/{message_id
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/messages/{message_id}
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
   args: InferRequestType<
@@ -2511,7 +2511,7 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/messages/{message_id/reactions/{emoji_name
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
   args: InferRequestType<
@@ -2954,7 +2954,7 @@ export function createGetChannelsChannelIdPins(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/pins
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/pins
  */
 export function getGetChannelsChannelIdPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
@@ -3112,7 +3112,7 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/polls/{message_id/answers/{answer_id
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
   args: InferRequestType<
@@ -3377,7 +3377,7 @@ export function createGetChannelsChannelIdThreadMembers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/thread-members
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/thread-members
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
@@ -3538,7 +3538,7 @@ export function createGetChannelsChannelIdThreadMembersUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/thread-members/{user_id
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
   args: InferRequestType<
@@ -3738,7 +3738,7 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/threads/archived/private
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/threads/archived/private
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -3789,7 +3789,7 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/threads/archived/public
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/threads/archived/public
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
   args: InferRequestType<
@@ -3834,7 +3834,7 @@ export function createGetChannelsChannelIdThreadsSearch(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/threads/search
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/threads/search
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
@@ -3925,7 +3925,7 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/users/@me/threads/archived/private
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -3968,7 +3968,7 @@ export function createGetChannelsChannelIdWebhooks(
 }
 
 /**
- * Generates Svelte Query cache key for GET /channels/{channel_id/webhooks
+ * Generates Svelte Query cache key for GET /channels/{channel_id}/webhooks
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
@@ -4115,7 +4115,7 @@ export function createGetGuildsTemplatesCode(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/templates/{code
+ * Generates Svelte Query cache key for GET /guilds/templates/{code}
  */
 export function getGetGuildsTemplatesCodeQueryKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
@@ -4155,7 +4155,7 @@ export function createGetGuildsGuildId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}
  */
 export function getGetGuildsGuildIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
@@ -4228,7 +4228,7 @@ export function createGetGuildsGuildIdAuditLogs(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/audit-logs
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/audit-logs
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
@@ -4273,7 +4273,7 @@ export function createGetGuildsGuildIdAutoModerationRules(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/auto-moderation/rules
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
@@ -4374,7 +4374,7 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/auto-moderation/rules/{rule_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
   args: InferRequestType<
@@ -4529,7 +4529,7 @@ export function createGetGuildsGuildIdBans(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/bans
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/bans
  */
 export function getGetGuildsGuildIdBansQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
@@ -4570,7 +4570,7 @@ export function createGetGuildsGuildIdBansUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/bans/{user_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/bans/{user_id}
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
@@ -4732,7 +4732,7 @@ export function createGetGuildsGuildIdChannels(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/channels
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/channels
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
@@ -4846,7 +4846,7 @@ export function createGetGuildsGuildIdEmojis(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/emojis
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/emojis
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
@@ -4922,7 +4922,7 @@ export function createGetGuildsGuildIdEmojisEmojiId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/emojis/{emoji_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
@@ -5055,7 +5055,7 @@ export function createGetGuildsGuildIdIntegrations(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/integrations
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/integrations
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
@@ -5152,7 +5152,7 @@ export function createGetGuildsGuildIdInvites(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/invites
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/invites
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
@@ -5193,7 +5193,7 @@ export function createGetGuildsGuildIdMembers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/members
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/members
  */
 export function getGetGuildsGuildIdMembersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
@@ -5271,7 +5271,7 @@ export function createGetGuildsGuildIdMembersSearch(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/members/search
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/members/search
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
@@ -5312,7 +5312,7 @@ export function createGetGuildsGuildIdMembersUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/members/{user_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/members/{user_id}
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
@@ -5609,7 +5609,7 @@ export function createGetGuildsGuildIdMessagesSearch(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/messages/search
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/messages/search
  */
 export function getGetGuildsGuildIdMessagesSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['messages']['search']['$get']>,
@@ -5654,7 +5654,7 @@ export function createGetGuildsGuildIdNewMemberWelcome(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/new-member-welcome
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/new-member-welcome
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
@@ -5695,7 +5695,7 @@ export function createGetGuildsGuildIdOnboarding(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/onboarding
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/onboarding
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
@@ -5773,7 +5773,7 @@ export function createGetGuildsGuildIdPreview(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/preview
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/preview
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
@@ -5813,7 +5813,7 @@ export function createGetGuildsGuildIdPrune(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/prune
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/prune
  */
 export function getGetGuildsGuildIdPruneQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
@@ -5889,7 +5889,7 @@ export function createGetGuildsGuildIdRegions(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/regions
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/regions
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
@@ -5929,7 +5929,7 @@ export function createGetGuildsGuildIdRoles(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/roles
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/roles
  */
 export function getGetGuildsGuildIdRolesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
@@ -6042,7 +6042,7 @@ export function createGetGuildsGuildIdRolesMemberCounts(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/roles/member-counts
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/roles/member-counts
  */
 export function getGetGuildsGuildIdRolesMemberCountsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['member-counts']['$get']>,
@@ -6083,7 +6083,7 @@ export function createGetGuildsGuildIdRolesRoleId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/roles/{role_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/roles/{role_id}
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
@@ -6216,7 +6216,7 @@ export function createGetGuildsGuildIdScheduledEvents(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/scheduled-events
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/scheduled-events
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
@@ -6305,7 +6305,7 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
   args: InferRequestType<
@@ -6475,7 +6475,7 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id/users
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
   args: InferRequestType<
@@ -6518,7 +6518,7 @@ export function createGetGuildsGuildIdSoundboardSounds(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/soundboard-sounds
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/soundboard-sounds
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
@@ -6612,7 +6612,7 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/soundboard-sounds/{sound_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
   args: InferRequestType<
@@ -6765,7 +6765,7 @@ export function createGetGuildsGuildIdStickers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/stickers
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/stickers
  */
 export function getGetGuildsGuildIdStickersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
@@ -6843,7 +6843,7 @@ export function createGetGuildsGuildIdStickersStickerId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/stickers/{sticker_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
@@ -6992,7 +6992,7 @@ export function createGetGuildsGuildIdTemplates(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/templates
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/templates
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
@@ -7205,7 +7205,7 @@ export function createGetGuildsGuildIdThreadsActive(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/threads/active
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/threads/active
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
@@ -7246,7 +7246,7 @@ export function createGetGuildsGuildIdVanityUrl(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/vanity-url
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/vanity-url
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
@@ -7287,7 +7287,7 @@ export function createGetGuildsGuildIdVoiceStatesMe(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/voice-states/@me
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/voice-states/@me
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
@@ -7382,7 +7382,7 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/voice-states/{user_id
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
@@ -7479,7 +7479,7 @@ export function createGetGuildsGuildIdWebhooks(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/webhooks
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/webhooks
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
@@ -7520,7 +7520,7 @@ export function createGetGuildsGuildIdWelcomeScreen(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/welcome-screen
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/welcome-screen
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
@@ -7597,7 +7597,7 @@ export function createGetGuildsGuildIdWidget(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/widget
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/widget
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
@@ -7673,7 +7673,7 @@ export function createGetGuildsGuildIdWidgetJson(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/widget.json
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/widget.json
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
@@ -7714,7 +7714,7 @@ export function createGetGuildsGuildIdWidgetPng(
 }
 
 /**
- * Generates Svelte Query cache key for GET /guilds/{guild_id/widget.png
+ * Generates Svelte Query cache key for GET /guilds/{guild_id}/widget.png
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
@@ -7813,7 +7813,7 @@ export function createGetInvitesCode(
 }
 
 /**
- * Generates Svelte Query cache key for GET /invites/{code
+ * Generates Svelte Query cache key for GET /invites/{code}
  */
 export function getGetInvitesCodeQueryKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
@@ -7943,7 +7943,7 @@ export function createGetLobbiesLobbyId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /lobbies/{lobby_id
+ * Generates Svelte Query cache key for GET /lobbies/{lobby_id}
  */
 export function getGetLobbiesLobbyIdQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
@@ -8346,7 +8346,7 @@ export function createGetLobbiesLobbyIdMessages(
 }
 
 /**
- * Generates Svelte Query cache key for GET /lobbies/{lobby_id/messages
+ * Generates Svelte Query cache key for GET /lobbies/{lobby_id}/messages
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
@@ -8814,7 +8814,7 @@ export function createGetStageInstancesChannelId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /stage-instances/{channel_id
+ * Generates Svelte Query cache key for GET /stage-instances/{channel_id}
  */
 export function getGetStageInstancesChannelIdQueryKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
@@ -8966,7 +8966,7 @@ export function createGetStickerPacksPackId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /sticker-packs/{pack_id
+ * Generates Svelte Query cache key for GET /sticker-packs/{pack_id}
  */
 export function getGetStickerPacksPackIdQueryKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
@@ -9006,7 +9006,7 @@ export function createGetStickersStickerId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /stickers/{sticker_id
+ * Generates Svelte Query cache key for GET /stickers/{sticker_id}
  */
 export function getGetStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
@@ -9122,7 +9122,7 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/@me/applications/{application_id/entitlements
+ * Generates Svelte Query cache key for GET /users/@me/applications/{application_id}/entitlements
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<
@@ -9176,7 +9176,7 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/@me/applications/{application_id/role-connection
+ * Generates Svelte Query cache key for GET /users/@me/applications/{application_id}/role-connection
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
   args: InferRequestType<
@@ -9486,7 +9486,7 @@ export function createGetUsersMeGuildsGuildIdMember(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/@me/guilds/{guild_id/member
+ * Generates Svelte Query cache key for GET /users/@me/guilds/{guild_id}/member
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
@@ -9526,7 +9526,7 @@ export function createGetUsersUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{user_id
+ * Generates Svelte Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -9601,7 +9601,7 @@ export function createGetWebhooksWebhookId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webhooks/{webhook_id
+ * Generates Svelte Query cache key for GET /webhooks/{webhook_id}
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
@@ -9711,7 +9711,7 @@ export function createGetWebhooksWebhookIdWebhookToken(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webhooks/{webhook_id/{webhook_token
+ * Generates Svelte Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
@@ -9960,7 +9960,7 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/@original
+ * Generates Svelte Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
   args: InferRequestType<
@@ -10130,7 +10130,7 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/{message_id
+ * Generates Svelte Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
   args: InferRequestType<

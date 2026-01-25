@@ -89,7 +89,7 @@ export function useGetProductsProductId(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId
+ * Generates SWR cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdKey(
   args?: InferRequestType<(typeof client.products)[':productId']['$get']>,

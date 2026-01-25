@@ -68,7 +68,7 @@ export function useGetAlbumsId(
 }
 
 /**
- * Generates SWR cache key for GET /albums/{id
+ * Generates SWR cache key for GET /albums/{id}
  */
 export function getGetAlbumsIdKey(args?: InferRequestType<(typeof client.albums)[':id']['$get']>) {
   return ['/albums/:id', ...(args ? [args] : [])] as const
@@ -103,7 +103,7 @@ export function useGetAlbumsIdTracks(
 }
 
 /**
- * Generates SWR cache key for GET /albums/{id/tracks
+ * Generates SWR cache key for GET /albums/{id}/tracks
  */
 export function getGetAlbumsIdTracksKey(
   args?: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
@@ -173,7 +173,7 @@ export function useGetArtistsId(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id
+ * Generates SWR cache key for GET /artists/{id}
  */
 export function getGetArtistsIdKey(
   args?: InferRequestType<(typeof client.artists)[':id']['$get']>,
@@ -209,7 +209,7 @@ export function useGetArtistsIdAlbums(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id/albums
+ * Generates SWR cache key for GET /artists/{id}/albums
  */
 export function getGetArtistsIdAlbumsKey(
   args?: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
@@ -245,7 +245,7 @@ export function useGetArtistsIdRelatedArtists(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id/related-artists
+ * Generates SWR cache key for GET /artists/{id}/related-artists
  */
 export function getGetArtistsIdRelatedArtistsKey(
   args?: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
@@ -281,7 +281,7 @@ export function useGetArtistsIdTopTracks(
 }
 
 /**
- * Generates SWR cache key for GET /artists/{id/top-tracks
+ * Generates SWR cache key for GET /artists/{id}/top-tracks
  */
 export function getGetArtistsIdTopTracksKey(
   args?: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
@@ -317,7 +317,7 @@ export function useGetAudioAnalysisId(
 }
 
 /**
- * Generates SWR cache key for GET /audio-analysis/{id
+ * Generates SWR cache key for GET /audio-analysis/{id}
  */
 export function getGetAudioAnalysisIdKey(
   args?: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
@@ -390,7 +390,7 @@ export function useGetAudioFeaturesId(
 }
 
 /**
- * Generates SWR cache key for GET /audio-features/{id
+ * Generates SWR cache key for GET /audio-features/{id}
  */
 export function getGetAudioFeaturesIdKey(
   args?: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
@@ -462,7 +462,7 @@ export function useGetAudiobooksId(
 }
 
 /**
- * Generates SWR cache key for GET /audiobooks/{id
+ * Generates SWR cache key for GET /audiobooks/{id}
  */
 export function getGetAudiobooksIdKey(
   args?: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
@@ -499,7 +499,7 @@ export function useGetAudiobooksIdChapters(
 }
 
 /**
- * Generates SWR cache key for GET /audiobooks/{id/chapters
+ * Generates SWR cache key for GET /audiobooks/{id}/chapters
  */
 export function getGetAudiobooksIdChaptersKey(
   args?: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
@@ -572,7 +572,7 @@ export function useGetBrowseCategoriesCategoryId(
 }
 
 /**
- * Generates SWR cache key for GET /browse/categories/{category_id
+ * Generates SWR cache key for GET /browse/categories/{category_id}
  */
 export function getGetBrowseCategoriesCategoryIdKey(
   args?: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
@@ -610,7 +610,7 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
 }
 
 /**
- * Generates SWR cache key for GET /browse/categories/{category_id/playlists
+ * Generates SWR cache key for GET /browse/categories/{category_id}/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsKey(
   args?: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
@@ -754,7 +754,7 @@ export function useGetChaptersId(
 }
 
 /**
- * Generates SWR cache key for GET /chapters/{id
+ * Generates SWR cache key for GET /chapters/{id}
  */
 export function getGetChaptersIdKey(
   args?: InferRequestType<(typeof client.chapters)[':id']['$get']>,
@@ -825,7 +825,7 @@ export function useGetEpisodesId(
 }
 
 /**
- * Generates SWR cache key for GET /episodes/{id
+ * Generates SWR cache key for GET /episodes/{id}
  */
 export function getGetEpisodesIdKey(
   args?: InferRequestType<(typeof client.episodes)[':id']['$get']>,
@@ -1983,7 +1983,7 @@ export function useGetMeTopType(
 }
 
 /**
- * Generates SWR cache key for GET /me/top/{type
+ * Generates SWR cache key for GET /me/top/{type}
  */
 export function getGetMeTopTypeKey(
   args?: InferRequestType<(typeof client.me.top)[':type']['$get']>,
@@ -2139,7 +2139,7 @@ export function useGetPlaylistsPlaylistId(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id
+ * Generates SWR cache key for GET /playlists/{playlist_id}
  */
 export function getGetPlaylistsPlaylistIdKey(
   args?: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
@@ -2269,7 +2269,7 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id/followers/contains
+ * Generates SWR cache key for GET /playlists/{playlist_id}/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsKey(
   args?: InferRequestType<
@@ -2307,7 +2307,7 @@ export function useGetPlaylistsPlaylistIdImages(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id/images
+ * Generates SWR cache key for GET /playlists/{playlist_id}/images
  */
 export function getGetPlaylistsPlaylistIdImagesKey(
   args?: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
@@ -2372,7 +2372,7 @@ export function useGetPlaylistsPlaylistIdTracks(
 }
 
 /**
- * Generates SWR cache key for GET /playlists/{playlist_id/tracks
+ * Generates SWR cache key for GET /playlists/{playlist_id}/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksKey(
   args?: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
@@ -2645,7 +2645,7 @@ export function useGetShowsId(
 }
 
 /**
- * Generates SWR cache key for GET /shows/{id
+ * Generates SWR cache key for GET /shows/{id}
  */
 export function getGetShowsIdKey(args?: InferRequestType<(typeof client.shows)[':id']['$get']>) {
   return ['/shows/:id', ...(args ? [args] : [])] as const
@@ -2679,7 +2679,7 @@ export function useGetShowsIdEpisodes(
 }
 
 /**
- * Generates SWR cache key for GET /shows/{id/episodes
+ * Generates SWR cache key for GET /shows/{id}/episodes
  */
 export function getGetShowsIdEpisodesKey(
   args?: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
@@ -2750,7 +2750,7 @@ export function useGetTracksId(
 }
 
 /**
- * Generates SWR cache key for GET /tracks/{id
+ * Generates SWR cache key for GET /tracks/{id}
  */
 export function getGetTracksIdKey(args?: InferRequestType<(typeof client.tracks)[':id']['$get']>) {
   return ['/tracks/:id', ...(args ? [args] : [])] as const
@@ -2784,7 +2784,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{user_id
+ * Generates SWR cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdKey(
   args?: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -2820,7 +2820,7 @@ export function useGetUsersUserIdPlaylists(
 }
 
 /**
- * Generates SWR cache key for GET /users/{user_id/playlists
+ * Generates SWR cache key for GET /users/{user_id}/playlists
  */
 export function getGetUsersUserIdPlaylistsKey(
   args?: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,

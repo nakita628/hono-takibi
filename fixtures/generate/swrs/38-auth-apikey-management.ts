@@ -87,7 +87,7 @@ export function useGetApiKeysKeyId(
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId
+ * Generates SWR cache key for GET /api-keys/{keyId}
  */
 export function getGetApiKeysKeyIdKey(
   args?: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
@@ -221,7 +221,7 @@ export function useGetApiKeysKeyIdUsage(
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId/usage
+ * Generates SWR cache key for GET /api-keys/{keyId}/usage
  */
 export function getGetApiKeysKeyIdUsageKey(
   args?: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
@@ -257,7 +257,7 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 }
 
 /**
- * Generates SWR cache key for GET /api-keys/{keyId/rate-limit/current
+ * Generates SWR cache key for GET /api-keys/{keyId}/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentKey(
   args?: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,

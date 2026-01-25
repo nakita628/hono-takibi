@@ -102,7 +102,7 @@ export function createGetEntitiesEntityId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /entities/{entityId
+ * Generates Svelte Query cache key for GET /entities/{entityId}
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
@@ -209,7 +209,7 @@ export function createGetEntitiesEntityIdRelationships(
 }
 
 /**
- * Generates Svelte Query cache key for GET /entities/{entityId/relationships
+ * Generates Svelte Query cache key for GET /entities/{entityId}/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,

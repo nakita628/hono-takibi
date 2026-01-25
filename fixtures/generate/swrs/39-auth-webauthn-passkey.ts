@@ -173,7 +173,7 @@ export function useGetWebauthnCredentialsCredentialId(
 }
 
 /**
- * Generates SWR cache key for GET /webauthn/credentials/{credentialId
+ * Generates SWR cache key for GET /webauthn/credentials/{credentialId}
  */
 export function getGetWebauthnCredentialsCredentialIdKey(
   args?: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,

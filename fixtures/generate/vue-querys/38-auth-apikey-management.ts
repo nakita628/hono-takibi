@@ -111,7 +111,7 @@ export function useGetApiKeysKeyId(
 }
 
 /**
- * Generates Vue Query cache key for GET /api-keys/{keyId
+ * Generates Vue Query cache key for GET /api-keys/{keyId}
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
@@ -300,7 +300,7 @@ export function useGetApiKeysKeyIdUsage(
 }
 
 /**
- * Generates Vue Query cache key for GET /api-keys/{keyId/usage
+ * Generates Vue Query cache key for GET /api-keys/{keyId}/usage
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
@@ -345,7 +345,7 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 }
 
 /**
- * Generates Vue Query cache key for GET /api-keys/{keyId/rate-limit/current
+ * Generates Vue Query cache key for GET /api-keys/{keyId}/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,

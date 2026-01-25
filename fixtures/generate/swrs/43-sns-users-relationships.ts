@@ -32,7 +32,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId
+ * Generates SWR cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdKey(
   args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -66,7 +66,7 @@ export function useGetUsersByUsernameUsername(
 }
 
 /**
- * Generates SWR cache key for GET /users/by/username/{username
+ * Generates SWR cache key for GET /users/by/username/{username}
  */
 export function getGetUsersByUsernameUsernameKey(
   args?: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
@@ -356,7 +356,7 @@ export function useGetUsersUserIdFollowers(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId/followers
+ * Generates SWR cache key for GET /users/{userId}/followers
  */
 export function getGetUsersUserIdFollowersKey(
   args?: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
@@ -390,7 +390,7 @@ export function useGetUsersUserIdFollowing(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId/following
+ * Generates SWR cache key for GET /users/{userId}/following
  */
 export function getGetUsersUserIdFollowingKey(
   args?: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
@@ -797,7 +797,7 @@ export function useGetListsListId(
 }
 
 /**
- * Generates SWR cache key for GET /lists/{listId
+ * Generates SWR cache key for GET /lists/{listId}
  */
 export function getGetListsListIdKey(
   args?: InferRequestType<(typeof client.lists)[':listId']['$get']>,
@@ -881,7 +881,7 @@ export function useGetListsListIdMembers(
 }
 
 /**
- * Generates SWR cache key for GET /lists/{listId/members
+ * Generates SWR cache key for GET /lists/{listId}/members
  */
 export function getGetListsListIdMembersKey(
   args?: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
@@ -970,7 +970,7 @@ export function useGetListsListIdTimeline(
 }
 
 /**
- * Generates SWR cache key for GET /lists/{listId/timeline
+ * Generates SWR cache key for GET /lists/{listId}/timeline
  */
 export function getGetListsListIdTimelineKey(
   args?: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
@@ -1004,7 +1004,7 @@ export function useGetUsersUserIdLists(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId/lists
+ * Generates SWR cache key for GET /users/{userId}/lists
  */
 export function getGetUsersUserIdListsKey(
   args?: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,

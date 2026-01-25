@@ -108,7 +108,7 @@ export function createGetProjectsProjectId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects/{projectId
+ * Generates Svelte Query cache key for GET /projects/{projectId}
  */
 export function getGetProjectsProjectIdQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
@@ -221,7 +221,7 @@ export function createGetProjectsProjectIdMembers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects/{projectId/members
+ * Generates Svelte Query cache key for GET /projects/{projectId}/members
  */
 export function getGetProjectsProjectIdMembersQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
@@ -303,7 +303,7 @@ export function createGetProjectsProjectIdTasks(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects/{projectId/tasks
+ * Generates Svelte Query cache key for GET /projects/{projectId}/tasks
  */
 export function getGetProjectsProjectIdTasksQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
@@ -382,7 +382,7 @@ export function createGetTasksTaskId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /tasks/{taskId
+ * Generates Svelte Query cache key for GET /tasks/{taskId}
  */
 export function getGetTasksTaskIdQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
@@ -529,7 +529,7 @@ export function createGetTasksTaskIdComments(
 }
 
 /**
- * Generates Svelte Query cache key for GET /tasks/{taskId/comments
+ * Generates Svelte Query cache key for GET /tasks/{taskId}/comments
  */
 export function getGetTasksTaskIdCommentsQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
@@ -609,7 +609,7 @@ export function createGetTasksTaskIdTimeEntries(
 }
 
 /**
- * Generates Svelte Query cache key for GET /tasks/{taskId/time-entries
+ * Generates Svelte Query cache key for GET /tasks/{taskId}/time-entries
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
@@ -691,7 +691,7 @@ export function createGetProjectsProjectIdMilestones(
 }
 
 /**
- * Generates Svelte Query cache key for GET /projects/{projectId/milestones
+ * Generates Svelte Query cache key for GET /projects/{projectId}/milestones
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,

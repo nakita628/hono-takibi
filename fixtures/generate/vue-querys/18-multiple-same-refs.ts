@@ -102,7 +102,7 @@ export function useGetDocumentsDocumentId(
 }
 
 /**
- * Generates Vue Query cache key for GET /documents/{documentId
+ * Generates Vue Query cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
@@ -177,7 +177,7 @@ export function useGetDocumentsDocumentIdVersions(
 }
 
 /**
- * Generates Vue Query cache key for GET /documents/{documentId/versions
+ * Generates Vue Query cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
@@ -254,7 +254,7 @@ export function useGetUsersUserIdDocuments(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{userId/documents
+ * Generates Vue Query cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,

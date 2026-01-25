@@ -102,7 +102,7 @@ export function useGetDocumentsDocumentId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /documents/{documentId
+ * Generates TanStack Query cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
@@ -177,7 +177,7 @@ export function useGetDocumentsDocumentIdVersions(
 }
 
 /**
- * Generates TanStack Query cache key for GET /documents/{documentId/versions
+ * Generates TanStack Query cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
@@ -254,7 +254,7 @@ export function useGetUsersUserIdDocuments(
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{userId/documents
+ * Generates TanStack Query cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,

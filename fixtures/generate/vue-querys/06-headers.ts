@@ -73,7 +73,7 @@ export function useGetResourcesId(
 }
 
 /**
- * Generates Vue Query cache key for GET /resources/{id
+ * Generates Vue Query cache key for GET /resources/{id}
  */
 export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
@@ -145,7 +145,7 @@ export function useGetDownloadId(
 }
 
 /**
- * Generates Vue Query cache key for GET /download/{id
+ * Generates Vue Query cache key for GET /download/{id}
  */
 export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,

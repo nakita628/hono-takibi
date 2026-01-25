@@ -102,7 +102,7 @@ export function createGetDocumentsDocumentId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /documents/{documentId
+ * Generates Svelte Query cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
@@ -177,7 +177,7 @@ export function createGetDocumentsDocumentIdVersions(
 }
 
 /**
- * Generates Svelte Query cache key for GET /documents/{documentId/versions
+ * Generates Svelte Query cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
@@ -254,7 +254,7 @@ export function createGetUsersUserIdDocuments(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId/documents
+ * Generates Svelte Query cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,

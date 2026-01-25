@@ -60,7 +60,7 @@ export function useGetResourcesId(
 }
 
 /**
- * Generates SWR cache key for GET /resources/{id
+ * Generates SWR cache key for GET /resources/{id}
  */
 export function getGetResourcesIdKey(
   args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
@@ -115,7 +115,7 @@ export function useGetDownloadId(
 }
 
 /**
- * Generates SWR cache key for GET /download/{id
+ * Generates SWR cache key for GET /download/{id}
  */
 export function getGetDownloadIdKey(
   args?: InferRequestType<(typeof client.download)[':id']['$get']>,

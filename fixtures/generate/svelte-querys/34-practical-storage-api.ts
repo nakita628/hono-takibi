@@ -247,7 +247,7 @@ export function createGetFilesFileId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId
+ * Generates Svelte Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
@@ -357,7 +357,7 @@ export function createGetFilesFileIdDownload(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId/download
+ * Generates Svelte Query cache key for GET /files/{fileId}/download
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
@@ -400,7 +400,7 @@ export function createGetFilesFileIdDownloadUrl(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId/download-url
+ * Generates Svelte Query cache key for GET /files/{fileId}/download-url
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
@@ -514,7 +514,7 @@ export function createGetFilesFileIdThumbnail(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId/thumbnail
+ * Generates Svelte Query cache key for GET /files/{fileId}/thumbnail
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
@@ -587,7 +587,7 @@ export function createGetFoldersFolderId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /folders/{folderId
+ * Generates Svelte Query cache key for GET /folders/{folderId}
  */
 export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
@@ -699,7 +699,7 @@ export function createGetFilesFileIdShare(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId/share
+ * Generates Svelte Query cache key for GET /files/{fileId}/share
  */
 export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
@@ -854,7 +854,7 @@ export function createGetFilesFileIdVersions(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId/versions
+ * Generates Svelte Query cache key for GET /files/{fileId}/versions
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,

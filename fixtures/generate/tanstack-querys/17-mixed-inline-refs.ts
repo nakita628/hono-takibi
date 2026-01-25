@@ -102,7 +102,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /users/{userId
+ * Generates TanStack Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -172,7 +172,7 @@ export function useGetProductsProductIdVariants(
 }
 
 /**
- * Generates TanStack Query cache key for GET /products/{productId/variants
+ * Generates TanStack Query cache key for GET /products/{productId}/variants
  */
 export function getGetProductsProductIdVariantsQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,

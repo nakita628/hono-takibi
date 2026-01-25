@@ -265,7 +265,7 @@ export function useGetServiceProvidersSpId(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId
+ * Generates SWR cache key for GET /service-providers/{spId}
  */
 export function getGetServiceProvidersSpIdKey(
   args?: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
@@ -351,7 +351,7 @@ export function useGetServiceProvidersSpIdMetadata(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId/metadata
+ * Generates SWR cache key for GET /service-providers/{spId}/metadata
  */
 export function getGetServiceProvidersSpIdMetadataKey(
   args?: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
@@ -416,7 +416,7 @@ export function useGetServiceProvidersSpIdAttributes(
 }
 
 /**
- * Generates SWR cache key for GET /service-providers/{spId/attributes
+ * Generates SWR cache key for GET /service-providers/{spId}/attributes
  */
 export function getGetServiceProvidersSpIdAttributesKey(
   args?: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,

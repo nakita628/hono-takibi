@@ -316,7 +316,7 @@ export function useGetOauthClientsClientId(
 }
 
 /**
- * Generates SWR cache key for GET /oauth/clients/{clientId
+ * Generates SWR cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdKey(
   args?: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,

@@ -73,7 +73,7 @@ export function useGetItemsItemId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /items/{itemId
+ * Generates TanStack Query cache key for GET /items/{itemId}
  */
 export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,

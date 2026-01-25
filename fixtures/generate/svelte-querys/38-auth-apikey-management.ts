@@ -111,7 +111,7 @@ export function createGetApiKeysKeyId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId
+ * Generates Svelte Query cache key for GET /api-keys/{keyId}
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
@@ -300,7 +300,7 @@ export function createGetApiKeysKeyIdUsage(
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId/usage
+ * Generates Svelte Query cache key for GET /api-keys/{keyId}/usage
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
@@ -345,7 +345,7 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
 }
 
 /**
- * Generates Svelte Query cache key for GET /api-keys/{keyId/rate-limit/current
+ * Generates Svelte Query cache key for GET /api-keys/{keyId}/rate-limit/current
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,

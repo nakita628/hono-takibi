@@ -37,7 +37,7 @@ export function createGetUsersUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId
+ * Generates Svelte Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -80,7 +80,7 @@ export function createGetUsersByUsernameUsername(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/by/username/{username
+ * Generates Svelte Query cache key for GET /users/by/username/{username}
  */
 export function getGetUsersByUsernameUsernameQueryKey(
   args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
@@ -466,7 +466,7 @@ export function createGetUsersUserIdFollowers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId/followers
+ * Generates Svelte Query cache key for GET /users/{userId}/followers
  */
 export function getGetUsersUserIdFollowersQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
@@ -508,7 +508,7 @@ export function createGetUsersUserIdFollowing(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId/following
+ * Generates Svelte Query cache key for GET /users/{userId}/following
  */
 export function getGetUsersUserIdFollowingQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
@@ -1050,7 +1050,7 @@ export function createGetListsListId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /lists/{listId
+ * Generates Svelte Query cache key for GET /lists/{listId}
  */
 export function getGetListsListIdQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
@@ -1160,7 +1160,7 @@ export function createGetListsListIdMembers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /lists/{listId/members
+ * Generates Svelte Query cache key for GET /lists/{listId}/members
  */
 export function getGetListsListIdMembersQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
@@ -1288,7 +1288,7 @@ export function createGetListsListIdTimeline(
 }
 
 /**
- * Generates Svelte Query cache key for GET /lists/{listId/timeline
+ * Generates Svelte Query cache key for GET /lists/{listId}/timeline
  */
 export function getGetListsListIdTimelineQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
@@ -1330,7 +1330,7 @@ export function createGetUsersUserIdLists(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId/lists
+ * Generates Svelte Query cache key for GET /users/{userId}/lists
  */
 export function getGetUsersUserIdListsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,

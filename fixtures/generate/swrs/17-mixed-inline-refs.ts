@@ -81,7 +81,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId
+ * Generates SWR cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdKey(
   args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -134,7 +134,7 @@ export function useGetProductsProductIdVariants(
 }
 
 /**
- * Generates SWR cache key for GET /products/{productId/variants
+ * Generates SWR cache key for GET /products/{productId}/variants
  */
 export function getGetProductsProductIdVariantsKey(
   args?: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,

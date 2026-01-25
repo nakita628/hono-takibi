@@ -81,7 +81,7 @@ export function useGetDocumentsDocumentId(
 }
 
 /**
- * Generates SWR cache key for GET /documents/{documentId
+ * Generates SWR cache key for GET /documents/{documentId}
  */
 export function getGetDocumentsDocumentIdKey(
   args?: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
@@ -137,7 +137,7 @@ export function useGetDocumentsDocumentIdVersions(
 }
 
 /**
- * Generates SWR cache key for GET /documents/{documentId/versions
+ * Generates SWR cache key for GET /documents/{documentId}/versions
  */
 export function getGetDocumentsDocumentIdVersionsKey(
   args?: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
@@ -194,7 +194,7 @@ export function useGetUsersUserIdDocuments(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId/documents
+ * Generates SWR cache key for GET /users/{userId}/documents
  */
 export function getGetUsersUserIdDocumentsKey(
   args?: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,

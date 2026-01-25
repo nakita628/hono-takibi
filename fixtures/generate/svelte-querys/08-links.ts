@@ -64,7 +64,7 @@ export function createGetOrdersOrderId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /orders/{orderId
+ * Generates Svelte Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -136,7 +136,7 @@ export function createGetOrdersOrderIdItems(
 }
 
 /**
- * Generates Svelte Query cache key for GET /orders/{orderId/items
+ * Generates Svelte Query cache key for GET /orders/{orderId}/items
  */
 export function getGetOrdersOrderIdItemsQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
@@ -176,7 +176,7 @@ export function createGetCustomersCustomerId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /customers/{customerId
+ * Generates Svelte Query cache key for GET /customers/{customerId}
  */
 export function getGetCustomersCustomerIdQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
@@ -217,7 +217,7 @@ export function createGetCustomersCustomerIdOrders(
 }
 
 /**
- * Generates Svelte Query cache key for GET /customers/{customerId/orders
+ * Generates Svelte Query cache key for GET /customers/{customerId}/orders
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
@@ -257,7 +257,7 @@ export function createGetPaymentsPaymentId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /payments/{paymentId
+ * Generates Svelte Query cache key for GET /payments/{paymentId}
  */
 export function getGetPaymentsPaymentIdQueryKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,

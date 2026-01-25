@@ -139,7 +139,7 @@ export function createGetUsersUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{userId
+ * Generates Svelte Query cache key for GET /users/{userId}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
@@ -215,7 +215,7 @@ export function createGetCompaniesCompanyId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /companies/{companyId
+ * Generates Svelte Query cache key for GET /companies/{companyId}
  */
 export function getGetCompaniesCompanyIdQueryKey(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
@@ -328,7 +328,7 @@ export function createGetOrdersOrderId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /orders/{orderId
+ * Generates Svelte Query cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -370,7 +370,7 @@ export function createGetFilesFileId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /files/{fileId
+ * Generates Svelte Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,

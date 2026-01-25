@@ -154,7 +154,7 @@ export function useGetPetPetId(
 }
 
 /**
- * Generates SWR cache key for GET /pet/{petId
+ * Generates SWR cache key for GET /pet/{petId}
  */
 export function getGetPetPetIdKey(args?: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
   return ['/pet/:petId', ...(args ? [args] : [])] as const
@@ -319,7 +319,7 @@ export function useGetStoreOrderOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /store/order/{orderId
+ * Generates SWR cache key for GET /store/order/{orderId}
  */
 export function getGetStoreOrderOrderIdKey(
   args?: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
@@ -493,7 +493,7 @@ export function useGetUserUsername(
 }
 
 /**
- * Generates SWR cache key for GET /user/{username
+ * Generates SWR cache key for GET /user/{username}
  */
 export function getGetUserUsernameKey(
   args?: InferRequestType<(typeof client.user)[':username']['$get']>,

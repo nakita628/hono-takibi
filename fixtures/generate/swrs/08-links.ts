@@ -51,7 +51,7 @@ export function useGetOrdersOrderId(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId
+ * Generates SWR cache key for GET /orders/{orderId}
  */
 export function getGetOrdersOrderIdKey(
   args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
@@ -106,7 +106,7 @@ export function useGetOrdersOrderIdItems(
 }
 
 /**
- * Generates SWR cache key for GET /orders/{orderId/items
+ * Generates SWR cache key for GET /orders/{orderId}/items
  */
 export function getGetOrdersOrderIdItemsKey(
   args?: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
@@ -138,7 +138,7 @@ export function useGetCustomersCustomerId(
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId
+ * Generates SWR cache key for GET /customers/{customerId}
  */
 export function getGetCustomersCustomerIdKey(
   args?: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
@@ -170,7 +170,7 @@ export function useGetCustomersCustomerIdOrders(
 }
 
 /**
- * Generates SWR cache key for GET /customers/{customerId/orders
+ * Generates SWR cache key for GET /customers/{customerId}/orders
  */
 export function getGetCustomersCustomerIdOrdersKey(
   args?: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
@@ -202,7 +202,7 @@ export function useGetPaymentsPaymentId(
 }
 
 /**
- * Generates SWR cache key for GET /payments/{paymentId
+ * Generates SWR cache key for GET /payments/{paymentId}
  */
 export function getGetPaymentsPaymentIdKey(
   args?: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,

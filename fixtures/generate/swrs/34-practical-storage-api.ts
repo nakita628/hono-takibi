@@ -177,7 +177,7 @@ export function useGetFilesFileId(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId
+ * Generates SWR cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['$get']>,
@@ -261,7 +261,7 @@ export function useGetFilesFileIdDownload(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId/download
+ * Generates SWR cache key for GET /files/{fileId}/download
  */
 export function getGetFilesFileIdDownloadKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
@@ -295,7 +295,7 @@ export function useGetFilesFileIdDownloadUrl(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId/download-url
+ * Generates SWR cache key for GET /files/{fileId}/download-url
  */
 export function getGetFilesFileIdDownloadUrlKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
@@ -379,7 +379,7 @@ export function useGetFilesFileIdThumbnail(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId/thumbnail
+ * Generates SWR cache key for GET /files/{fileId}/thumbnail
  */
 export function getGetFilesFileIdThumbnailKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
@@ -436,7 +436,7 @@ export function useGetFoldersFolderId(
 }
 
 /**
- * Generates SWR cache key for GET /folders/{folderId
+ * Generates SWR cache key for GET /folders/{folderId}
  */
 export function getGetFoldersFolderIdKey(
   args?: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
@@ -520,7 +520,7 @@ export function useGetFilesFileIdShare(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId/share
+ * Generates SWR cache key for GET /files/{fileId}/share
  */
 export function getGetFilesFileIdShareKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
@@ -631,7 +631,7 @@ export function useGetFilesFileIdVersions(
 }
 
 /**
- * Generates SWR cache key for GET /files/{fileId/versions
+ * Generates SWR cache key for GET /files/{fileId}/versions
  */
 export function getGetFilesFileIdVersionsKey(
   args?: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,

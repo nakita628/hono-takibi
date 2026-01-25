@@ -108,7 +108,7 @@ export function useGetPostsPostId(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId
+ * Generates Vue Query cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
@@ -218,7 +218,7 @@ export function useGetPostsSlugSlug(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/slug/{slug
+ * Generates Vue Query cache key for GET /posts/slug/{slug}
  */
 export function getGetPostsSlugSlugQueryKey(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
@@ -334,7 +334,7 @@ export function useGetPostsPostIdComments(
 }
 
 /**
- * Generates Vue Query cache key for GET /posts/{postId/comments
+ * Generates Vue Query cache key for GET /posts/{postId}/comments
  */
 export function getGetPostsPostIdCommentsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
@@ -556,7 +556,7 @@ export function useGetCategoriesCategoryId(
 }
 
 /**
- * Generates Vue Query cache key for GET /categories/{categoryId
+ * Generates Vue Query cache key for GET /categories/{categoryId}
  */
 export function getGetCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
@@ -813,7 +813,7 @@ export function useGetMediaMediaId(
 }
 
 /**
- * Generates Vue Query cache key for GET /media/{mediaId
+ * Generates Vue Query cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
@@ -960,7 +960,7 @@ export function useGetAuthorsAuthorId(
 }
 
 /**
- * Generates Vue Query cache key for GET /authors/{authorId
+ * Generates Vue Query cache key for GET /authors/{authorId}
  */
 export function getGetAuthorsAuthorIdQueryKey(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,

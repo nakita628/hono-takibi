@@ -232,7 +232,7 @@ export function useGetDmConversationsConversationId(
 }
 
 /**
- * Generates SWR cache key for GET /dm/conversations/{conversationId
+ * Generates SWR cache key for GET /dm/conversations/{conversationId}
  */
 export function getGetDmConversationsConversationIdKey(
   args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
@@ -297,7 +297,7 @@ export function useGetDmConversationsConversationIdMessages(
 }
 
 /**
- * Generates SWR cache key for GET /dm/conversations/{conversationId/messages
+ * Generates SWR cache key for GET /dm/conversations/{conversationId}/messages
  */
 export function getGetDmConversationsConversationIdMessagesKey(
   args?: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,

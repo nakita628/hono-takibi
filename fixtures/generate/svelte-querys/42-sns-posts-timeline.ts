@@ -110,7 +110,7 @@ export function createGetPostsPostId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/{postId
+ * Generates Svelte Query cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
@@ -188,7 +188,7 @@ export function createGetPostsPostIdThread(
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/{postId/thread
+ * Generates Svelte Query cache key for GET /posts/{postId}/thread
  */
 export function getGetPostsPostIdThreadQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
@@ -232,7 +232,7 @@ export function createGetPostsPostIdContext(
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/{postId/context
+ * Generates Svelte Query cache key for GET /posts/{postId}/context
  */
 export function getGetPostsPostIdContextQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
@@ -362,7 +362,7 @@ export function createGetTimelineUserUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /timeline/user/{userId
+ * Generates Svelte Query cache key for GET /timeline/user/{userId}
  */
 export function getGetTimelineUserUserIdQueryKey(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
@@ -405,7 +405,7 @@ export function createGetTimelineHashtagHashtag(
 }
 
 /**
- * Generates Svelte Query cache key for GET /timeline/hashtag/{hashtag
+ * Generates Svelte Query cache key for GET /timeline/hashtag/{hashtag}
  */
 export function getGetTimelineHashtagHashtagQueryKey(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
@@ -745,7 +745,7 @@ export function createGetPostsPostIdLikes(
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/{postId/likes
+ * Generates Svelte Query cache key for GET /posts/{postId}/likes
  */
 export function getGetPostsPostIdLikesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
@@ -787,7 +787,7 @@ export function createGetPostsPostIdReposts(
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/{postId/reposts
+ * Generates Svelte Query cache key for GET /posts/{postId}/reposts
  */
 export function getGetPostsPostIdRepostsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
@@ -829,7 +829,7 @@ export function createGetPostsPostIdQuotes(
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/{postId/quotes
+ * Generates Svelte Query cache key for GET /posts/{postId}/quotes
  */
 export function getGetPostsPostIdQuotesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
@@ -871,7 +871,7 @@ export function createGetPostsPostIdReplies(
 }
 
 /**
- * Generates Svelte Query cache key for GET /posts/{postId/replies
+ * Generates Svelte Query cache key for GET /posts/{postId}/replies
  */
 export function getGetPostsPostIdRepliesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
@@ -981,7 +981,7 @@ export function createGetMediaMediaId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /media/{mediaId
+ * Generates Svelte Query cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,

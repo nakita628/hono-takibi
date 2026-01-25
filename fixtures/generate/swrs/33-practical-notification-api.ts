@@ -65,7 +65,7 @@ export function useGetNotificationsNotificationId(
 }
 
 /**
- * Generates SWR cache key for GET /notifications/{notificationId
+ * Generates SWR cache key for GET /notifications/{notificationId}
  */
 export function getGetNotificationsNotificationIdKey(
   args?: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
@@ -257,7 +257,7 @@ export function useGetMessagesMessageId(
 }
 
 /**
- * Generates SWR cache key for GET /messages/{messageId
+ * Generates SWR cache key for GET /messages/{messageId}
  */
 export function getGetMessagesMessageIdKey(
   args?: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
@@ -346,7 +346,7 @@ export function useGetTemplatesTemplateId(
 }
 
 /**
- * Generates SWR cache key for GET /templates/{templateId
+ * Generates SWR cache key for GET /templates/{templateId}
  */
 export function getGetTemplatesTemplateIdKey(
   args?: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
@@ -640,7 +640,7 @@ export function useGetWebhooksWebhookId(
 }
 
 /**
- * Generates SWR cache key for GET /webhooks/{webhookId
+ * Generates SWR cache key for GET /webhooks/{webhookId}
  */
 export function getGetWebhooksWebhookIdKey(
   args?: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,

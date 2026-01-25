@@ -247,7 +247,7 @@ export function useGetFilesFileId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /files/{fileId
+ * Generates TanStack Query cache key for GET /files/{fileId}
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
@@ -357,7 +357,7 @@ export function useGetFilesFileIdDownload(
 }
 
 /**
- * Generates TanStack Query cache key for GET /files/{fileId/download
+ * Generates TanStack Query cache key for GET /files/{fileId}/download
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
@@ -400,7 +400,7 @@ export function useGetFilesFileIdDownloadUrl(
 }
 
 /**
- * Generates TanStack Query cache key for GET /files/{fileId/download-url
+ * Generates TanStack Query cache key for GET /files/{fileId}/download-url
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
@@ -514,7 +514,7 @@ export function useGetFilesFileIdThumbnail(
 }
 
 /**
- * Generates TanStack Query cache key for GET /files/{fileId/thumbnail
+ * Generates TanStack Query cache key for GET /files/{fileId}/thumbnail
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
@@ -587,7 +587,7 @@ export function useGetFoldersFolderId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /folders/{folderId
+ * Generates TanStack Query cache key for GET /folders/{folderId}
  */
 export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
@@ -699,7 +699,7 @@ export function useGetFilesFileIdShare(
 }
 
 /**
- * Generates TanStack Query cache key for GET /files/{fileId/share
+ * Generates TanStack Query cache key for GET /files/{fileId}/share
  */
 export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
@@ -854,7 +854,7 @@ export function useGetFilesFileIdVersions(
 }
 
 /**
- * Generates TanStack Query cache key for GET /files/{fileId/versions
+ * Generates TanStack Query cache key for GET /files/{fileId}/versions
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,

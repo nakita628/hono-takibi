@@ -176,14 +176,17 @@ const makeQueryKeyGetterCode = (
   honoPath: string,
   config: QueryFrameworkConfig,
 ): string => {
+  // Add space between * and / to prevent early comment termination (* / instead of */)
+  const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
+  const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
   if (hasArgs) {
     return `/**
- * Generates ${config.frameworkName} cache key for GET ${honoPath.replace(/:([^/]+)/g, '{$1}')}
+ * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
  */
 export function ${keyGetterName}(args:${inferRequestType}){return['${honoPath}',args]as const}`
   }
   return `/**
- * Generates ${config.frameworkName} cache key for GET ${honoPath}
+ * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
  */
 export function ${keyGetterName}(){return['${honoPath}']as const}`
 }

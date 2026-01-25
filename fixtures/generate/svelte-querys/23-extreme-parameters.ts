@@ -46,7 +46,7 @@ export function createGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 }
 
 /**
- * Generates Svelte Query cache key for GET /a/{p1/b/{p2/c/{p3/d/{p4/e/{p5/f/{p6/g/{p7/h/{p8/i/{p9/j/{p10
+ * Generates Svelte Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
   args: InferRequestType<
@@ -133,7 +133,7 @@ export function createGetPathStylesSimpleLabelMatrix(
 }
 
 /**
- * Generates Svelte Query cache key for GET /path-styles/{simple/{label/{matrix
+ * Generates Svelte Query cache key for GET /path-styles/{simple}/{label}/{matrix}
  */
 export function getGetPathStylesSimpleLabelMatrixQueryKey(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,

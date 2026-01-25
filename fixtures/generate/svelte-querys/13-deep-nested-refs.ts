@@ -47,7 +47,7 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 }
 
 /**
- * Generates Svelte Query cache key for GET /organizations/{orgId/departments/{deptId/teams/{teamId/members
+ * Generates Svelte Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<

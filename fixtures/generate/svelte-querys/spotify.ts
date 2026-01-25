@@ -81,7 +81,7 @@ export function createGetAlbumsId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /albums/{id
+ * Generates Svelte Query cache key for GET /albums/{id}
  */
 export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
@@ -126,7 +126,7 @@ export function createGetAlbumsIdTracks(
 }
 
 /**
- * Generates Svelte Query cache key for GET /albums/{id/tracks
+ * Generates Svelte Query cache key for GET /albums/{id}/tracks
  */
 export function getGetAlbumsIdTracksQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
@@ -212,7 +212,7 @@ export function createGetArtistsId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id
+ * Generates Svelte Query cache key for GET /artists/{id}
  */
 export function getGetArtistsIdQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
@@ -256,7 +256,7 @@ export function createGetArtistsIdAlbums(
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id/albums
+ * Generates Svelte Query cache key for GET /artists/{id}/albums
  */
 export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
@@ -301,7 +301,7 @@ export function createGetArtistsIdRelatedArtists(
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id/related-artists
+ * Generates Svelte Query cache key for GET /artists/{id}/related-artists
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
@@ -346,7 +346,7 @@ export function createGetArtistsIdTopTracks(
 }
 
 /**
- * Generates Svelte Query cache key for GET /artists/{id/top-tracks
+ * Generates Svelte Query cache key for GET /artists/{id}/top-tracks
  */
 export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
@@ -390,7 +390,7 @@ export function createGetAudioAnalysisId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /audio-analysis/{id
+ * Generates Svelte Query cache key for GET /audio-analysis/{id}
  */
 export function getGetAudioAnalysisIdQueryKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
@@ -479,7 +479,7 @@ export function createGetAudioFeaturesId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /audio-features/{id
+ * Generates Svelte Query cache key for GET /audio-features/{id}
  */
 export function getGetAudioFeaturesIdQueryKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
@@ -567,7 +567,7 @@ export function createGetAudiobooksId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /audiobooks/{id
+ * Generates Svelte Query cache key for GET /audiobooks/{id}
  */
 export function getGetAudiobooksIdQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
@@ -612,7 +612,7 @@ export function createGetAudiobooksIdChapters(
 }
 
 /**
- * Generates Svelte Query cache key for GET /audiobooks/{id/chapters
+ * Generates Svelte Query cache key for GET /audiobooks/{id}/chapters
  */
 export function getGetAudiobooksIdChaptersQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
@@ -701,7 +701,7 @@ export function createGetBrowseCategoriesCategoryId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /browse/categories/{category_id
+ * Generates Svelte Query cache key for GET /browse/categories/{category_id}
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
@@ -748,7 +748,7 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
 }
 
 /**
- * Generates Svelte Query cache key for GET /browse/categories/{category_id/playlists
+ * Generates Svelte Query cache key for GET /browse/categories/{category_id}/playlists
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
@@ -925,7 +925,7 @@ export function createGetChaptersId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /chapters/{id
+ * Generates Svelte Query cache key for GET /chapters/{id}
  */
 export function getGetChaptersIdQueryKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
@@ -1012,7 +1012,7 @@ export function createGetEpisodesId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /episodes/{id
+ * Generates Svelte Query cache key for GET /episodes/{id}
  */
 export function getGetEpisodesIdQueryKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
@@ -2513,7 +2513,7 @@ export function createGetMeTopType(
 }
 
 /**
- * Generates Svelte Query cache key for GET /me/top/{type
+ * Generates Svelte Query cache key for GET /me/top/{type}
  */
 export function getGetMeTopTypeQueryKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
@@ -2709,7 +2709,7 @@ export function createGetPlaylistsPlaylistId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
@@ -2889,7 +2889,7 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id/followers/contains
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}/followers/contains
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
   args: InferRequestType<
@@ -2936,7 +2936,7 @@ export function createGetPlaylistsPlaylistIdImages(
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id/images
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}/images
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
@@ -3022,7 +3022,7 @@ export function createGetPlaylistsPlaylistIdTracks(
 }
 
 /**
- * Generates Svelte Query cache key for GET /playlists/{playlist_id/tracks
+ * Generates Svelte Query cache key for GET /playlists/{playlist_id}/tracks
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
@@ -3368,7 +3368,7 @@ export function createGetShowsId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /shows/{id
+ * Generates Svelte Query cache key for GET /shows/{id}
  */
 export function getGetShowsIdQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
@@ -3412,7 +3412,7 @@ export function createGetShowsIdEpisodes(
 }
 
 /**
- * Generates Svelte Query cache key for GET /shows/{id/episodes
+ * Generates Svelte Query cache key for GET /shows/{id}/episodes
  */
 export function getGetShowsIdEpisodesQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
@@ -3499,7 +3499,7 @@ export function createGetTracksId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /tracks/{id
+ * Generates Svelte Query cache key for GET /tracks/{id}
  */
 export function getGetTracksIdQueryKey(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
@@ -3543,7 +3543,7 @@ export function createGetUsersUserId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{user_id
+ * Generates Svelte Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -3588,7 +3588,7 @@ export function createGetUsersUserIdPlaylists(
 }
 
 /**
- * Generates Svelte Query cache key for GET /users/{user_id/playlists
+ * Generates Svelte Query cache key for GET /users/{user_id}/playlists
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,

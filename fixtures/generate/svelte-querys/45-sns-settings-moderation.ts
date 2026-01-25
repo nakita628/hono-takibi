@@ -600,7 +600,7 @@ export function createGetSettingsDataExportRequestId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /settings/data-export/{requestId
+ * Generates Svelte Query cache key for GET /settings/data-export/{requestId}
  */
 export function getGetSettingsDataExportRequestIdQueryKey(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
@@ -707,7 +707,7 @@ export function createGetReportsReportId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /reports/{reportId
+ * Generates Svelte Query cache key for GET /reports/{reportId}
  */
 export function getGetReportsReportIdQueryKey(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
@@ -794,7 +794,7 @@ export function createGetModerationItemsItemId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /moderation/items/{itemId
+ * Generates Svelte Query cache key for GET /moderation/items/{itemId}
  */
 export function getGetModerationItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
@@ -876,7 +876,7 @@ export function createGetModerationUsersUserIdHistory(
 }
 
 /**
- * Generates Svelte Query cache key for GET /moderation/users/{userId/history
+ * Generates Svelte Query cache key for GET /moderation/users/{userId}/history
  */
 export function getGetModerationUsersUserIdHistoryQueryKey(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
@@ -1004,7 +1004,7 @@ export function createGetAnalyticsPostsPostId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /analytics/posts/{postId
+ * Generates Svelte Query cache key for GET /analytics/posts/{postId}
  */
 export function getGetAnalyticsPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,

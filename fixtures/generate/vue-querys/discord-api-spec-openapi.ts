@@ -103,7 +103,7 @@ export function useGetApplicationsApplicationId(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id
+ * Generates Vue Query cache key for GET /applications/{application_id}
  */
 export function getGetApplicationsApplicationIdQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
@@ -192,7 +192,7 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/activity-instances/{instance_id
+ * Generates Vue Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
   args: InferRequestType<
@@ -287,7 +287,7 @@ export function useGetApplicationsApplicationIdCommands(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/commands
+ * Generates Vue Query cache key for GET /applications/{application_id}/commands
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
@@ -426,7 +426,7 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/commands/{command_id
+ * Generates Vue Query cache key for GET /applications/{application_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -579,7 +579,7 @@ export function useGetApplicationsApplicationIdEmojis(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/emojis
+ * Generates Vue Query cache key for GET /applications/{application_id}/emojis
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
@@ -673,7 +673,7 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/emojis/{emoji_id
+ * Generates Vue Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
   args: InferRequestType<
@@ -830,7 +830,7 @@ export function useGetApplicationsApplicationIdEntitlements(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/entitlements
+ * Generates Vue Query cache key for GET /applications/{application_id}/entitlements
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
@@ -934,7 +934,7 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/entitlements/{entitlement_id
+ * Generates Vue Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
   args: InferRequestType<
@@ -1106,7 +1106,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands
+ * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
   args: InferRequestType<
@@ -1274,7 +1274,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/permissions
+ * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
   args: InferRequestType<
@@ -1328,7 +1328,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id
+ * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
   args: InferRequestType<
@@ -1498,7 +1498,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/guilds/{guild_id/commands/{command_id/permissions
+ * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
   args: InferRequestType<
@@ -1611,7 +1611,7 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
 }
 
 /**
- * Generates Vue Query cache key for GET /applications/{application_id/role-connections/metadata
+ * Generates Vue Query cache key for GET /applications/{application_id}/role-connections/metadata
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
   args: InferRequestType<
@@ -1710,7 +1710,7 @@ export function useGetChannelsChannelId(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id
+ * Generates Vue Query cache key for GET /channels/{channel_id}
  */
 export function getGetChannelsChannelIdQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
@@ -1857,7 +1857,7 @@ export function useGetChannelsChannelIdInvites(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/invites
+ * Generates Vue Query cache key for GET /channels/{channel_id}/invites
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
@@ -1937,7 +1937,7 @@ export function useGetChannelsChannelIdMessages(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/messages
+ * Generates Vue Query cache key for GET /channels/{channel_id}/messages
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
@@ -2073,7 +2073,7 @@ export function useGetChannelsChannelIdMessagesPins(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/messages/pins
+ * Generates Vue Query cache key for GET /channels/{channel_id}/messages/pins
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
@@ -2234,7 +2234,7 @@ export function useGetChannelsChannelIdMessagesMessageId(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/messages/{message_id
+ * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
   args: InferRequestType<
@@ -2511,7 +2511,7 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/messages/{message_id/reactions/{emoji_name
+ * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
   args: InferRequestType<
@@ -2954,7 +2954,7 @@ export function useGetChannelsChannelIdPins(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/pins
+ * Generates Vue Query cache key for GET /channels/{channel_id}/pins
  */
 export function getGetChannelsChannelIdPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
@@ -3112,7 +3112,7 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/polls/{message_id/answers/{answer_id
+ * Generates Vue Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
   args: InferRequestType<
@@ -3377,7 +3377,7 @@ export function useGetChannelsChannelIdThreadMembers(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/thread-members
+ * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
@@ -3538,7 +3538,7 @@ export function useGetChannelsChannelIdThreadMembersUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/thread-members/{user_id
+ * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
   args: InferRequestType<
@@ -3738,7 +3738,7 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/threads/archived/private
+ * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/private
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -3789,7 +3789,7 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/threads/archived/public
+ * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/public
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
   args: InferRequestType<
@@ -3834,7 +3834,7 @@ export function useGetChannelsChannelIdThreadsSearch(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/threads/search
+ * Generates Vue Query cache key for GET /channels/{channel_id}/threads/search
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
@@ -3925,7 +3925,7 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/users/@me/threads/archived/private
+ * Generates Vue Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
@@ -3968,7 +3968,7 @@ export function useGetChannelsChannelIdWebhooks(
 }
 
 /**
- * Generates Vue Query cache key for GET /channels/{channel_id/webhooks
+ * Generates Vue Query cache key for GET /channels/{channel_id}/webhooks
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
@@ -4115,7 +4115,7 @@ export function useGetGuildsTemplatesCode(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/templates/{code
+ * Generates Vue Query cache key for GET /guilds/templates/{code}
  */
 export function getGetGuildsTemplatesCodeQueryKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
@@ -4155,7 +4155,7 @@ export function useGetGuildsGuildId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}
  */
 export function getGetGuildsGuildIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
@@ -4228,7 +4228,7 @@ export function useGetGuildsGuildIdAuditLogs(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/audit-logs
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/audit-logs
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
@@ -4273,7 +4273,7 @@ export function useGetGuildsGuildIdAutoModerationRules(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/auto-moderation/rules
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
@@ -4374,7 +4374,7 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/auto-moderation/rules/{rule_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
   args: InferRequestType<
@@ -4529,7 +4529,7 @@ export function useGetGuildsGuildIdBans(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/bans
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/bans
  */
 export function getGetGuildsGuildIdBansQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
@@ -4570,7 +4570,7 @@ export function useGetGuildsGuildIdBansUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/bans/{user_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/bans/{user_id}
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
@@ -4732,7 +4732,7 @@ export function useGetGuildsGuildIdChannels(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/channels
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/channels
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
@@ -4846,7 +4846,7 @@ export function useGetGuildsGuildIdEmojis(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/emojis
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
@@ -4922,7 +4922,7 @@ export function useGetGuildsGuildIdEmojisEmojiId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/emojis/{emoji_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
@@ -5055,7 +5055,7 @@ export function useGetGuildsGuildIdIntegrations(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/integrations
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/integrations
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
@@ -5152,7 +5152,7 @@ export function useGetGuildsGuildIdInvites(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/invites
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/invites
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
@@ -5193,7 +5193,7 @@ export function useGetGuildsGuildIdMembers(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/members
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/members
  */
 export function getGetGuildsGuildIdMembersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
@@ -5271,7 +5271,7 @@ export function useGetGuildsGuildIdMembersSearch(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/members/search
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/members/search
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
@@ -5312,7 +5312,7 @@ export function useGetGuildsGuildIdMembersUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/members/{user_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/members/{user_id}
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
@@ -5613,7 +5613,7 @@ export function useGetGuildsGuildIdNewMemberWelcome(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/new-member-welcome
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/new-member-welcome
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
@@ -5654,7 +5654,7 @@ export function useGetGuildsGuildIdOnboarding(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/onboarding
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/onboarding
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
@@ -5732,7 +5732,7 @@ export function useGetGuildsGuildIdPreview(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/preview
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/preview
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
@@ -5772,7 +5772,7 @@ export function useGetGuildsGuildIdPrune(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/prune
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/prune
  */
 export function getGetGuildsGuildIdPruneQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
@@ -5848,7 +5848,7 @@ export function useGetGuildsGuildIdRegions(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/regions
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/regions
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
@@ -5888,7 +5888,7 @@ export function useGetGuildsGuildIdRoles(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/roles
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/roles
  */
 export function getGetGuildsGuildIdRolesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
@@ -5999,7 +5999,7 @@ export function useGetGuildsGuildIdRolesRoleId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/roles/{role_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/roles/{role_id}
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
@@ -6132,7 +6132,7 @@ export function useGetGuildsGuildIdScheduledEvents(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/scheduled-events
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
@@ -6221,7 +6221,7 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
   args: InferRequestType<
@@ -6391,7 +6391,7 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/scheduled-events/{guild_scheduled_event_id/users
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
   args: InferRequestType<
@@ -6434,7 +6434,7 @@ export function useGetGuildsGuildIdSoundboardSounds(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/soundboard-sounds
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
@@ -6528,7 +6528,7 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/soundboard-sounds/{sound_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
   args: InferRequestType<
@@ -6681,7 +6681,7 @@ export function useGetGuildsGuildIdStickers(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/stickers
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers
  */
 export function getGetGuildsGuildIdStickersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
@@ -6759,7 +6759,7 @@ export function useGetGuildsGuildIdStickersStickerId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/stickers/{sticker_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
@@ -6908,7 +6908,7 @@ export function useGetGuildsGuildIdTemplates(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/templates
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/templates
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
@@ -7121,7 +7121,7 @@ export function useGetGuildsGuildIdThreadsActive(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/threads/active
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/threads/active
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
@@ -7162,7 +7162,7 @@ export function useGetGuildsGuildIdVanityUrl(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/vanity-url
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/vanity-url
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
@@ -7203,7 +7203,7 @@ export function useGetGuildsGuildIdVoiceStatesMe(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/voice-states/@me
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/@me
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
@@ -7298,7 +7298,7 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/voice-states/{user_id
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
@@ -7395,7 +7395,7 @@ export function useGetGuildsGuildIdWebhooks(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/webhooks
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/webhooks
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
@@ -7436,7 +7436,7 @@ export function useGetGuildsGuildIdWelcomeScreen(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/welcome-screen
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/welcome-screen
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
@@ -7513,7 +7513,7 @@ export function useGetGuildsGuildIdWidget(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/widget
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/widget
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
@@ -7589,7 +7589,7 @@ export function useGetGuildsGuildIdWidgetJson(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/widget.json
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.json
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
@@ -7630,7 +7630,7 @@ export function useGetGuildsGuildIdWidgetPng(
 }
 
 /**
- * Generates Vue Query cache key for GET /guilds/{guild_id/widget.png
+ * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.png
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
@@ -7729,7 +7729,7 @@ export function useGetInvitesCode(
 }
 
 /**
- * Generates Vue Query cache key for GET /invites/{code
+ * Generates Vue Query cache key for GET /invites/{code}
  */
 export function getGetInvitesCodeQueryKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
@@ -7859,7 +7859,7 @@ export function useGetLobbiesLobbyId(
 }
 
 /**
- * Generates Vue Query cache key for GET /lobbies/{lobby_id
+ * Generates Vue Query cache key for GET /lobbies/{lobby_id}
  */
 export function getGetLobbiesLobbyIdQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
@@ -8262,7 +8262,7 @@ export function useGetLobbiesLobbyIdMessages(
 }
 
 /**
- * Generates Vue Query cache key for GET /lobbies/{lobby_id/messages
+ * Generates Vue Query cache key for GET /lobbies/{lobby_id}/messages
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
@@ -8730,7 +8730,7 @@ export function useGetStageInstancesChannelId(
 }
 
 /**
- * Generates Vue Query cache key for GET /stage-instances/{channel_id
+ * Generates Vue Query cache key for GET /stage-instances/{channel_id}
  */
 export function getGetStageInstancesChannelIdQueryKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
@@ -8882,7 +8882,7 @@ export function useGetStickerPacksPackId(
 }
 
 /**
- * Generates Vue Query cache key for GET /sticker-packs/{pack_id
+ * Generates Vue Query cache key for GET /sticker-packs/{pack_id}
  */
 export function getGetStickerPacksPackIdQueryKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
@@ -8922,7 +8922,7 @@ export function useGetStickersStickerId(
 }
 
 /**
- * Generates Vue Query cache key for GET /stickers/{sticker_id
+ * Generates Vue Query cache key for GET /stickers/{sticker_id}
  */
 export function getGetStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
@@ -9038,7 +9038,7 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/@me/applications/{application_id/entitlements
+ * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/entitlements
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<
@@ -9092,7 +9092,7 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/@me/applications/{application_id/role-connection
+ * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/role-connection
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
   args: InferRequestType<
@@ -9402,7 +9402,7 @@ export function useGetUsersMeGuildsGuildIdMember(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/@me/guilds/{guild_id/member
+ * Generates Vue Query cache key for GET /users/@me/guilds/{guild_id}/member
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
@@ -9442,7 +9442,7 @@ export function useGetUsersUserId(
 }
 
 /**
- * Generates Vue Query cache key for GET /users/{user_id
+ * Generates Vue Query cache key for GET /users/{user_id}
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
@@ -9517,7 +9517,7 @@ export function useGetWebhooksWebhookId(
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id}
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
@@ -9627,7 +9627,7 @@ export function useGetWebhooksWebhookIdWebhookToken(
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id/{webhook_token
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
@@ -9876,7 +9876,7 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/@original
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
   args: InferRequestType<
@@ -10046,7 +10046,7 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 }
 
 /**
- * Generates Vue Query cache key for GET /webhooks/{webhook_id/{webhook_token/messages/{message_id
+ * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
   args: InferRequestType<

@@ -204,7 +204,7 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 }
 
 /**
- * Generates SWR cache key for GET /users/{userId/posts/{postId/comments/{commentId
+ * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
   args?: InferRequestType<
@@ -238,7 +238,7 @@ export function useGetParamsTestPathParam(
 }
 
 /**
- * Generates SWR cache key for GET /params-test/{pathParam
+ * Generates SWR cache key for GET /params-test/{pathParam}
  */
 export function getGetParamsTestPathParamKey(
   args?: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,

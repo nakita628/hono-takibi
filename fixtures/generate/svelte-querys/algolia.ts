@@ -32,10 +32,17 @@ export function createGetPath(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/:path', args] as const,
+    queryKey: getGetPathQueryKey(args),
     queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /{path}
+ */
+export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return ['/:path', args] as const
 }
 
 /**
@@ -482,11 +489,20 @@ export function createGet1IndexesIndexNameObjectID(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/indexes/:indexName/:objectID', args] as const,
+    queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
     queryFn: async () =>
       parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/{objectID}
+ */
+export function getGet1IndexesIndexNameObjectIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+) {
+  return ['/1/indexes/:indexName/:objectID', args] as const
 }
 
 /**
@@ -945,11 +961,20 @@ export function createGet1IndexesIndexNameSettings(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/indexes/:indexName/settings', args] as const,
+    queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
     queryFn: async () =>
       parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/settings
+ */
+export function getGet1IndexesIndexNameSettingsQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+) {
+  return ['/1/indexes/:indexName/settings', args] as const
 }
 
 /**
@@ -1043,13 +1068,24 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/indexes/:indexName/synonyms/:objectID', args] as const,
+    queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
     queryFn: async () =>
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
       ),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ */
+export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+  >,
+) {
+  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
 }
 
 /**
@@ -1366,10 +1402,17 @@ export function createGet1Keys(options?: {
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/keys'] as const,
+    queryKey: getGet1KeysQueryKey(),
     queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/keys
+ */
+export function getGet1KeysQueryKey() {
+  return ['/1/keys'] as const
 }
 
 /**
@@ -1441,10 +1484,19 @@ export function createGet1KeysKey(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/keys/:key', args] as const,
+    queryKey: getGet1KeysKeyQueryKey(args),
     queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/keys/{key}
+ */
+export function getGet1KeysKeyQueryKey(
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+) {
+  return ['/1/keys/:key', args] as const
 }
 
 /**
@@ -1603,11 +1655,22 @@ export function createGet1IndexesIndexNameRulesObjectID(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/indexes/:indexName/rules/:objectID', args] as const,
+    queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
     queryFn: async () =>
       parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ */
+export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
+  args: InferRequestType<
+    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+  >,
+) {
+  return ['/1/indexes/:indexName/rules/:objectID', args] as const
 }
 
 /**
@@ -2037,11 +2100,18 @@ export function createGet1DictionariesSettings(options?: {
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/dictionaries/*/settings'] as const,
+    queryKey: getGet1DictionariesSettingsQueryKey(),
     queryFn: async () =>
       parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/dictionaries/* /settings
+ */
+export function getGet1DictionariesSettingsQueryKey() {
+  return ['/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -2111,11 +2181,18 @@ export function createGet1DictionariesLanguages(options?: {
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/dictionaries/*/languages'] as const,
+    queryKey: getGet1DictionariesLanguagesQueryKey(),
     queryFn: async () =>
       parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/dictionaries/* /languages
+ */
+export function getGet1DictionariesLanguagesQueryKey() {
+  return ['/1/dictionaries/*/languages'] as const
 }
 
 /**
@@ -2150,10 +2227,19 @@ export function createGet1ClustersMapping(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/clusters/mapping', args] as const,
+    queryKey: getGet1ClustersMappingQueryKey(args),
     queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/clusters/mapping
+ */
+export function getGet1ClustersMappingQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+) {
+  return ['/1/clusters/mapping', args] as const
 }
 
 /**
@@ -2269,11 +2355,18 @@ export function createGet1ClustersMappingTop(options?: {
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/clusters/mapping/top'] as const,
+    queryKey: getGet1ClustersMappingTopQueryKey(),
     queryFn: async () =>
       parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/clusters/mapping/top
+ */
+export function getGet1ClustersMappingTopQueryKey() {
+  return ['/1/clusters/mapping/top'] as const
 }
 
 /**
@@ -2308,11 +2401,20 @@ export function createGet1ClustersMappingUserID(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/clusters/mapping/:userID', args] as const,
+    queryKey: getGet1ClustersMappingUserIDQueryKey(args),
     queryFn: async () =>
       parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/clusters/mapping/{userID}
+ */
+export function getGet1ClustersMappingUserIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+) {
+  return ['/1/clusters/mapping/:userID', args] as const
 }
 
 /**
@@ -2390,10 +2492,17 @@ export function createGet1Clusters(options?: {
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/clusters'] as const,
+    queryKey: getGet1ClustersQueryKey(),
     queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/clusters
+ */
+export function getGet1ClustersQueryKey() {
+  return ['/1/clusters'] as const
 }
 
 /**
@@ -2469,11 +2578,20 @@ export function createGet1ClustersMappingPending(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/clusters/mapping/pending', args] as const,
+    queryKey: getGet1ClustersMappingPendingQueryKey(args),
     queryFn: async () =>
       parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/clusters/mapping/pending
+ */
+export function getGet1ClustersMappingPendingQueryKey(
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+) {
+  return ['/1/clusters/mapping/pending', args] as const
 }
 
 /**
@@ -2502,10 +2620,17 @@ export function createGet1SecuritySources(options?: {
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/security/sources'] as const,
+    queryKey: getGet1SecuritySourcesQueryKey(),
     queryFn: async () => parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/security/sources
+ */
+export function getGet1SecuritySourcesQueryKey() {
+  return ['/1/security/sources'] as const
 }
 
 /**
@@ -2670,10 +2795,17 @@ export function createGet1Logs(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/logs', args] as const,
+    queryKey: getGet1LogsQueryKey(args),
     queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/logs
+ */
+export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return ['/1/logs', args] as const
 }
 
 /**
@@ -2705,10 +2837,19 @@ export function createGet1TaskTaskID(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/task/:taskID', args] as const,
+    queryKey: getGet1TaskTaskIDQueryKey(args),
     queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/task/{taskID}
+ */
+export function getGet1TaskTaskIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+) {
+  return ['/1/task/:taskID', args] as const
 }
 
 /**
@@ -2750,11 +2891,20 @@ export function createGet1IndexesIndexNameTaskTaskID(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/indexes/:indexName/task/:taskID', args] as const,
+    queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
     queryFn: async () =>
       parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/indexes/{indexName}/task/{taskID}
+ */
+export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+) {
+  return ['/1/indexes/:indexName/task/:taskID', args] as const
 }
 
 /**
@@ -2860,10 +3010,19 @@ export function createGet1Indexes(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/1/indexes', args] as const,
+    queryKey: getGet1IndexesQueryKey(args),
     queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /1/indexes
+ */
+export function getGet1IndexesQueryKey(
+  args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
+) {
+  return ['/1/indexes', args] as const
 }
 
 /**
@@ -2895,10 +3054,19 @@ export function createGetWaitForApiKey(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/waitForApiKey', args] as const,
+    queryKey: getGetWaitForApiKeyQueryKey(args),
     queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /waitForApiKey
+ */
+export function getGetWaitForApiKeyQueryKey(
+  args: InferRequestType<typeof client.waitForApiKey.$get>,
+) {
+  return ['/waitForApiKey', args] as const
 }
 
 /**
@@ -2932,10 +3100,17 @@ export function createGetWaitForTask(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/waitForTask', args] as const,
+    queryKey: getGetWaitForTaskQueryKey(args),
     queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /waitForTask
+ */
+export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return ['/waitForTask', args] as const
 }
 
 /**
@@ -2967,10 +3142,19 @@ export function createGetWaitForAppTask(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/waitForAppTask', args] as const,
+    queryKey: getGetWaitForAppTaskQueryKey(args),
     queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /waitForAppTask
+ */
+export function getGetWaitForAppTaskQueryKey(
+  args: InferRequestType<typeof client.waitForAppTask.$get>,
+) {
+  return ['/waitForAppTask', args] as const
 }
 
 /**
@@ -3006,10 +3190,19 @@ export function createGetBrowseObjects(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/browseObjects', args] as const,
+    queryKey: getGetBrowseObjectsQueryKey(args),
     queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /browseObjects
+ */
+export function getGetBrowseObjectsQueryKey(
+  args: InferRequestType<typeof client.browseObjects.$get>,
+) {
+  return ['/browseObjects', args] as const
 }
 
 /**
@@ -3053,10 +3246,19 @@ export function createGetGenerateSecuredApiKey(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/generateSecuredApiKey', args] as const,
+    queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
     queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /generateSecuredApiKey
+ */
+export function getGetGenerateSecuredApiKeyQueryKey(
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+) {
+  return ['/generateSecuredApiKey', args] as const
 }
 
 /**
@@ -3088,10 +3290,19 @@ export function createGetAccountCopyIndex(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/accountCopyIndex', args] as const,
+    queryKey: getGetAccountCopyIndexQueryKey(args),
     queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /accountCopyIndex
+ */
+export function getGetAccountCopyIndexQueryKey(
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
+) {
+  return ['/accountCopyIndex', args] as const
 }
 
 /**
@@ -3138,10 +3349,19 @@ export function createGetReplaceAllObjects(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/replaceAllObjects', args] as const,
+    queryKey: getGetReplaceAllObjectsQueryKey(args),
     queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /replaceAllObjects
+ */
+export function getGetReplaceAllObjectsQueryKey(
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
+) {
+  return ['/replaceAllObjects', args] as const
 }
 
 /**
@@ -3185,11 +3405,20 @@ export function createGetReplaceAllObjectsWithTransformation(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/replaceAllObjectsWithTransformation', args] as const,
+    queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
     queryFn: async () =>
       parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /replaceAllObjectsWithTransformation
+ */
+export function getGetReplaceAllObjectsWithTransformationQueryKey(
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+) {
+  return ['/replaceAllObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3221,10 +3450,19 @@ export function createGetChunkedBatch(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/chunkedBatch', args] as const,
+    queryKey: getGetChunkedBatchQueryKey(args),
     queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /chunkedBatch
+ */
+export function getGetChunkedBatchQueryKey(
+  args: InferRequestType<typeof client.chunkedBatch.$get>,
+) {
+  return ['/chunkedBatch', args] as const
 }
 
 /**
@@ -3256,10 +3494,17 @@ export function createGetSaveObjects(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/saveObjects', args] as const,
+    queryKey: getGetSaveObjectsQueryKey(args),
     queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /saveObjects
+ */
+export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return ['/saveObjects', args] as const
 }
 
 /**
@@ -3291,11 +3536,20 @@ export function createGetSaveObjectsWithTransformation(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/saveObjectsWithTransformation', args] as const,
+    queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
     queryFn: async () =>
       parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /saveObjectsWithTransformation
+ */
+export function getGetSaveObjectsWithTransformationQueryKey(
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+) {
+  return ['/saveObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3437,10 +3691,17 @@ export function createGetIndexExists(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/indexExists', args] as const,
+    queryKey: getGetIndexExistsQueryKey(args),
     queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /indexExists
+ */
+export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return ['/indexExists', args] as const
 }
 
 /**
@@ -3472,8 +3733,17 @@ export function createGetSetClientApiKey(
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: ['/setClientApiKey', args] as const,
+    queryKey: getGetSetClientApiKeyQueryKey(args),
     queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
     ...queryOptions,
   })
+}
+
+/**
+ * Generates Svelte Query cache key for GET /setClientApiKey
+ */
+export function getGetSetClientApiKeyQueryKey(
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
+) {
+  return ['/setClientApiKey', args] as const
 }

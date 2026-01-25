@@ -40,7 +40,7 @@ export function useGetSocialAuthorizeProvider(
 }
 
 /**
- * Generates TanStack Query cache key for GET /social/authorize/{provider
+ * Generates TanStack Query cache key for GET /social/authorize/{provider}
  */
 export function getGetSocialAuthorizeProviderQueryKey(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
@@ -85,7 +85,7 @@ export function useGetSocialCallbackProvider(
 }
 
 /**
- * Generates TanStack Query cache key for GET /social/callback/{provider
+ * Generates TanStack Query cache key for GET /social/callback/{provider}
  */
 export function getGetSocialCallbackProviderQueryKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
@@ -304,7 +304,7 @@ export function useGetProvidersProviderId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /providers/{providerId
+ * Generates TanStack Query cache key for GET /providers/{providerId}
  */
 export function getGetProvidersProviderIdQueryKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
@@ -643,7 +643,7 @@ export function useGetEnterpriseSsoConfigId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /enterprise/sso/{configId
+ * Generates TanStack Query cache key for GET /enterprise/sso/{configId}
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
@@ -805,7 +805,7 @@ export function useGetEnterpriseSsoConfigIdMetadata(
 }
 
 /**
- * Generates TanStack Query cache key for GET /enterprise/sso/{configId/metadata
+ * Generates TanStack Query cache key for GET /enterprise/sso/{configId}/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,

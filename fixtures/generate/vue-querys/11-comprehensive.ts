@@ -110,7 +110,7 @@ export function useGetProductsProductId(
 }
 
 /**
- * Generates Vue Query cache key for GET /products/{productId
+ * Generates Vue Query cache key for GET /products/{productId}
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,

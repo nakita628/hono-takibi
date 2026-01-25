@@ -87,7 +87,7 @@ export function useGetPostsPostId(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId
+ * Generates SWR cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
@@ -171,7 +171,7 @@ export function useGetPostsSlugSlug(
 }
 
 /**
- * Generates SWR cache key for GET /posts/slug/{slug
+ * Generates SWR cache key for GET /posts/slug/{slug}
  */
 export function getGetPostsSlugSlugKey(
   args?: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
@@ -255,7 +255,7 @@ export function useGetPostsPostIdComments(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId/comments
+ * Generates SWR cache key for GET /posts/{postId}/comments
  */
 export function getGetPostsPostIdCommentsKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
@@ -418,7 +418,7 @@ export function useGetCategoriesCategoryId(
 }
 
 /**
- * Generates SWR cache key for GET /categories/{categoryId
+ * Generates SWR cache key for GET /categories/{categoryId}
  */
 export function getGetCategoriesCategoryIdKey(
   args?: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
@@ -608,7 +608,7 @@ export function useGetMediaMediaId(
 }
 
 /**
- * Generates SWR cache key for GET /media/{mediaId
+ * Generates SWR cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdKey(
   args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
@@ -721,7 +721,7 @@ export function useGetAuthorsAuthorId(
 }
 
 /**
- * Generates SWR cache key for GET /authors/{authorId
+ * Generates SWR cache key for GET /authors/{authorId}
  */
 export function getGetAuthorsAuthorIdKey(
   args?: InferRequestType<(typeof client.authors)[':authorId']['$get']>,

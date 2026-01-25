@@ -408,7 +408,7 @@ export function useGetOauthClientsClientId(
 }
 
 /**
- * Generates Vue Query cache key for GET /oauth/clients/{clientId
+ * Generates Vue Query cache key for GET /oauth/clients/{clientId}
  */
 export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,

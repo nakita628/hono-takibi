@@ -131,7 +131,7 @@ export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post> | undefined,
+    InferResponseType<typeof client.users.$post>,
     Error,
     string,
     InferRequestType<typeof client.users.$post>
@@ -280,7 +280,7 @@ import { client } from '../client'
  */
 export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
-    InferResponseType<typeof client.users.$post> | undefined,
+    InferResponseType<typeof client.users.$post>,
     Error,
     string,
     InferRequestType<typeof client.users.$post>

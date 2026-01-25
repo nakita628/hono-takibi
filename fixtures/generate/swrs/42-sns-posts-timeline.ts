@@ -89,7 +89,7 @@ export function useGetPostsPostId(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId
+ * Generates SWR cache key for GET /posts/{postId}
  */
 export function getGetPostsPostIdKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['$get']>,
@@ -150,7 +150,7 @@ export function useGetPostsPostIdThread(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId/thread
+ * Generates SWR cache key for GET /posts/{postId}/thread
  */
 export function getGetPostsPostIdThreadKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
@@ -186,7 +186,7 @@ export function useGetPostsPostIdContext(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId/context
+ * Generates SWR cache key for GET /posts/{postId}/context
  */
 export function getGetPostsPostIdContextKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
@@ -290,7 +290,7 @@ export function useGetTimelineUserUserId(
 }
 
 /**
- * Generates SWR cache key for GET /timeline/user/{userId
+ * Generates SWR cache key for GET /timeline/user/{userId}
  */
 export function getGetTimelineUserUserIdKey(
   args?: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
@@ -324,7 +324,7 @@ export function useGetTimelineHashtagHashtag(
 }
 
 /**
- * Generates SWR cache key for GET /timeline/hashtag/{hashtag
+ * Generates SWR cache key for GET /timeline/hashtag/{hashtag}
  */
 export function getGetTimelineHashtagHashtagKey(
   args?: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
@@ -565,7 +565,7 @@ export function useGetPostsPostIdLikes(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId/likes
+ * Generates SWR cache key for GET /posts/{postId}/likes
  */
 export function getGetPostsPostIdLikesKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
@@ -599,7 +599,7 @@ export function useGetPostsPostIdReposts(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId/reposts
+ * Generates SWR cache key for GET /posts/{postId}/reposts
  */
 export function getGetPostsPostIdRepostsKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
@@ -633,7 +633,7 @@ export function useGetPostsPostIdQuotes(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId/quotes
+ * Generates SWR cache key for GET /posts/{postId}/quotes
  */
 export function getGetPostsPostIdQuotesKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
@@ -667,7 +667,7 @@ export function useGetPostsPostIdReplies(
 }
 
 /**
- * Generates SWR cache key for GET /posts/{postId/replies
+ * Generates SWR cache key for GET /posts/{postId}/replies
  */
 export function getGetPostsPostIdRepliesKey(
   args?: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
@@ -749,7 +749,7 @@ export function useGetMediaMediaId(
 }
 
 /**
- * Generates SWR cache key for GET /media/{mediaId
+ * Generates SWR cache key for GET /media/{mediaId}
  */
 export function getGetMediaMediaIdKey(
   args?: InferRequestType<(typeof client.media)[':mediaId']['$get']>,

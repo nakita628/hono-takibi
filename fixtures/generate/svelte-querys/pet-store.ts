@@ -193,7 +193,7 @@ export function createGetPetPetId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /pet/{petId
+ * Generates Svelte Query cache key for GET /pet/{petId}
  */
 export function getGetPetPetIdQueryKey(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
@@ -416,7 +416,7 @@ export function createGetStoreOrderOrderId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /store/order/{orderId
+ * Generates Svelte Query cache key for GET /store/order/{orderId}
  */
 export function getGetStoreOrderOrderIdQueryKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
@@ -643,7 +643,7 @@ export function createGetUserUsername(
 }
 
 /**
- * Generates Svelte Query cache key for GET /user/{username
+ * Generates Svelte Query cache key for GET /user/{username}
  */
 export function getGetUserUsernameQueryKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,

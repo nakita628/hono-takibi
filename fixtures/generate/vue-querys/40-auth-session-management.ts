@@ -285,7 +285,7 @@ export function useGetSessionsSessionId(
 }
 
 /**
- * Generates Vue Query cache key for GET /sessions/{sessionId
+ * Generates Vue Query cache key for GET /sessions/{sessionId}
  */
 export function getGetSessionsSessionIdQueryKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,

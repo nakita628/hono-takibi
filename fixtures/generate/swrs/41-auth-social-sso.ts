@@ -34,7 +34,7 @@ export function useGetSocialAuthorizeProvider(
 }
 
 /**
- * Generates SWR cache key for GET /social/authorize/{provider
+ * Generates SWR cache key for GET /social/authorize/{provider}
  */
 export function getGetSocialAuthorizeProviderKey(
   args?: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
@@ -70,7 +70,7 @@ export function useGetSocialCallbackProvider(
 }
 
 /**
- * Generates SWR cache key for GET /social/callback/{provider
+ * Generates SWR cache key for GET /social/callback/{provider}
  */
 export function getGetSocialCallbackProviderKey(
   args?: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
@@ -237,7 +237,7 @@ export function useGetProvidersProviderId(
 }
 
 /**
- * Generates SWR cache key for GET /providers/{providerId
+ * Generates SWR cache key for GET /providers/{providerId}
  */
 export function getGetProvidersProviderIdKey(
   args?: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
@@ -479,7 +479,7 @@ export function useGetEnterpriseSsoConfigId(
 }
 
 /**
- * Generates SWR cache key for GET /enterprise/sso/{configId
+ * Generates SWR cache key for GET /enterprise/sso/{configId}
  */
 export function getGetEnterpriseSsoConfigIdKey(
   args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
@@ -601,7 +601,7 @@ export function useGetEnterpriseSsoConfigIdMetadata(
 }
 
 /**
- * Generates SWR cache key for GET /enterprise/sso/{configId/metadata
+ * Generates SWR cache key for GET /enterprise/sso/{configId}/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataKey(
   args?: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,

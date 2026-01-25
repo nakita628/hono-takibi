@@ -87,7 +87,7 @@ export function useGetProjectsProjectId(
 }
 
 /**
- * Generates SWR cache key for GET /projects/{projectId
+ * Generates SWR cache key for GET /projects/{projectId}
  */
 export function getGetProjectsProjectIdKey(
   args?: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
@@ -171,7 +171,7 @@ export function useGetProjectsProjectIdMembers(
 }
 
 /**
- * Generates SWR cache key for GET /projects/{projectId/members
+ * Generates SWR cache key for GET /projects/{projectId}/members
  */
 export function getGetProjectsProjectIdMembersKey(
   args?: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
@@ -232,7 +232,7 @@ export function useGetProjectsProjectIdTasks(
 }
 
 /**
- * Generates SWR cache key for GET /projects/{projectId/tasks
+ * Generates SWR cache key for GET /projects/{projectId}/tasks
  */
 export function getGetProjectsProjectIdTasksKey(
   args?: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
@@ -291,7 +291,7 @@ export function useGetTasksTaskId(
 }
 
 /**
- * Generates SWR cache key for GET /tasks/{taskId
+ * Generates SWR cache key for GET /tasks/{taskId}
  */
 export function getGetTasksTaskIdKey(
   args?: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
@@ -400,7 +400,7 @@ export function useGetTasksTaskIdComments(
 }
 
 /**
- * Generates SWR cache key for GET /tasks/{taskId/comments
+ * Generates SWR cache key for GET /tasks/{taskId}/comments
  */
 export function getGetTasksTaskIdCommentsKey(
   args?: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
@@ -459,7 +459,7 @@ export function useGetTasksTaskIdTimeEntries(
 }
 
 /**
- * Generates SWR cache key for GET /tasks/{taskId/time-entries
+ * Generates SWR cache key for GET /tasks/{taskId}/time-entries
  */
 export function getGetTasksTaskIdTimeEntriesKey(
   args?: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
@@ -519,7 +519,7 @@ export function useGetProjectsProjectIdMilestones(
 }
 
 /**
- * Generates SWR cache key for GET /projects/{projectId/milestones
+ * Generates SWR cache key for GET /projects/{projectId}/milestones
  */
 export function getGetProjectsProjectIdMilestonesKey(
   args?: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,

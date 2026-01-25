@@ -40,7 +40,7 @@ export function createGetSocialAuthorizeProvider(
 }
 
 /**
- * Generates Svelte Query cache key for GET /social/authorize/{provider
+ * Generates Svelte Query cache key for GET /social/authorize/{provider}
  */
 export function getGetSocialAuthorizeProviderQueryKey(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
@@ -85,7 +85,7 @@ export function createGetSocialCallbackProvider(
 }
 
 /**
- * Generates Svelte Query cache key for GET /social/callback/{provider
+ * Generates Svelte Query cache key for GET /social/callback/{provider}
  */
 export function getGetSocialCallbackProviderQueryKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
@@ -304,7 +304,7 @@ export function createGetProvidersProviderId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /providers/{providerId
+ * Generates Svelte Query cache key for GET /providers/{providerId}
  */
 export function getGetProvidersProviderIdQueryKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
@@ -643,7 +643,7 @@ export function createGetEnterpriseSsoConfigId(
 }
 
 /**
- * Generates Svelte Query cache key for GET /enterprise/sso/{configId
+ * Generates Svelte Query cache key for GET /enterprise/sso/{configId}
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
@@ -805,7 +805,7 @@ export function createGetEnterpriseSsoConfigIdMetadata(
 }
 
 /**
- * Generates Svelte Query cache key for GET /enterprise/sso/{configId/metadata
+ * Generates Svelte Query cache key for GET /enterprise/sso/{configId}/metadata
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,

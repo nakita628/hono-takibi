@@ -102,7 +102,7 @@ export function useGetEntitiesEntityId(
 }
 
 /**
- * Generates Vue Query cache key for GET /entities/{entityId
+ * Generates Vue Query cache key for GET /entities/{entityId}
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
@@ -209,7 +209,7 @@ export function useGetEntitiesEntityIdRelationships(
 }
 
 /**
- * Generates Vue Query cache key for GET /entities/{entityId/relationships
+ * Generates Vue Query cache key for GET /entities/{entityId}/relationships
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,

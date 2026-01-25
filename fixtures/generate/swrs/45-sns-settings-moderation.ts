@@ -442,7 +442,7 @@ export function useGetSettingsDataExportRequestId(
 }
 
 /**
- * Generates SWR cache key for GET /settings/data-export/{requestId
+ * Generates SWR cache key for GET /settings/data-export/{requestId}
  */
 export function getGetSettingsDataExportRequestIdKey(
   args?: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
@@ -524,7 +524,7 @@ export function useGetReportsReportId(
 }
 
 /**
- * Generates SWR cache key for GET /reports/{reportId
+ * Generates SWR cache key for GET /reports/{reportId}
  */
 export function getGetReportsReportIdKey(
   args?: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
@@ -594,7 +594,7 @@ export function useGetModerationItemsItemId(
 }
 
 /**
- * Generates SWR cache key for GET /moderation/items/{itemId
+ * Generates SWR cache key for GET /moderation/items/{itemId}
  */
 export function getGetModerationItemsItemIdKey(
   args?: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
@@ -657,7 +657,7 @@ export function useGetModerationUsersUserIdHistory(
 }
 
 /**
- * Generates SWR cache key for GET /moderation/users/{userId/history
+ * Generates SWR cache key for GET /moderation/users/{userId}/history
  */
 export function getGetModerationUsersUserIdHistoryKey(
   args?: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
@@ -747,7 +747,7 @@ export function useGetAnalyticsPostsPostId(
 }
 
 /**
- * Generates SWR cache key for GET /analytics/posts/{postId
+ * Generates SWR cache key for GET /analytics/posts/{postId}
  */
 export function getGetAnalyticsPostsPostIdKey(
   args?: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,

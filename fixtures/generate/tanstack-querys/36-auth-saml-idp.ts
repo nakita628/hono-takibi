@@ -336,7 +336,7 @@ export function useGetServiceProvidersSpId(
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId
+ * Generates TanStack Query cache key for GET /service-providers/{spId}
  */
 export function getGetServiceProvidersSpIdQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
@@ -453,7 +453,7 @@ export function useGetServiceProvidersSpIdMetadata(
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId/metadata
+ * Generates TanStack Query cache key for GET /service-providers/{spId}/metadata
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
@@ -545,7 +545,7 @@ export function useGetServiceProvidersSpIdAttributes(
 }
 
 /**
- * Generates TanStack Query cache key for GET /service-providers/{spId/attributes
+ * Generates TanStack Query cache key for GET /service-providers/{spId}/attributes
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
