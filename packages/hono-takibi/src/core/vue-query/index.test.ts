@@ -50,7 +50,6 @@ describe('vueQuery', () => {
 
       const code = fs.readFileSync(out, 'utf-8')
       const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
-import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -63,11 +62,21 @@ import { client } from '../client'
  * Simple ping for Hono
  */
 export function useGetHono(options?: {
-  query?: UseQueryOptions<InferResponseType<typeof client.hono.$get>, Error>
+  query?: {
+    enabled?: boolean
+    staleTime?: number
+    gcTime?: number
+    refetchInterval?: number | false
+    refetchOnWindowFocus?: boolean
+    refetchOnMount?: boolean
+    refetchOnReconnect?: boolean
+    retry?: boolean | number
+    retryDelay?: number
+  }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...queryOptions, ...getGetHonoQueryOptions(clientOptions) })
+  return useQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -101,12 +110,22 @@ export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function useGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: UseQueryOptions<InferResponseType<typeof client.users.$get>, Error>
+    query?: {
+      enabled?: boolean
+      staleTime?: number
+      gcTime?: number
+      refetchInterval?: number | false
+      refetchOnWindowFocus?: boolean
+      refetchOnMount?: boolean
+      refetchOnReconnect?: boolean
+      retry?: boolean | number
+      retryDelay?: number
+    }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...queryOptions, ...getGetUsersQueryOptions(args, clientOptions) })
+  return useQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -141,11 +160,21 @@ export const getGetUsersQueryOptions = (
  * Create a new user.
  */
 export function usePostUsers(options?: {
-  mutation?: UseMutationOptions<
-    InferResponseType<typeof client.users.$post>,
-    Error,
-    InferRequestType<typeof client.users.$post>
-  >
+  mutation?: {
+    onSuccess?: (
+      data: InferResponseType<typeof client.users.$post>,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
+    onSettled?: (
+      data: InferResponseType<typeof client.users.$post> | undefined,
+      error: Error | null,
+      variables: InferRequestType<typeof client.users.$post>,
+    ) => void
+    onMutate?: (variables: InferRequestType<typeof client.users.$post>) => void
+    retry?: boolean | number
+    retryDelay?: number
+  }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -337,9 +366,9 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
       parseResponse(client.users.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 `
@@ -540,8 +569,8 @@ export function usePostPing(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.ping.$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.ping.$post(undefined, clientOptions)),
   })
 }
 `
@@ -690,28 +719,12 @@ export function useGetUsersId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetUsersIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetUsersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -771,9 +784,9 @@ export function useDeleteUsersId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$delete']>) =>
       parseResponse(client.users[':id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 `
@@ -879,9 +892,9 @@ export function usePutUsersId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$put']>) =>
       parseResponse(client.users[':id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -913,9 +926,9 @@ export function usePatchUsersId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':id']['$patch']>) =>
       parseResponse(client.users[':id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 `

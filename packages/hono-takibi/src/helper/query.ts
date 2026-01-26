@@ -245,9 +245,12 @@ function makeMutationHookCode(
 
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${inferResponseType}|undefined` : inferResponseType
+  // onSettled data is always potentially undefined (mutation may not complete)
+  // Avoid duplicate `| undefined` when dataType already includes it
+  const onSettledDataType = hasNoContent ? dataType : `${dataType}|undefined`
 
   // Inline mutation options type - excludes mutationFn to prevent override
-  const inlineMutationOptionsType = `{onSuccess?:(data:${dataType},variables:${variablesType})=>void;onError?:(error:Error,variables:${variablesType})=>void;onSettled?:(data:${dataType}|undefined,error:Error|null,variables:${variablesType})=>void;onMutate?:(variables:${variablesType})=>void;retry?:boolean|number;retryDelay?:number}`
+  const inlineMutationOptionsType = `{onSuccess?:(data:${dataType},variables:${variablesType})=>void;onError?:(error:Error,variables:${variablesType})=>void;onSettled?:(data:${onSettledDataType},error:Error|null,variables:${variablesType})=>void;onMutate?:(variables:${variablesType})=>void;retry?:boolean|number;retryDelay?:number}`
   const optionsType = `{mutation?:${inlineMutationOptionsType};client?:ClientRequestOptions}`
 
   if (hasArgs) {
