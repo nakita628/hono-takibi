@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
@@ -151,10 +151,10 @@ export function createDeleteNotificationsNotificationId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
     ) => parseResponse(client.notifications[':notificationId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -198,10 +198,10 @@ export function createPostNotificationsNotificationIdRead(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>,
     ) => parseResponse(client.notifications[':notificationId'].read.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -230,9 +230,9 @@ export function createPostNotificationsReadAll(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client.notifications['read-all'].$post(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -313,9 +313,9 @@ export function createPostMessagesSend(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.messages.send.$post>) =>
       parseResponse(client.messages.send.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -349,9 +349,9 @@ export function createPostMessagesSendBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.messages)['send-batch']['$post']>) =>
       parseResponse(client.messages['send-batch'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -488,9 +488,9 @@ export function createPostTemplates(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
       parseResponse(client.templates.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -582,9 +582,9 @@ export function createPutTemplatesTemplateId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.templates)[':templateId']['$put']>) =>
       parseResponse(client.templates[':templateId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -621,10 +621,10 @@ export function createDeleteTemplatesTemplateId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
     ) => parseResponse(client.templates[':templateId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -660,10 +660,10 @@ export function createPostTemplatesTemplateIdPreview(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
     ) => parseResponse(client.templates[':templateId'].preview.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -742,9 +742,9 @@ export function createPutChannelsPreferences(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.channels.preferences.$put>) =>
       parseResponse(client.channels.preferences.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -823,9 +823,9 @@ export function createPostChannelsDevices(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.channels.devices.$post>) =>
       parseResponse(client.channels.devices.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -862,10 +862,10 @@ export function createDeleteChannelsDevicesDeviceId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
     ) => parseResponse(client.channels.devices[':deviceId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -941,9 +941,9 @@ export function createPostWebhooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
       parseResponse(client.webhooks.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1033,9 +1033,9 @@ export function createPutWebhooksWebhookId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>) =>
       parseResponse(client.webhooks[':webhookId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1072,9 +1072,9 @@ export function createDeleteWebhooksWebhookId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>) =>
       parseResponse(client.webhooks[':webhookId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1108,9 +1108,9 @@ export function createPostWebhooksWebhookIdTest(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
     ) => parseResponse(client.webhooks[':webhookId'].test.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

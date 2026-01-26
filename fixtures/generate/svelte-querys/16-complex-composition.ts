@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
@@ -26,9 +26,9 @@ export function createPostMessages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
       parseResponse(client.messages.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -55,9 +55,9 @@ export function createPostEvents(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
       parseResponse(client.events.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -129,9 +129,9 @@ export function createPutConfigs(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.configs.$put>) =>
       parseResponse(client.configs.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -158,9 +158,9 @@ export function createPostResources(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.resources.$post>) =>
       parseResponse(client.resources.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -187,8 +187,8 @@ export function createPostValidations(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.validations.$post>) =>
       parseResponse(client.validations.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

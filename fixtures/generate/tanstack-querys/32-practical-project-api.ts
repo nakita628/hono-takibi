@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -78,9 +78,9 @@ export function usePostProjects(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.projects.$post>) =>
       parseResponse(client.projects.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -167,9 +167,9 @@ export function usePutProjectsProjectId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$put']>) =>
       parseResponse(client.projects[':projectId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -206,9 +206,9 @@ export function useDeleteProjectsProjectId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$delete']>) =>
       parseResponse(client.projects[':projectId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -302,10 +302,10 @@ export function usePostProjectsProjectIdMembers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
     ) => parseResponse(client.projects[':projectId'].members.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -397,10 +397,10 @@ export function usePostProjectsProjectIdTasks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
     ) => parseResponse(client.projects[':projectId'].tasks.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -487,9 +487,9 @@ export function usePutTasksTaskId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$put']>) =>
       parseResponse(client.tasks[':taskId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -521,9 +521,9 @@ export function useDeleteTasksTaskId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>) =>
       parseResponse(client.tasks[':taskId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -557,10 +557,10 @@ export function usePatchTasksTaskIdStatus(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
     ) => parseResponse(client.tasks[':taskId'].status.$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -652,10 +652,10 @@ export function usePostTasksTaskIdComments(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
     ) => parseResponse(client.tasks[':taskId'].comments.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -749,10 +749,10 @@ export function usePostTasksTaskIdTimeEntries(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
     ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -846,10 +846,10 @@ export function usePostProjectsProjectIdMilestones(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
     ) => parseResponse(client.projects[':projectId'].milestones.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -925,8 +925,8 @@ export function usePostTeams(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.teams.$post>) =>
       parseResponse(client.teams.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

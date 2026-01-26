@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -71,9 +71,9 @@ export function usePostProcess(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
       parseResponse(client.process.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -145,8 +145,8 @@ export function usePostTransform(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
       parseResponse(client.transform.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

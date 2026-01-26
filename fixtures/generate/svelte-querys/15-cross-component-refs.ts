@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -74,9 +74,9 @@ export function createPostEntities(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.entities.$post>) =>
       parseResponse(client.entities.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -162,9 +162,9 @@ export function createPutEntitiesEntityId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$put']>) =>
       parseResponse(client.entities[':entityId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -199,9 +199,9 @@ export function createDeleteEntitiesEntityId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$delete']>) =>
       parseResponse(client.entities[':entityId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -291,10 +291,10 @@ export function createPostEntitiesEntityIdRelationships(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
     ) => parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -321,8 +321,8 @@ export function createPostBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.batch.$post>) =>
       parseResponse(client.batch.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
@@ -80,9 +80,9 @@ export function createPostProducts(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
       parseResponse(client.products.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -172,9 +172,9 @@ export function createPutProductsProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
       parseResponse(client.products[':productId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -211,9 +211,9 @@ export function createDeleteProductsProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
       parseResponse(client.products[':productId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -242,9 +242,9 @@ export function createPostOrders(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
       parseResponse(client.orders.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -273,8 +273,8 @@ export function createPostWebhooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
       parseResponse(client.webhooks.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

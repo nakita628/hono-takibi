@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -71,9 +71,9 @@ export function createPostProcess(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
       parseResponse(client.process.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -145,8 +145,8 @@ export function createPostTransform(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
       parseResponse(client.transform.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

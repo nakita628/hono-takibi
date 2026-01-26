@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/25-pathological-schemas'
 
@@ -26,8 +26,8 @@ export function usePostPathological(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.pathological.$post>) =>
       parseResponse(client.pathological.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

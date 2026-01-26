@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discriminated-union'
 
@@ -26,8 +26,8 @@ export function usePostMessages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
       parseResponse(client.messages.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

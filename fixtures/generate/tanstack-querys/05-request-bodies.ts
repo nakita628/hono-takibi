@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/05-request-bodies'
 
@@ -26,9 +26,9 @@ export function usePostUsers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
       parseResponse(client.users.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -58,9 +58,9 @@ export function usePutUsersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$put']>) =>
       parseResponse(client.users[':userId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -90,9 +90,9 @@ export function usePatchUsersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
       parseResponse(client.users[':userId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -124,10 +124,10 @@ export function usePostUsersUserIdAvatar(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
     ) => parseResponse(client.users[':userId'].avatar.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -154,8 +154,8 @@ export function usePostBulkUsers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.bulk.users.$post>) =>
       parseResponse(client.bulk.users.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -22,7 +22,8 @@
  * @link https://hono.dev/docs/guides/rpc
  */
 
-import { makeQueryHooks, TANSTACK_QUERY_CONFIG } from '../../helper/query.js'
+import { makeQueryHooks } from '../../helper/query.js'
+import type { QueryFrameworkConfig } from '../../helper/query.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 /**
@@ -72,5 +73,15 @@ export async function tanstackQuery(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  return makeQueryHooks(openAPI, output, importPath, TANSTACK_QUERY_CONFIG, split, clientName)
+  const config: QueryFrameworkConfig = {
+    packageName: '@tanstack/react-query',
+    frameworkName: 'TanStack Query',
+    hookPrefix: 'use',
+    queryFn: 'useQuery',
+    mutationFn: 'useMutation',
+    queryOptionsType: 'UseQueryOptions',
+    mutationOptionsType: 'UseMutationOptions',
+    queryOptionsHelper: 'queryOptions',
+  }
+  return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

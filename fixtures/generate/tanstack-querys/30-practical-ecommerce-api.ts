@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -78,9 +78,9 @@ export function usePostProducts(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
       parseResponse(client.products.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -167,9 +167,9 @@ export function usePutProductsProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
       parseResponse(client.products[':productId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -206,9 +206,9 @@ export function useDeleteProductsProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
       parseResponse(client.products[':productId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -244,10 +244,10 @@ export function usePostProductsProductIdImages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
     ) => parseResponse(client.products[':productId'].images.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -323,9 +323,9 @@ export function usePostCategories(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.categories.$post>) =>
       parseResponse(client.categories.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -398,8 +398,8 @@ export function useDeleteCart(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
   })
 }
 
@@ -428,9 +428,9 @@ export function usePostCartItems(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.cart.items.$post>) =>
       parseResponse(client.cart.items.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -462,9 +462,9 @@ export function usePutCartItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>) =>
       parseResponse(client.cart.items[':itemId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -498,9 +498,9 @@ export function useDeleteCartItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>) =>
       parseResponse(client.cart.items[':itemId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -581,9 +581,9 @@ export function usePostOrders(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
       parseResponse(client.orders.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -672,10 +672,10 @@ export function usePostOrdersOrderIdCancel(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
     ) => parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -764,8 +764,8 @@ export function usePutInventoryProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.inventory)[':productId']['$put']>) =>
       parseResponse(client.inventory[':productId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }

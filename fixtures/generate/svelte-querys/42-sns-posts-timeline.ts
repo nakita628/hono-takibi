@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
@@ -80,9 +80,9 @@ export function createPostPosts(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
       parseResponse(client.posts.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -169,9 +169,9 @@ export function createDeletePostsPostId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['$delete']>) =>
       parseResponse(client.posts[':postId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -555,9 +555,9 @@ export function createPostPostsPostIdLike(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>) =>
       parseResponse(client.posts[':postId'].like.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -591,10 +591,10 @@ export function createDeletePostsPostIdLike(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>,
     ) => parseResponse(client.posts[':postId'].like.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -628,10 +628,10 @@ export function createPostPostsPostIdRepost(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>,
     ) => parseResponse(client.posts[':postId'].repost.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -665,10 +665,10 @@ export function createDeletePostsPostIdRepost(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
     ) => parseResponse(client.posts[':postId'].repost.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -702,10 +702,10 @@ export function createPostPostsPostIdQuote(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>,
     ) => parseResponse(client.posts[':postId'].quote.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -739,10 +739,10 @@ export function createPostPostsPostIdBookmark(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
     ) => parseResponse(client.posts[':postId'].bookmark.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -776,10 +776,10 @@ export function createDeletePostsPostIdBookmark(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
     ) => parseResponse(client.posts[':postId'].bookmark.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1095,10 +1095,10 @@ export function createPostPostsPostIdReplies(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
     ) => parseResponse(client.posts[':postId'].replies.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1127,9 +1127,9 @@ export function createPostMediaUpload(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.media.upload.$post>) =>
       parseResponse(client.media.upload.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1216,8 +1216,8 @@ export function createPatchMediaMediaId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.media)[':mediaId']['$patch']>) =>
       parseResponse(client.media[':mediaId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }

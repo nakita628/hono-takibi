@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -89,9 +89,9 @@ export function usePostOauthToken(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
       parseResponse(client.oauth.token.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -122,9 +122,9 @@ export function usePostOauthRevoke(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
       parseResponse(client.oauth.revoke.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -158,9 +158,9 @@ export function usePostOauthIntrospect(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
       parseResponse(client.oauth.introspect.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -194,9 +194,9 @@ export function usePostOauthDeviceCode(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
       parseResponse(client.oauth.device.code.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -424,9 +424,9 @@ export function usePostOauthClients(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
       parseResponse(client.oauth.clients.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -518,10 +518,10 @@ export function usePutOauthClientsClientId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
     ) => parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -558,10 +558,10 @@ export function useDeleteOauthClientsClientId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
     ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -597,10 +597,10 @@ export function usePostOauthClientsClientIdSecret(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
     ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -688,9 +688,9 @@ export function useDeleteOauthConsentsClientId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
     ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }

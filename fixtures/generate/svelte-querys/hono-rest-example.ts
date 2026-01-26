@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -131,9 +131,9 @@ export function createPostPosts(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
       parseResponse(client.posts.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -167,9 +167,9 @@ export function createPutPostsId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
       parseResponse(client.posts[':id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -203,8 +203,8 @@ export function createDeletePostsId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
       parseResponse(client.posts[':id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -33,9 +33,9 @@ export function usePostWebauthnRegisterOptions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
       parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -69,9 +69,9 @@ export function usePostWebauthnRegisterVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
       parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -107,9 +107,9 @@ export function usePostWebauthnAuthenticateOptions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
       parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -145,9 +145,9 @@ export function usePostWebauthnAuthenticateVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
       parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -295,10 +295,10 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
     ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -336,10 +336,10 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
     ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -467,9 +467,9 @@ export function usePutWebauthnSettingsRp(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
       parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

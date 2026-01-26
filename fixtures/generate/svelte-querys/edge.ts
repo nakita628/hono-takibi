@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -28,9 +28,9 @@ export function createPostPolymorphic(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.polymorphic.$post>) =>
       parseResponse(client.polymorphic.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -112,8 +112,8 @@ export function createPutMultiStep(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['multi-step']['$put']>) =>
       parseResponse(client['multi-step'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/25-pathological-schemas'
 
@@ -26,8 +26,8 @@ export function createPostPathological(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.pathological.$post>) =>
       parseResponse(client.pathological.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

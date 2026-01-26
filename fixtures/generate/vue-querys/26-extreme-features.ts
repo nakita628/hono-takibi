@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -75,9 +75,9 @@ export function usePostGraphql(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
       parseResponse(client.graphql.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -109,9 +109,9 @@ export function usePostGrpcGateway(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
       parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

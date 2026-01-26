@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -30,9 +30,9 @@ export function usePostAuthRegister(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.auth.register.$post>) =>
       parseResponse(client.auth.register.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -63,9 +63,9 @@ export function usePostAuthLogin(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.auth.login.$post>) =>
       parseResponse(client.auth.login.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -96,9 +96,9 @@ export function usePostAuthRefresh(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.auth.refresh.$post>) =>
       parseResponse(client.auth.refresh.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -127,8 +127,8 @@ export function usePostAuthLogout(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.auth.logout.$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.auth.logout.$post(undefined, clientOptions)),
   })
 }
 
@@ -162,9 +162,9 @@ export function usePostAuthPasswordForgot(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.auth.password.forgot.$post>) =>
       parseResponse(client.auth.password.forgot.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -196,9 +196,9 @@ export function usePostAuthPasswordReset(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.auth.password.reset.$post>) =>
       parseResponse(client.auth.password.reset.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -337,9 +337,9 @@ export function useDeleteUsersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
       parseResponse(client.users[':userId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -371,9 +371,9 @@ export function usePatchUsersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
       parseResponse(client.users[':userId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -449,9 +449,9 @@ export function usePatchUsersMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.users.me.$patch>) =>
       parseResponse(client.users.me.$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -483,9 +483,9 @@ export function usePutUsersMePassword(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.users.me.password.$put>) =>
       parseResponse(client.users.me.password.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -517,9 +517,9 @@ export function usePutUsersMeAvatar(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.users.me.avatar.$put>) =>
       parseResponse(client.users.me.avatar.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -548,7 +548,7 @@ export function useDeleteUsersMeAvatar(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.users.me.avatar.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.users.me.avatar.$delete(undefined, clientOptions)),
   })
 }

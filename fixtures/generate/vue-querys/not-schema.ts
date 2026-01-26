@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/not-schema'
 
@@ -26,8 +26,8 @@ export function usePostValidate(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.validate.$post>) =>
       parseResponse(client.validate.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -150,9 +150,9 @@ export function usePostSocialToken(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.social.token.$post>) =>
       parseResponse(client.social.token.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -186,9 +186,9 @@ export function usePostSocialTokenNative(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.social.token.native.$post>) =>
       parseResponse(client.social.token.native.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -314,9 +314,9 @@ export function usePostProvidersAdmin(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.providers.admin.$post>) =>
       parseResponse(client.providers.admin.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -408,9 +408,9 @@ export function usePutProvidersProviderId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.providers)[':providerId']['$put']>) =>
       parseResponse(client.providers[':providerId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -447,10 +447,10 @@ export function useDeleteProvidersProviderId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
     ) => parseResponse(client.providers[':providerId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -486,10 +486,10 @@ export function usePostProvidersProviderIdTest(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
     ) => parseResponse(client.providers[':providerId'].test.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -572,10 +572,10 @@ export function usePostAccountLinkProvider(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
     ) => parseResponse(client.account.link[':provider'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -612,10 +612,10 @@ export function useDeleteAccountLinkProvider(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
     ) => parseResponse(client.account.link[':provider'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -694,9 +694,9 @@ export function usePostEnterpriseSso(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.enterprise.sso.$post>) =>
       parseResponse(client.enterprise.sso.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -788,10 +788,10 @@ export function usePutEnterpriseSsoConfigId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
     ) => parseResponse(client.enterprise.sso[':configId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -828,10 +828,10 @@ export function useDeleteEnterpriseSsoConfigId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
     ) => parseResponse(client.enterprise.sso[':configId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

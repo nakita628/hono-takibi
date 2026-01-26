@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -82,9 +82,9 @@ export function usePostSessions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.sessions.$post>) =>
       parseResponse(client.sessions.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -160,9 +160,9 @@ export function useDeleteSessionsCurrent(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -196,9 +196,9 @@ export function usePostSessionsCurrentRefresh(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.sessions.current.refresh.$post>) =>
       parseResponse(client.sessions.current.refresh.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -232,9 +232,9 @@ export function usePostSessionsCurrentExtend(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.sessions.current.extend.$post>) =>
       parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -265,9 +265,9 @@ export function usePostSessionsCurrentActivity(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -361,9 +361,9 @@ export function useDeleteSessionsSessionId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
       parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -399,9 +399,9 @@ export function usePostSessionsRevokeAll(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>) =>
       parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -435,9 +435,9 @@ export function usePostSessionsValidate(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.sessions.validate.$post>) =>
       parseResponse(client.sessions.validate.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -631,9 +631,9 @@ export function usePutSessionsPolicies(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.sessions.policies.$put>) =>
       parseResponse(client.sessions.policies.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -714,10 +714,10 @@ export function usePostSessionsTrustedDevices(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
     ) => parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -764,10 +764,10 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
     ) =>
       parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }

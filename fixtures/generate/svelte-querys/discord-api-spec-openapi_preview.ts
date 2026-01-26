@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi_preview'
 
@@ -74,9 +74,9 @@ export function createPatchApplicationsMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.applications)['@me']['$patch']>) =>
       parseResponse(client.applications['@me'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -166,10 +166,10 @@ export function createPatchApplicationsApplicationId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
     ) => parseResponse(client.applications[':application_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -275,13 +275,13 @@ export function createPostApplicationsApplicationIdAttachment(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['attachment']['$post']
       >,
     ) =>
       parseResponse(client.applications[':application_id'].attachment.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -379,10 +379,10 @@ export function createPutApplicationsApplicationIdCommands(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>,
     ) => parseResponse(client.applications[':application_id'].commands.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -424,10 +424,10 @@ export function createPostApplicationsApplicationIdCommands(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>,
     ) => parseResponse(client.applications[':application_id'].commands.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -538,6 +538,7 @@ export function createDeleteApplicationsApplicationIdCommandsCommandId(options?:
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
@@ -546,7 +547,6 @@ export function createDeleteApplicationsApplicationIdCommandsCommandId(options?:
       parseResponse(
         client.applications[':application_id'].commands[':command_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -592,6 +592,7 @@ export function createPatchApplicationsApplicationIdCommandsCommandId(options?: 
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
@@ -600,7 +601,6 @@ export function createPatchApplicationsApplicationIdCommandsCommandId(options?: 
       parseResponse(
         client.applications[':application_id'].commands[':command_id'].$patch(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -698,10 +698,10 @@ export function createPostApplicationsApplicationIdEmojis(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>,
     ) => parseResponse(client.applications[':application_id'].emojis.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -812,6 +812,7 @@ export function createDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
@@ -820,7 +821,6 @@ export function createDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
       parseResponse(
         client.applications[':application_id'].emojis[':emoji_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -866,6 +866,7 @@ export function createPatchApplicationsApplicationIdEmojisEmojiId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
@@ -874,7 +875,6 @@ export function createPatchApplicationsApplicationIdEmojisEmojiId(options?: {
       parseResponse(
         client.applications[':application_id'].emojis[':emoji_id'].$patch(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -976,13 +976,13 @@ export function createPostApplicationsApplicationIdEntitlements(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['entitlements']['$post']
       >,
     ) =>
       parseResponse(client.applications[':application_id'].entitlements.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1093,6 +1093,7 @@ export function createDeleteApplicationsApplicationIdEntitlementsEntitlementId(o
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
@@ -1104,7 +1105,6 @@ export function createDeleteApplicationsApplicationIdEntitlementsEntitlementId(o
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1153,6 +1153,7 @@ export function createPostApplicationsApplicationIdEntitlementsEntitlementIdCons
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
@@ -1164,7 +1165,6 @@ export function createPostApplicationsApplicationIdEntitlementsEntitlementIdCons
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1272,6 +1272,7 @@ export function createPutApplicationsApplicationIdGuildsGuildIdCommands(options?
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
@@ -1283,7 +1284,6 @@ export function createPutApplicationsApplicationIdGuildsGuildIdCommands(options?
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1329,6 +1329,7 @@ export function createPostApplicationsApplicationIdGuildsGuildIdCommands(options
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
@@ -1340,7 +1341,6 @@ export function createPostApplicationsApplicationIdGuildsGuildIdCommands(options
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1519,6 +1519,7 @@ export function createDeleteApplicationsApplicationIdGuildsGuildIdCommandsComman
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
@@ -1530,7 +1531,6 @@ export function createDeleteApplicationsApplicationIdGuildsGuildIdCommandsComman
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1576,6 +1576,7 @@ export function createPatchApplicationsApplicationIdGuildsGuildIdCommandsCommand
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
@@ -1587,7 +1588,6 @@ export function createPatchApplicationsApplicationIdGuildsGuildIdCommandsCommand
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1702,6 +1702,7 @@ export function createPutApplicationsApplicationIdGuildsGuildIdCommandsCommandId
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
@@ -1712,7 +1713,6 @@ export function createPutApplicationsApplicationIdGuildsGuildIdCommandsCommandId
           ':command_id'
         ].permissions.$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1820,6 +1820,7 @@ export function createPutApplicationsApplicationIdRoleConnectionsMetadata(option
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
@@ -1831,7 +1832,6 @@ export function createPutApplicationsApplicationIdRoleConnectionsMetadata(option
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1919,10 +1919,10 @@ export function createDeleteChannelsChannelId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
     ) => parseResponse(client.channels[':channel_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1954,9 +1954,9 @@ export function createPatchChannelsChannelId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>) =>
       parseResponse(client.channels[':channel_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1990,10 +1990,10 @@ export function createPostChannelsChannelIdFollowers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].followers.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2086,10 +2086,10 @@ export function createPostChannelsChannelIdInvites(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].invites.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2179,10 +2179,10 @@ export function createPostChannelsChannelIdMessages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].messages.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2231,6 +2231,7 @@ export function createPostChannelsChannelIdMessagesBulkDelete(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
@@ -2239,7 +2240,6 @@ export function createPostChannelsChannelIdMessagesBulkDelete(options?: {
       parseResponse(
         client.channels[':channel_id'].messages['bulk-delete'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2344,6 +2344,7 @@ export function createPutChannelsChannelIdMessagesPinsMessageId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
@@ -2352,7 +2353,6 @@ export function createPutChannelsChannelIdMessagesPinsMessageId(options?: {
       parseResponse(
         client.channels[':channel_id'].messages.pins[':message_id'].$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2401,6 +2401,7 @@ export function createDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
@@ -2409,7 +2410,6 @@ export function createDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
       parseResponse(
         client.channels[':channel_id'].messages.pins[':message_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2520,6 +2520,7 @@ export function createDeleteChannelsChannelIdMessagesMessageId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
@@ -2528,7 +2529,6 @@ export function createDeleteChannelsChannelIdMessagesMessageId(options?: {
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2574,6 +2574,7 @@ export function createPatchChannelsChannelIdMessagesMessageId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
@@ -2582,7 +2583,6 @@ export function createPatchChannelsChannelIdMessagesMessageId(options?: {
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].$patch(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2628,6 +2628,7 @@ export function createPostChannelsChannelIdMessagesMessageIdCrosspost(options?: 
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
@@ -2636,7 +2637,6 @@ export function createPostChannelsChannelIdMessagesMessageIdCrosspost(options?: 
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].crosspost.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2685,6 +2685,7 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactions(options?
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
@@ -2696,7 +2697,6 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactions(options?
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2807,6 +2807,7 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
@@ -2818,7 +2819,6 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2867,6 +2867,7 @@ export function createPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
@@ -2878,7 +2879,6 @@ export function createPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2927,6 +2927,7 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
@@ -2937,7 +2938,6 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
           '@me'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2986,6 +2986,7 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
@@ -2996,7 +2997,6 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
           ':user_id'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3042,6 +3042,7 @@ export function createPostChannelsChannelIdMessagesMessageIdThreads(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
@@ -3050,7 +3051,6 @@ export function createPostChannelsChannelIdMessagesMessageIdThreads(options?: {
       parseResponse(
         client.channels[':channel_id'].messages[':message_id'].threads.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3099,6 +3099,7 @@ export function createPutChannelsChannelIdPermissionsOverwriteId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
@@ -3107,7 +3108,6 @@ export function createPutChannelsChannelIdPermissionsOverwriteId(options?: {
       parseResponse(
         client.channels[':channel_id'].permissions[':overwrite_id'].$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3156,6 +3156,7 @@ export function createDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
@@ -3164,7 +3165,6 @@ export function createDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
       parseResponse(
         client.channels[':channel_id'].permissions[':overwrite_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3265,13 +3265,13 @@ export function createPutChannelsChannelIdPinsMessageId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
       >,
     ) =>
       parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3320,6 +3320,7 @@ export function createDeleteChannelsChannelIdPinsMessageId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
@@ -3328,7 +3329,6 @@ export function createDeleteChannelsChannelIdPinsMessageId(options?: {
       parseResponse(
         client.channels[':channel_id'].pins[':message_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3436,6 +3436,7 @@ export function createPostChannelsChannelIdPollsMessageIdExpire(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
@@ -3444,7 +3445,6 @@ export function createPostChannelsChannelIdPollsMessageIdExpire(options?: {
       parseResponse(
         client.channels[':channel_id'].polls[':message_id'].expire.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3493,6 +3493,7 @@ export function createPutChannelsChannelIdRecipientsUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
@@ -3501,7 +3502,6 @@ export function createPutChannelsChannelIdRecipientsUserId(options?: {
       parseResponse(
         client.channels[':channel_id'].recipients[':user_id'].$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3550,6 +3550,7 @@ export function createDeleteChannelsChannelIdRecipientsUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
@@ -3558,7 +3559,6 @@ export function createDeleteChannelsChannelIdRecipientsUserId(options?: {
       parseResponse(
         client.channels[':channel_id'].recipients[':user_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3607,6 +3607,7 @@ export function createPostChannelsChannelIdSendSoundboardSound(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
@@ -3615,7 +3616,6 @@ export function createPostChannelsChannelIdSendSoundboardSound(options?: {
       parseResponse(
         client.channels[':channel_id']['send-soundboard-sound'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3720,6 +3720,7 @@ export function createPutChannelsChannelIdThreadMembersMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
@@ -3728,7 +3729,6 @@ export function createPutChannelsChannelIdThreadMembersMe(options?: {
       parseResponse(
         client.channels[':channel_id']['thread-members']['@me'].$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3777,6 +3777,7 @@ export function createDeleteChannelsChannelIdThreadMembersMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
@@ -3785,7 +3786,6 @@ export function createDeleteChannelsChannelIdThreadMembersMe(options?: {
       parseResponse(
         client.channels[':channel_id']['thread-members']['@me'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3896,6 +3896,7 @@ export function createPutChannelsChannelIdThreadMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
@@ -3904,7 +3905,6 @@ export function createPutChannelsChannelIdThreadMembersUserId(options?: {
       parseResponse(
         client.channels[':channel_id']['thread-members'][':user_id'].$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3953,6 +3953,7 @@ export function createDeleteChannelsChannelIdThreadMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
@@ -3961,7 +3962,6 @@ export function createDeleteChannelsChannelIdThreadMembersUserId(options?: {
       parseResponse(
         client.channels[':channel_id']['thread-members'][':user_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3995,10 +3995,10 @@ export function createPostChannelsChannelIdThreads(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].threads.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4215,10 +4215,10 @@ export function createPostChannelsChannelIdTyping(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].typing.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4370,10 +4370,10 @@ export function createPostChannelsChannelIdWebhooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
     ) => parseResponse(client.channels[':channel_id'].webhooks.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4602,9 +4602,9 @@ export function createPatchGuildsGuildId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) =>
       parseResponse(client.guilds[':guild_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4762,13 +4762,13 @@ export function createPostGuildsGuildIdAutoModerationRules(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
       >,
     ) =>
       parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4879,6 +4879,7 @@ export function createDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
@@ -4890,7 +4891,6 @@ export function createDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4936,6 +4936,7 @@ export function createPatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
@@ -4944,7 +4945,6 @@ export function createPatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
       parseResponse(
         client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5093,10 +5093,10 @@ export function createPutGuildsGuildIdBansUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5141,10 +5141,10 @@ export function createDeleteGuildsGuildIdBansUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5176,10 +5176,10 @@ export function createPostGuildsGuildIdBulkBan(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
     ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5267,10 +5267,10 @@ export function createPostGuildsGuildIdChannels(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5307,10 +5307,10 @@ export function createPatchGuildsGuildIdChannels(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].channels.$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5398,10 +5398,10 @@ export function createPostGuildsGuildIdEmojis(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].emojis.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5502,10 +5502,10 @@ export function createDeleteGuildsGuildIdEmojisEmojiId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5547,10 +5547,10 @@ export function createPatchGuildsGuildIdEmojisEmojiId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5655,6 +5655,7 @@ export function createDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
@@ -5663,7 +5664,6 @@ export function createDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
       parseResponse(
         client.guilds[':guild_id'].integrations[':integration_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5809,10 +5809,10 @@ export function createPatchGuildsGuildIdMembersMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -5969,10 +5969,10 @@ export function createPutGuildsGuildIdMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6017,10 +6017,10 @@ export function createDeleteGuildsGuildIdMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6065,10 +6065,10 @@ export function createPatchGuildsGuildIdMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6117,6 +6117,7 @@ export function createPutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
@@ -6125,7 +6126,6 @@ export function createPutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
       parseResponse(
         client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6174,6 +6174,7 @@ export function createDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
@@ -6185,7 +6186,6 @@ export function createDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6387,10 +6387,10 @@ export function createPutGuildsGuildIdOnboarding(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6534,10 +6534,10 @@ export function createPostGuildsGuildIdPrune(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].prune.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6681,10 +6681,10 @@ export function createPostGuildsGuildIdRoles(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6716,10 +6716,10 @@ export function createPatchGuildsGuildIdRoles(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].roles.$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6876,10 +6876,10 @@ export function createDeleteGuildsGuildIdRolesRoleId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -6921,10 +6921,10 @@ export function createPatchGuildsGuildIdRolesRoleId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -7014,10 +7014,10 @@ export function createPostGuildsGuildIdScheduledEvents(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
     ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -7128,6 +7128,7 @@ export function createDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(op
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
@@ -7139,7 +7140,6 @@ export function createDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(op
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7185,6 +7185,7 @@ export function createPatchGuildsGuildIdScheduledEventsGuildScheduledEventId(opt
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
@@ -7196,7 +7197,6 @@ export function createPatchGuildsGuildIdScheduledEventsGuildScheduledEventId(opt
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7359,10 +7359,10 @@ export function createPostGuildsGuildIdSoundboardSounds(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
     ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -7473,6 +7473,7 @@ export function createDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
@@ -7481,7 +7482,6 @@ export function createDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
       parseResponse(
         client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7527,6 +7527,7 @@ export function createPatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
@@ -7535,7 +7536,6 @@ export function createPatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
       parseResponse(
         client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7623,10 +7623,10 @@ export function createPostGuildsGuildIdStickers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].stickers.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -7731,6 +7731,7 @@ export function createDeleteGuildsGuildIdStickersStickerId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
@@ -7739,7 +7740,6 @@ export function createDeleteGuildsGuildIdStickersStickerId(options?: {
       parseResponse(
         client.guilds[':guild_id'].stickers[':sticker_id'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7785,13 +7785,13 @@ export function createPatchGuildsGuildIdStickersStickerId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
       >,
     ) =>
       parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -7881,10 +7881,10 @@ export function createPostGuildsGuildIdTemplates(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
     ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -7926,10 +7926,10 @@ export function createPutGuildsGuildIdTemplatesCode(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
     ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -7971,10 +7971,10 @@ export function createDeleteGuildsGuildIdTemplatesCode(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
     ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8016,10 +8016,10 @@ export function createPatchGuildsGuildIdTemplatesCode(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8232,11 +8232,11 @@ export function createPatchGuildsGuildIdVoiceStatesMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>,
     ) =>
       parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8341,6 +8341,7 @@ export function createPatchGuildsGuildIdVoiceStatesUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
@@ -8349,7 +8350,6 @@ export function createPatchGuildsGuildIdVoiceStatesUserId(options?: {
       parseResponse(
         client.guilds[':guild_id']['voice-states'][':user_id'].$patch(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8495,10 +8495,10 @@ export function createPatchGuildsGuildIdWelcomeScreen(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8586,10 +8586,10 @@ export function createPatchGuildsGuildIdWidget(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
     ) => parseResponse(client.guilds[':guild_id'].widget.$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8750,6 +8750,7 @@ export function createPostInteractionsInteractionIdInteractionTokenCallback(opti
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
@@ -8761,7 +8762,6 @@ export function createPostInteractionsInteractionIdInteractionTokenCallback(opti
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8844,9 +8844,9 @@ export function createDeleteInvitesCode(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.invites)[':code']['$delete']>) =>
       parseResponse(client.invites[':code'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8873,9 +8873,9 @@ export function createPutLobbies(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.lobbies.$put>) =>
       parseResponse(client.lobbies.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8902,9 +8902,9 @@ export function createPostLobbies(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.lobbies.$post>) =>
       parseResponse(client.lobbies.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -8987,9 +8987,9 @@ export function createPatchLobbiesLobbyId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) =>
       parseResponse(client.lobbies[':lobby_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9031,10 +9031,10 @@ export function createPatchLobbiesLobbyIdChannelLinking(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
     ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9079,10 +9079,10 @@ export function createDeleteLobbiesLobbyIdMembersMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>,
     ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9128,13 +9128,13 @@ export function createPostLobbiesLobbyIdMembersMeInvites(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
       >,
     ) =>
       parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9168,10 +9168,10 @@ export function createPostLobbiesLobbyIdMembersBulk(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
     ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9213,10 +9213,10 @@ export function createPutLobbiesLobbyIdMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
     ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9261,13 +9261,13 @@ export function createDeleteLobbiesLobbyIdMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
       >,
     ) =>
       parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9313,6 +9313,7 @@ export function createPostLobbiesLobbyIdMembersUserIdInvites(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
@@ -9321,7 +9322,6 @@ export function createPostLobbiesLobbyIdMembersUserIdInvites(options?: {
       parseResponse(
         client.lobbies[':lobby_id'].members[':user_id'].invites.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9411,10 +9411,10 @@ export function createPostLobbiesLobbyIdMessages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
     ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9643,6 +9643,7 @@ export function createPostPartnerSdkProvisionalAccountsUnmerge(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
@@ -9651,7 +9652,6 @@ export function createPostPartnerSdkProvisionalAccountsUnmerge(options?: {
       parseResponse(
         client['partner-sdk']['provisional-accounts'].unmerge.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9700,6 +9700,7 @@ export function createPostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
@@ -9708,7 +9709,6 @@ export function createPostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
       parseResponse(
         client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9740,9 +9740,9 @@ export function createPostPartnerSdkToken(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>) =>
       parseResponse(client['partner-sdk'].token.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9774,10 +9774,10 @@ export function createPostPartnerSdkTokenBot(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
     ) => parseResponse(client['partner-sdk'].token.bot.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9855,9 +9855,9 @@ export function createPostStageInstances(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['stage-instances']['$post']>) =>
       parseResponse(client['stage-instances'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9950,10 +9950,10 @@ export function createDeleteStageInstancesChannelId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
     ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -9987,10 +9987,10 @@ export function createPatchStageInstancesChannelId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
     ) => parseResponse(client['stage-instances'][':channel_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -10222,9 +10222,9 @@ export function createPatchUsersMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['$patch']>) =>
       parseResponse(client.users['@me'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -10394,6 +10394,7 @@ export function createPutUsersMeApplicationsApplicationIdRoleConnection(options?
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
@@ -10405,7 +10406,6 @@ export function createPutUsersMeApplicationsApplicationIdRoleConnection(options?
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10454,6 +10454,7 @@ export function createDeleteUsersMeApplicationsApplicationIdRoleConnection(optio
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
@@ -10465,7 +10466,6 @@ export function createDeleteUsersMeApplicationsApplicationIdRoleConnection(optio
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10497,9 +10497,9 @@ export function createPostUsersMeChannels(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['channels']['$post']>) =>
       parseResponse(client.users['@me'].channels.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -10634,10 +10634,10 @@ export function createDeleteUsersMeGuildsGuildId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
     ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -10882,10 +10882,10 @@ export function createDeleteWebhooksWebhookId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
     ) => parseResponse(client.webhooks[':webhook_id'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -10917,9 +10917,9 @@ export function createPatchWebhooksWebhookId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>) =>
       parseResponse(client.webhooks[':webhook_id'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -11020,10 +11020,10 @@ export function createPostWebhooksWebhookIdWebhookToken(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>,
     ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -11068,11 +11068,11 @@ export function createDeleteWebhooksWebhookIdWebhookToken(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>,
     ) =>
       parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -11114,11 +11114,11 @@ export function createPatchWebhooksWebhookIdWebhookToken(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
     ) =>
       parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -11167,6 +11167,7 @@ export function createPostWebhooksWebhookIdWebhookTokenGithub(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
@@ -11175,7 +11176,6 @@ export function createPostWebhooksWebhookIdWebhookTokenGithub(options?: {
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].github.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11286,6 +11286,7 @@ export function createDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(option
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
@@ -11297,7 +11298,6 @@ export function createDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(option
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11343,6 +11343,7 @@ export function createPatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
@@ -11354,7 +11355,6 @@ export function createPatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11465,6 +11465,7 @@ export function createDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(optio
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
@@ -11476,7 +11477,6 @@ export function createDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(optio
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11522,6 +11522,7 @@ export function createPatchWebhooksWebhookIdWebhookTokenMessagesMessageId(option
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
@@ -11533,7 +11534,6 @@ export function createPatchWebhooksWebhookIdWebhookTokenMessagesMessageId(option
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11579,6 +11579,7 @@ export function createPostWebhooksWebhookIdWebhookTokenSlack(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
@@ -11587,6 +11588,5 @@ export function createPostWebhooksWebhookIdWebhookTokenSlack(options?: {
       parseResponse(
         client.webhooks[':webhook_id'][':webhook_token'].slack.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }

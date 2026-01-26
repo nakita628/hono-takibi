@@ -1,5 +1,5 @@
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
@@ -28,9 +28,9 @@ export function createPostWebhooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
       parseResponse(client.webhooks.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -59,9 +59,9 @@ export function createPostSubscriptions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
       parseResponse(client.subscriptions.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -90,9 +90,9 @@ export function createPostJobs(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.jobs.$post>) =>
       parseResponse(client.jobs.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -128,9 +128,9 @@ export function createPostIntegrationsIntegrationIdSync(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
     ) => parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -84,9 +84,9 @@ export function createPostApiKeys(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
       parseResponse(client['api-keys'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -178,9 +178,9 @@ export function createDeleteApiKeysKeyId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>) =>
       parseResponse(client['api-keys'][':keyId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -214,9 +214,9 @@ export function createPatchApiKeysKeyId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
       parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -250,10 +250,10 @@ export function createPostApiKeysKeyIdRevoke(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
     ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -287,10 +287,10 @@ export function createPostApiKeysKeyIdRotate(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
     ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -438,9 +438,9 @@ export function createPostApiKeysVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
       parseResponse(client['api-keys'].verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

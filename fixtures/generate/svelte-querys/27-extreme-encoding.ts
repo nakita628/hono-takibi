@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -29,9 +29,9 @@ export function createPostEncodingTest(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['encoding-test']['$post']>) =>
       parseResponse(client['encoding-test'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -117,9 +117,9 @@ export function createPostBinaryVariations(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['binary-variations']['$post']>) =>
       parseResponse(client['binary-variations'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -191,9 +191,9 @@ export function createPostStreaming(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.streaming.$post>) =>
       parseResponse(client.streaming.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -225,9 +225,9 @@ export function createPostUrlEncodedComplex(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['url-encoded-complex']['$post']>) =>
       parseResponse(client['url-encoded-complex'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -302,8 +302,8 @@ export function createPostSchemaEncoding(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['schema-encoding']['$post']>) =>
       parseResponse(client['schema-encoding'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

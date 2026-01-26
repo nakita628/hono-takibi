@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -78,9 +78,9 @@ export function createPutSettingsAccount(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.settings.account.$put>) =>
       parseResponse(client.settings.account.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -217,9 +217,9 @@ export function createPutSettingsPrivacy(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.settings.privacy.$put>) =>
       parseResponse(client.settings.privacy.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -305,10 +305,10 @@ export function createPutSettingsContentPreferences(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
     ) => parseResponse(client.settings['content-preferences'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -389,9 +389,9 @@ export function createPostSettingsMutedWords(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.settings)['muted-words']['$post']>) =>
       parseResponse(client.settings['muted-words'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -430,10 +430,10 @@ export function createDeleteSettingsMutedWordsWordId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
     ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -519,10 +519,10 @@ export function createDeleteSettingsSessionsSessionId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
     ) => parseResponse(client.settings.sessions[':sessionId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -608,10 +608,10 @@ export function createDeleteSettingsConnectedAppsAppId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
     ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -640,9 +640,9 @@ export function createPostSettingsDataExport(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client.settings['data-export'].$post(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -732,9 +732,9 @@ export function createPostSettingsDeactivate(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.settings.deactivate.$post>) =>
       parseResponse(client.settings.deactivate.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -763,9 +763,9 @@ export function createPostReports(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.reports.$post>) =>
       parseResponse(client.reports.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -971,10 +971,10 @@ export function createPostModerationItemsItemIdAction(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
     ) => parseResponse(client.moderation.items[':itemId'].action.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1068,10 +1068,10 @@ export function createPostModerationUsersUserIdSuspend(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
     ) => parseResponse(client.moderation.users[':userId'].suspend.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1115,10 +1115,10 @@ export function createPostModerationUsersUserIdUnsuspend(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
     ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

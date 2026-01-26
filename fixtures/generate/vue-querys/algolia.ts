@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -82,9 +82,9 @@ export function usePutPath(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
       parseResponse(client[':path'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -115,9 +115,9 @@ export function usePostPath(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
       parseResponse(client[':path'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -151,9 +151,9 @@ export function useDeletePath(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
       parseResponse(client[':path'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -194,10 +194,10 @@ export function usePost1IndexesIndexNameQuery(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -240,10 +240,10 @@ export function usePost1IndexesQueries(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
     ) => parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -297,6 +297,7 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
@@ -305,7 +306,6 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -367,10 +367,10 @@ export function usePost1IndexesIndexNameBrowse(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -416,10 +416,10 @@ export function usePost1IndexesIndexName(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -461,10 +461,10 @@ export function useDelete1IndexesIndexName(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
     ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -577,10 +577,10 @@ export function usePut1IndexesIndexNameObjectID(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
     ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -631,10 +631,10 @@ export function useDelete1IndexesIndexNameObjectID(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
     ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -689,12 +689,12 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -733,10 +733,10 @@ export function usePost1IndexesIndexNameClear(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -812,6 +812,7 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
@@ -820,7 +821,6 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
       parseResponse(
         client['1'].indexes[':indexName'][':objectID'].partial.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -865,10 +865,10 @@ export function usePost1IndexesIndexNameBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -909,10 +909,10 @@ export function usePost1IndexesBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
     ) => parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -950,10 +950,10 @@ export function usePost1IndexesObjects(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
     ) => parseResponse(client['1'].indexes['*'].objects.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1064,10 +1064,10 @@ export function usePut1IndexesIndexNameSettings(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
     ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1187,6 +1187,7 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
@@ -1195,7 +1196,6 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1246,6 +1246,7 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
@@ -1254,7 +1255,6 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1307,12 +1307,12 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1362,12 +1362,12 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1417,13 +1417,13 @@ export function usePost1IndexesIndexNameSynonymsSearch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
       >,
     ) =>
       parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1506,9 +1506,9 @@ export function usePost1Keys(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
       parseResponse(client['1'].keys.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1605,9 +1605,9 @@ export function usePut1KeysKey(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
       parseResponse(client['1'].keys[':key'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1643,9 +1643,9 @@ export function useDelete1KeysKey(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
       parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1686,10 +1686,10 @@ export function usePost1KeysKeyRestore(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
     ) => parseResponse(client['1'].keys[':key'].restore.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1809,13 +1809,13 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
       >,
     ) =>
       parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1867,6 +1867,7 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
@@ -1875,7 +1876,6 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
       parseResponse(
         client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1930,12 +1930,12 @@ export function usePost1IndexesIndexNameRulesBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1985,12 +1985,12 @@ export function usePost1IndexesIndexNameRulesClear(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2040,12 +2040,12 @@ export function usePost1IndexesIndexNameRulesSearch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
       >,
     ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2095,13 +2095,13 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
       >,
     ) =>
       parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2151,13 +2151,13 @@ export function usePost1DictionariesDictionaryNameSearch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
       >,
     ) =>
       parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2244,10 +2244,10 @@ export function usePut1DictionariesSettings(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
     ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2394,10 +2394,10 @@ export function usePost1ClustersMapping(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
     ) => parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2437,10 +2437,10 @@ export function usePost1ClustersMappingBatch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
     ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2601,10 +2601,10 @@ export function useDelete1ClustersMappingUserID(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
     ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2694,10 +2694,10 @@ export function usePost1ClustersMappingSearch(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
     ) => parseResponse(client['1'].clusters.mapping.search.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2842,10 +2842,10 @@ export function usePut1SecuritySources(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
     ) => parseResponse(client['1'].security.sources.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2883,10 +2883,10 @@ export function usePost1SecuritySourcesAppend(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
     ) => parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2932,10 +2932,10 @@ export function useDelete1SecuritySourcesSource(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
     ) => parseResponse(client['1'].security.sources[':source'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3183,10 +3183,10 @@ export function usePost1IndexesIndexNameOperation(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
     ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3953,9 +3953,9 @@ export function usePostDeleteObjects(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
       parseResponse(client.deleteObjects.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3989,9 +3989,9 @@ export function usePostPartialUpdateObjects(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
       parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4029,10 +4029,10 @@ export function usePostPartialUpdateObjectsWithTransformation(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
     ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

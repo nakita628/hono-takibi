@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -1499,9 +1499,9 @@ export function createPutMeAlbums(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
       parseResponse(client.me.albums.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1532,9 +1532,9 @@ export function createDeleteMeAlbums(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
       parseResponse(client.me.albums.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1682,9 +1682,9 @@ export function createPutMeAudiobooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
       parseResponse(client.me.audiobooks.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1718,9 +1718,9 @@ export function createDeleteMeAudiobooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
       parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1868,9 +1868,9 @@ export function createPutMeEpisodes(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
       parseResponse(client.me.episodes.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1902,9 +1902,9 @@ export function createDeleteMeEpisodes(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
       parseResponse(client.me.episodes.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2051,9 +2051,9 @@ export function createPutMeFollowing(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
       parseResponse(client.me.following.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2087,9 +2087,9 @@ export function createDeleteMeFollowing(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
       parseResponse(client.me.following.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2232,9 +2232,9 @@ export function createPutMePlayer(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
       parseResponse(client.me.player.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2377,9 +2377,9 @@ export function createPostMePlayerNext(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
       parseResponse(client.me.player.next.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2413,9 +2413,9 @@ export function createPutMePlayerPause(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
       parseResponse(client.me.player.pause.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2446,9 +2446,9 @@ export function createPutMePlayerPlay(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
       parseResponse(client.me.player.play.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2482,9 +2482,9 @@ export function createPostMePlayerPrevious(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
       parseResponse(client.me.player.previous.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2567,9 +2567,9 @@ export function createPostMePlayerQueue(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
       parseResponse(client.me.player.queue.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2665,9 +2665,9 @@ export function createPutMePlayerRepeat(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
       parseResponse(client.me.player.repeat.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2698,9 +2698,9 @@ export function createPutMePlayerSeek(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
       parseResponse(client.me.player.seek.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2734,9 +2734,9 @@ export function createPutMePlayerShuffle(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
       parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2770,9 +2770,9 @@ export function createPutMePlayerVolume(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
       parseResponse(client.me.player.volume.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2911,9 +2911,9 @@ export function createPutMeShows(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
       parseResponse(client.me.shows.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2944,9 +2944,9 @@ export function createDeleteMeShows(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
       parseResponse(client.me.shows.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3143,9 +3143,9 @@ export function createPutMeTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
       parseResponse(client.me.tracks.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3176,9 +3176,9 @@ export function createDeleteMeTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
       parseResponse(client.me.tracks.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3335,9 +3335,9 @@ export function createPutPlaylistsPlaylistId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
       parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3375,10 +3375,10 @@ export function createPutPlaylistsPlaylistIdFollowers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3424,10 +3424,10 @@ export function createDeletePlaylistsPlaylistIdFollowers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3591,10 +3591,10 @@ export function createPutPlaylistsPlaylistIdImages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3698,10 +3698,10 @@ export function createPutPlaylistsPlaylistIdTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3739,10 +3739,10 @@ export function createPostPlaylistsPlaylistIdTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3780,10 +3780,10 @@ export function createDeletePlaylistsPlaylistIdTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4381,9 +4381,9 @@ export function createPostUsersUserIdPlaylists(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -1490,9 +1490,9 @@ export function usePutMeAlbums(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
       parseResponse(client.me.albums.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1523,9 +1523,9 @@ export function useDeleteMeAlbums(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
       parseResponse(client.me.albums.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1670,9 +1670,9 @@ export function usePutMeAudiobooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
       parseResponse(client.me.audiobooks.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1706,9 +1706,9 @@ export function useDeleteMeAudiobooks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
       parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1856,9 +1856,9 @@ export function usePutMeEpisodes(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
       parseResponse(client.me.episodes.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1890,9 +1890,9 @@ export function useDeleteMeEpisodes(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
       parseResponse(client.me.episodes.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2036,9 +2036,9 @@ export function usePutMeFollowing(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
       parseResponse(client.me.following.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2072,9 +2072,9 @@ export function useDeleteMeFollowing(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
       parseResponse(client.me.following.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2217,9 +2217,9 @@ export function usePutMePlayer(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
       parseResponse(client.me.player.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2362,9 +2362,9 @@ export function usePostMePlayerNext(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
       parseResponse(client.me.player.next.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2398,9 +2398,9 @@ export function usePutMePlayerPause(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
       parseResponse(client.me.player.pause.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2431,9 +2431,9 @@ export function usePutMePlayerPlay(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
       parseResponse(client.me.player.play.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2467,9 +2467,9 @@ export function usePostMePlayerPrevious(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
       parseResponse(client.me.player.previous.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2552,9 +2552,9 @@ export function usePostMePlayerQueue(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
       parseResponse(client.me.player.queue.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2650,9 +2650,9 @@ export function usePutMePlayerRepeat(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
       parseResponse(client.me.player.repeat.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2683,9 +2683,9 @@ export function usePutMePlayerSeek(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
       parseResponse(client.me.player.seek.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2719,9 +2719,9 @@ export function usePutMePlayerShuffle(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
       parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2755,9 +2755,9 @@ export function usePutMePlayerVolume(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
       parseResponse(client.me.player.volume.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2896,9 +2896,9 @@ export function usePutMeShows(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
       parseResponse(client.me.shows.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -2929,9 +2929,9 @@ export function useDeleteMeShows(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
       parseResponse(client.me.shows.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3128,9 +3128,9 @@ export function usePutMeTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
       parseResponse(client.me.tracks.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3161,9 +3161,9 @@ export function useDeleteMeTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
       parseResponse(client.me.tracks.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3317,9 +3317,9 @@ export function usePutPlaylistsPlaylistId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
       parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3357,10 +3357,10 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3406,10 +3406,10 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3573,10 +3573,10 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3680,10 +3680,10 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3721,10 +3721,10 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -3762,10 +3762,10 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -4363,9 +4363,9 @@ export function usePostUsersUserIdPlaylists(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
     ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -78,9 +78,9 @@ export function createPostProducts(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
       parseResponse(client.products.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -170,9 +170,9 @@ export function createPutProductsProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
       parseResponse(client.products[':productId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -209,9 +209,9 @@ export function createDeleteProductsProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
       parseResponse(client.products[':productId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -247,10 +247,10 @@ export function createPostProductsProductIdImages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
     ) => parseResponse(client.products[':productId'].images.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -326,9 +326,9 @@ export function createPostCategories(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.categories.$post>) =>
       parseResponse(client.categories.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -401,8 +401,8 @@ export function createDeleteCart(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
   })
 }
 
@@ -431,9 +431,9 @@ export function createPostCartItems(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.cart.items.$post>) =>
       parseResponse(client.cart.items.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -465,9 +465,9 @@ export function createPutCartItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>) =>
       parseResponse(client.cart.items[':itemId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -501,9 +501,9 @@ export function createDeleteCartItemsItemId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>) =>
       parseResponse(client.cart.items[':itemId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -584,9 +584,9 @@ export function createPostOrders(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
       parseResponse(client.orders.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -675,10 +675,10 @@ export function createPostOrdersOrderIdCancel(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
     ) => parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -770,8 +770,8 @@ export function createPutInventoryProductId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.inventory)[':productId']['$put']>) =>
       parseResponse(client.inventory[':productId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }

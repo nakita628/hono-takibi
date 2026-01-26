@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -30,9 +30,9 @@ export function createPutPet(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
       parseResponse(client.pet.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -63,9 +63,9 @@ export function createPostPet(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.pet.$post>) =>
       parseResponse(client.pet.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -268,9 +268,9 @@ export function createPostPetPetId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$post']>) =>
       parseResponse(client.pet[':petId'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -304,9 +304,9 @@ export function createDeletePetPetId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$delete']>) =>
       parseResponse(client.pet[':petId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -340,10 +340,10 @@ export function createPostPetPetIdUploadImage(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
     ) => parseResponse(client.pet[':petId'].uploadImage.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -423,9 +423,9 @@ export function createPostStoreOrder(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.store.order.$post>) =>
       parseResponse(client.store.order.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -521,10 +521,10 @@ export function createDeleteStoreOrderOrderId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
     ) => parseResponse(client.store.order[':orderId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -555,9 +555,9 @@ export function createPostUser(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.user.$post>) =>
       parseResponse(client.user.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -591,9 +591,9 @@ export function createPostUserCreateWithList(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.user.createWithList.$post>) =>
       parseResponse(client.user.createWithList.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -782,9 +782,9 @@ export function createPutUserUsername(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$put']>) =>
       parseResponse(client.user[':username'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -818,8 +818,8 @@ export function createDeleteUserUsername(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$delete']>) =>
       parseResponse(client.user[':username'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }

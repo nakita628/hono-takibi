@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -107,6 +107,7 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
@@ -118,7 +119,6 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -122,9 +122,9 @@ export function createPutMfaPreferred(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.preferred.$put>) =>
       parseResponse(client.mfa.preferred.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -158,9 +158,9 @@ export function createPostMfaTotpSetup(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.totp.setup.$post>) =>
       parseResponse(client.mfa.totp.setup.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -194,9 +194,9 @@ export function createPostMfaTotpVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.totp.verify.$post>) =>
       parseResponse(client.mfa.totp.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -225,9 +225,9 @@ export function createDeleteMfaTotp(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.totp.$delete>) =>
       parseResponse(client.mfa.totp.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -258,9 +258,9 @@ export function createPostMfaSmsSetup(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.sms.setup.$post>) =>
       parseResponse(client.mfa.sms.setup.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -292,9 +292,9 @@ export function createPostMfaSmsVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.sms.verify.$post>) =>
       parseResponse(client.mfa.sms.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -331,9 +331,9 @@ export function createDeleteMfaSmsMethodId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>) =>
       parseResponse(client.mfa.sms[':methodId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -365,9 +365,9 @@ export function createPostMfaEmailSetup(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.email.setup.$post>) =>
       parseResponse(client.mfa.email.setup.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -399,9 +399,9 @@ export function createPostMfaEmailVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.email.verify.$post>) =>
       parseResponse(client.mfa.email.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -437,9 +437,9 @@ export function createPostMfaWebauthnRegisterOptions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.webauthn.register.options.$post>) =>
       parseResponse(client.mfa.webauthn.register.options.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -473,9 +473,9 @@ export function createPostMfaWebauthnRegisterVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>) =>
       parseResponse(client.mfa.webauthn.register.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -572,11 +572,11 @@ export function createDeleteMfaWebauthnCredentialsCredentialId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>,
     ) =>
       parseResponse(client.mfa.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -620,11 +620,11 @@ export function createPatchMfaWebauthnCredentialsCredentialId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
     ) =>
       parseResponse(client.mfa.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -660,10 +660,10 @@ export function createPostMfaBackupCodesGenerate(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
     ) => parseResponse(client.mfa['backup-codes'].generate.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -741,9 +741,9 @@ export function createPostMfaChallenge(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.$post>) =>
       parseResponse(client.mfa.challenge.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -777,9 +777,9 @@ export function createPostMfaChallengeSend(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.send.$post>) =>
       parseResponse(client.mfa.challenge.send.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -810,9 +810,9 @@ export function createPostMfaVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.verify.$post>) =>
       parseResponse(client.mfa.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -846,10 +846,10 @@ export function createPostMfaWebauthnAuthenticateOptions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
     ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -880,9 +880,9 @@ export function createPostMfaRecovery(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.$post>) =>
       parseResponse(client.mfa.recovery.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -914,8 +914,8 @@ export function createPostMfaRecoveryVerify(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.verify.$post>) =>
       parseResponse(client.mfa.recovery.verify.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -76,51 +76,6 @@ export type QueryFrameworkConfig = {
   readonly queryOptionsHelper?: string
 }
 
-/* ─────────────────────────────── Framework Configs ─────────────────────────────── */
-
-/**
- * TanStack Query (React) configuration.
- */
-export const TANSTACK_QUERY_CONFIG: QueryFrameworkConfig = {
-  packageName: '@tanstack/react-query',
-  frameworkName: 'TanStack Query',
-  hookPrefix: 'use',
-  queryFn: 'useQuery',
-  mutationFn: 'useMutation',
-  queryOptionsType: 'UseQueryOptions',
-  mutationOptionsType: 'UseMutationOptions',
-  queryOptionsHelper: 'queryOptions',
-}
-
-/**
- * Svelte Query configuration.
- */
-export const SVELTE_QUERY_CONFIG: QueryFrameworkConfig = {
-  packageName: '@tanstack/svelte-query',
-  frameworkName: 'Svelte Query',
-  hookPrefix: 'create',
-  queryFn: 'createQuery',
-  mutationFn: 'createMutation',
-  queryOptionsType: 'CreateQueryOptions',
-  mutationOptionsType: 'CreateMutationOptions',
-  queryOptionsHelper: 'queryOptions',
-}
-
-/**
- * Vue Query configuration.
- */
-export const VUE_QUERY_CONFIG: QueryFrameworkConfig = {
-  packageName: '@tanstack/vue-query',
-  frameworkName: 'Vue Query',
-  hookPrefix: 'use',
-  queryFn: 'useQuery',
-  mutationFn: 'useMutation',
-  queryOptionsType: 'UseQueryOptions',
-  mutationOptionsType: 'UseMutationOptions',
-  omitQueryKeyType: true,
-  queryOptionsHelper: 'queryOptions',
-}
-
 /* ─────────────────────────────── Hook Name Generation ─────────────────────────────── */
 
 /**
@@ -281,7 +236,6 @@ const makeQueryHookCode = (
   optionsGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
-  _inferResponseType: string,
   docs: string,
   config: QueryFrameworkConfig,
 ): string => {
@@ -335,12 +289,12 @@ const makeMutationHookCode = (
     const clientCall = `${clientPath}.$${method}(args,clientOptions)`
     const fetcherBody = buildFetcher(clientCall)
     return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({mutationFn:async(args:${inferRequestType})=>${fetcherBody},...mutationOptions})}`
+export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,mutationFn:async(args:${inferRequestType})=>${fetcherBody}})}`
   }
   const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
   const fetcherBody = buildFetcher(clientCall)
   return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({mutationFn:async()=>${fetcherBody},...mutationOptions})}`
+export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,mutationFn:async()=>${fetcherBody}})}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -398,7 +352,6 @@ const makeHookCode = (
       optionsGetterName,
       hasArgs,
       inferRequestType,
-      baseInferResponseType,
       docs,
       config,
     )
@@ -476,10 +429,10 @@ const makeHeader = (
 
   // Hono client type imports
   // InferRequestType: needed when operation has args
-  // InferResponseType: needed for inline option types (select, placeholderData, initialData, callbacks)
+  // InferResponseType: only needed for mutation callbacks (onSuccess, onError, onSettled)
   const honoTypeImportParts = [
     ...(needsInferRequestType ? ['InferRequestType'] : []),
-    ...(hasQuery || hasMutation ? ['InferResponseType'] : []),
+    ...(hasMutation ? ['InferResponseType'] : []),
     'ClientRequestOptions',
   ]
 

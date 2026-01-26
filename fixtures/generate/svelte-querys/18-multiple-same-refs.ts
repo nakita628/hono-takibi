@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -74,9 +74,9 @@ export function createPostDocuments(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.documents.$post>) =>
       parseResponse(client.documents.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -164,9 +164,9 @@ export function createPutDocumentsDocumentId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.documents)[':documentId']['$put']>) =>
       parseResponse(client.documents[':documentId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -256,10 +256,10 @@ export function createPostDocumentsDocumentIdShare(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
     ) => parseResponse(client.documents[':documentId'].share.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -342,9 +342,9 @@ export function createPostCompare(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.compare.$post>) =>
       parseResponse(client.compare.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -416,9 +416,9 @@ export function createPostTemplates(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
       parseResponse(client.templates.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -445,8 +445,8 @@ export function createPostWorkflows(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.workflows.$post>) =>
       parseResponse(client.workflows.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -75,9 +75,9 @@ export function createPostGraphql(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
       parseResponse(client.graphql.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -109,9 +109,9 @@ export function createPostGrpcGateway(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
       parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

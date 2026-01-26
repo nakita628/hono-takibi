@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -82,9 +82,9 @@ export function createPostSamlSso(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
       parseResponse(client.saml.sso.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -167,9 +167,9 @@ export function createPostSamlSlo(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
       parseResponse(client.saml.slo.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -200,9 +200,9 @@ export function createPostSamlAcs(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
       parseResponse(client.saml.acs.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -341,9 +341,9 @@ export function createPostServiceProviders(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
       parseResponse(client['service-providers'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -435,10 +435,10 @@ export function createPutServiceProvidersSpId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -475,10 +475,10 @@ export function createDeleteServiceProvidersSpId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
     ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -580,10 +580,10 @@ export function createPutServiceProvidersSpIdMetadata(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -685,10 +685,10 @@ export function createPutServiceProvidersSpIdAttributes(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -811,9 +811,9 @@ export function createPostCertificates(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
       parseResponse(client.certificates.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -850,10 +850,10 @@ export function createDeleteCertificatesCertId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
     ) => parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -889,10 +889,10 @@ export function createPostCertificatesCertIdActivate(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
     ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -979,9 +979,9 @@ export function createDeleteSessionsSessionId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
       parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

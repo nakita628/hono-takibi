@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/43-sns-users-relationships'
 
@@ -291,9 +291,9 @@ export function createPatchMe(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.$patch>) =>
       parseResponse(client.me.$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -322,9 +322,9 @@ export function createPostMeAvatar(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.avatar.$post>) =>
       parseResponse(client.me.avatar.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -353,8 +353,8 @@ export function createDeleteMeAvatar(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client.me.avatar.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.me.avatar.$delete(undefined, clientOptions)),
   })
 }
 
@@ -383,9 +383,9 @@ export function createPostMeBanner(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.me.banner.$post>) =>
       parseResponse(client.me.banner.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -414,8 +414,8 @@ export function createDeleteMeBanner(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client.me.banner.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.me.banner.$delete(undefined, clientOptions)),
   })
 }
 
@@ -449,10 +449,10 @@ export function createPostUsersUserIdFollow(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['follow']['$post']>,
     ) => parseResponse(client.users[':userId'].follow.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -486,10 +486,10 @@ export function createDeleteUsersUserIdFollow(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['follow']['$delete']>,
     ) => parseResponse(client.users[':userId'].follow.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -643,10 +643,10 @@ export function createPostUsersUserIdFollowersRemove(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['followers']['remove']['$post']>,
     ) => parseResponse(client.users[':userId'].followers.remove.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -794,10 +794,10 @@ export function createPostFollowRequestsUserIdAccept(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['follow-requests'][':userId']['accept']['$post']>,
     ) => parseResponse(client['follow-requests'][':userId'].accept.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -833,10 +833,10 @@ export function createPostFollowRequestsUserIdReject(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['follow-requests'][':userId']['reject']['$post']>,
     ) => parseResponse(client['follow-requests'][':userId'].reject.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -870,10 +870,10 @@ export function createPostUsersUserIdBlock(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['block']['$post']>,
     ) => parseResponse(client.users[':userId'].block.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -907,10 +907,10 @@ export function createDeleteUsersUserIdBlock(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['block']['$delete']>,
     ) => parseResponse(client.users[':userId'].block.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -944,9 +944,9 @@ export function createPostUsersUserIdMute(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['mute']['$post']>) =>
       parseResponse(client.users[':userId'].mute.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -980,10 +980,10 @@ export function createDeleteUsersUserIdMute(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.users)[':userId']['mute']['$delete']>,
     ) => parseResponse(client.users[':userId'].mute.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1159,9 +1159,9 @@ export function createPostLists(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.lists.$post>) =>
       parseResponse(client.lists.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1248,9 +1248,9 @@ export function createPutListsListId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$put']>) =>
       parseResponse(client.lists[':listId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1282,9 +1282,9 @@ export function createDeleteListsListId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.lists)[':listId']['$delete']>) =>
       parseResponse(client.lists[':listId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1376,10 +1376,10 @@ export function createPostListsListIdMembers(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lists)[':listId']['members']['$post']>,
     ) => parseResponse(client.lists[':listId'].members.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1426,10 +1426,10 @@ export function createDeleteListsListIdMembersUserId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>,
     ) => parseResponse(client.lists[':listId'].members[':userId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

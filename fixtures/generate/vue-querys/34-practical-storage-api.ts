@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -78,9 +78,9 @@ export function usePostFilesUpload(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.files.upload.$post>) =>
       parseResponse(client.files.upload.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -116,9 +116,9 @@ export function usePostFilesUploadMultipartInit(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.files.upload.multipart.init.$post>) =>
       parseResponse(client.files.upload.multipart.init.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -162,10 +162,10 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
     ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -213,13 +213,13 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
       >,
     ) =>
       parseResponse(client.files.upload.multipart[':uploadId'].complete.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -306,9 +306,9 @@ export function useDeleteFilesFileId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$delete']>) =>
       parseResponse(client.files[':fileId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -340,9 +340,9 @@ export function usePatchFilesFileId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$patch']>) =>
       parseResponse(client.files[':fileId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -492,9 +492,9 @@ export function usePostFilesFileIdCopy(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>) =>
       parseResponse(client.files[':fileId'].copy.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -528,9 +528,9 @@ export function usePostFilesFileIdMove(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>) =>
       parseResponse(client.files[':fileId'].move.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -617,9 +617,9 @@ export function usePostFolders(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.folders.$post>) =>
       parseResponse(client.folders.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -711,9 +711,9 @@ export function useDeleteFoldersFolderId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>) =>
       parseResponse(client.folders[':folderId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -745,9 +745,9 @@ export function usePatchFoldersFolderId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) =>
       parseResponse(client.folders[':folderId'].$patch(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -836,10 +836,10 @@ export function usePostFilesFileIdShare(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
     ) => parseResponse(client.files[':fileId'].share.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -876,10 +876,10 @@ export function useDeleteFilesFileIdShare(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
     ) => parseResponse(client.files[':fileId'].share.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -915,10 +915,10 @@ export function usePostFilesFileIdShareLink(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
     ) => parseResponse(client.files[':fileId'].share.link.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1024,6 +1024,7 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
@@ -1032,7 +1033,6 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
       parseResponse(
         client.files[':fileId'].versions[':versionId'].restore.$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1111,8 +1111,8 @@ export function useDeleteTrash(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
   })
 }
 
@@ -1146,10 +1146,10 @@ export function usePostTrashFileIdRestore(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
     ) => parseResponse(client.trash[':fileId'].restore.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

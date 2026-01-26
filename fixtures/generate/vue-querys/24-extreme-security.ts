@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -357,9 +357,9 @@ export function usePutMixedLevelSecurity(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -388,9 +388,9 @@ export function usePostMixedLevelSecurity(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -422,9 +422,9 @@ export function useDeleteMixedLevelSecurity(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 

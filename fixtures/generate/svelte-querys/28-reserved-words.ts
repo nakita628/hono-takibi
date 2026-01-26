@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -158,8 +158,8 @@ export function createPostFunction(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
   })
 }
 
@@ -363,8 +363,8 @@ export function createPostNew(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
   })
 }
 
@@ -391,8 +391,8 @@ export function createDeleteDelete(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
   })
 }
 

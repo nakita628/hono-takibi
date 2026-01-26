@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -158,8 +158,8 @@ export function usePostFunction(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
   })
 }
 
@@ -363,8 +363,8 @@ export function usePostNew(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
   })
 }
 
@@ -391,8 +391,8 @@ export function useDeleteDelete(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
   })
 }
 

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/twilio_api_v2010'
 
@@ -95,10 +95,10 @@ export function createPost20100401AccountsJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
     ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -196,10 +196,10 @@ export function createPost20100401AccountsSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
     ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -307,6 +307,7 @@ export function createPost20100401AccountsAccountSidAddressesJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
@@ -315,7 +316,6 @@ export function createPost20100401AccountsAccountSidAddressesJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -423,6 +423,7 @@ export function createPost20100401AccountsAccountSidAddressesSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
@@ -434,7 +435,6 @@ export function createPost20100401AccountsAccountSidAddressesSidJson(options?: {
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -483,6 +483,7 @@ export function createDelete20100401AccountsAccountSidAddressesSidJson(options?:
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
@@ -494,7 +495,6 @@ export function createDelete20100401AccountsAccountSidAddressesSidJson(options?:
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -610,6 +610,7 @@ export function createPost20100401AccountsAccountSidApplicationsJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
@@ -621,7 +622,6 @@ export function createPost20100401AccountsAccountSidApplicationsJson(options?: {
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -737,6 +737,7 @@ export function createPost20100401AccountsAccountSidApplicationsSidJson(options?
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
@@ -748,7 +749,6 @@ export function createPost20100401AccountsAccountSidApplicationsSidJson(options?
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -801,6 +801,7 @@ export function createDelete20100401AccountsAccountSidApplicationsSidJson(option
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
@@ -812,7 +813,6 @@ export function createDelete20100401AccountsAccountSidApplicationsSidJson(option
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1744,6 +1744,7 @@ export function createPost20100401AccountsAccountSidCallsJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
@@ -1752,7 +1753,6 @@ export function createPost20100401AccountsAccountSidCallsJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1868,6 +1868,7 @@ export function createPost20100401AccountsAccountSidCallsSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
@@ -1876,7 +1877,6 @@ export function createPost20100401AccountsAccountSidCallsSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -1929,6 +1929,7 @@ export function createDelete20100401AccountsAccountSidCallsSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
@@ -1940,7 +1941,6 @@ export function createDelete20100401AccountsAccountSidCallsSidJson(options?: {
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2251,6 +2251,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidRecordingsJson(o
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
@@ -2262,7 +2263,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidRecordingsJson(o
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2381,6 +2381,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidRecordingsSidJso
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
@@ -2391,7 +2392,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidRecordingsSidJso
           ':Sid.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2444,6 +2444,7 @@ export function createDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJ
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
@@ -2454,7 +2455,6 @@ export function createDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJ
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2566,6 +2566,7 @@ export function createPost20100401AccountsAccountSidConferencesSidJson(options?:
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
@@ -2577,7 +2578,6 @@ export function createPost20100401AccountsAccountSidConferencesSidJson(options?:
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2837,6 +2837,7 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidReco
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
@@ -2847,7 +2848,6 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidReco
           ':Sid.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -2900,6 +2900,7 @@ export function createDelete20100401AccountsAccountSidConferencesConferenceSidRe
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
@@ -2910,7 +2911,6 @@ export function createDelete20100401AccountsAccountSidConferencesConferenceSidRe
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3026,6 +3026,7 @@ export function createPost20100401AccountsAccountSidConnectAppsSidJson(options?:
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
@@ -3037,7 +3038,6 @@ export function createPost20100401AccountsAccountSidConnectAppsSidJson(options?:
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3090,6 +3090,7 @@ export function createDelete20100401AccountsAccountSidConnectAppsSidJson(options
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
@@ -3101,7 +3102,6 @@ export function createDelete20100401AccountsAccountSidConnectAppsSidJson(options
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3352,6 +3352,7 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
@@ -3363,7 +3364,6 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3416,6 +3416,7 @@ export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJso
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
@@ -3427,7 +3428,6 @@ export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJso
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3543,6 +3543,7 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersJson(opt
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
@@ -3554,7 +3555,6 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersJson(opt
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3685,6 +3685,7 @@ export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersResour
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
@@ -3695,7 +3696,6 @@ export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersResour
           ':ResourceSid'
         ].AssignedAddOns[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -3820,6 +3820,7 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersResource
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
@@ -3830,7 +3831,6 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersResource
           'AssignedAddOns.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4097,6 +4097,7 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJso
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
@@ -4108,7 +4109,6 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJso
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4219,6 +4219,7 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJs
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
@@ -4230,7 +4231,6 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJs
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4341,6 +4341,7 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersTollFree
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
@@ -4352,7 +4353,6 @@ export function createPost20100401AccountsAccountSidIncomingPhoneNumbersTollFree
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4460,6 +4460,7 @@ export function createPost20100401AccountsAccountSidKeysSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
@@ -4468,7 +4469,6 @@ export function createPost20100401AccountsAccountSidKeysSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4517,6 +4517,7 @@ export function createDelete20100401AccountsAccountSidKeysSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
@@ -4525,7 +4526,6 @@ export function createDelete20100401AccountsAccountSidKeysSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4633,6 +4633,7 @@ export function createPost20100401AccountsAccountSidKeysJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
@@ -4641,7 +4642,6 @@ export function createPost20100401AccountsAccountSidKeysJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4762,6 +4762,7 @@ export function createDelete20100401AccountsAccountSidMessagesMessageSidMediaSid
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
@@ -4772,7 +4773,6 @@ export function createDelete20100401AccountsAccountSidMessagesMessageSidMediaSid
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -4956,6 +4956,7 @@ export function createPost20100401AccountsAccountSidQueuesQueueSidMembersCallSid
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
@@ -4966,7 +4967,6 @@ export function createPost20100401AccountsAccountSidQueuesQueueSidMembersCallSid
           ':CallSid.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5148,6 +5148,7 @@ export function createPost20100401AccountsAccountSidMessagesJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
@@ -5156,7 +5157,6 @@ export function createPost20100401AccountsAccountSidMessagesJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5272,6 +5272,7 @@ export function createPost20100401AccountsAccountSidMessagesSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
@@ -5283,7 +5284,6 @@ export function createPost20100401AccountsAccountSidMessagesSidJson(options?: {
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5336,6 +5336,7 @@ export function createDelete20100401AccountsAccountSidMessagesSidJson(options?: 
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
@@ -5347,7 +5348,6 @@ export function createDelete20100401AccountsAccountSidMessagesSidJson(options?: 
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5397,6 +5397,7 @@ export function createPost20100401AccountsAccountSidMessagesMessageSidFeedbackJs
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
@@ -5408,7 +5409,6 @@ export function createPost20100401AccountsAccountSidMessagesMessageSidFeedbackJs
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5520,6 +5520,7 @@ export function createPost20100401AccountsAccountSidSigningKeysJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
@@ -5528,7 +5529,6 @@ export function createPost20100401AccountsAccountSidSigningKeysJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5776,6 +5776,7 @@ export function createPost20100401AccountsAccountSidOutgoingCallerIdsSidJson(opt
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
@@ -5787,7 +5788,6 @@ export function createPost20100401AccountsAccountSidOutgoingCallerIdsSidJson(opt
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5840,6 +5840,7 @@ export function createDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(o
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
@@ -5851,7 +5852,6 @@ export function createDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(o
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -5963,6 +5963,7 @@ export function createPost20100401AccountsAccountSidOutgoingCallerIdsJson(option
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
@@ -5974,7 +5975,6 @@ export function createPost20100401AccountsAccountSidOutgoingCallerIdsJson(option
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6099,6 +6099,7 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidPart
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
@@ -6109,7 +6110,6 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidPart
           ':CallSid.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6162,6 +6162,7 @@ export function createDelete20100401AccountsAccountSidConferencesConferenceSidPa
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
@@ -6172,7 +6173,6 @@ export function createDelete20100401AccountsAccountSidConferencesConferenceSidPa
           ':CallSid.json'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6291,6 +6291,7 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidPart
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
@@ -6301,7 +6302,6 @@ export function createPost20100401AccountsAccountSidConferencesConferenceSidPart
           'Participants.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6351,6 +6351,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidPaymentsJson(opt
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
@@ -6362,7 +6363,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidPaymentsJson(opt
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6412,6 +6412,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
@@ -6423,7 +6424,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6539,6 +6539,7 @@ export function createPost20100401AccountsAccountSidQueuesSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
@@ -6547,7 +6548,6 @@ export function createPost20100401AccountsAccountSidQueuesSidJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6600,6 +6600,7 @@ export function createDelete20100401AccountsAccountSidQueuesSidJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
@@ -6611,7 +6612,6 @@ export function createDelete20100401AccountsAccountSidQueuesSidJson(options?: {
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6727,6 +6727,7 @@ export function createPost20100401AccountsAccountSidQueuesJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
@@ -6735,7 +6736,6 @@ export function createPost20100401AccountsAccountSidQueuesJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6785,6 +6785,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsJs
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
@@ -6796,7 +6797,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsJs
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6846,6 +6846,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsSi
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
@@ -6856,7 +6857,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsSi
           ':Sid.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -6975,6 +6975,7 @@ export function createDelete20100401AccountsAccountSidRecordingsSidJson(options?
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
@@ -6986,7 +6987,6 @@ export function createDelete20100401AccountsAccountSidRecordingsSidJson(options?
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7178,6 +7178,7 @@ export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddO
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
@@ -7188,7 +7189,6 @@ export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddO
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7390,6 +7390,7 @@ export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddO
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
@@ -7400,7 +7401,6 @@ export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddO
           ':AddOnResultSid'
         ].Payloads[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7674,6 +7674,7 @@ export function createDelete20100401AccountsAccountSidRecordingsRecordingSidTran
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
@@ -7684,7 +7685,6 @@ export function createDelete20100401AccountsAccountSidRecordingsRecordingSidTran
           ':Sid.json'
         ].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -7869,6 +7869,7 @@ export function createPost20100401AccountsAccountSidSMSShortCodesSidJson(options
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
@@ -7880,7 +7881,6 @@ export function createPost20100401AccountsAccountSidSMSShortCodesSidJson(options
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8054,6 +8054,7 @@ export function createPost20100401AccountsAccountSidSigningKeysSidJson(options?:
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
@@ -8065,7 +8066,6 @@ export function createPost20100401AccountsAccountSidSigningKeysSidJson(options?:
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8114,6 +8114,7 @@ export function createDelete20100401AccountsAccountSidSigningKeysSidJson(options
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
@@ -8125,7 +8126,6 @@ export function createDelete20100401AccountsAccountSidSigningKeysSidJson(options
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8250,6 +8250,7 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCalls
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
@@ -8260,7 +8261,6 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCalls
           'CredentialListMappings.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8391,6 +8391,7 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCal
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
@@ -8401,7 +8402,6 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCal
           ':DomainSid'
         ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8526,6 +8526,7 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCalls
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
@@ -8536,7 +8537,6 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCalls
           'IpAccessControlListMappings.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8667,6 +8667,7 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCal
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
@@ -8677,7 +8678,6 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCal
           ':DomainSid'
         ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8802,6 +8802,7 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegis
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
@@ -8812,7 +8813,6 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegis
           'CredentialListMappings.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -8943,6 +8943,7 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthReg
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
@@ -8953,7 +8954,6 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthReg
           ':DomainSid'
         ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9078,6 +9078,7 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsCredential
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
@@ -9088,7 +9089,6 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsCredential
           'Credentials.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9216,6 +9216,7 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsCredential
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
@@ -9226,7 +9227,6 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsCredential
           ':CredentialListSid'
         ].Credentials[':Sid.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9279,6 +9279,7 @@ export function createDelete20100401AccountsAccountSidSIPCredentialListsCredenti
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
@@ -9289,7 +9290,6 @@ export function createDelete20100401AccountsAccountSidSIPCredentialListsCredenti
           ':CredentialListSid'
         ].Credentials[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9405,6 +9405,7 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsJson(optio
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
@@ -9416,7 +9417,6 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsJson(optio
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9532,6 +9532,7 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsSidJson(op
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
@@ -9543,7 +9544,6 @@ export function createPost20100401AccountsAccountSidSIPCredentialListsSidJson(op
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9596,6 +9596,7 @@ export function createDelete20100401AccountsAccountSidSIPCredentialListsSidJson(
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
@@ -9607,7 +9608,6 @@ export function createDelete20100401AccountsAccountSidSIPCredentialListsSidJson(
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9730,6 +9730,7 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidCredentia
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
@@ -9740,7 +9741,6 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidCredentia
           'CredentialListMappings.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9871,6 +9871,7 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidCredent
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
@@ -9881,7 +9882,6 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidCredent
           ':DomainSid'
         ].CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -9997,6 +9997,7 @@ export function createPost20100401AccountsAccountSidSIPDomainsJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
@@ -10005,7 +10006,6 @@ export function createPost20100401AccountsAccountSidSIPDomainsJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10121,6 +10121,7 @@ export function createPost20100401AccountsAccountSidSIPDomainsSidJson(options?: 
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
@@ -10132,7 +10133,6 @@ export function createPost20100401AccountsAccountSidSIPDomainsSidJson(options?: 
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10185,6 +10185,7 @@ export function createDelete20100401AccountsAccountSidSIPDomainsSidJson(options?
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
@@ -10196,7 +10197,6 @@ export function createDelete20100401AccountsAccountSidSIPDomainsSidJson(options?
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10312,6 +10312,7 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsJson(
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
@@ -10323,7 +10324,6 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsJson(
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10442,6 +10442,7 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsSidJs
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
@@ -10453,7 +10454,6 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsSidJs
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10506,6 +10506,7 @@ export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsSid
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
@@ -10517,7 +10518,6 @@ export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsSid
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10648,6 +10648,7 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAcces
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
@@ -10658,7 +10659,6 @@ export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAcces
           ':DomainSid'
         ].IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10783,6 +10783,7 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessC
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
@@ -10793,7 +10794,6 @@ export function createPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessC
           'IpAccessControlListMappings.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -10921,6 +10921,7 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAcc
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
@@ -10931,7 +10932,6 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAcc
           ':IpAccessControlListSid'
         ]['IpAddresses.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11059,6 +11059,7 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAcc
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
@@ -11069,7 +11070,6 @@ export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAcc
           ':IpAccessControlListSid'
         ].IpAddresses[':Sid.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11122,6 +11122,7 @@ export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsIpA
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
@@ -11132,7 +11133,6 @@ export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsIpA
           ':IpAccessControlListSid'
         ].IpAddresses[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11182,6 +11182,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidSiprecJson(optio
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
@@ -11193,7 +11194,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidSiprecJson(optio
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11243,6 +11243,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidSiprecSidJson(op
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
@@ -11254,7 +11255,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidSiprecSidJson(op
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11304,6 +11304,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidStreamsJson(opti
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
@@ -11315,7 +11316,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidStreamsJson(opti
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11365,6 +11365,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidStreamsSidJson(o
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
@@ -11376,7 +11377,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidStreamsSidJson(o
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11426,6 +11426,7 @@ export function createPost20100401AccountsAccountSidTokensJson(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
@@ -11434,7 +11435,6 @@ export function createPost20100401AccountsAccountSidTokensJson(options?: {
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -11553,6 +11553,7 @@ export function createDelete20100401AccountsAccountSidTranscriptionsSidJson(opti
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
@@ -11564,7 +11565,6 @@ export function createDelete20100401AccountsAccountSidTranscriptionsSidJson(opti
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -12308,6 +12308,7 @@ export function createPost20100401AccountsAccountSidUsageTriggersSidJson(options
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
@@ -12319,7 +12320,6 @@ export function createPost20100401AccountsAccountSidUsageTriggersSidJson(options
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -12368,6 +12368,7 @@ export function createDelete20100401AccountsAccountSidUsageTriggersSidJson(optio
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
@@ -12379,7 +12380,6 @@ export function createDelete20100401AccountsAccountSidUsageTriggersSidJson(optio
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -12495,6 +12495,7 @@ export function createPost20100401AccountsAccountSidUsageTriggersJson(options?: 
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
@@ -12506,7 +12507,6 @@ export function createPost20100401AccountsAccountSidUsageTriggersJson(options?: 
           clientOptions,
         ),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -12556,6 +12556,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessa
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
@@ -12566,7 +12567,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessa
           'UserDefinedMessages.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -12616,6 +12616,7 @@ export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessa
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
@@ -12626,7 +12627,6 @@ export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessa
           'UserDefinedMessageSubscriptions.json'
         ].$post(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }
 
@@ -12679,6 +12679,7 @@ export function createDelete20100401AccountsAccountSidCallsCallSidUserDefinedMes
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
@@ -12689,6 +12690,5 @@ export function createDelete20100401AccountsAccountSidCallsCallSidUserDefinedMes
           ':CallSid'
         ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(args, clientOptions),
       ),
-    ...mutationOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -82,9 +82,9 @@ export function usePostSamlSso(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
       parseResponse(client.saml.sso.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -167,9 +167,9 @@ export function usePostSamlSlo(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
       parseResponse(client.saml.slo.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -200,9 +200,9 @@ export function usePostSamlAcs(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
       parseResponse(client.saml.acs.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -338,9 +338,9 @@ export function usePostServiceProviders(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
       parseResponse(client['service-providers'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -432,10 +432,10 @@ export function usePutServiceProvidersSpId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -472,10 +472,10 @@ export function useDeleteServiceProvidersSpId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
     ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -577,10 +577,10 @@ export function usePutServiceProvidersSpIdMetadata(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -682,10 +682,10 @@ export function usePutServiceProvidersSpIdAttributes(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
     ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -808,9 +808,9 @@ export function usePostCertificates(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
       parseResponse(client.certificates.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -847,10 +847,10 @@ export function useDeleteCertificatesCertId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>,
     ) => parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -886,10 +886,10 @@ export function usePostCertificatesCertIdActivate(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
     ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -976,9 +976,9 @@ export function useDeleteSessionsSessionId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
       parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

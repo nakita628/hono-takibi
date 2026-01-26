@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -71,8 +71,8 @@ export function createPutAllMethods(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
   })
 }
 
@@ -99,8 +99,8 @@ export function createPostAllMethods(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
   })
 }
 
@@ -127,8 +127,8 @@ export function createDeleteAllMethods(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
   })
 }
 
@@ -155,8 +155,8 @@ export function createOptionsAllMethods(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
   })
 }
 
@@ -183,8 +183,8 @@ export function createHeadAllMethods(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
   })
 }
 
@@ -211,8 +211,8 @@ export function createPatchAllMethods(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
   })
 }
 
@@ -239,8 +239,8 @@ export function createTraceAllMethods(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
   })
 }
 
@@ -385,8 +385,8 @@ export function createPostNoContent(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
-    mutationFn: async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
   })
 }
 
@@ -461,9 +461,9 @@ export function createPostMultiContent(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['multi-content']['$post']>) =>
       parseResponse(client['multi-content'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -632,9 +632,9 @@ export function createPostEmptyBody(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['empty-body']['$post']>) =>
       parseResponse(client['empty-body'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 

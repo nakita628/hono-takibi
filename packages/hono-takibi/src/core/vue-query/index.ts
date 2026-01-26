@@ -22,7 +22,8 @@
  * @link https://hono.dev/docs/guides/rpc
  */
 
-import { makeQueryHooks, VUE_QUERY_CONFIG } from '../../helper/query.js'
+import { makeQueryHooks } from '../../helper/query.js'
+import type { QueryFrameworkConfig } from '../../helper/query.js'
 import type { OpenAPI } from '../../openapi/index.js'
 
 /**
@@ -72,5 +73,16 @@ export async function vueQuery(
 ): Promise<
   { readonly ok: true; readonly value: string } | { readonly ok: false; readonly error: string }
 > {
-  return makeQueryHooks(openAPI, output, importPath, VUE_QUERY_CONFIG, split, clientName)
+  const config: QueryFrameworkConfig = {
+    packageName: '@tanstack/vue-query',
+    frameworkName: 'Vue Query',
+    hookPrefix: 'use',
+    queryFn: 'useQuery',
+    mutationFn: 'useMutation',
+    queryOptionsType: 'UseQueryOptions',
+    mutationOptionsType: 'UseMutationOptions',
+    omitQueryKeyType: true,
+    queryOptionsHelper: 'queryOptions',
+  }
+  return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

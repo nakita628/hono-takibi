@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -28,9 +28,9 @@ export function usePostPolymorphic(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.polymorphic.$post>) =>
       parseResponse(client.polymorphic.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -112,8 +112,8 @@ export function usePutMultiStep(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<(typeof client)['multi-step']['$put']>) =>
       parseResponse(client['multi-step'].$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }

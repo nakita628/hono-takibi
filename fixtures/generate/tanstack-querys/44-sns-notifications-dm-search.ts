@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
@@ -135,10 +135,10 @@ export function usePostNotificationsMarkRead(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
     ) => parseResponse(client.notifications['mark-read'].$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -217,9 +217,9 @@ export function usePutNotificationsSettings(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.notifications.settings.$put>) =>
       parseResponse(client.notifications.settings.$put(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -306,9 +306,9 @@ export function usePostDmConversations(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (args: InferRequestType<typeof client.dm.conversations.$post>) =>
       parseResponse(client.dm.conversations.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -405,10 +405,10 @@ export function useDeleteDmConversationsConversationId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
     ) => parseResponse(client.dm.conversations[':conversationId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -514,13 +514,13 @@ export function usePostDmConversationsConversationIdMessages(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.dm.conversations)[':conversationId']['messages']['$post']
       >,
     ) =>
       parseResponse(client.dm.conversations[':conversationId'].messages.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -564,10 +564,10 @@ export function usePostDmConversationsConversationIdRead(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>,
     ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -613,13 +613,13 @@ export function usePostDmConversationsConversationIdTyping(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<
         (typeof client.dm.conversations)[':conversationId']['typing']['$post']
       >,
     ) =>
       parseResponse(client.dm.conversations[':conversationId'].typing.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -656,10 +656,10 @@ export function useDeleteDmMessagesMessageId(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
     ) => parseResponse(client.dm.messages[':messageId'].$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -695,10 +695,10 @@ export function usePostDmMessagesMessageIdReactions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
     ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -742,10 +742,10 @@ export function useDeleteDmMessagesMessageIdReactions(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
     ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1029,8 +1029,8 @@ export function useDeleteSearchRecent(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
-    mutationFn: async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
     ...mutationOptions,
+    mutationFn: async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
   })
 }
 
@@ -1218,10 +1218,10 @@ export function usePostSuggestionsUsersUserIdHide(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
     ) => parseResponse(client.suggestions.users[':userId'].hide.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1302,10 +1302,10 @@ export function usePostTopicsTopicIdFollow(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
     ) => parseResponse(client.topics[':topicId'].follow.$post(args, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -1339,9 +1339,9 @@ export function useDeleteTopicsTopicIdFollow(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useMutation({
+    ...mutationOptions,
     mutationFn: async (
       args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
     ) => parseResponse(client.topics[':topicId'].follow.$delete(args, clientOptions)),
-    ...mutationOptions,
   })
 }

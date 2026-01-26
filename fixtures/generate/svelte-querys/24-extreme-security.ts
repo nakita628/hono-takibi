@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -357,9 +357,9 @@ export function createPutMixedLevelSecurity(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -388,9 +388,9 @@ export function createPostMixedLevelSecurity(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
@@ -422,9 +422,9 @@ export function createDeleteMixedLevelSecurity(options?: {
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return createMutation({
+    ...mutationOptions,
     mutationFn: async () =>
       parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
-    ...mutationOptions,
   })
 }
 
