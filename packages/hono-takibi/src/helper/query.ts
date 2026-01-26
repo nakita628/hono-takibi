@@ -274,35 +274,26 @@ export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>${optio
 
 const makeQueryHookCode = (
   hookName: string,
-  keyGetterName: string,
+  optionsGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
-  inferResponseType: string,
-  clientPath: string,
-  method: string,
+  _inferResponseType: string,
   docs: string,
   config: QueryFrameworkConfig,
 ): string => {
-  // Build client call with signal - TanStack Query always provides signal in queryFn context
-  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation
-  const clientCallWithSignal = hasArgs
-    ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
-    : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}})`
-  const fetcherBody = buildFetcher(clientCallWithSignal)
-
-  // Use key getter function
-  const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-
-  // Build hook with inline query options type
-  // Note: select is intentionally excluded to ensure proper type inference of data.
-  // If users need select, they can use the underlying queryOptions helper.
-  // placeholderData and initialData are typed with the response type for proper inference.
-  const inlineQueryOptionsType = `{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number;placeholderData?:${inferResponseType}|(()=>${inferResponseType});initialData?:${inferResponseType}|(()=>${inferResponseType})}`
-  const optionsType = `{query?:${inlineQueryOptionsType};client?:ClientRequestOptions}`
+  // Pattern with query options for flexibility
+  // Users can customize enabled, staleTime, gcTime, etc.
+  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
+  const queryOptionsType =
+    '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
+  const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
+  const optionsGetterCall = hasArgs
+    ? `${optionsGetterName}(args,clientOptions)`
+    : `${optionsGetterName}(clientOptions)`
 
   return `${docs}
-export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${config.queryFn}({queryKey:${queryKeyCall},queryFn:async({signal})=>${fetcherBody},...queryOptions})}`
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOptions})}`
 }
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
@@ -318,17 +309,14 @@ const makeMutationHookCode = (
   config: QueryFrameworkConfig,
   hasNoContent: boolean,
 ): string => {
-  // Build mutation hook with inline options type (no separate type definition)
+  // Simple pattern with typed callbacks
   const variablesType = hasArgs ? inferRequestType : 'undefined'
 
-  // For 204/205 responses, parseResponse returns undefined, so callback types should reflect this
-  // onSuccess receives the success data (undefined for 204)
-  // onSettled always receives data | undefined (either success data or undefined on error)
-  const successDataType = hasNoContent ? `${inferResponseType}|undefined` : inferResponseType
-  const settledDataType = `${inferResponseType}|undefined`
+  // For 204/205 responses, parseResponse returns undefined
+  const dataType = hasNoContent ? `${inferResponseType}|undefined` : inferResponseType
 
-  // Inline mutation options type
-  const inlineMutationOptionsType = `{onSuccess?:(data:${successDataType},variables:${variablesType})=>void;onError?:(error:Error,variables:${variablesType})=>void;onSettled?:(data:${settledDataType},error:Error|null,variables:${variablesType})=>void;onMutate?:(variables:${variablesType})=>void;retry?:boolean|number;retryDelay?:number}`
+  // Inline mutation options type - excludes mutationFn to prevent override
+  const inlineMutationOptionsType = `{onSuccess?:(data:${dataType},variables:${variablesType})=>void;onError?:(error:Error,variables:${variablesType})=>void;onSettled?:(data:${dataType}|undefined,error:Error|null,variables:${variablesType})=>void;onMutate?:(variables:${variablesType})=>void;retry?:boolean|number;retryDelay?:number}`
   const optionsType = `{mutation?:${inlineMutationOptionsType};client?:ClientRequestOptions}`
 
   if (hasArgs) {
@@ -395,12 +383,10 @@ const makeHookCode = (
     )
     const hookCode = makeQueryHookCode(
       hookName,
-      keyGetterName,
+      optionsGetterName,
       hasArgs,
       inferRequestType,
       baseInferResponseType,
-      clientPath,
-      method,
       docs,
       config,
     )
@@ -478,7 +464,7 @@ const makeHeader = (
 
   // Hono client type imports
   // InferRequestType: needed when operation has args
-  // InferResponseType: needed for mutation option types AND query placeholderData/initialData
+  // InferResponseType: needed for inline option types (select, placeholderData, initialData, callbacks)
   const honoTypeImportParts = [
     ...(needsInferRequestType ? ['InferRequestType'] : []),
     ...(hasQuery || hasMutation ? ['InferResponseType'] : []),

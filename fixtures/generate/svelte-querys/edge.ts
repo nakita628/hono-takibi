@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -52,25 +52,12 @@ export function createGetSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.search.$get>
-        | (() => InferResponseType<typeof client.search.$get>)
-      initialData?:
-        | InferResponseType<typeof client.search.$get>
-        | (() => InferResponseType<typeof client.search.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetSearchQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -113,7 +100,7 @@ export function createPutMultiStep(options?: {
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['multi-step']['$put']> | undefined,
+      data: InferResponseType<(typeof client)['multi-step']['$put']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['multi-step']['$put']>,
     ) => void

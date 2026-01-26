@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
 
@@ -17,27 +17,11 @@ export function createGetHealth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.health.$get>
-      | (() => InferResponseType<typeof client.health.$get>)
-    initialData?:
-      | InferResponseType<typeof client.health.$get>
-      | (() => InferResponseType<typeof client.health.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetHealthQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.health.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetHealthQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

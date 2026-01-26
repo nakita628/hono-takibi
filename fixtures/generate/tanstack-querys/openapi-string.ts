@@ -1,5 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, queryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
@@ -21,27 +21,11 @@ export function useGetString(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.string.$get>
-      | (() => InferResponseType<typeof client.string.$get>)
-    initialData?:
-      | InferResponseType<typeof client.string.$get>
-      | (() => InferResponseType<typeof client.string.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetStringQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.string.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetStringQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

@@ -1,5 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, queryOptions } from '@tanstack/react-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
 
@@ -21,27 +21,11 @@ export function useGetBoolean(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.boolean.$get>
-      | (() => InferResponseType<typeof client.boolean.$get>)
-    initialData?:
-      | InferResponseType<typeof client.boolean.$get>
-      | (() => InferResponseType<typeof client.boolean.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetBooleanQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.boolean.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetBooleanQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

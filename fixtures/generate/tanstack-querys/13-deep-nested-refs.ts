@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -21,34 +21,13 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -157,25 +136,12 @@ export function useGetReportsOrganizationSummary(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.reports)['organization-summary']['$get']>
-      | (() => InferResponseType<(typeof client.reports)['organization-summary']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.reports)['organization-summary']['$get']>
-      | (() => InferResponseType<(typeof client.reports)['organization-summary']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetReportsOrganizationSummaryQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.reports['organization-summary'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetReportsOrganizationSummaryQueryOptions(clientOptions),
     ...queryOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
@@ -23,25 +23,12 @@ export function createGetPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.posts.$get>
-        | (() => InferResponseType<typeof client.posts.$get>)
-      initialData?:
-        | InferResponseType<typeof client.posts.$get>
-        | (() => InferResponseType<typeof client.posts.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetPostsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -117,28 +104,12 @@ export function createGetPostsPostId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.posts)[':postId']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.posts)[':postId']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetPostsPostIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetPostsPostIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -186,7 +157,7 @@ export function createDeletePostsPostId(options?: {
       variables: InferRequestType<(typeof client.posts)[':postId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined,
+      data: InferResponseType<(typeof client.posts)[':postId']['$delete']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.posts)[':postId']['$delete']>,
     ) => void
@@ -224,26 +195,13 @@ export function createGetPostsPostIdThread(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['thread']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPostsPostIdThreadQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].thread.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPostsPostIdThreadQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -297,26 +255,13 @@ export function createGetPostsPostIdContext(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.posts)[':postId']['context']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['context']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.posts)[':postId']['context']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['context']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPostsPostIdContextQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].context.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPostsPostIdContextQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -370,28 +315,12 @@ export function createGetTimelineHome(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.timeline.home.$get>
-        | (() => InferResponseType<typeof client.timeline.home.$get>)
-      initialData?:
-        | InferResponseType<typeof client.timeline.home.$get>
-        | (() => InferResponseType<typeof client.timeline.home.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTimelineHomeQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.timeline.home.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTimelineHomeQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -443,28 +372,12 @@ export function createGetTimelineForYou(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.timeline)['for-you']['$get']>
-        | (() => InferResponseType<(typeof client.timeline)['for-you']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.timeline)['for-you']['$get']>
-        | (() => InferResponseType<(typeof client.timeline)['for-you']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTimelineForYouQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.timeline['for-you'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTimelineForYouQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -514,26 +427,13 @@ export function createGetTimelineUserUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.timeline.user)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.timeline.user)[':userId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.timeline.user)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.timeline.user)[':userId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetTimelineUserUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.timeline.user[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetTimelineUserUserIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -585,26 +485,13 @@ export function createGetTimelineHashtagHashtag(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>
-        | (() => InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>
-        | (() => InferResponseType<(typeof client.timeline.hashtag)[':hashtag']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetTimelineHashtagHashtagQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.timeline.hashtag[':hashtag'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetTimelineHashtagHashtagQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -914,25 +801,12 @@ export function createGetBookmarks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.bookmarks.$get>
-        | (() => InferResponseType<typeof client.bookmarks.$get>)
-      initialData?:
-        | InferResponseType<typeof client.bookmarks.$get>
-        | (() => InferResponseType<typeof client.bookmarks.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetBookmarksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.bookmarks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetBookmarksQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -977,26 +851,13 @@ export function createGetPostsPostIdLikes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['likes']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPostsPostIdLikesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].likes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPostsPostIdLikesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1048,26 +909,13 @@ export function createGetPostsPostIdReposts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['reposts']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPostsPostIdRepostsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].reposts.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPostsPostIdRepostsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1119,26 +967,13 @@ export function createGetPostsPostIdQuotes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['quotes']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPostsPostIdQuotesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].quotes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPostsPostIdQuotesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1190,26 +1025,13 @@ export function createGetPostsPostIdReplies(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>
-        | (() => InferResponseType<(typeof client.posts)[':postId']['replies']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPostsPostIdRepliesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].replies.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPostsPostIdRepliesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1329,28 +1151,12 @@ export function createGetMediaMediaId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.media)[':mediaId']['$get']>
-        | (() => InferResponseType<(typeof client.media)[':mediaId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.media)[':mediaId']['$get']>
-        | (() => InferResponseType<(typeof client.media)[':mediaId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMediaMediaIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.media[':mediaId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMediaMediaIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**

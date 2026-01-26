@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -17,27 +17,11 @@ export function createGetAllMethods(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['all-methods']['$get']>
-      | (() => InferResponseType<(typeof client)['all-methods']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['all-methods']['$get']>
-      | (() => InferResponseType<(typeof client)['all-methods']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAllMethodsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['all-methods'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAllMethodsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -278,34 +262,13 @@ export function createGetUsersUserIdPostsPostIdCommentsCommentId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -359,26 +322,13 @@ export function createGetParamsTestPathParam(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>
-        | (() => InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>
-        | (() => InferResponseType<(typeof client)['params-test'][':pathParam']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetParamsTestPathParamQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['params-test'][':pathParam'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetParamsTestPathParamQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -423,7 +373,7 @@ export function createPostNoContent(options?: {
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['no-content']['$post']> | undefined,
+      data: InferResponseType<(typeof client)['no-content']['$post']> | undefined | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -454,27 +404,11 @@ export function createGetMultiContent(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['multi-content']['$get']>
-      | (() => InferResponseType<(typeof client)['multi-content']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['multi-content']['$get']>
-      | (() => InferResponseType<(typeof client)['multi-content']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMultiContentQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['multi-content'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMultiContentQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -547,27 +481,11 @@ export function createGetResponseRanges(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['response-ranges']['$get']>
-      | (() => InferResponseType<(typeof client)['response-ranges']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['response-ranges']['$get']>
-      | (() => InferResponseType<(typeof client)['response-ranges']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetResponseRangesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['response-ranges'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetResponseRangesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -610,27 +528,11 @@ export function createGetDeprecated(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.deprecated.$get>
-      | (() => InferResponseType<typeof client.deprecated.$get>)
-    initialData?:
-      | InferResponseType<typeof client.deprecated.$get>
-      | (() => InferResponseType<typeof client.deprecated.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetDeprecatedQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.deprecated.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetDeprecatedQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -673,27 +575,11 @@ export function createGetNoOperationId(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['no-operation-id']['$get']>
-      | (() => InferResponseType<(typeof client)['no-operation-id']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['no-operation-id']['$get']>
-      | (() => InferResponseType<(typeof client)['no-operation-id']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetNoOperationIdQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['no-operation-id'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetNoOperationIdQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -766,27 +652,11 @@ export function createGetCircular(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.circular.$get>
-      | (() => InferResponseType<typeof client.circular.$get>)
-    initialData?:
-      | InferResponseType<typeof client.circular.$get>
-      | (() => InferResponseType<typeof client.circular.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetCircularQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.circular.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetCircularQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -827,27 +697,11 @@ export function createGetDeepNesting(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['deep-nesting']['$get']>
-      | (() => InferResponseType<(typeof client)['deep-nesting']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['deep-nesting']['$get']>
-      | (() => InferResponseType<(typeof client)['deep-nesting']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetDeepNestingQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['deep-nesting'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetDeepNestingQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -890,28 +744,12 @@ export function createGetArrayParams(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['array-params']['$get']>
-        | (() => InferResponseType<(typeof client)['array-params']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['array-params']['$get']>
-        | (() => InferResponseType<(typeof client)['array-params']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetArrayParamsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['array-params'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetArrayParamsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -959,28 +797,12 @@ export function createGetObjectParam(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['object-param']['$get']>
-        | (() => InferResponseType<(typeof client)['object-param']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['object-param']['$get']>
-        | (() => InferResponseType<(typeof client)['object-param']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetObjectParamQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['object-param'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetObjectParamQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**

@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
@@ -17,27 +17,11 @@ export function useGetUsers(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.users.$get>
-      | (() => InferResponseType<typeof client.users.$get>)
-    initialData?:
-      | InferResponseType<typeof client.users.$get>
-      | (() => InferResponseType<typeof client.users.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetUsersQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -109,28 +93,12 @@ export function useGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**

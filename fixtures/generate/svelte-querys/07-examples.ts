@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
@@ -17,27 +17,11 @@ export function createGetProducts(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.products.$get>
-      | (() => InferResponseType<typeof client.products.$get>)
-    initialData?:
-      | InferResponseType<typeof client.products.$get>
-      | (() => InferResponseType<typeof client.products.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetProductsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.products.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetProductsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -109,26 +93,13 @@ export function createGetProductsProductId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.products)[':productId']['$get']>
-        | (() => InferResponseType<(typeof client.products)[':productId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.products)[':productId']['$get']>
-        | (() => InferResponseType<(typeof client.products)[':productId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetProductsProductIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.products[':productId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetProductsProductIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }

@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
 
@@ -21,24 +21,11 @@ export function createGetHono(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.hono.$get>
-      | (() => InferResponseType<typeof client.hono.$get>)
-    initialData?:
-      | InferResponseType<typeof client.hono.$get>
-      | (() => InferResponseType<typeof client.hono.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetHonoQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -80,27 +67,11 @@ export function createGetHonoX(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['hono-x']['$get']>
-      | (() => InferResponseType<(typeof client)['hono-x']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['hono-x']['$get']>
-      | (() => InferResponseType<(typeof client)['hono-x']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetHonoXQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetHonoXQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -145,27 +116,11 @@ export function createGetZodOpenapiHono(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['zod-openapi-hono']['$get']>
-      | (() => InferResponseType<(typeof client)['zod-openapi-hono']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['zod-openapi-hono']['$get']>
-      | (() => InferResponseType<(typeof client)['zod-openapi-hono']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetZodOpenapiHonoQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['zod-openapi-hono'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetZodOpenapiHonoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

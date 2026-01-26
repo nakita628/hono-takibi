@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -17,27 +17,11 @@ export function useGetTrees(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.trees.$get>
-      | (() => InferResponseType<typeof client.trees.$get>)
-    initialData?:
-      | InferResponseType<typeof client.trees.$get>
-      | (() => InferResponseType<typeof client.trees.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetTreesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.trees.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetTreesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -107,27 +91,11 @@ export function useGetGraphs(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.graphs.$get>
-      | (() => InferResponseType<typeof client.graphs.$get>)
-    initialData?:
-      | InferResponseType<typeof client.graphs.$get>
-      | (() => InferResponseType<typeof client.graphs.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGraphsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.graphs.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGraphsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -168,27 +136,11 @@ export function useGetLinkedLists(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['linked-lists']['$get']>
-      | (() => InferResponseType<(typeof client)['linked-lists']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['linked-lists']['$get']>
-      | (() => InferResponseType<(typeof client)['linked-lists']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetLinkedListsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['linked-lists'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetLinkedListsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -229,27 +181,11 @@ export function useGetSocialNetwork(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['social-network']['$get']>
-      | (() => InferResponseType<(typeof client)['social-network']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['social-network']['$get']>
-      | (() => InferResponseType<(typeof client)['social-network']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetSocialNetworkQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['social-network'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetSocialNetworkQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -290,27 +226,11 @@ export function useGetFileSystem(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['file-system']['$get']>
-      | (() => InferResponseType<(typeof client)['file-system']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['file-system']['$get']>
-      | (() => InferResponseType<(typeof client)['file-system']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetFileSystemQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['file-system'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetFileSystemQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -351,27 +271,11 @@ export function useGetComments(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.comments.$get>
-      | (() => InferResponseType<typeof client.comments.$get>)
-    initialData?:
-      | InferResponseType<typeof client.comments.$get>
-      | (() => InferResponseType<typeof client.comments.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetCommentsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.comments.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetCommentsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -412,27 +316,11 @@ export function useGetPolymorphic(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.polymorphic.$get>
-      | (() => InferResponseType<typeof client.polymorphic.$get>)
-    initialData?:
-      | InferResponseType<typeof client.polymorphic.$get>
-      | (() => InferResponseType<typeof client.polymorphic.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetPolymorphicQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.polymorphic.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetPolymorphicQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -473,27 +361,11 @@ export function useGetCategories(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.categories.$get>
-      | (() => InferResponseType<typeof client.categories.$get>)
-    initialData?:
-      | InferResponseType<typeof client.categories.$get>
-      | (() => InferResponseType<typeof client.categories.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetCategoriesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.categories.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -534,27 +406,11 @@ export function useGetWorkflow(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.workflow.$get>
-      | (() => InferResponseType<typeof client.workflow.$get>)
-    initialData?:
-      | InferResponseType<typeof client.workflow.$get>
-      | (() => InferResponseType<typeof client.workflow.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetWorkflowQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.workflow.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetWorkflowQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

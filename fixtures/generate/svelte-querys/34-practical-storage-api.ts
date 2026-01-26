@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -21,25 +21,12 @@ export function createGetFiles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.files.$get>
-        | (() => InferResponseType<typeof client.files.$get>)
-      initialData?:
-        | InferResponseType<typeof client.files.$get>
-        | (() => InferResponseType<typeof client.files.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetFilesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetFilesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -254,28 +241,12 @@ export function createGetFilesFileId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.files)[':fileId']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.files)[':fileId']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetFilesFileIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetFilesFileIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -323,7 +294,7 @@ export function createDeleteFilesFileId(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined,
+      data: InferResponseType<(typeof client.files)[':fileId']['$delete']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
     ) => void
@@ -393,26 +364,13 @@ export function createGetFilesFileIdDownload(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.files)[':fileId']['download']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['download']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.files)[':fileId']['download']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['download']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetFilesFileIdDownloadQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].download.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetFilesFileIdDownloadQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -464,26 +422,13 @@ export function createGetFilesFileIdDownloadUrl(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['download-url']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files[':fileId']['download-url'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetFilesFileIdDownloadUrlQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -607,26 +552,13 @@ export function createGetFilesFileIdThumbnail(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['thumbnail']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetFilesFileIdThumbnailQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].thumbnail.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetFilesFileIdThumbnailQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -709,28 +641,12 @@ export function createGetFoldersFolderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.folders)[':folderId']['$get']>
-        | (() => InferResponseType<(typeof client.folders)[':folderId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.folders)[':folderId']['$get']>
-        | (() => InferResponseType<(typeof client.folders)[':folderId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetFoldersFolderIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.folders[':folderId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetFoldersFolderIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -778,7 +694,10 @@ export function createDeleteFoldersFolderId(options?: {
       variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.folders)[':folderId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.folders)[':folderId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
     ) => void
@@ -850,26 +769,13 @@ export function createGetFilesFileIdShare(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.files)[':fileId']['share']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['share']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.files)[':fileId']['share']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['share']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetFilesFileIdShareQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].share.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetFilesFileIdShareQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -956,7 +862,10 @@ export function createDeleteFilesFileIdShare(options?: {
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.files)[':fileId']['share']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.files)[':fileId']['share']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
     ) => void
@@ -1034,26 +943,13 @@ export function createGetFilesFileIdVersions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['versions']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetFilesFileIdVersionsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].versions.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetFilesFileIdVersionsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1161,25 +1057,12 @@ export function createGetTrash(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.trash.$get>
-        | (() => InferResponseType<typeof client.trash.$get>)
-      initialData?:
-        | InferResponseType<typeof client.trash.$get>
-        | (() => InferResponseType<typeof client.trash.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTrashQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTrashQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1219,7 +1102,7 @@ export function createDeleteTrash(options?: {
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.trash.$delete> | undefined,
+      data: InferResponseType<typeof client.trash.$delete> | undefined | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -1289,27 +1172,11 @@ export function createGetStorageUsage(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.storage.usage.$get>
-      | (() => InferResponseType<typeof client.storage.usage.$get>)
-    initialData?:
-      | InferResponseType<typeof client.storage.usage.$get>
-      | (() => InferResponseType<typeof client.storage.usage.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetStorageUsageQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.storage.usage.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetStorageUsageQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

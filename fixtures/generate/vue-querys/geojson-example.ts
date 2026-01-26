@@ -1,5 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
@@ -21,27 +21,11 @@ export function useGet(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.index.$get>
-      | (() => InferResponseType<typeof client.index.$get>)
-    initialData?:
-      | InferResponseType<typeof client.index.$get>
-      | (() => InferResponseType<typeof client.index.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.index.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -88,25 +72,12 @@ export function useGetProjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.projects.$get>
-        | (() => InferResponseType<typeof client.projects.$get>)
-      initialData?:
-        | InferResponseType<typeof client.projects.$get>
-        | (() => InferResponseType<typeof client.projects.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetProjectsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetProjectsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**

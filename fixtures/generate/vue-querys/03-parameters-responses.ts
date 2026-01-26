@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
@@ -19,25 +19,12 @@ export function useGetItems(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.items.$get>
-        | (() => InferResponseType<typeof client.items.$get>)
-      initialData?:
-        | InferResponseType<typeof client.items.$get>
-        | (() => InferResponseType<typeof client.items.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetItemsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.items.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetItemsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -80,28 +67,12 @@ export function useGetItemsItemId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.items)[':itemId']['$get']>
-        | (() => InferResponseType<(typeof client.items)[':itemId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.items)[':itemId']['$get']>
-        | (() => InferResponseType<(typeof client.items)[':itemId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetItemsItemIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.items[':itemId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetItemsItemIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -147,7 +118,7 @@ export function useDeleteItemsItemId(options?: {
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined,
+      data: InferResponseType<(typeof client.items)[':itemId']['$delete']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.items)[':itemId']['$delete']>,
     ) => void

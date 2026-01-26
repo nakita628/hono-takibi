@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -23,25 +23,12 @@ export function createGetAlbums(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.albums.$get>
-        | (() => InferResponseType<typeof client.albums.$get>)
-      initialData?:
-        | InferResponseType<typeof client.albums.$get>
-        | (() => InferResponseType<typeof client.albums.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAlbumsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAlbumsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -88,28 +75,12 @@ export function createGetAlbumsId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.albums)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.albums)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.albums)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.albums)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAlbumsIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.albums[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAlbumsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -162,28 +133,12 @@ export function createGetAlbumsIdTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>
-        | (() => InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>
-        | (() => InferResponseType<(typeof client.albums)[':id']['tracks']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAlbumsIdTracksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.albums[':id'].tracks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAlbumsIdTracksQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -235,25 +190,12 @@ export function createGetArtists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.artists.$get>
-        | (() => InferResponseType<typeof client.artists.$get>)
-      initialData?:
-        | InferResponseType<typeof client.artists.$get>
-        | (() => InferResponseType<typeof client.artists.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetArtistsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetArtistsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -300,28 +242,12 @@ export function createGetArtistsId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.artists)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.artists)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetArtistsIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.artists[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetArtistsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -373,28 +299,12 @@ export function createGetArtistsIdAlbums(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.artists)[':id']['albums']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['albums']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.artists)[':id']['albums']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['albums']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetArtistsIdAlbumsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.artists[':id'].albums.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetArtistsIdAlbumsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -446,26 +356,13 @@ export function createGetArtistsIdRelatedArtists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['related-artists']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.artists[':id']['related-artists'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetArtistsIdRelatedArtistsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -519,26 +416,13 @@ export function createGetArtistsIdTopTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>
-        | (() => InferResponseType<(typeof client.artists)[':id']['top-tracks']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetArtistsIdTopTracksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.artists[':id']['top-tracks'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetArtistsIdTopTracksQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -592,28 +476,12 @@ export function createGetAudioAnalysisId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>
-        | (() => InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>
-        | (() => InferResponseType<(typeof client)['audio-analysis'][':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAudioAnalysisIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['audio-analysis'][':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAudioAnalysisIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -665,28 +533,12 @@ export function createGetAudioFeatures(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['audio-features']['$get']>
-        | (() => InferResponseType<(typeof client)['audio-features']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['audio-features']['$get']>
-        | (() => InferResponseType<(typeof client)['audio-features']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAudioFeaturesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['audio-features'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAudioFeaturesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -739,28 +591,12 @@ export function createGetAudioFeaturesId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['audio-features'][':id']['$get']>
-        | (() => InferResponseType<(typeof client)['audio-features'][':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['audio-features'][':id']['$get']>
-        | (() => InferResponseType<(typeof client)['audio-features'][':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAudioFeaturesIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['audio-features'][':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAudioFeaturesIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -813,28 +649,12 @@ export function createGetAudiobooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.audiobooks.$get>
-        | (() => InferResponseType<typeof client.audiobooks.$get>)
-      initialData?:
-        | InferResponseType<typeof client.audiobooks.$get>
-        | (() => InferResponseType<typeof client.audiobooks.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAudiobooksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.audiobooks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAudiobooksQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -885,28 +705,12 @@ export function createGetAudiobooksId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.audiobooks)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.audiobooks)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.audiobooks)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.audiobooks)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetAudiobooksIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.audiobooks[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetAudiobooksIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -959,26 +763,13 @@ export function createGetAudiobooksIdChapters(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>
-        | (() => InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>
-        | (() => InferResponseType<(typeof client.audiobooks)[':id']['chapters']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetAudiobooksIdChaptersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.audiobooks[':id'].chapters.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetAudiobooksIdChaptersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1032,26 +823,13 @@ export function createGetBrowseCategories(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.browse.categories.$get>
-        | (() => InferResponseType<typeof client.browse.categories.$get>)
-      initialData?:
-        | InferResponseType<typeof client.browse.categories.$get>
-        | (() => InferResponseType<typeof client.browse.categories.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetBrowseCategoriesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.browse.categories.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetBrowseCategoriesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1105,26 +883,13 @@ export function createGetBrowseCategoriesCategoryId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>
-        | (() => InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>
-        | (() => InferResponseType<(typeof client.browse.categories)[':category_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.browse.categories[':category_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetBrowseCategoriesCategoryIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1178,30 +943,13 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>
-        | (() => InferResponseType<
-            (typeof client.browse.categories)[':category_id']['playlists']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>
-        | (() => InferResponseType<
-            (typeof client.browse.categories)[':category_id']['playlists']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.browse.categories[':category_id'].playlists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1255,26 +1003,13 @@ export function createGetBrowseFeaturedPlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.browse)['featured-playlists']['$get']>
-        | (() => InferResponseType<(typeof client.browse)['featured-playlists']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.browse)['featured-playlists']['$get']>
-        | (() => InferResponseType<(typeof client.browse)['featured-playlists']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.browse['featured-playlists'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetBrowseFeaturedPlaylistsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1328,26 +1063,13 @@ export function createGetBrowseNewReleases(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.browse)['new-releases']['$get']>
-        | (() => InferResponseType<(typeof client.browse)['new-releases']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.browse)['new-releases']['$get']>
-        | (() => InferResponseType<(typeof client.browse)['new-releases']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetBrowseNewReleasesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.browse['new-releases'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetBrowseNewReleasesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1402,25 +1124,12 @@ export function createGetChapters(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.chapters.$get>
-        | (() => InferResponseType<typeof client.chapters.$get>)
-      initialData?:
-        | InferResponseType<typeof client.chapters.$get>
-        | (() => InferResponseType<typeof client.chapters.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetChaptersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetChaptersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1468,28 +1177,12 @@ export function createGetChaptersId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.chapters)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.chapters)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.chapters)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.chapters)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetChaptersIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.chapters[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetChaptersIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1541,25 +1234,12 @@ export function createGetEpisodes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.episodes.$get>
-        | (() => InferResponseType<typeof client.episodes.$get>)
-      initialData?:
-        | InferResponseType<typeof client.episodes.$get>
-        | (() => InferResponseType<typeof client.episodes.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetEpisodesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetEpisodesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1607,28 +1287,12 @@ export function createGetEpisodesId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.episodes)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.episodes)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.episodes)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.episodes)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetEpisodesIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.episodes[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetEpisodesIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1678,27 +1342,11 @@ export function createGetMarkets(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.markets.$get>
-      | (() => InferResponseType<typeof client.markets.$get>)
-    initialData?:
-      | InferResponseType<typeof client.markets.$get>
-      | (() => InferResponseType<typeof client.markets.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMarketsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.markets.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMarketsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1744,24 +1392,11 @@ export function createGetMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.me.$get>
-      | (() => InferResponseType<typeof client.me.$get>)
-    initialData?:
-      | InferResponseType<typeof client.me.$get>
-      | (() => InferResponseType<typeof client.me.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1805,25 +1440,12 @@ export function createGetMeAlbums(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.albums.$get>
-        | (() => InferResponseType<typeof client.me.albums.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.albums.$get>
-        | (() => InferResponseType<typeof client.me.albums.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeAlbumsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeAlbumsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1936,26 +1558,13 @@ export function createGetMeAlbumsContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.albums.contains.$get>
-        | (() => InferResponseType<typeof client.me.albums.contains.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.albums.contains.$get>
-        | (() => InferResponseType<typeof client.me.albums.contains.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMeAlbumsContainsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.albums.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMeAlbumsContainsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2009,28 +1618,12 @@ export function createGetMeAudiobooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.audiobooks.$get>
-        | (() => InferResponseType<typeof client.me.audiobooks.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.audiobooks.$get>
-        | (() => InferResponseType<typeof client.me.audiobooks.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeAudiobooksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.audiobooks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeAudiobooksQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -2151,26 +1744,13 @@ export function createGetMeAudiobooksContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.audiobooks.contains.$get>
-        | (() => InferResponseType<typeof client.me.audiobooks.contains.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.audiobooks.contains.$get>
-        | (() => InferResponseType<typeof client.me.audiobooks.contains.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMeAudiobooksContainsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.audiobooks.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMeAudiobooksContainsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2225,28 +1805,12 @@ export function createGetMeEpisodes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.episodes.$get>
-        | (() => InferResponseType<typeof client.me.episodes.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.episodes.$get>
-        | (() => InferResponseType<typeof client.me.episodes.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeEpisodesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.episodes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeEpisodesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -2365,26 +1929,13 @@ export function createGetMeEpisodesContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.episodes.contains.$get>
-        | (() => InferResponseType<typeof client.me.episodes.contains.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.episodes.contains.$get>
-        | (() => InferResponseType<typeof client.me.episodes.contains.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMeEpisodesContainsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.episodes.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMeEpisodesContainsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2438,28 +1989,12 @@ export function createGetMeFollowing(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.following.$get>
-        | (() => InferResponseType<typeof client.me.following.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.following.$get>
-        | (() => InferResponseType<typeof client.me.following.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeFollowingQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.following.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeFollowingQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -2504,7 +2039,7 @@ export function createPutMeFollowing(options?: {
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.following.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.following.$put> | undefined,
+      data: InferResponseType<typeof client.me.following.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.following.$put>,
     ) => void
@@ -2578,26 +2113,13 @@ export function createGetMeFollowingContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.following.contains.$get>
-        | (() => InferResponseType<typeof client.me.following.contains.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.following.contains.$get>
-        | (() => InferResponseType<typeof client.me.following.contains.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMeFollowingContainsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.following.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMeFollowingContainsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2651,25 +2173,12 @@ export function createGetMePlayer(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.player.$get>
-        | (() => InferResponseType<typeof client.me.player.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.player.$get>
-        | (() => InferResponseType<typeof client.me.player.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMePlayerQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMePlayerQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -2711,7 +2220,7 @@ export function createPutMePlayer(options?: {
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.$put> | undefined,
+      data: InferResponseType<typeof client.me.player.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.$put>,
     ) => void
@@ -2749,26 +2258,13 @@ export function createGetMePlayerCurrentlyPlaying(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.me.player)['currently-playing']['$get']>
-        | (() => InferResponseType<(typeof client.me.player)['currently-playing']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.me.player)['currently-playing']['$get']>
-        | (() => InferResponseType<(typeof client.me.player)['currently-playing']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.player['currently-playing'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMePlayerCurrentlyPlayingQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2820,27 +2316,11 @@ export function createGetMePlayerDevices(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.me.player.devices.$get>
-      | (() => InferResponseType<typeof client.me.player.devices.$get>)
-    initialData?:
-      | InferResponseType<typeof client.me.player.devices.$get>
-      | (() => InferResponseType<typeof client.me.player.devices.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMePlayerDevicesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.player.devices.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMePlayerDevicesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -2885,7 +2365,7 @@ export function createPostMePlayerNext(options?: {
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.next.$post> | undefined,
+      data: InferResponseType<typeof client.me.player.next.$post> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.next.$post>,
     ) => void
@@ -2921,7 +2401,7 @@ export function createPutMePlayerPause(options?: {
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.pause.$put> | undefined,
+      data: InferResponseType<typeof client.me.player.pause.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.pause.$put>,
     ) => void
@@ -2954,7 +2434,7 @@ export function createPutMePlayerPlay(options?: {
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.play.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.play.$put> | undefined,
+      data: InferResponseType<typeof client.me.player.play.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.play.$put>,
     ) => void
@@ -2990,7 +2470,7 @@ export function createPostMePlayerPrevious(options?: {
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.previous.$post> | undefined,
+      data: InferResponseType<typeof client.me.player.previous.$post> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.previous.$post>,
     ) => void
@@ -3026,27 +2506,11 @@ export function createGetMePlayerQueue(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.me.player.queue.$get>
-      | (() => InferResponseType<typeof client.me.player.queue.$get>)
-    initialData?:
-      | InferResponseType<typeof client.me.player.queue.$get>
-      | (() => InferResponseType<typeof client.me.player.queue.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMePlayerQueueQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.player.queue.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMePlayerQueueQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -3091,7 +2555,7 @@ export function createPostMePlayerQueue(options?: {
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.queue.$post> | undefined,
+      data: InferResponseType<typeof client.me.player.queue.$post> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.queue.$post>,
     ) => void
@@ -3130,26 +2594,13 @@ export function createGetMePlayerRecentlyPlayed(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.me.player)['recently-played']['$get']>
-        | (() => InferResponseType<(typeof client.me.player)['recently-played']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.me.player)['recently-played']['$get']>
-        | (() => InferResponseType<(typeof client.me.player)['recently-played']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.player['recently-played'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMePlayerRecentlyPlayedQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -3202,7 +2653,7 @@ export function createPutMePlayerRepeat(options?: {
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined,
+      data: InferResponseType<typeof client.me.player.repeat.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.repeat.$put>,
     ) => void
@@ -3235,7 +2686,7 @@ export function createPutMePlayerSeek(options?: {
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.me.player.seek.$put>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.seek.$put> | undefined,
+      data: InferResponseType<typeof client.me.player.seek.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.seek.$put>,
     ) => void
@@ -3271,7 +2722,7 @@ export function createPutMePlayerShuffle(options?: {
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined,
+      data: InferResponseType<typeof client.me.player.shuffle.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.shuffle.$put>,
     ) => void
@@ -3307,7 +2758,7 @@ export function createPutMePlayerVolume(options?: {
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.player.volume.$put> | undefined,
+      data: InferResponseType<typeof client.me.player.volume.$put> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.me.player.volume.$put>,
     ) => void
@@ -3346,28 +2797,12 @@ export function createGetMePlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.playlists.$get>
-        | (() => InferResponseType<typeof client.me.playlists.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.playlists.$get>
-        | (() => InferResponseType<typeof client.me.playlists.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMePlaylistsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.playlists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMePlaylistsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -3417,25 +2852,12 @@ export function createGetMeShows(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.shows.$get>
-        | (() => InferResponseType<typeof client.me.shows.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.shows.$get>
-        | (() => InferResponseType<typeof client.me.shows.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeShowsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeShowsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -3548,28 +2970,12 @@ export function createGetMeShowsContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.shows.contains.$get>
-        | (() => InferResponseType<typeof client.me.shows.contains.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.shows.contains.$get>
-        | (() => InferResponseType<typeof client.me.shows.contains.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeShowsContainsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.shows.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeShowsContainsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -3621,28 +3027,12 @@ export function createGetMeTopType(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.me.top)[':type']['$get']>
-        | (() => InferResponseType<(typeof client.me.top)[':type']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.me.top)[':type']['$get']>
-        | (() => InferResponseType<(typeof client.me.top)[':type']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeTopTypeQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.top[':type'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeTopTypeQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -3694,25 +3084,12 @@ export function createGetMeTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.tracks.$get>
-        | (() => InferResponseType<typeof client.me.tracks.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.tracks.$get>
-        | (() => InferResponseType<typeof client.me.tracks.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeTracksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeTracksQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -3825,26 +3202,13 @@ export function createGetMeTracksContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.me.tracks.contains.$get>
-        | (() => InferResponseType<typeof client.me.tracks.contains.$get>)
-      initialData?:
-        | InferResponseType<typeof client.me.tracks.contains.$get>
-        | (() => InferResponseType<typeof client.me.tracks.contains.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMeTracksContainsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.tracks.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMeTracksContainsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -3898,26 +3262,13 @@ export function createGetPlaylistsPlaylistId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>
-        | (() => InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>
-        | (() => InferResponseType<(typeof client.playlists)[':playlist_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPlaylistsPlaylistIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4102,34 +3453,13 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].followers.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPlaylistsPlaylistIdFollowersContainsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4187,26 +3517,13 @@ export function createGetPlaylistsPlaylistIdImages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>
-        | (() => InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>
-        | (() => InferResponseType<(typeof client.playlists)[':playlist_id']['images']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].images.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPlaylistsPlaylistIdImagesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4301,26 +3618,13 @@ export function createGetPlaylistsPlaylistIdTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>
-        | (() => InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>
-        | (() => InferResponseType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].tracks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetPlaylistsPlaylistIdTracksQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4505,28 +3809,12 @@ export function createGetRecommendations(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.recommendations.$get>
-        | (() => InferResponseType<typeof client.recommendations.$get>)
-      initialData?:
-        | InferResponseType<typeof client.recommendations.$get>
-        | (() => InferResponseType<typeof client.recommendations.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetRecommendationsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.recommendations.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetRecommendationsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -4576,25 +3864,12 @@ export function createGetRecommendationsAvailableGenreSeeds(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>
-      | (() => InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>
-      | (() => InferResponseType<(typeof client.recommendations)['available-genre-seeds']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.recommendations['available-genre-seeds'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetRecommendationsAvailableGenreSeedsQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
@@ -4647,25 +3922,12 @@ export function createGetSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.search.$get>
-        | (() => InferResponseType<typeof client.search.$get>)
-      initialData?:
-        | InferResponseType<typeof client.search.$get>
-        | (() => InferResponseType<typeof client.search.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetSearchQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -4712,25 +3974,12 @@ export function createGetShows(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.shows.$get>
-        | (() => InferResponseType<typeof client.shows.$get>)
-      initialData?:
-        | InferResponseType<typeof client.shows.$get>
-        | (() => InferResponseType<typeof client.shows.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetShowsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetShowsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -4778,28 +4027,12 @@ export function createGetShowsId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.shows)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.shows)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.shows)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.shows)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetShowsIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.shows[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetShowsIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -4851,28 +4084,12 @@ export function createGetShowsIdEpisodes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>
-        | (() => InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>
-        | (() => InferResponseType<(typeof client.shows)[':id']['episodes']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetShowsIdEpisodesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.shows[':id'].episodes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetShowsIdEpisodesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -4924,25 +4141,12 @@ export function createGetTracks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.tracks.$get>
-        | (() => InferResponseType<typeof client.tracks.$get>)
-      initialData?:
-        | InferResponseType<typeof client.tracks.$get>
-        | (() => InferResponseType<typeof client.tracks.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTracksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTracksQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -4990,28 +4194,12 @@ export function createGetTracksId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.tracks)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.tracks)[':id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.tracks)[':id']['$get']>
-        | (() => InferResponseType<(typeof client.tracks)[':id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTracksIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.tracks[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTracksIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -5063,28 +4251,12 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':user_id']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':user_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':user_id']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':user_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':user_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -5136,26 +4308,13 @@ export function createGetUsersUserIdPlaylists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':user_id']['playlists']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':user_id'].playlists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersUserIdPlaylistsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }

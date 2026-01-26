@@ -1,5 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
 
@@ -17,27 +17,11 @@ export function useGetHealth(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.health.$get>
-      | (() => InferResponseType<typeof client.health.$get>)
-    initialData?:
-      | InferResponseType<typeof client.health.$get>
-      | (() => InferResponseType<typeof client.health.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetHealthQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.health.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetHealthQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

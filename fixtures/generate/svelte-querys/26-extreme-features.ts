@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/26-extreme-features'
 
@@ -19,27 +19,11 @@ export function createGetStream(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.stream.$get>
-      | (() => InferResponseType<typeof client.stream.$get>)
-    initialData?:
-      | InferResponseType<typeof client.stream.$get>
-      | (() => InferResponseType<typeof client.stream.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetStreamQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.stream.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetStreamQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -151,27 +135,11 @@ export function createGetDeprecatedEndpoint(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['deprecated-endpoint']['$get']>
-      | (() => InferResponseType<(typeof client)['deprecated-endpoint']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['deprecated-endpoint']['$get']>
-      | (() => InferResponseType<(typeof client)['deprecated-endpoint']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetDeprecatedEndpointQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['deprecated-endpoint'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetDeprecatedEndpointQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

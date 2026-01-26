@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-string'
 
@@ -21,27 +21,11 @@ export function createGetString(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.string.$get>
-      | (() => InferResponseType<typeof client.string.$get>)
-    initialData?:
-      | InferResponseType<typeof client.string.$get>
-      | (() => InferResponseType<typeof client.string.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetStringQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.string.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetStringQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

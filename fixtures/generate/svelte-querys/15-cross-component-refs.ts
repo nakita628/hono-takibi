@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -19,25 +19,12 @@ export function createGetEntities(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.entities.$get>
-        | (() => InferResponseType<typeof client.entities.$get>)
-      initialData?:
-        | InferResponseType<typeof client.entities.$get>
-        | (() => InferResponseType<typeof client.entities.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetEntitiesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.entities.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetEntitiesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -109,26 +96,13 @@ export function createGetEntitiesEntityId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.entities)[':entityId']['$get']>
-        | (() => InferResponseType<(typeof client.entities)[':entityId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.entities)[':entityId']['$get']>
-        | (() => InferResponseType<(typeof client.entities)[':entityId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetEntitiesEntityIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.entities[':entityId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetEntitiesEntityIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -208,7 +182,10 @@ export function createDeleteEntitiesEntityId(options?: {
       variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.entities)[':entityId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.entities)[':entityId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
     ) => void
@@ -244,26 +221,13 @@ export function createGetEntitiesEntityIdRelationships(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>
-        | (() => InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>
-        | (() => InferResponseType<(typeof client.entities)[':entityId']['relationships']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.entities[':entityId'].relationships.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetEntitiesEntityIdRelationshipsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }

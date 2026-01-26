@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -17,27 +17,11 @@ export function useGetEntities(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.entities.$get>
-      | (() => InferResponseType<typeof client.entities.$get>)
-    initialData?:
-      | InferResponseType<typeof client.entities.$get>
-      | (() => InferResponseType<typeof client.entities.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetEntitiesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.entities.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetEntitiesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -107,27 +91,11 @@ export function useGetGraph(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.graph.$get>
-      | (() => InferResponseType<typeof client.graph.$get>)
-    initialData?:
-      | InferResponseType<typeof client.graph.$get>
-      | (() => InferResponseType<typeof client.graph.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGraphQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.graph.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGraphQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

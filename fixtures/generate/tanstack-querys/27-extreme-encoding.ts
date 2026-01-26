@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -51,28 +51,12 @@ export function useGetContentNegotiation(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['content-negotiation']['$get']>
-        | (() => InferResponseType<(typeof client)['content-negotiation']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['content-negotiation']['$get']>
-        | (() => InferResponseType<(typeof client)['content-negotiation']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetContentNegotiationQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['content-negotiation'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetContentNegotiationQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -150,27 +134,11 @@ export function useGetStreaming(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.streaming.$get>
-      | (() => InferResponseType<typeof client.streaming.$get>)
-    initialData?:
-      | InferResponseType<typeof client.streaming.$get>
-      | (() => InferResponseType<typeof client.streaming.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetStreamingQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.streaming.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetStreamingQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -274,27 +242,11 @@ export function useGetResponseEncoding(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['response-encoding']['$get']>
-      | (() => InferResponseType<(typeof client)['response-encoding']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['response-encoding']['$get']>
-      | (() => InferResponseType<(typeof client)['response-encoding']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetResponseEncodingQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['response-encoding'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetResponseEncodingQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

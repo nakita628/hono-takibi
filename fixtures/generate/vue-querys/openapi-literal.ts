@@ -1,5 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
@@ -21,27 +21,11 @@ export function useGetPrimitive(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.primitive.$get>
-      | (() => InferResponseType<typeof client.primitive.$get>)
-    initialData?:
-      | InferResponseType<typeof client.primitive.$get>
-      | (() => InferResponseType<typeof client.primitive.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetPrimitiveQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.primitive.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetPrimitiveQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

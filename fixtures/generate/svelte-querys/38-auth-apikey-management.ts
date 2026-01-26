@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -21,28 +21,12 @@ export function createGetApiKeys(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['api-keys']['$get']>
-        | (() => InferResponseType<(typeof client)['api-keys']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['api-keys']['$get']>
-        | (() => InferResponseType<(typeof client)['api-keys']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetApiKeysQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['api-keys'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetApiKeysQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -124,28 +108,12 @@ export function createGetApiKeysKeyId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>
-        | (() => InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>
-        | (() => InferResponseType<(typeof client)['api-keys'][':keyId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetApiKeysKeyIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['api-keys'][':keyId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetApiKeysKeyIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -193,7 +161,10 @@ export function createDeleteApiKeysKeyId(options?: {
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client)['api-keys'][':keyId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
     ) => void
@@ -341,26 +312,13 @@ export function createGetApiKeysKeyIdUsage(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>
-        | (() => InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>
-        | (() => InferResponseType<(typeof client)['api-keys'][':keyId']['usage']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['api-keys'][':keyId'].usage.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApiKeysKeyIdUsageQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -412,30 +370,13 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
-        | (() => InferResponseType<
-            (typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
-        | (() => InferResponseType<
-            (typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApiKeysKeyIdRateLimitCurrentQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -519,27 +460,11 @@ export function createGetScopes(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.scopes.$get>
-      | (() => InferResponseType<typeof client.scopes.$get>)
-    initialData?:
-      | InferResponseType<typeof client.scopes.$get>
-      | (() => InferResponseType<typeof client.scopes.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetScopesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.scopes.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetScopesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

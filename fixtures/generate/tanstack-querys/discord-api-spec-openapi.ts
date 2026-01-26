@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discord-api-spec-openapi'
 
@@ -17,27 +17,11 @@ export function useGetApplicationsMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.applications)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.applications)['@me']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.applications)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.applications)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetApplicationsMeQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications['@me'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetApplicationsMeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -112,26 +96,13 @@ export function useGetApplicationsApplicationId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['$get']>
-        | (() => InferResponseType<(typeof client.applications)[':application_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['$get']>
-        | (() => InferResponseType<(typeof client.applications)[':application_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -220,34 +191,13 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id']['activity-instances'][':instance_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -351,30 +301,13 @@ export function useGetApplicationsApplicationIdCommands(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['commands']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['commands']['$get']>
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['commands']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdCommandsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].commands.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdCommandsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -516,34 +449,13 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdCommandsCommandIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].commands[':command_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdCommandsCommandIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -607,6 +519,7 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
         | InferResponseType<
             (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -707,30 +620,13 @@ export function useGetApplicationsApplicationIdEmojis(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['emojis']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['emojis']['$get']>
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['emojis']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdEmojisQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].emojis.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdEmojisQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -827,34 +723,13 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].emojis[':emoji_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdEmojisEmojiIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -918,6 +793,7 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
         | InferResponseType<
             (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1018,30 +894,13 @@ export function useGetApplicationsApplicationIdEntitlements(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['entitlements']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.applications)[':application_id']['entitlements']['$get']>
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['entitlements']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdEntitlementsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].entitlements.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdEntitlementsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1145,34 +1004,13 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].entitlements[':entitlement_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1236,6 +1074,7 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
         | InferResponseType<
             (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1295,6 +1134,7 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
         | InferResponseType<
             (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1346,34 +1186,13 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1543,34 +1362,16 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryOptions(
+      args,
+      clientOptions,
+    ),
     ...queryOptions,
   })
 }
@@ -1626,34 +1427,16 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$get(
-          args,
-          { ...clientOptions, init: { ...clientOptions?.init, signal } },
-        ),
-      ),
+    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryOptions(
+      args,
+      clientOptions,
+    ),
     ...queryOptions,
   })
 }
@@ -1717,6 +1500,7 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
         | InferResponseType<
             (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1825,34 +1609,16 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey:
-      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands[
-          ':command_id'
-        ].permissions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
+    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryOptions(
+      args,
+      clientOptions,
+    ),
     ...queryOptions,
   })
 }
@@ -1968,34 +1734,13 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.applications[':application_id']['role-connections'].metadata.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetApplicationsApplicationIdRoleConnectionsMetadataQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2106,28 +1851,12 @@ export function useGetChannelsChannelId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetChannelsChannelIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetChannelsChannelIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -2281,26 +2010,13 @@ export function useGetChannelsChannelIdInvites(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['invites']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdInvitesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].invites.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdInvitesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2352,6 +2068,7 @@ export function usePostChannelsChannelIdInvites(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.channels)[':channel_id']['invites']['$post']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
@@ -2389,26 +2106,13 @@ export function useGetChannelsChannelIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['messages']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdMessagesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].messages.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdMessagesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2505,6 +2209,7 @@ export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2551,30 +2256,13 @@ export function useGetChannelsChannelIdMessagesPins(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['messages']['pins']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['messages']['pins']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdMessagesPinsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].messages.pins.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdMessagesPinsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2634,6 +2322,7 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2690,6 +2379,7 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2738,34 +2428,13 @@ export function useGetChannelsChannelIdMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdMessagesMessageIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdMessagesMessageIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -2829,6 +2498,7 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -2993,6 +2663,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3044,34 +2715,13 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -3135,6 +2785,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3194,6 +2845,7 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3253,6 +2905,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3311,6 +2964,7 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
         | InferResponseType<
             (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3423,6 +3077,7 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3479,6 +3134,7 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3525,26 +3181,13 @@ export function useGetChannelsChannelIdPins(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['pins']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdPinsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].pins.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdPinsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -3600,6 +3243,7 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3654,6 +3298,7 @@ export function useDeleteChannelsChannelIdPinsMessageId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3702,34 +3347,13 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -3847,6 +3471,7 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3903,6 +3528,7 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -3959,6 +3585,7 @@ export function usePostChannelsChannelIdSendSoundboardSound(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -4005,30 +3632,13 @@ export function useGetChannelsChannelIdThreadMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['thread-members']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['thread-members']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdThreadMembersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id']['thread-members'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdThreadMembersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4088,6 +3698,7 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -4144,6 +3755,7 @@ export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -4192,34 +3804,13 @@ export function useGetChannelsChannelIdThreadMembersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdThreadMembersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id']['thread-members'][':user_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdThreadMembersUserIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4283,6 +3874,7 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -4339,6 +3931,7 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
         | InferResponseType<
             (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -4424,34 +4017,13 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].threads.archived.private.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdThreadsArchivedPrivateQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4507,34 +4079,13 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdThreadsArchivedPublicQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].threads.archived.public.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdThreadsArchivedPublicQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4588,30 +4139,13 @@ export function useGetChannelsChannelIdThreadsSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['search']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['threads']['search']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdThreadsSearchQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].threads.search.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdThreadsSearchQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4663,6 +4197,7 @@ export function usePostChannelsChannelIdTyping(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.channels)[':channel_id']['typing']['$post']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
@@ -4702,34 +4237,13 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].users['@me'].threads.archived.private.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4783,26 +4297,13 @@ export function useGetChannelsChannelIdWebhooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>
-        | (() => InferResponseType<(typeof client.channels)[':channel_id']['webhooks']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetChannelsChannelIdWebhooksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels[':channel_id'].webhooks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetChannelsChannelIdWebhooksQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -4887,27 +4388,11 @@ export function useGetGateway(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.gateway.$get>
-      | (() => InferResponseType<typeof client.gateway.$get>)
-    initialData?:
-      | InferResponseType<typeof client.gateway.$get>
-      | (() => InferResponseType<typeof client.gateway.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGatewayQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.gateway.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGatewayQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -4948,27 +4433,11 @@ export function useGetGatewayBot(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.gateway.bot.$get>
-      | (() => InferResponseType<typeof client.gateway.bot.$get>)
-    initialData?:
-      | InferResponseType<typeof client.gateway.bot.$get>
-      | (() => InferResponseType<typeof client.gateway.bot.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGatewayBotQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.gateway.bot.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGatewayBotQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -5011,26 +4480,13 @@ export function useGetGuildsTemplatesCode(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds.templates)[':code']['$get']>
-        | (() => InferResponseType<(typeof client.guilds.templates)[':code']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds.templates)[':code']['$get']>
-        | (() => InferResponseType<(typeof client.guilds.templates)[':code']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsTemplatesCodeQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds.templates[':code'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsTemplatesCodeQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -5080,28 +4536,12 @@ export function useGetGuildsGuildId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGuildsGuildIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGuildsGuildIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -5181,26 +4621,13 @@ export function useGetGuildsGuildIdAuditLogs(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdAuditLogsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['audit-logs'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdAuditLogsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -5250,30 +4677,13 @@ export function useGetGuildsGuildIdAutoModerationRules(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdAutoModerationRulesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdAutoModerationRulesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -5377,34 +4787,13 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdAutoModerationRulesRuleIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -5468,6 +4857,7 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -5571,28 +4961,12 @@ export function useGetGuildsGuildIdBans(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGuildsGuildIdBansQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].bans.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGuildsGuildIdBansQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -5640,26 +5014,13 @@ export function useGetGuildsGuildIdBansUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdBansUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].bans[':user_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdBansUserIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -5711,6 +5072,7 @@ export function usePutGuildsGuildIdBansUserId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
@@ -5754,6 +5116,7 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -5830,26 +5193,13 @@ export function useGetGuildsGuildIdChannels(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdChannelsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].channels.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdChannelsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -5936,6 +5286,7 @@ export function usePatchGuildsGuildIdChannels(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
@@ -5973,26 +5324,13 @@ export function useGetGuildsGuildIdEmojis(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['emojis']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdEmojisQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].emojis.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdEmojisQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -6077,30 +5415,13 @@ export function useGetGuildsGuildIdEmojisEmojiId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdEmojisEmojiIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdEmojisEmojiIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -6156,6 +5477,7 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6242,26 +5564,13 @@ export function useGetGuildsGuildIdIntegrations(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['integrations']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdIntegrationsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].integrations.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdIntegrationsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -6321,6 +5630,7 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6367,26 +5677,13 @@ export function useGetGuildsGuildIdInvites(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['invites']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdInvitesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].invites.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdInvitesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -6436,26 +5733,13 @@ export function useGetGuildsGuildIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['members']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdMembersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].members.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdMembersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -6542,30 +5826,13 @@ export function useGetGuildsGuildIdMembersSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['members']['search']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['members']['search']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdMembersSearchQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].members.search.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdMembersSearchQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -6615,30 +5882,13 @@ export function useGetGuildsGuildIdMembersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['members'][':user_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['members'][':user_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdMembersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].members[':user_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdMembersUserIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -6694,6 +5944,7 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6741,6 +5992,7 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6788,6 +6040,7 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6839,6 +6092,7 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6895,6 +6149,7 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -6944,30 +6199,13 @@ export function useGetGuildsGuildIdNewMemberWelcome(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['new-member-welcome']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['new-member-welcome']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdNewMemberWelcomeQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['new-member-welcome'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdNewMemberWelcomeQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -7017,26 +6255,13 @@ export function useGetGuildsGuildIdOnboarding(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdOnboardingQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].onboarding.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdOnboardingQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -7123,26 +6348,13 @@ export function useGetGuildsGuildIdPreview(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['preview']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdPreviewQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].preview.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdPreviewQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -7192,28 +6404,12 @@ export function useGetGuildsGuildIdPrune(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['prune']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGuildsGuildIdPruneQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].prune.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGuildsGuildIdPruneQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -7296,26 +6492,13 @@ export function useGetGuildsGuildIdRegions(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['regions']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdRegionsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].regions.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdRegionsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -7365,28 +6548,12 @@ export function useGetGuildsGuildIdRoles(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['roles']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetGuildsGuildIdRolesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].roles.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetGuildsGuildIdRolesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -7504,30 +6671,13 @@ export function useGetGuildsGuildIdRolesRoleId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdRolesRoleIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].roles[':role_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdRolesRoleIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -7583,6 +6733,7 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -7669,26 +6820,13 @@ export function useGetGuildsGuildIdScheduledEvents(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdScheduledEventsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['scheduled-events'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdScheduledEventsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -7777,34 +6915,13 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -7868,6 +6985,7 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -7976,34 +7094,16 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$get(
-          args,
-          { ...clientOptions, init: { ...clientOptions?.init, signal } },
-        ),
-      ),
+    ...getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryOptions(
+      args,
+      clientOptions,
+    ),
     ...queryOptions,
   })
 }
@@ -8057,30 +7157,13 @@ export function useGetGuildsGuildIdSoundboardSounds(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdSoundboardSoundsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdSoundboardSoundsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -8177,34 +7260,13 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdSoundboardSoundsSoundIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -8268,6 +7330,7 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -8368,26 +7431,13 @@ export function useGetGuildsGuildIdStickers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['stickers']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdStickersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].stickers.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdStickersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -8472,30 +7522,13 @@ export function useGetGuildsGuildIdStickersStickerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdStickersStickerIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdStickersStickerIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -8555,6 +7588,7 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -8653,26 +7687,13 @@ export function useGetGuildsGuildIdTemplates(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['templates']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdTemplatesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].templates.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdTemplatesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -8894,30 +7915,13 @@ export function useGetGuildsGuildIdThreadsActive(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['threads']['active']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['threads']['active']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdThreadsActiveQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].threads.active.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdThreadsActiveQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -8967,26 +7971,13 @@ export function useGetGuildsGuildIdVanityUrl(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdVanityUrlQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['vanity-url'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdVanityUrlQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9036,30 +8027,13 @@ export function useGetGuildsGuildIdVoiceStatesMe(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdVoiceStatesMeQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['voice-states']['@me'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdVoiceStatesMeQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9115,6 +8089,7 @@ export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -9157,30 +8132,13 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>
-        | (() => InferResponseType<
-            (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdVoiceStatesUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdVoiceStatesUserIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9240,6 +8198,7 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
         | InferResponseType<
             (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -9286,26 +8245,13 @@ export function useGetGuildsGuildIdWebhooks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdWebhooksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].webhooks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdWebhooksQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9355,26 +8301,13 @@ export function useGetGuildsGuildIdWelcomeScreen(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdWelcomeScreenQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['welcome-screen'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdWelcomeScreenQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9461,26 +8394,13 @@ export function useGetGuildsGuildIdWidget(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdWidgetQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id'].widget.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdWidgetQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9565,26 +8485,13 @@ export function useGetGuildsGuildIdWidgetJson(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdWidgetJsonQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['widget.json'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdWidgetJsonQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9634,26 +8541,13 @@ export function useGetGuildsGuildIdWidgetPng(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>
-        | (() => InferResponseType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetGuildsGuildIdWidgetPngQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.guilds[':guild_id']['widget.png'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetGuildsGuildIdWidgetPngQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -9713,6 +8607,7 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
         | InferResponseType<
             (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -9762,28 +8657,12 @@ export function useGetInvitesCode(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.invites)[':code']['$get']>
-        | (() => InferResponseType<(typeof client.invites)[':code']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.invites)[':code']['$get']>
-        | (() => InferResponseType<(typeof client.invites)[':code']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetInvitesCodeQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.invites[':code'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetInvitesCodeQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -9921,28 +8800,12 @@ export function useGetLobbiesLobbyId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>
-        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>
-        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetLobbiesLobbyIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.lobbies[':lobby_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetLobbiesLobbyIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -10073,6 +8936,7 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -10254,6 +9118,7 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -10352,26 +9217,13 @@ export function useGetLobbiesLobbyIdMessages(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>
-        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>
-        | (() => InferResponseType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetLobbiesLobbyIdMessagesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.lobbies[':lobby_id'].messages.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetLobbiesLobbyIdMessagesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -10456,27 +9308,11 @@ export function useGetOauth2Me(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.oauth2)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.oauth2)['@me']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.oauth2)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.oauth2)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetOauth2MeQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.oauth2['@me'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetOauth2MeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -10517,27 +9353,11 @@ export function useGetOauth2ApplicationsMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.oauth2.applications)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetOauth2ApplicationsMeQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.oauth2.applications['@me'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetOauth2ApplicationsMeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -10578,27 +9398,11 @@ export function useGetOauth2Keys(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.oauth2.keys.$get>
-      | (() => InferResponseType<typeof client.oauth2.keys.$get>)
-    initialData?:
-      | InferResponseType<typeof client.oauth2.keys.$get>
-      | (() => InferResponseType<typeof client.oauth2.keys.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetOauth2KeysQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.oauth2.keys.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetOauth2KeysQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -10639,27 +9443,11 @@ export function useGetOauth2Userinfo(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.oauth2.userinfo.$get>
-      | (() => InferResponseType<typeof client.oauth2.userinfo.$get>)
-    initialData?:
-      | InferResponseType<typeof client.oauth2.userinfo.$get>
-      | (() => InferResponseType<typeof client.oauth2.userinfo.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetOauth2UserinfoQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.oauth2.userinfo.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetOauth2UserinfoQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -10712,6 +9500,7 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
         | InferResponseType<
             (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -10768,6 +9557,7 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
         | InferResponseType<
             (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -10881,27 +9671,11 @@ export function useGetSoundboardDefaultSounds(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>
-      | (() => InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>
-      | (() => InferResponseType<(typeof client)['soundboard-default-sounds']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetSoundboardDefaultSoundsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['soundboard-default-sounds'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetSoundboardDefaultSoundsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -10976,26 +9750,13 @@ export function useGetStageInstancesChannelId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>
-        | (() => InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>
-        | (() => InferResponseType<(typeof client)['stage-instances'][':channel_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetStageInstancesChannelIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['stage-instances'][':channel_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetStageInstancesChannelIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -11047,6 +9808,7 @@ export function useDeleteStageInstancesChannelId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client)['stage-instances'][':channel_id']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
@@ -11119,27 +9881,11 @@ export function useGetStickerPacks(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['sticker-packs']['$get']>
-      | (() => InferResponseType<(typeof client)['sticker-packs']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['sticker-packs']['$get']>
-      | (() => InferResponseType<(typeof client)['sticker-packs']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetStickerPacksQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['sticker-packs'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetStickerPacksQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -11182,28 +9928,12 @@ export function useGetStickerPacksPackId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>
-        | (() => InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>
-        | (() => InferResponseType<(typeof client)['sticker-packs'][':pack_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetStickerPacksPackIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['sticker-packs'][':pack_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetStickerPacksPackIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -11251,28 +9981,12 @@ export function useGetStickersStickerId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>
-        | (() => InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>
-        | (() => InferResponseType<(typeof client.stickers)[':sticker_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetStickersStickerIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.stickers[':sticker_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetStickersStickerIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -11318,27 +10032,11 @@ export function useGetUsersMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.users)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.users)['@me']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.users)['@me']['$get']>
-      | (() => InferResponseType<(typeof client.users)['@me']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetUsersMeQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users['@me'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetUsersMeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -11415,34 +10113,13 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users['@me'].applications[':application_id'].entitlements.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersMeApplicationsApplicationIdEntitlementsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -11498,34 +10175,13 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users['@me'].applications[':application_id']['role-connection'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersMeApplicationsApplicationIdRoleConnectionQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -11646,6 +10302,7 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
         | InferResponseType<
             (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -11727,27 +10384,11 @@ export function useGetUsersMeConnections(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.users)['@me']['connections']['$get']>
-      | (() => InferResponseType<(typeof client.users)['@me']['connections']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.users)['@me']['connections']['$get']>
-      | (() => InferResponseType<(typeof client.users)['@me']['connections']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetUsersMeConnectionsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users['@me'].connections.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetUsersMeConnectionsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -11790,28 +10431,12 @@ export function useGetUsersMeGuilds(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)['@me']['guilds']['$get']>
-        | (() => InferResponseType<(typeof client.users)['@me']['guilds']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)['@me']['guilds']['$get']>
-        | (() => InferResponseType<(typeof client.users)['@me']['guilds']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetUsersMeGuildsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users['@me'].guilds.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetUsersMeGuildsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -11861,6 +10486,7 @@ export function useDeleteUsersMeGuildsGuildId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
@@ -11898,30 +10524,13 @@ export function useGetUsersMeGuildsGuildIdMember(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
-        | (() => InferResponseType<
-            (typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
-        | (() => InferResponseType<
-            (typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetUsersMeGuildsGuildIdMemberQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users['@me'].guilds[':guild_id'].member.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersMeGuildsGuildIdMemberQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -11971,28 +10580,12 @@ export function useGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':user_id']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':user_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':user_id']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':user_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':user_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -12038,27 +10631,11 @@ export function useGetVoiceRegions(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.voice.regions.$get>
-      | (() => InferResponseType<typeof client.voice.regions.$get>)
-    initialData?:
-      | InferResponseType<typeof client.voice.regions.$get>
-      | (() => InferResponseType<typeof client.voice.regions.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetVoiceRegionsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.voice.regions.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetVoiceRegionsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -12101,28 +10678,12 @@ export function useGetWebhooksWebhookId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>
-        | (() => InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>
-        | (() => InferResponseType<(typeof client.webhooks)[':webhook_id']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetWebhooksWebhookIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.webhooks[':webhook_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetWebhooksWebhookIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -12168,7 +10729,10 @@ export function useDeleteWebhooksWebhookId(options?: {
       variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhook_id']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
     ) => void
@@ -12239,30 +10803,13 @@ export function useGetWebhooksWebhookIdWebhookToken(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
-        | (() => InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']
-          >)
-      initialData?:
-        | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
-        | (() => InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetWebhooksWebhookIdWebhookTokenQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetWebhooksWebhookIdWebhookTokenQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -12318,6 +10865,7 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -12365,6 +10913,7 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -12463,6 +11012,7 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
         | InferResponseType<
             (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -12511,34 +11061,13 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -12602,6 +11131,7 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
         | InferResponseType<
             (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -12710,34 +11240,13 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-          >)
-      initialData?:
-        | InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-          >
-        | (() => InferResponseType<
-            (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
-          >)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -12801,6 +11310,7 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
         | InferResponseType<
             (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
           >
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<

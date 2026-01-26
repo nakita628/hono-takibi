@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -17,27 +17,11 @@ export function createGetExtremeResponses(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client)['extreme-responses']['$get']>
-      | (() => InferResponseType<(typeof client)['extreme-responses']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client)['extreme-responses']['$get']>
-      | (() => InferResponseType<(typeof client)['extreme-responses']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetExtremeResponsesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['extreme-responses'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetExtremeResponsesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/schema-reference'
 
@@ -19,27 +19,11 @@ export function createGetExample(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.example.$get>
-      | (() => InferResponseType<typeof client.example.$get>)
-    initialData?:
-      | InferResponseType<typeof client.example.$get>
-      | (() => InferResponseType<typeof client.example.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetExampleQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.example.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetExampleQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

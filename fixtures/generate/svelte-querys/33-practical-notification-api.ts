@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
@@ -21,28 +21,12 @@ export function createGetNotifications(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.notifications.$get>
-        | (() => InferResponseType<typeof client.notifications.$get>)
-      initialData?:
-        | InferResponseType<typeof client.notifications.$get>
-        | (() => InferResponseType<typeof client.notifications.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetNotificationsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.notifications.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetNotificationsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -92,26 +76,13 @@ export function createGetNotificationsNotificationId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.notifications)[':notificationId']['$get']>
-        | (() => InferResponseType<(typeof client.notifications)[':notificationId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.notifications)[':notificationId']['$get']>
-        | (() => InferResponseType<(typeof client.notifications)[':notificationId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetNotificationsNotificationIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.notifications[':notificationId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetNotificationsNotificationIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -165,6 +136,7 @@ export function createDeleteNotificationsNotificationId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.notifications)[':notificationId']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
@@ -280,25 +252,12 @@ export function createGetNotificationsUnreadCount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.notifications)['unread-count']['$get']>
-      | (() => InferResponseType<(typeof client.notifications)['unread-count']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.notifications)['unread-count']['$get']>
-      | (() => InferResponseType<(typeof client.notifications)['unread-count']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetNotificationsUnreadCountQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.notifications['unread-count'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetNotificationsUnreadCountQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
@@ -414,26 +373,13 @@ export function createGetMessagesMessageId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.messages)[':messageId']['$get']>
-        | (() => InferResponseType<(typeof client.messages)[':messageId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.messages)[':messageId']['$get']>
-        | (() => InferResponseType<(typeof client.messages)[':messageId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetMessagesMessageIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.messages[':messageId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetMessagesMessageIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -485,25 +431,12 @@ export function createGetTemplates(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.templates.$get>
-        | (() => InferResponseType<typeof client.templates.$get>)
-      initialData?:
-        | InferResponseType<typeof client.templates.$get>
-        | (() => InferResponseType<typeof client.templates.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTemplatesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.templates.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTemplatesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -579,26 +512,13 @@ export function createGetTemplatesTemplateId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.templates)[':templateId']['$get']>
-        | (() => InferResponseType<(typeof client.templates)[':templateId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.templates)[':templateId']['$get']>
-        | (() => InferResponseType<(typeof client.templates)[':templateId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetTemplatesTemplateIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.templates[':templateId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetTemplatesTemplateIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -684,7 +604,10 @@ export function createDeleteTemplatesTemplateId(options?: {
       variables: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.templates)[':templateId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.templates)[':templateId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.templates)[':templateId']['$delete']>,
     ) => void
@@ -760,27 +683,11 @@ export function createGetChannelsPreferences(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.channels.preferences.$get>
-      | (() => InferResponseType<typeof client.channels.preferences.$get>)
-    initialData?:
-      | InferResponseType<typeof client.channels.preferences.$get>
-      | (() => InferResponseType<typeof client.channels.preferences.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetChannelsPreferencesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels.preferences.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetChannelsPreferencesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -857,27 +764,11 @@ export function createGetChannelsDevices(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.channels.devices.$get>
-      | (() => InferResponseType<typeof client.channels.devices.$get>)
-    initialData?:
-      | InferResponseType<typeof client.channels.devices.$get>
-      | (() => InferResponseType<typeof client.channels.devices.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetChannelsDevicesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.channels.devices.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetChannelsDevicesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -954,7 +845,10 @@ export function createDeleteChannelsDevicesDeviceId(options?: {
       variables: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.channels.devices)[':deviceId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
     ) => void
@@ -991,27 +885,11 @@ export function createGetWebhooks(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.webhooks.$get>
-      | (() => InferResponseType<typeof client.webhooks.$get>)
-    initialData?:
-      | InferResponseType<typeof client.webhooks.$get>
-      | (() => InferResponseType<typeof client.webhooks.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetWebhooksQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.webhooks.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetWebhooksQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1087,26 +965,13 @@ export function createGetWebhooksWebhookId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>
-        | (() => InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>
-        | (() => InferResponseType<(typeof client.webhooks)[':webhookId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetWebhooksWebhookIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.webhooks[':webhookId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetWebhooksWebhookIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1190,7 +1055,10 @@ export function createDeleteWebhooksWebhookId(options?: {
       variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.webhooks)[':webhookId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>,
     ) => void

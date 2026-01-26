@@ -1,5 +1,5 @@
 import { createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -23,25 +23,12 @@ export function createGetFizzbuzz(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.fizzbuzz.$get>
-        | (() => InferResponseType<typeof client.fizzbuzz.$get>)
-      initialData?:
-        | InferResponseType<typeof client.fizzbuzz.$get>
-        | (() => InferResponseType<typeof client.fizzbuzz.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetFizzbuzzQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetFizzbuzzQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**

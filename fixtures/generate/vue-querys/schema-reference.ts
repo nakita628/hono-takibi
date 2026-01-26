@@ -1,5 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferResponseType } from 'hono/client'
+import { useQuery, queryOptions } from '@tanstack/vue-query'
+import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/schema-reference'
 
@@ -19,27 +19,11 @@ export function useGetExample(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.example.$get>
-      | (() => InferResponseType<typeof client.example.$get>)
-    initialData?:
-      | InferResponseType<typeof client.example.$get>
-      | (() => InferResponseType<typeof client.example.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetExampleQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.example.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetExampleQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

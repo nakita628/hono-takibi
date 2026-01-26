@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -19,27 +19,11 @@ export function useGetSettingsAccount(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.settings.account.$get>
-      | (() => InferResponseType<typeof client.settings.account.$get>)
-    initialData?:
-      | InferResponseType<typeof client.settings.account.$get>
-      | (() => InferResponseType<typeof client.settings.account.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetSettingsAccountQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings.account.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetSettingsAccountQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -118,26 +102,13 @@ export function useGetSettingsUsernameCheck(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.settings.username.check.$get>
-        | (() => InferResponseType<typeof client.settings.username.check.$get>)
-      initialData?:
-        | InferResponseType<typeof client.settings.username.check.$get>
-        | (() => InferResponseType<typeof client.settings.username.check.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetSettingsUsernameCheckQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings.username.check.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetSettingsUsernameCheckQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -187,27 +158,11 @@ export function useGetSettingsPrivacy(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.settings.privacy.$get>
-      | (() => InferResponseType<typeof client.settings.privacy.$get>)
-    initialData?:
-      | InferResponseType<typeof client.settings.privacy.$get>
-      | (() => InferResponseType<typeof client.settings.privacy.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetSettingsPrivacyQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings.privacy.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetSettingsPrivacyQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -284,25 +239,12 @@ export function useGetSettingsContentPreferences(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.settings)['content-preferences']['$get']>
-      | (() => InferResponseType<(typeof client.settings)['content-preferences']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.settings)['content-preferences']['$get']>
-      | (() => InferResponseType<(typeof client.settings)['content-preferences']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetSettingsContentPreferencesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings['content-preferences'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetSettingsContentPreferencesQueryOptions(clientOptions),
     ...queryOptions,
   })
 }
@@ -386,27 +328,11 @@ export function useGetSettingsMutedWords(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.settings)['muted-words']['$get']>
-      | (() => InferResponseType<(typeof client.settings)['muted-words']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.settings)['muted-words']['$get']>
-      | (() => InferResponseType<(typeof client.settings)['muted-words']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetSettingsMutedWordsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings['muted-words'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetSettingsMutedWordsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -489,6 +415,7 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.settings)['muted-words'][':wordId']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
@@ -526,27 +453,11 @@ export function useGetSettingsSessions(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.settings.sessions.$get>
-      | (() => InferResponseType<typeof client.settings.sessions.$get>)
-    initialData?:
-      | InferResponseType<typeof client.settings.sessions.$get>
-      | (() => InferResponseType<typeof client.settings.sessions.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetSettingsSessionsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings.sessions.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetSettingsSessionsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -593,6 +504,7 @@ export function useDeleteSettingsSessionsSessionId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.settings.sessions)[':sessionId']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
@@ -630,27 +542,11 @@ export function useGetSettingsConnectedApps(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.settings)['connected-apps']['$get']>
-      | (() => InferResponseType<(typeof client.settings)['connected-apps']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.settings)['connected-apps']['$get']>
-      | (() => InferResponseType<(typeof client.settings)['connected-apps']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetSettingsConnectedAppsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings['connected-apps'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetSettingsConnectedAppsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -697,6 +593,7 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.settings)['connected-apps'][':appId']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
@@ -767,26 +664,13 @@ export function useGetSettingsDataExportRequestId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>
-        | (() => InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>
-        | (() => InferResponseType<(typeof client.settings)['data-export'][':requestId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetSettingsDataExportRequestIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.settings['data-export'][':requestId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetSettingsDataExportRequestIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -903,28 +787,12 @@ export function useGetReportsReportId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.reports)[':reportId']['$get']>
-        | (() => InferResponseType<(typeof client.reports)[':reportId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.reports)[':reportId']['$get']>
-        | (() => InferResponseType<(typeof client.reports)[':reportId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetReportsReportIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.reports[':reportId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetReportsReportIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -976,28 +844,12 @@ export function useGetModerationQueue(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.moderation.queue.$get>
-        | (() => InferResponseType<typeof client.moderation.queue.$get>)
-      initialData?:
-        | InferResponseType<typeof client.moderation.queue.$get>
-        | (() => InferResponseType<typeof client.moderation.queue.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetModerationQueueQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.moderation.queue.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetModerationQueueQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1047,26 +899,13 @@ export function useGetModerationItemsItemId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>
-        | (() => InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>
-        | (() => InferResponseType<(typeof client.moderation.items)[':itemId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetModerationItemsItemIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.moderation.items[':itemId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetModerationItemsItemIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1157,26 +996,13 @@ export function useGetModerationUsersUserIdHistory(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>
-        | (() => InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>
-        | (() => InferResponseType<(typeof client.moderation.users)[':userId']['history']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetModerationUsersUserIdHistoryQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.moderation.users[':userId'].history.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetModerationUsersUserIdHistoryQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1314,26 +1140,13 @@ export function useGetAnalyticsPostsPostId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>
-        | (() => InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>
-        | (() => InferResponseType<(typeof client.analytics.posts)[':postId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
-    queryKey: getGetAnalyticsPostsPostIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.analytics.posts[':postId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetAnalyticsPostsPostIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1385,28 +1198,12 @@ export function useGetAnalyticsAccount(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.analytics.account.$get>
-        | (() => InferResponseType<typeof client.analytics.account.$get>)
-      initialData?:
-        | InferResponseType<typeof client.analytics.account.$get>
-        | (() => InferResponseType<typeof client.analytics.account.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetAnalyticsAccountQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.analytics.account.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetAnalyticsAccountQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1456,28 +1253,12 @@ export function useGetAnalyticsFollowers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.analytics.followers.$get>
-        | (() => InferResponseType<typeof client.analytics.followers.$get>)
-      initialData?:
-        | InferResponseType<typeof client.analytics.followers.$get>
-        | (() => InferResponseType<typeof client.analytics.followers.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetAnalyticsFollowersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.analytics.followers.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetAnalyticsFollowersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1527,28 +1308,12 @@ export function useGetAnalyticsTopPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.analytics)['top-posts']['$get']>
-        | (() => InferResponseType<(typeof client.analytics)['top-posts']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.analytics)['top-posts']['$get']>
-        | (() => InferResponseType<(typeof client.analytics)['top-posts']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetAnalyticsTopPostsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.analytics['top-posts'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetAnalyticsTopPostsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**

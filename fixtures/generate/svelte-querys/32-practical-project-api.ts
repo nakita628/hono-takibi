@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -21,25 +21,12 @@ export function createGetProjects(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.projects.$get>
-        | (() => InferResponseType<typeof client.projects.$get>)
-      initialData?:
-        | InferResponseType<typeof client.projects.$get>
-        | (() => InferResponseType<typeof client.projects.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetProjectsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetProjectsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -115,26 +102,13 @@ export function createGetProjectsProjectId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetProjectsProjectIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetProjectsProjectIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -218,7 +192,10 @@ export function createDeleteProjectsProjectId(options?: {
       variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.projects)[':projectId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.projects)[':projectId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
     ) => void
@@ -256,26 +233,13 @@ export function createGetProjectsProjectIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['members']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetProjectsProjectIdMembersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].members.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetProjectsProjectIdMembersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -366,26 +330,13 @@ export function createGetProjectsProjectIdTasks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['tasks']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetProjectsProjectIdTasksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].tasks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetProjectsProjectIdTasksQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -474,28 +425,12 @@ export function createGetTasksTaskId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.tasks)[':taskId']['$get']>
-        | (() => InferResponseType<(typeof client.tasks)[':taskId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.tasks)[':taskId']['$get']>
-        | (() => InferResponseType<(typeof client.tasks)[':taskId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTasksTaskIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.tasks[':taskId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTasksTaskIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -577,7 +512,7 @@ export function createDeleteTasksTaskId(options?: {
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined,
+      data: InferResponseType<(typeof client.tasks)[':taskId']['$delete']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
     ) => void
@@ -650,26 +585,13 @@ export function createGetTasksTaskIdComments(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>
-        | (() => InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>
-        | (() => InferResponseType<(typeof client.tasks)[':taskId']['comments']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetTasksTaskIdCommentsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.tasks[':taskId'].comments.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetTasksTaskIdCommentsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -758,26 +680,13 @@ export function createGetTasksTaskIdTimeEntries(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>
-        | (() => InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>
-        | (() => InferResponseType<(typeof client.tasks)[':taskId']['time-entries']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.tasks[':taskId']['time-entries'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetTasksTaskIdTimeEntriesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -868,26 +777,13 @@ export function createGetProjectsProjectIdMilestones(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>
-        | (() => InferResponseType<(typeof client.projects)[':projectId']['milestones']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].milestones.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetProjectsProjectIdMilestonesQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -976,27 +872,11 @@ export function createGetTeams(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.teams.$get>
-      | (() => InferResponseType<typeof client.teams.$get>)
-    initialData?:
-      | InferResponseType<typeof client.teams.$get>
-      | (() => InferResponseType<typeof client.teams.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetTeamsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.teams.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetTeamsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

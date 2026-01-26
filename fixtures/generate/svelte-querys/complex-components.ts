@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
@@ -52,25 +52,12 @@ export function createGetUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.users.$get>
-        | (() => InferResponseType<typeof client.users.$get>)
-      initialData?:
-        | InferResponseType<typeof client.users.$get>
-        | (() => InferResponseType<typeof client.users.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -146,28 +133,12 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -251,26 +222,13 @@ export function createGetCompaniesCompanyId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.companies)[':companyId']['$get']>
-        | (() => InferResponseType<(typeof client.companies)[':companyId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.companies)[':companyId']['$get']>
-        | (() => InferResponseType<(typeof client.companies)[':companyId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetCompaniesCompanyIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.companies[':companyId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetCompaniesCompanyIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -322,25 +280,12 @@ export function createGetOrders(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.orders.$get>
-        | (() => InferResponseType<typeof client.orders.$get>)
-      initialData?:
-        | InferResponseType<typeof client.orders.$get>
-        | (() => InferResponseType<typeof client.orders.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetOrdersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetOrdersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -416,28 +361,12 @@ export function createGetOrdersOrderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.orders)[':orderId']['$get']>
-        | (() => InferResponseType<(typeof client.orders)[':orderId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.orders)[':orderId']['$get']>
-        | (() => InferResponseType<(typeof client.orders)[':orderId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetOrdersOrderIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.orders[':orderId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetOrdersOrderIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -487,28 +416,12 @@ export function createGetFilesFileId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.files)[':fileId']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.files)[':fileId']['$get']>
-        | (() => InferResponseType<(typeof client.files)[':fileId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetFilesFileIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetFilesFileIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/43-sns-users-relationships'
 
@@ -21,28 +21,12 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -92,26 +76,13 @@ export function createGetUsersByUsernameUsername(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users.by.username)[':username']['$get']>
-        | (() => InferResponseType<(typeof client.users.by.username)[':username']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users.by.username)[':username']['$get']>
-        | (() => InferResponseType<(typeof client.users.by.username)[':username']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetUsersByUsernameUsernameQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users.by.username[':username'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersByUsernameUsernameQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -163,28 +134,12 @@ export function createGetUsersSearch(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.users.search.$get>
-        | (() => InferResponseType<typeof client.users.search.$get>)
-      initialData?:
-        | InferResponseType<typeof client.users.search.$get>
-        | (() => InferResponseType<typeof client.users.search.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersSearchQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users.search.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersSearchQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -232,28 +187,12 @@ export function createGetUsersLookup(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.users.lookup.$get>
-        | (() => InferResponseType<typeof client.users.lookup.$get>)
-      initialData?:
-        | InferResponseType<typeof client.users.lookup.$get>
-        | (() => InferResponseType<typeof client.users.lookup.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersLookupQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users.lookup.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersLookupQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -299,24 +238,11 @@ export function createGetMe(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.me.$get>
-      | (() => InferResponseType<typeof client.me.$get>)
-    initialData?:
-      | InferResponseType<typeof client.me.$get>
-      | (() => InferResponseType<typeof client.me.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMeQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMeQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -415,7 +341,7 @@ export function createDeleteMeAvatar(options?: {
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.avatar.$delete> | undefined,
+      data: InferResponseType<typeof client.me.avatar.$delete> | undefined | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -476,7 +402,7 @@ export function createDeleteMeBanner(options?: {
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.me.banner.$delete> | undefined,
+      data: InferResponseType<typeof client.me.banner.$delete> | undefined | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -585,26 +511,13 @@ export function createGetUsersUserIdFollowers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':userId']['followers']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['followers']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':userId']['followers']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['followers']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetUsersUserIdFollowersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].followers.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersUserIdFollowersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -656,26 +569,13 @@ export function createGetUsersUserIdFollowing(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':userId']['following']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['following']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':userId']['following']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['following']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetUsersUserIdFollowingQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].following.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersUserIdFollowingQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -768,28 +668,12 @@ export function createGetRelationships(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.relationships.$get>
-        | (() => InferResponseType<typeof client.relationships.$get>)
-      initialData?:
-        | InferResponseType<typeof client.relationships.$get>
-        | (() => InferResponseType<typeof client.relationships.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetRelationshipsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.relationships.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetRelationshipsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -841,28 +725,12 @@ export function createGetFollowRequests(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client)['follow-requests']['$get']>
-        | (() => InferResponseType<(typeof client)['follow-requests']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client)['follow-requests']['$get']>
-        | (() => InferResponseType<(typeof client)['follow-requests']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetFollowRequestsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client['follow-requests'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetFollowRequestsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1137,25 +1005,12 @@ export function createGetBlocks(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.blocks.$get>
-        | (() => InferResponseType<typeof client.blocks.$get>)
-      initialData?:
-        | InferResponseType<typeof client.blocks.$get>
-        | (() => InferResponseType<typeof client.blocks.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetBlocksQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.blocks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetBlocksQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1200,25 +1055,12 @@ export function createGetMutes(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.mutes.$get>
-        | (() => InferResponseType<typeof client.mutes.$get>)
-      initialData?:
-        | InferResponseType<typeof client.mutes.$get>
-        | (() => InferResponseType<typeof client.mutes.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetMutesQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.mutes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetMutesQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1261,27 +1103,11 @@ export function createGetLists(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.lists.$get>
-      | (() => InferResponseType<typeof client.lists.$get>)
-    initialData?:
-      | InferResponseType<typeof client.lists.$get>
-      | (() => InferResponseType<typeof client.lists.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetListsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.lists.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetListsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -1357,28 +1183,12 @@ export function createGetListsListId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.lists)[':listId']['$get']>
-        | (() => InferResponseType<(typeof client.lists)[':listId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.lists)[':listId']['$get']>
-        | (() => InferResponseType<(typeof client.lists)[':listId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetListsListIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.lists[':listId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetListsListIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -1460,7 +1270,7 @@ export function createDeleteListsListId(options?: {
       variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined,
+      data: InferResponseType<(typeof client.lists)[':listId']['$delete']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.lists)[':listId']['$delete']>,
     ) => void
@@ -1496,26 +1306,13 @@ export function createGetListsListIdMembers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.lists)[':listId']['members']['$get']>
-        | (() => InferResponseType<(typeof client.lists)[':listId']['members']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.lists)[':listId']['members']['$get']>
-        | (() => InferResponseType<(typeof client.lists)[':listId']['members']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetListsListIdMembersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.lists[':listId'].members.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetListsListIdMembersQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1610,6 +1407,7 @@ export function createDeleteListsListIdMembersUserId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.lists)[':listId']['members'][':userId']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -1653,26 +1451,13 @@ export function createGetListsListIdTimeline(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>
-        | (() => InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>
-        | (() => InferResponseType<(typeof client.lists)[':listId']['timeline']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetListsListIdTimelineQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.lists[':listId'].timeline.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetListsListIdTimelineQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -1724,26 +1509,13 @@ export function createGetUsersUserIdLists(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':userId']['lists']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['lists']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':userId']['lists']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['lists']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetUsersUserIdListsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].lists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetUsersUserIdListsQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }

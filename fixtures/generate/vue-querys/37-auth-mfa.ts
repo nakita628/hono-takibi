@@ -1,5 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { useQuery, useMutation, queryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -19,27 +19,11 @@ export function useGetMfaStatus(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.mfa.status.$get>
-      | (() => InferResponseType<typeof client.mfa.status.$get>)
-    initialData?:
-      | InferResponseType<typeof client.mfa.status.$get>
-      | (() => InferResponseType<typeof client.mfa.status.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetMfaStatusQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.mfa.status.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetMfaStatusQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -82,27 +66,11 @@ export function useGetMfaMethods(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.mfa.methods.$get>
-      | (() => InferResponseType<typeof client.mfa.methods.$get>)
-    initialData?:
-      | InferResponseType<typeof client.mfa.methods.$get>
-      | (() => InferResponseType<typeof client.mfa.methods.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetMfaMethodsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.mfa.methods.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetMfaMethodsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -245,7 +213,7 @@ export function useDeleteMfaTotp(options?: {
     ) => void
     onError?: (error: Error, variables: InferRequestType<typeof client.mfa.totp.$delete>) => void
     onSettled?: (
-      data: InferResponseType<typeof client.mfa.totp.$delete> | undefined,
+      data: InferResponseType<typeof client.mfa.totp.$delete> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<typeof client.mfa.totp.$delete>,
     ) => void
@@ -346,7 +314,10 @@ export function useDeleteMfaSmsMethodId(options?: {
       variables: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.mfa.sms)[':methodId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.mfa.sms)[':methodId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>,
     ) => void
@@ -524,27 +495,11 @@ export function useGetMfaWebauthnCredentials(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.mfa.webauthn.credentials.$get>
-      | (() => InferResponseType<typeof client.mfa.webauthn.credentials.$get>)
-    initialData?:
-      | InferResponseType<typeof client.mfa.webauthn.credentials.$get>
-      | (() => InferResponseType<typeof client.mfa.webauthn.credentials.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetMfaWebauthnCredentialsQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.mfa.webauthn.credentials.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetMfaWebauthnCredentialsQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -595,6 +550,7 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
     onSettled?: (
       data:
         | InferResponseType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+        | undefined
         | undefined,
       error: Error | null,
       variables: InferRequestType<
@@ -724,27 +680,11 @@ export function useGetMfaBackupCodesStatus(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>
-      | (() => InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>)
-    initialData?:
-      | InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>
-      | (() => InferResponseType<(typeof client.mfa)['backup-codes']['status']['$get']>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    queryKey: getGetMfaBackupCodesStatusQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.mfa['backup-codes'].status.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return useQuery({ ...getGetMfaBackupCodesStatusQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -21,25 +21,12 @@ export function createGetProducts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.products.$get>
-        | (() => InferResponseType<typeof client.products.$get>)
-      initialData?:
-        | InferResponseType<typeof client.products.$get>
-        | (() => InferResponseType<typeof client.products.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetProductsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetProductsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -115,26 +102,13 @@ export function createGetProductsProductId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.products)[':productId']['$get']>
-        | (() => InferResponseType<(typeof client.products)[':productId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.products)[':productId']['$get']>
-        | (() => InferResponseType<(typeof client.products)[':productId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetProductsProductIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.products[':productId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetProductsProductIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }
@@ -218,7 +192,10 @@ export function createDeleteProductsProductId(options?: {
       variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.products)[':productId']['$delete']> | undefined,
+      data:
+        | InferResponseType<(typeof client.products)[':productId']['$delete']>
+        | undefined
+        | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
     ) => void
@@ -293,27 +270,11 @@ export function createGetCategories(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.categories.$get>
-      | (() => InferResponseType<typeof client.categories.$get>)
-    initialData?:
-      | InferResponseType<typeof client.categories.$get>
-      | (() => InferResponseType<typeof client.categories.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetCategoriesQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.categories.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -387,24 +348,11 @@ export function createGetCart(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.cart.$get>
-      | (() => InferResponseType<typeof client.cart.$get>)
-    initialData?:
-      | InferResponseType<typeof client.cart.$get>
-      | (() => InferResponseType<typeof client.cart.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetCartQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.cart.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetCartQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -441,7 +389,7 @@ export function createDeleteCart(options?: {
     ) => void
     onError?: (error: Error, variables: undefined) => void
     onSettled?: (
-      data: InferResponseType<typeof client.cart.$delete> | undefined,
+      data: InferResponseType<typeof client.cart.$delete> | undefined | undefined,
       error: Error | null,
       variables: undefined,
     ) => void
@@ -577,25 +525,12 @@ export function createGetOrders(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.orders.$get>
-        | (() => InferResponseType<typeof client.orders.$get>)
-      initialData?:
-        | InferResponseType<typeof client.orders.$get>
-        | (() => InferResponseType<typeof client.orders.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetOrdersQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetOrdersQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -673,28 +608,12 @@ export function createGetOrdersOrderId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.orders)[':orderId']['$get']>
-        | (() => InferResponseType<(typeof client.orders)[':orderId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.orders)[':orderId']['$get']>
-        | (() => InferResponseType<(typeof client.orders)[':orderId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetOrdersOrderIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.orders[':orderId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetOrdersOrderIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -781,26 +700,13 @@ export function createGetInventoryProductId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.inventory)[':productId']['$get']>
-        | (() => InferResponseType<(typeof client.inventory)[':productId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.inventory)[':productId']['$get']>
-        | (() => InferResponseType<(typeof client.inventory)[':productId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
-    queryKey: getGetInventoryProductIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.inventory[':productId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
+    ...getGetInventoryProductIdQueryOptions(args, clientOptions),
     ...queryOptions,
   })
 }

@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/hono-rest-example'
 
@@ -21,27 +21,11 @@ export function createGet(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.index.$get>
-      | (() => InferResponseType<typeof client.index.$get>)
-    initialData?:
-      | InferResponseType<typeof client.index.$get>
-      | (() => InferResponseType<typeof client.index.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.index.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -88,25 +72,12 @@ export function createGetPosts(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<typeof client.posts.$get>
-        | (() => InferResponseType<typeof client.posts.$get>)
-      initialData?:
-        | InferResponseType<typeof client.posts.$get>
-        | (() => InferResponseType<typeof client.posts.$get>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetPostsQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -184,7 +155,7 @@ export function createPutPostsId(options?: {
       variables: InferRequestType<(typeof client.posts)[':id']['$put']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.posts)[':id']['$put']> | undefined,
+      data: InferResponseType<(typeof client.posts)[':id']['$put']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.posts)[':id']['$put']>,
     ) => void
@@ -220,7 +191,7 @@ export function createDeletePostsId(options?: {
       variables: InferRequestType<(typeof client.posts)[':id']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined,
+      data: InferResponseType<(typeof client.posts)[':id']['$delete']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.posts)[':id']['$delete']>,
     ) => void

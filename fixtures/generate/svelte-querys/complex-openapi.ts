@@ -1,5 +1,5 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import { createQuery, createMutation, queryOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-openapi'
 
@@ -19,27 +19,11 @@ export function createGetUsers(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.users.$get>
-      | (() => InferResponseType<typeof client.users.$get>)
-    initialData?:
-      | InferResponseType<typeof client.users.$get>
-      | (() => InferResponseType<typeof client.users.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
@@ -115,28 +99,12 @@ export function createGetUsersUserId(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
-      placeholderData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
-      initialData?:
-        | InferResponseType<(typeof client.users)[':userId']['$get']>
-        | (() => InferResponseType<(typeof client.users)[':userId']['$get']>)
     }
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetUsersUserIdQueryOptions(args, clientOptions), ...queryOptions })
 }
 
 /**
@@ -218,7 +186,7 @@ export function createDeleteUsersUserId(options?: {
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
     onSettled?: (
-      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined,
+      data: InferResponseType<(typeof client.users)[':userId']['$delete']> | undefined | undefined,
       error: Error | null,
       variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
     ) => void
@@ -252,27 +220,11 @@ export function createGetOrders(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
-    placeholderData?:
-      | InferResponseType<typeof client.orders.$get>
-      | (() => InferResponseType<typeof client.orders.$get>)
-    initialData?:
-      | InferResponseType<typeof client.orders.$get>
-      | (() => InferResponseType<typeof client.orders.$get>)
   }
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery({
-    queryKey: getGetOrdersQueryKey(),
-    queryFn: async ({ signal }) =>
-      parseResponse(
-        client.orders.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-    ...queryOptions,
-  })
+  return createQuery({ ...getGetOrdersQueryOptions(clientOptions), ...queryOptions })
 }
 
 /**
