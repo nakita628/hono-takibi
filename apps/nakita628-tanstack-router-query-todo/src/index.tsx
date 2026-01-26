@@ -1,5 +1,5 @@
 import { renderToString } from 'react-dom/server'
-import  app from '@/api'
+import app from '@/api'
 
 app.get('*', (c) => {
   return c.html(

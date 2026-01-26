@@ -293,9 +293,9 @@ const makeQueryHookCode = (
 
   // Query options type - inline type for all frameworks
   // Explicitly excludes queryKey and queryFn to avoid type conflicts
-  // (Vue Query's MaybeRefDeep causes issues when spreading inside queryOptions())
-  // Generic options (select, placeholderData, initialData) are NOT included
-  // because they conflict with Vue Query's MaybeRefDeep type system
+  // Generic options (select, placeholderData, initialData) are NOT included:
+  // - Vue/Svelte: MaybeRefDeep type conflicts
+  // - React: initialData expects TQueryFnData, not TData (select output type)
   // For these advanced options, use getXxxQueryOptions() directly with useQuery
   // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
   const queryOptionsTypeStr =
