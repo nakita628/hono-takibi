@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/30-practical-ecommerce-api'
 
@@ -36,10 +36,7 @@ export function useGetProducts(
     queryKey: getGetProductsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.products.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -57,15 +54,17 @@ export function getGetProductsQueryKey(args: InferRequestType<typeof client.prod
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProductsQueryOptions(
+export const getGetProductsQueryOptions = (
   args: InferRequestType<typeof client.products.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProductsQueryKey(args),
-    queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /products
@@ -133,7 +132,7 @@ export function useGetProductsProductId(
       parseResponse(
         client.products[':productId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -154,15 +153,20 @@ export function getGetProductsProductIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProductsProductIdQueryOptions(
+export const getGetProductsProductIdQueryOptions = (
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProductsProductIdQueryKey(args),
-    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.products[':productId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /products/{productId}
@@ -305,7 +309,7 @@ export function useGetCategories(options?: {
       parseResponse(
         client.categories.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -324,12 +328,17 @@ export function getGetCategoriesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCategoriesQueryKey(),
-    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.categories.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /categories
@@ -392,10 +401,7 @@ export function useGetCart(options?: {
     queryKey: getGetCartQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.cart.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.cart.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -413,12 +419,14 @@ export function getGetCartQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCartQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCartQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCartQueryKey(),
-    queryFn: async () => parseResponse(client.cart.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.cart.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * DELETE /cart
@@ -584,10 +592,7 @@ export function useGetOrders(
     queryKey: getGetOrdersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.orders.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -605,15 +610,17 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOrdersQueryOptions(
+export const getGetOrdersQueryOptions = (
   args: InferRequestType<typeof client.orders.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOrdersQueryKey(args),
-    queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /orders
@@ -683,7 +690,7 @@ export function useGetOrdersOrderId(
       parseResponse(
         client.orders[':orderId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -704,15 +711,20 @@ export function getGetOrdersOrderIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOrdersOrderIdQueryOptions(
+export const getGetOrdersOrderIdQueryOptions = (
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOrdersOrderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.orders[':orderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /orders/{orderId}/cancel
@@ -786,7 +798,7 @@ export function useGetInventoryProductId(
       parseResponse(
         client.inventory[':productId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -807,15 +819,20 @@ export function getGetInventoryProductIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetInventoryProductIdQueryOptions(
+export const getGetInventoryProductIdQueryOptions = (
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetInventoryProductIdQueryKey(args),
-    queryFn: async () => parseResponse(client.inventory[':productId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.inventory[':productId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /inventory/{productId}

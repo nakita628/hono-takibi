@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -67,10 +67,7 @@ export function createGetSearch(
     queryKey: getGetSearchQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.search.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -88,15 +85,17 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSearchQueryOptions(
+export const getGetSearchQueryOptions = (
   args: InferRequestType<typeof client.search.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSearchQueryKey(args),
-    queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * PUT /multi-step

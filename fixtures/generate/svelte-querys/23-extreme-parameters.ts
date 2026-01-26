@@ -1,5 +1,5 @@
-import { createQuery } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
@@ -46,10 +46,7 @@ export function createGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
       parseResponse(
         client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
           ':p10'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -71,22 +68,21 @@ export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions(
+export const getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions = (
   args: InferRequestType<
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
           ':p10'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * GET /query-styles
@@ -121,7 +117,7 @@ export function createGetQueryStyles(
       parseResponse(
         client['query-styles'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -142,15 +138,20 @@ export function getGetQueryStylesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetQueryStylesQueryOptions(
+export const getGetQueryStylesQueryOptions = (
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetQueryStylesQueryKey(args),
-    queryFn: async () => parseResponse(client['query-styles'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['query-styles'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /path-styles/{simple}/{label}/{matrix}
@@ -189,7 +190,7 @@ export function createGetPathStylesSimpleLabelMatrix(
       parseResponse(
         client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -210,18 +211,20 @@ export function getGetPathStylesSimpleLabelMatrixQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPathStylesSimpleLabelMatrixQueryOptions(
+export const getGetPathStylesSimpleLabelMatrixQueryOptions = (
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['path-styles'][':simple'][':label'][':matrix'].$get(args, clientOptions),
+        client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /header-styles
@@ -256,7 +259,7 @@ export function createGetHeaderStyles(
       parseResponse(
         client['header-styles'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -277,15 +280,20 @@ export function getGetHeaderStylesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHeaderStylesQueryOptions(
+export const getGetHeaderStylesQueryOptions = (
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetHeaderStylesQueryKey(args),
-    queryFn: async () => parseResponse(client['header-styles'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['header-styles'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /cookie-styles
@@ -320,7 +328,7 @@ export function createGetCookieStyles(
       parseResponse(
         client['cookie-styles'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -341,15 +349,20 @@ export function getGetCookieStylesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCookieStylesQueryOptions(
+export const getGetCookieStylesQueryOptions = (
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetCookieStylesQueryKey(args),
-    queryFn: async () => parseResponse(client['cookie-styles'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['cookie-styles'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /many-query-params
@@ -384,7 +397,7 @@ export function createGetManyQueryParams(
       parseResponse(
         client['many-query-params'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -405,15 +418,20 @@ export function getGetManyQueryParamsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetManyQueryParamsQueryOptions(
+export const getGetManyQueryParamsQueryOptions = (
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetManyQueryParamsQueryKey(args),
-    queryFn: async () => parseResponse(client['many-query-params'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['many-query-params'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /parameter-content
@@ -448,7 +466,7 @@ export function createGetParameterContent(
       parseResponse(
         client['parameter-content'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -469,15 +487,20 @@ export function getGetParameterContentQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetParameterContentQueryOptions(
+export const getGetParameterContentQueryOptions = (
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetParameterContentQueryKey(args),
-    queryFn: async () => parseResponse(client['parameter-content'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['parameter-content'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /deprecated-params
@@ -512,7 +535,7 @@ export function createGetDeprecatedParams(
       parseResponse(
         client['deprecated-params'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -533,15 +556,20 @@ export function getGetDeprecatedParamsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDeprecatedParamsQueryOptions(
+export const getGetDeprecatedParamsQueryOptions = (
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetDeprecatedParamsQueryKey(args),
-    queryFn: async () => parseResponse(client['deprecated-params'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['deprecated-params'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /examples-params
@@ -576,7 +604,7 @@ export function createGetExamplesParams(
       parseResponse(
         client['examples-params'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -597,12 +625,17 @@ export function getGetExamplesParamsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetExamplesParamsQueryOptions(
+export const getGetExamplesParamsQueryOptions = (
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetExamplesParamsQueryKey(args),
-    queryFn: async () => parseResponse(client['examples-params'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['examples-params'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

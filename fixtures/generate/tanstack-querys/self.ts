@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/self'
 
@@ -33,7 +33,7 @@ export function useGetCategories(options?: {
       parseResponse(
         client.categories.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -52,9 +52,14 @@ export function getGetCategoriesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCategoriesQueryKey(),
-    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.categories.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

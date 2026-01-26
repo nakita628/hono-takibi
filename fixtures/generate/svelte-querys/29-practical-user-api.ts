@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -237,10 +237,7 @@ export function createGetUsers(
     queryKey: getGetUsersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.users.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -258,15 +255,17 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersQueryOptions(
+export const getGetUsersQueryOptions = (
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /users/{userId}
@@ -303,7 +302,7 @@ export function createGetUsersUserId(
       parseResponse(
         client.users[':userId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -324,15 +323,20 @@ export function getGetUsersUserIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersUserIdQueryOptions(
+export const getGetUsersUserIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users[':userId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /users/{userId}
@@ -434,7 +438,7 @@ export function createGetUsersMe(options?: {
       parseResponse(
         client.users.me.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -453,12 +457,17 @@ export function getGetUsersMeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersMeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetUsersMeQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetUsersMeQueryKey(),
-    queryFn: async () => parseResponse(client.users.me.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users.me.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PATCH /users/me

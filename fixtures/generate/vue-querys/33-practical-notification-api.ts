@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/33-practical-notification-api'
 
@@ -38,7 +38,7 @@ export function useGetNotifications(
       parseResponse(
         client.notifications.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -59,15 +59,20 @@ export function getGetNotificationsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNotificationsQueryOptions(
+export const getGetNotificationsQueryOptions = (
   args: InferRequestType<typeof client.notifications.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetNotificationsQueryKey(args),
-    queryFn: async () => parseResponse(client.notifications.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.notifications.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /notifications/{notificationId}
@@ -104,7 +109,7 @@ export function useGetNotificationsNotificationId(
       parseResponse(
         client.notifications[':notificationId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -125,16 +130,20 @@ export function getGetNotificationsNotificationIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNotificationsNotificationIdQueryOptions(
+export const getGetNotificationsNotificationIdQueryOptions = (
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetNotificationsNotificationIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.notifications[':notificationId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.notifications[':notificationId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /notifications/{notificationId}
@@ -287,7 +296,7 @@ export function useGetNotificationsUnreadCount(options?: {
       parseResponse(
         client.notifications['unread-count'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -306,13 +315,17 @@ export function getGetNotificationsUnreadCountQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNotificationsUnreadCountQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetNotificationsUnreadCountQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetNotificationsUnreadCountQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.notifications['unread-count'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.notifications['unread-count'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /messages/send
@@ -418,7 +431,7 @@ export function useGetMessagesMessageId(
       parseResponse(
         client.messages[':messageId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -439,15 +452,20 @@ export function getGetMessagesMessageIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMessagesMessageIdQueryOptions(
+export const getGetMessagesMessageIdQueryOptions = (
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMessagesMessageIdQueryKey(args),
-    queryFn: async () => parseResponse(client.messages[':messageId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.messages[':messageId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /templates
@@ -482,10 +500,7 @@ export function useGetTemplates(
     queryKey: getGetTemplatesQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.templates.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.templates.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -503,15 +518,17 @@ export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.tem
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTemplatesQueryOptions(
+export const getGetTemplatesQueryOptions = (
   args: InferRequestType<typeof client.templates.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTemplatesQueryKey(args),
-    queryFn: async () => parseResponse(client.templates.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.templates.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /templates
@@ -579,7 +596,7 @@ export function useGetTemplatesTemplateId(
       parseResponse(
         client.templates[':templateId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -600,15 +617,20 @@ export function getGetTemplatesTemplateIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTemplatesTemplateIdQueryOptions(
+export const getGetTemplatesTemplateIdQueryOptions = (
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTemplatesTemplateIdQueryKey(args),
-    queryFn: async () => parseResponse(client.templates[':templateId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.templates[':templateId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /templates/{templateId}
@@ -754,7 +776,7 @@ export function useGetChannelsPreferences(options?: {
       parseResponse(
         client.channels.preferences.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -773,12 +795,17 @@ export function getGetChannelsPreferencesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetChannelsPreferencesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetChannelsPreferencesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetChannelsPreferencesQueryKey(),
-    queryFn: async () => parseResponse(client.channels.preferences.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.channels.preferences.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /channels/preferences
@@ -846,7 +873,7 @@ export function useGetChannelsDevices(options?: {
       parseResponse(
         client.channels.devices.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -865,12 +892,17 @@ export function getGetChannelsDevicesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetChannelsDevicesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetChannelsDevicesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetChannelsDevicesQueryKey(),
-    queryFn: async () => parseResponse(client.channels.devices.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.channels.devices.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /channels/devices
@@ -975,7 +1007,7 @@ export function useGetWebhooks(options?: {
       parseResponse(
         client.webhooks.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -994,12 +1026,17 @@ export function getGetWebhooksQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWebhooksQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWebhooksQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWebhooksQueryKey(),
-    queryFn: async () => parseResponse(client.webhooks.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.webhooks.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /webhooks
@@ -1067,7 +1104,7 @@ export function useGetWebhooksWebhookId(
       parseResponse(
         client.webhooks[':webhookId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1088,15 +1125,20 @@ export function getGetWebhooksWebhookIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWebhooksWebhookIdQueryOptions(
+export const getGetWebhooksWebhookIdQueryOptions = (
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetWebhooksWebhookIdQueryKey(args),
-    queryFn: async () => parseResponse(client.webhooks[':webhookId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.webhooks[':webhookId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /webhooks/{webhookId}

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/14-circular-refs'
 
@@ -33,7 +33,7 @@ export function useGetTrees(options?: {
       parseResponse(
         client.trees.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -52,12 +52,17 @@ export function getGetTreesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTreesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetTreesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetTreesQueryKey(),
-    queryFn: async () => parseResponse(client.trees.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.trees.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /trees
@@ -118,7 +123,7 @@ export function useGetGraphs(options?: {
       parseResponse(
         client.graphs.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -137,12 +142,17 @@ export function getGetGraphsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetGraphsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetGraphsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetGraphsQueryKey(),
-    queryFn: async () => parseResponse(client.graphs.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.graphs.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /linked-lists
@@ -174,7 +184,7 @@ export function useGetLinkedLists(options?: {
       parseResponse(
         client['linked-lists'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -193,12 +203,17 @@ export function getGetLinkedListsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetLinkedListsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetLinkedListsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetLinkedListsQueryKey(),
-    queryFn: async () => parseResponse(client['linked-lists'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['linked-lists'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /social-network
@@ -230,7 +245,7 @@ export function useGetSocialNetwork(options?: {
       parseResponse(
         client['social-network'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -249,12 +264,17 @@ export function getGetSocialNetworkQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSocialNetworkQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSocialNetworkQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSocialNetworkQueryKey(),
-    queryFn: async () => parseResponse(client['social-network'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['social-network'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /file-system
@@ -286,7 +306,7 @@ export function useGetFileSystem(options?: {
       parseResponse(
         client['file-system'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -305,12 +325,17 @@ export function getGetFileSystemQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFileSystemQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetFileSystemQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetFileSystemQueryKey(),
-    queryFn: async () => parseResponse(client['file-system'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['file-system'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /comments
@@ -342,7 +367,7 @@ export function useGetComments(options?: {
       parseResponse(
         client.comments.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -361,12 +386,17 @@ export function getGetCommentsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCommentsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCommentsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCommentsQueryKey(),
-    queryFn: async () => parseResponse(client.comments.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.comments.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /polymorphic
@@ -398,7 +428,7 @@ export function useGetPolymorphic(options?: {
       parseResponse(
         client.polymorphic.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -417,12 +447,17 @@ export function getGetPolymorphicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPolymorphicQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPolymorphicQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPolymorphicQueryKey(),
-    queryFn: async () => parseResponse(client.polymorphic.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.polymorphic.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /categories
@@ -454,7 +489,7 @@ export function useGetCategories(options?: {
       parseResponse(
         client.categories.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -473,12 +508,17 @@ export function getGetCategoriesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCategoriesQueryKey(),
-    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.categories.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /workflow
@@ -510,7 +550,7 @@ export function useGetWorkflow(options?: {
       parseResponse(
         client.workflow.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -529,9 +569,14 @@ export function getGetWorkflowQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWorkflowQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWorkflowQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWorkflowQueryKey(),
-    queryFn: async () => parseResponse(client.workflow.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.workflow.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

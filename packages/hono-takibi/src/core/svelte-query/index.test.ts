@@ -72,6 +72,12 @@ export function createGetHono(options?: {
     refetchOnReconnect?: boolean
     retry?: boolean | number
     retryDelay?: number
+    placeholderData?:
+      | InferResponseType<typeof client.hono.$get>
+      | (() => InferResponseType<typeof client.hono.$get>)
+    initialData?:
+      | InferResponseType<typeof client.hono.$get>
+      | (() => InferResponseType<typeof client.hono.$get>)
   }
   client?: ClientRequestOptions
 }) {
@@ -128,6 +134,12 @@ export function createGetUsers(
       refetchOnReconnect?: boolean
       retry?: boolean | number
       retryDelay?: number
+      placeholderData?:
+        | InferResponseType<typeof client.users.$get>
+        | (() => InferResponseType<typeof client.users.$get>)
+      initialData?:
+        | InferResponseType<typeof client.users.$get>
+        | (() => InferResponseType<typeof client.users.$get>)
     }
     client?: ClientRequestOptions
   },
@@ -471,8 +483,13 @@ export function createGetUsers(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersQueryKey(),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(authClient.users.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        authClient.users.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -560,8 +577,13 @@ export function createGetPing(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetPingQueryKey(),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.ping.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -671,8 +693,13 @@ export function createGetHonoX(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetHonoXQueryKey(),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(client['hono-x'].$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['hono-x'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -764,8 +791,13 @@ export function createGetUsersId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return createQuery({
     queryKey: getGetUsersIdQueryKey(args),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(client.users[':id'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

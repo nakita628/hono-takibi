@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/45-sns-settings-moderation'
 
@@ -35,7 +35,7 @@ export function useGetSettingsAccount(options?: {
       parseResponse(
         client.settings.account.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -54,12 +54,17 @@ export function getGetSettingsAccountQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsAccountQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSettingsAccountQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSettingsAccountQueryKey(),
-    queryFn: async () => parseResponse(client.settings.account.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings.account.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /settings/account
@@ -130,7 +135,7 @@ export function useGetSettingsUsernameCheck(
       parseResponse(
         client.settings.username.check.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -151,15 +156,20 @@ export function getGetSettingsUsernameCheckQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsUsernameCheckQueryOptions(
+export const getGetSettingsUsernameCheckQueryOptions = (
   args: InferRequestType<typeof client.settings.username.check.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSettingsUsernameCheckQueryKey(args),
-    queryFn: async () => parseResponse(client.settings.username.check.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings.username.check.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /settings/privacy
@@ -193,7 +203,7 @@ export function useGetSettingsPrivacy(options?: {
       parseResponse(
         client.settings.privacy.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -212,12 +222,17 @@ export function getGetSettingsPrivacyQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsPrivacyQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSettingsPrivacyQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSettingsPrivacyQueryKey(),
-    queryFn: async () => parseResponse(client.settings.privacy.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings.privacy.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /settings/privacy
@@ -285,7 +300,7 @@ export function useGetSettingsContentPreferences(options?: {
       parseResponse(
         client.settings['content-preferences'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -304,13 +319,19 @@ export function getGetSettingsContentPreferencesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsContentPreferencesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSettingsContentPreferencesQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) =>
+  queryOptions({
     queryKey: getGetSettingsContentPreferencesQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.settings['content-preferences'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings['content-preferences'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /settings/content-preferences
@@ -381,7 +402,7 @@ export function useGetSettingsMutedWords(options?: {
       parseResponse(
         client.settings['muted-words'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -400,13 +421,17 @@ export function getGetSettingsMutedWordsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsMutedWordsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSettingsMutedWordsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSettingsMutedWordsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.settings['muted-words'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings['muted-words'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /settings/muted-words
@@ -517,7 +542,7 @@ export function useGetSettingsSessions(options?: {
       parseResponse(
         client.settings.sessions.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -536,12 +561,17 @@ export function getGetSettingsSessionsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsSessionsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSettingsSessionsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSettingsSessionsQueryKey(),
-    queryFn: async () => parseResponse(client.settings.sessions.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings.sessions.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /settings/sessions/{sessionId}
@@ -616,7 +646,7 @@ export function useGetSettingsConnectedApps(options?: {
       parseResponse(
         client.settings['connected-apps'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -635,13 +665,17 @@ export function getGetSettingsConnectedAppsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsConnectedAppsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSettingsConnectedAppsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSettingsConnectedAppsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.settings['connected-apps'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings['connected-apps'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /settings/connected-apps/{appId}
@@ -750,7 +784,7 @@ export function useGetSettingsDataExportRequestId(
       parseResponse(
         client.settings['data-export'][':requestId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -771,16 +805,20 @@ export function getGetSettingsDataExportRequestIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSettingsDataExportRequestIdQueryOptions(
+export const getGetSettingsDataExportRequestIdQueryOptions = (
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSettingsDataExportRequestIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.settings['data-export'][':requestId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.settings['data-export'][':requestId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /settings/deactivate
@@ -882,7 +920,7 @@ export function useGetReportsReportId(
       parseResponse(
         client.reports[':reportId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -903,15 +941,20 @@ export function getGetReportsReportIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetReportsReportIdQueryOptions(
+export const getGetReportsReportIdQueryOptions = (
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetReportsReportIdQueryKey(args),
-    queryFn: async () => parseResponse(client.reports[':reportId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.reports[':reportId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /moderation/queue
@@ -950,7 +993,7 @@ export function useGetModerationQueue(
       parseResponse(
         client.moderation.queue.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -971,15 +1014,20 @@ export function getGetModerationQueueQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetModerationQueueQueryOptions(
+export const getGetModerationQueueQueryOptions = (
   args: InferRequestType<typeof client.moderation.queue.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetModerationQueueQueryKey(args),
-    queryFn: async () => parseResponse(client.moderation.queue.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.moderation.queue.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /moderation/items/{itemId}
@@ -1016,7 +1064,7 @@ export function useGetModerationItemsItemId(
       parseResponse(
         client.moderation.items[':itemId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1037,16 +1085,20 @@ export function getGetModerationItemsItemIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetModerationItemsItemIdQueryOptions(
+export const getGetModerationItemsItemIdQueryOptions = (
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetModerationItemsItemIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.moderation.items[':itemId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.moderation.items[':itemId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /moderation/items/{itemId}/action
@@ -1122,7 +1174,7 @@ export function useGetModerationUsersUserIdHistory(
       parseResponse(
         client.moderation.users[':userId'].history.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1143,16 +1195,20 @@ export function getGetModerationUsersUserIdHistoryQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetModerationUsersUserIdHistoryQueryOptions(
+export const getGetModerationUsersUserIdHistoryQueryOptions = (
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetModerationUsersUserIdHistoryQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.moderation.users[':userId'].history.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.moderation.users[':userId'].history.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /moderation/users/{userId}/suspend
@@ -1275,7 +1331,7 @@ export function useGetAnalyticsPostsPostId(
       parseResponse(
         client.analytics.posts[':postId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1296,15 +1352,20 @@ export function getGetAnalyticsPostsPostIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAnalyticsPostsPostIdQueryOptions(
+export const getGetAnalyticsPostsPostIdQueryOptions = (
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAnalyticsPostsPostIdQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics.posts[':postId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.analytics.posts[':postId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /analytics/account
@@ -1341,7 +1402,7 @@ export function useGetAnalyticsAccount(
       parseResponse(
         client.analytics.account.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1362,15 +1423,20 @@ export function getGetAnalyticsAccountQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAnalyticsAccountQueryOptions(
+export const getGetAnalyticsAccountQueryOptions = (
   args: InferRequestType<typeof client.analytics.account.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAnalyticsAccountQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics.account.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.analytics.account.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /analytics/followers
@@ -1407,7 +1473,7 @@ export function useGetAnalyticsFollowers(
       parseResponse(
         client.analytics.followers.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1428,15 +1494,20 @@ export function getGetAnalyticsFollowersQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAnalyticsFollowersQueryOptions(
+export const getGetAnalyticsFollowersQueryOptions = (
   args: InferRequestType<typeof client.analytics.followers.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAnalyticsFollowersQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics.followers.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.analytics.followers.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /analytics/top-posts
@@ -1473,7 +1544,7 @@ export function useGetAnalyticsTopPosts(
       parseResponse(
         client.analytics['top-posts'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1494,12 +1565,17 @@ export function getGetAnalyticsTopPostsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAnalyticsTopPostsQueryOptions(
+export const getGetAnalyticsTopPostsQueryOptions = (
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAnalyticsTopPostsQueryKey(args),
-    queryFn: async () => parseResponse(client.analytics['top-posts'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.analytics['top-posts'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

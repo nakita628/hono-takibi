@@ -72,6 +72,8 @@ export type QueryFrameworkConfig = {
   readonly mutationOptionsType: string
   /** Whether to omit TQueryKey type parameter from query options (for Vue Query compatibility) */
   readonly omitQueryKeyType?: boolean
+  /** Query options helper function name (e.g., 'queryOptions') */
+  readonly queryOptionsHelper?: string
 }
 
 /* ─────────────────────────────── Framework Configs ─────────────────────────────── */
@@ -87,6 +89,7 @@ export const TANSTACK_QUERY_CONFIG: QueryFrameworkConfig = {
   mutationFn: 'useMutation',
   queryOptionsType: 'UseQueryOptions',
   mutationOptionsType: 'UseMutationOptions',
+  queryOptionsHelper: 'queryOptions',
 }
 
 /**
@@ -100,6 +103,7 @@ export const SVELTE_QUERY_CONFIG: QueryFrameworkConfig = {
   mutationFn: 'createMutation',
   queryOptionsType: 'CreateQueryOptions',
   mutationOptionsType: 'CreateMutationOptions',
+  queryOptionsHelper: 'queryOptions',
 }
 
 /**
@@ -114,6 +118,7 @@ export const VUE_QUERY_CONFIG: QueryFrameworkConfig = {
   queryOptionsType: 'UseQueryOptions',
   mutationOptionsType: 'UseMutationOptions',
   omitQueryKeyType: true,
+  queryOptionsHelper: 'queryOptions',
 }
 
 /* ─────────────────────────────── Hook Name Generation ─────────────────────────────── */
@@ -211,6 +216,9 @@ export function ${keyGetterName}(){return['${honoPath}']as const}`
  * This function returns an object compatible with TanStack Query's queryOptions pattern,
  * enabling prefetching, ensureQueryData, and other advanced patterns.
  *
+ * Uses the queryOptions() helper for proper type inference and signal handling.
+ * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
+ *
  * @param optionsGetterName - Function name for options getter
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
@@ -236,14 +244,15 @@ const makeQueryOptionsGetterCode = (
   const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
   const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
 
-  // Build client call without signal for getQueryOptions
-  // Signal handling is done in the hook (useQuery/createQuery) where it's guaranteed to be provided
-  // getQueryOptions is used for prefetchQuery/ensureQueryData where signal handling differs
-  const clientCall = hasArgs
-    ? `${clientPath}.$${method}(args,clientOptions)`
-    : `${clientPath}.$${method}(undefined,clientOptions)`
-  const fetcherBody = buildFetcher(clientCall)
+  // Build client call WITH signal for queryOptions
+  // queryOptions() provides proper type inference for signal
+  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation
+  const clientCallWithSignal = hasArgs
+    ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
+    : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}})`
+  const fetcherBody = buildFetcher(clientCallWithSignal)
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
+  const optionsHelper = config.queryOptionsHelper ?? 'queryOptions'
 
   if (hasArgs) {
     return `/**
@@ -251,14 +260,14 @@ const makeQueryOptionsGetterCode = (
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function ${optionsGetterName}(args:${inferRequestType},clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn:async()=>${fetcherBody}}}`
+export const ${optionsGetterName}=(args:${inferRequestType},clientOptions?:ClientRequestOptions)=>${optionsHelper}({queryKey:${queryKeyCall},queryFn:({signal})=>${fetcherBody}})`
   }
   return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function ${optionsGetterName}(clientOptions?:ClientRequestOptions){return{queryKey:${queryKeyCall},queryFn:async()=>${fetcherBody}}}`
+export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>${optionsHelper}({queryKey:${queryKeyCall},queryFn:({signal})=>${fetcherBody}})`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -274,11 +283,11 @@ const makeQueryHookCode = (
   docs: string,
   config: QueryFrameworkConfig,
 ): string => {
-  // Build client call with signal using conditional spread to avoid undefined vs null type mismatch
+  // Build client call with signal - TanStack Query always provides signal in queryFn context
   // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation
   const clientCallWithSignal = hasArgs
-    ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,...(signal?{signal}:{})}})`
-    : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,...(signal?{signal}:{})}})`
+    ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
+    : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}})`
   const fetcherBody = buildFetcher(clientCallWithSignal)
 
   // Use key getter function
@@ -288,8 +297,7 @@ const makeQueryHookCode = (
   // Note: select is intentionally excluded to ensure proper type inference of data.
   // If users need select, they can use the underlying queryOptions helper.
   // placeholderData and initialData are typed with the response type for proper inference.
-  const inlineQueryOptionsType =
-    `{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number;placeholderData?:${inferResponseType}|(()=>${inferResponseType});initialData?:${inferResponseType}|(()=>${inferResponseType})}`
+  const inlineQueryOptionsType = `{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number;placeholderData?:${inferResponseType}|(()=>${inferResponseType});initialData?:${inferResponseType}|(()=>${inferResponseType})}`
   const optionsType = `{query?:${inlineQueryOptionsType};client?:ClientRequestOptions}`
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
 
@@ -464,6 +472,8 @@ const makeHeader = (
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
+    // Import queryOptions helper for getXxxQueryOptions functions
+    ...(hasQuery && config.queryOptionsHelper ? [config.queryOptionsHelper] : []),
   ]
 
   // Hono client type imports

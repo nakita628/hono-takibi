@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
 
@@ -33,7 +33,7 @@ export function useGetClass(options?: {
       parseResponse(
         client.class.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -52,12 +52,17 @@ export function getGetClassQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetClassQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetClassQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetClassQueryKey(),
-    queryFn: async () => parseResponse(client.class.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.class.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /interface
@@ -89,7 +94,7 @@ export function useGetInterface(options?: {
       parseResponse(
         client.interface.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -108,12 +113,17 @@ export function getGetInterfaceQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetInterfaceQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetInterfaceQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetInterfaceQueryKey(),
-    queryFn: async () => parseResponse(client.interface.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.interface.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /type
@@ -143,10 +153,7 @@ export function useGetType(options?: {
     queryKey: getGetTypeQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.type.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -164,12 +171,14 @@ export function getGetTypeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTypeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetTypeQueryKey(),
-    queryFn: async () => parseResponse(client.type.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /function
@@ -229,7 +238,7 @@ export function useGetReturn(options?: {
       parseResponse(
         client.return.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -248,12 +257,17 @@ export function getGetReturnQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetReturnQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetReturnQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetReturnQueryKey(),
-    queryFn: async () => parseResponse(client.return.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.return.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /import
@@ -285,7 +299,7 @@ export function useGetImport(options?: {
       parseResponse(
         client.import.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -304,12 +318,17 @@ export function getGetImportQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetImportQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetImportQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetImportQueryKey(),
-    queryFn: async () => parseResponse(client.import.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.import.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /export
@@ -341,7 +360,7 @@ export function useGetExport(options?: {
       parseResponse(
         client.export.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -360,12 +379,17 @@ export function getGetExportQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetExportQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetExportQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetExportQueryKey(),
-    queryFn: async () => parseResponse(client.export.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.export.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /default
@@ -397,7 +421,7 @@ export function useGetDefault(options?: {
       parseResponse(
         client.default.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -416,12 +440,17 @@ export function getGetDefaultQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDefaultQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetDefaultQueryKey(),
-    queryFn: async () => parseResponse(client.default.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.default.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /new
@@ -504,10 +533,7 @@ export function useGetVoid(options?: {
     queryKey: getGetVoidQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.void.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -525,12 +551,14 @@ export function getGetVoidQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetVoidQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetVoidQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetVoidQueryKey(),
-    queryFn: async () => parseResponse(client.void.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /null
@@ -560,10 +588,7 @@ export function useGetNull(options?: {
     queryKey: getGetNullQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.null.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -581,12 +606,14 @@ export function getGetNullQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNullQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetNullQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetNullQueryKey(),
-    queryFn: async () => parseResponse(client.null.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /true
@@ -616,10 +643,7 @@ export function useGetTrue(options?: {
     queryKey: getGetTrueQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.true.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -637,12 +661,14 @@ export function getGetTrueQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTrueQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetTrueQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetTrueQueryKey(),
-    queryFn: async () => parseResponse(client.true.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /false
@@ -674,7 +700,7 @@ export function useGetFalse(options?: {
       parseResponse(
         client.false.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -693,12 +719,17 @@ export function getGetFalseQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFalseQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetFalseQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetFalseQueryKey(),
-    queryFn: async () => parseResponse(client.false.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.false.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /if
@@ -728,10 +759,7 @@ export function useGetIf(options?: {
     queryKey: getGetIfQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.if.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -749,12 +777,14 @@ export function getGetIfQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetIfQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetIfQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetIfQueryKey(),
-    queryFn: async () => parseResponse(client.if.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /else
@@ -784,10 +814,7 @@ export function useGetElse(options?: {
     queryKey: getGetElseQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.else.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -805,12 +832,14 @@ export function getGetElseQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetElseQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetElseQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetElseQueryKey(),
-    queryFn: async () => parseResponse(client.else.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /for
@@ -840,10 +869,7 @@ export function useGetFor(options?: {
     queryKey: getGetForQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.for.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -861,12 +887,14 @@ export function getGetForQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetForQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetForQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetForQueryKey(),
-    queryFn: async () => parseResponse(client.for.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /while
@@ -898,7 +926,7 @@ export function useGetWhile(options?: {
       parseResponse(
         client.while.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -917,12 +945,17 @@ export function getGetWhileQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWhileQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWhileQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWhileQueryKey(),
-    queryFn: async () => parseResponse(client.while.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.while.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /switch
@@ -954,7 +987,7 @@ export function useGetSwitch(options?: {
       parseResponse(
         client.switch.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -973,12 +1006,17 @@ export function getGetSwitchQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSwitchQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSwitchQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSwitchQueryKey(),
-    queryFn: async () => parseResponse(client.switch.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.switch.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /case
@@ -1008,10 +1046,7 @@ export function useGetCase(options?: {
     queryKey: getGetCaseQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.case.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1029,12 +1064,14 @@ export function getGetCaseQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCaseQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCaseQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCaseQueryKey(),
-    queryFn: async () => parseResponse(client.case.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /break
@@ -1066,7 +1103,7 @@ export function useGetBreak(options?: {
       parseResponse(
         client.break.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1085,12 +1122,17 @@ export function getGetBreakQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBreakQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetBreakQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetBreakQueryKey(),
-    queryFn: async () => parseResponse(client.break.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.break.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /continue
@@ -1122,7 +1164,7 @@ export function useGetContinue(options?: {
       parseResponse(
         client.continue.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1141,12 +1183,17 @@ export function getGetContinueQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetContinueQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetContinueQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetContinueQueryKey(),
-    queryFn: async () => parseResponse(client.continue.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.continue.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /try
@@ -1176,10 +1223,7 @@ export function useGetTry(options?: {
     queryKey: getGetTryQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.try.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1197,12 +1241,14 @@ export function getGetTryQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTryQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetTryQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetTryQueryKey(),
-    queryFn: async () => parseResponse(client.try.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /catch
@@ -1234,7 +1280,7 @@ export function useGetCatch(options?: {
       parseResponse(
         client.catch.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1253,12 +1299,17 @@ export function getGetCatchQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCatchQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCatchQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCatchQueryKey(),
-    queryFn: async () => parseResponse(client.catch.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.catch.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /finally
@@ -1290,7 +1341,7 @@ export function useGetFinally(options?: {
       parseResponse(
         client.finally.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1309,12 +1360,17 @@ export function getGetFinallyQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFinallyQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetFinallyQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetFinallyQueryKey(),
-    queryFn: async () => parseResponse(client.finally.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.finally.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /throw
@@ -1346,7 +1402,7 @@ export function useGetThrow(options?: {
       parseResponse(
         client.throw.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1365,12 +1421,17 @@ export function getGetThrowQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetThrowQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetThrowQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetThrowQueryKey(),
-    queryFn: async () => parseResponse(client.throw.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.throw.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /async
@@ -1402,7 +1463,7 @@ export function useGetAsync(options?: {
       parseResponse(
         client.async.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1421,12 +1482,17 @@ export function getGetAsyncQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAsyncQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAsyncQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAsyncQueryKey(),
-    queryFn: async () => parseResponse(client.async.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.async.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /await
@@ -1458,7 +1524,7 @@ export function useGetAwait(options?: {
       parseResponse(
         client.await.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1477,12 +1543,17 @@ export function getGetAwaitQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAwaitQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAwaitQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAwaitQueryKey(),
-    queryFn: async () => parseResponse(client.await.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.await.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /yield
@@ -1514,7 +1585,7 @@ export function useGetYield(options?: {
       parseResponse(
         client.yield.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1533,12 +1604,17 @@ export function getGetYieldQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetYieldQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetYieldQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetYieldQueryKey(),
-    queryFn: async () => parseResponse(client.yield.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.yield.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /static
@@ -1570,7 +1646,7 @@ export function useGetStatic(options?: {
       parseResponse(
         client.static.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1589,12 +1665,17 @@ export function getGetStaticQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetStaticQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetStaticQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetStaticQueryKey(),
-    queryFn: async () => parseResponse(client.static.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.static.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /public
@@ -1626,7 +1707,7 @@ export function useGetPublic(options?: {
       parseResponse(
         client.public.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1645,12 +1726,17 @@ export function getGetPublicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPublicQueryKey(),
-    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.public.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /private
@@ -1682,7 +1768,7 @@ export function useGetPrivate(options?: {
       parseResponse(
         client.private.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1701,12 +1787,17 @@ export function getGetPrivateQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPrivateQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPrivateQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPrivateQueryKey(),
-    queryFn: async () => parseResponse(client.private.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.private.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /protected
@@ -1738,7 +1829,7 @@ export function useGetProtected(options?: {
       parseResponse(
         client.protected.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1757,12 +1848,17 @@ export function getGetProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetProtectedQueryKey(),
-    queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.protected.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /abstract
@@ -1794,7 +1890,7 @@ export function useGetAbstract(options?: {
       parseResponse(
         client.abstract.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1813,12 +1909,17 @@ export function getGetAbstractQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAbstractQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAbstractQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAbstractQueryKey(),
-    queryFn: async () => parseResponse(client.abstract.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.abstract.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /final
@@ -1850,7 +1951,7 @@ export function useGetFinal(options?: {
       parseResponse(
         client.final.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1869,12 +1970,17 @@ export function getGetFinalQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFinalQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetFinalQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetFinalQueryKey(),
-    queryFn: async () => parseResponse(client.final.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.final.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /extends
@@ -1906,7 +2012,7 @@ export function useGetExtends(options?: {
       parseResponse(
         client.extends.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1925,12 +2031,17 @@ export function getGetExtendsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetExtendsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetExtendsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetExtendsQueryKey(),
-    queryFn: async () => parseResponse(client.extends.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.extends.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /implements
@@ -1962,7 +2073,7 @@ export function useGetImplements(options?: {
       parseResponse(
         client.implements.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1981,12 +2092,17 @@ export function getGetImplementsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetImplementsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetImplementsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetImplementsQueryKey(),
-    queryFn: async () => parseResponse(client.implements.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.implements.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /package
@@ -2018,7 +2134,7 @@ export function useGetPackage(options?: {
       parseResponse(
         client.package.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2037,12 +2153,17 @@ export function getGetPackageQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPackageQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPackageQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPackageQueryKey(),
-    queryFn: async () => parseResponse(client.package.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.package.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /enum
@@ -2072,10 +2193,7 @@ export function useGetEnum(options?: {
     queryKey: getGetEnumQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.enum.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -2093,12 +2211,14 @@ export function getGetEnumQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEnumQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetEnumQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetEnumQueryKey(),
-    queryFn: async () => parseResponse(client.enum.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /const
@@ -2130,7 +2250,7 @@ export function useGetConst(options?: {
       parseResponse(
         client.const.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2149,12 +2269,17 @@ export function getGetConstQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetConstQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetConstQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetConstQueryKey(),
-    queryFn: async () => parseResponse(client.const.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.const.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /let
@@ -2184,10 +2309,7 @@ export function useGetLet(options?: {
     queryKey: getGetLetQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.let.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -2205,12 +2327,14 @@ export function getGetLetQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetLetQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetLetQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetLetQueryKey(),
-    queryFn: async () => parseResponse(client.let.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /var
@@ -2240,10 +2364,7 @@ export function useGetVar(options?: {
     queryKey: getGetVarQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.var.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -2261,12 +2382,14 @@ export function getGetVarQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetVarQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetVarQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetVarQueryKey(),
-    queryFn: async () => parseResponse(client.var.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /this
@@ -2296,10 +2419,7 @@ export function useGetThis(options?: {
     queryKey: getGetThisQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.this.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -2317,12 +2437,14 @@ export function getGetThisQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetThisQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetThisQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetThisQueryKey(),
-    queryFn: async () => parseResponse(client.this.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /super
@@ -2354,7 +2476,7 @@ export function useGetSuper(options?: {
       parseResponse(
         client.super.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2373,12 +2495,17 @@ export function getGetSuperQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSuperQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSuperQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSuperQueryKey(),
-    queryFn: async () => parseResponse(client.super.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.super.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /self
@@ -2408,10 +2535,7 @@ export function useGetSelf(options?: {
     queryKey: getGetSelfQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.self.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -2429,12 +2553,14 @@ export function getGetSelfQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSelfQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSelfQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSelfQueryKey(),
-    queryFn: async () => parseResponse(client.self.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /constructor
@@ -2466,7 +2592,7 @@ export function useGetConstructor(options?: {
       parseResponse(
         client.constructor.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2485,12 +2611,17 @@ export function getGetConstructorQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetConstructorQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetConstructorQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetConstructorQueryKey(),
-    queryFn: async () => parseResponse(client.constructor.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.constructor.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /prototype
@@ -2522,7 +2653,7 @@ export function useGetPrototype(options?: {
       parseResponse(
         client.prototype.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2541,12 +2672,17 @@ export function getGetPrototypeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPrototypeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPrototypeQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPrototypeQueryKey(),
-    queryFn: async () => parseResponse(client.prototype.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.prototype.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /toString
@@ -2578,7 +2714,7 @@ export function useGetToString(options?: {
       parseResponse(
         client.toString.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2597,12 +2733,17 @@ export function getGetToStringQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetToStringQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetToStringQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetToStringQueryKey(),
-    queryFn: async () => parseResponse(client.toString.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.toString.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /valueOf
@@ -2634,7 +2775,7 @@ export function useGetValueOf(options?: {
       parseResponse(
         client.valueOf.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2653,12 +2794,17 @@ export function getGetValueOfQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetValueOfQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetValueOfQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetValueOfQueryKey(),
-    queryFn: async () => parseResponse(client.valueOf.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.valueOf.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /hasOwnProperty
@@ -2690,7 +2836,7 @@ export function useGetHasOwnProperty(options?: {
       parseResponse(
         client.hasOwnProperty.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2709,12 +2855,17 @@ export function getGetHasOwnPropertyQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHasOwnPropertyQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetHasOwnPropertyQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetHasOwnPropertyQueryKey(),
-    queryFn: async () => parseResponse(client.hasOwnProperty.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.hasOwnProperty.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /name-collisions
@@ -2746,7 +2897,7 @@ export function useGetNameCollisions(options?: {
       parseResponse(
         client['name-collisions'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2765,9 +2916,14 @@ export function getGetNameCollisionsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNameCollisionsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetNameCollisionsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetNameCollisionsQueryKey(),
-    queryFn: async () => parseResponse(client['name-collisions'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['name-collisions'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

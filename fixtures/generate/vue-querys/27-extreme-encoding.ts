@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -68,7 +68,7 @@ export function useGetContentNegotiation(
       parseResponse(
         client['content-negotiation'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -89,15 +89,20 @@ export function getGetContentNegotiationQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetContentNegotiationQueryOptions(
+export const getGetContentNegotiationQueryOptions = (
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetContentNegotiationQueryKey(args),
-    queryFn: async () => parseResponse(client['content-negotiation'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['content-negotiation'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /binary-variations
@@ -161,7 +166,7 @@ export function useGetStreaming(options?: {
       parseResponse(
         client.streaming.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -180,12 +185,17 @@ export function getGetStreamingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetStreamingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetStreamingQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetStreamingQueryKey(),
-    queryFn: async () => parseResponse(client.streaming.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.streaming.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /streaming
@@ -280,7 +290,7 @@ export function useGetResponseEncoding(options?: {
       parseResponse(
         client['response-encoding'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -299,12 +309,17 @@ export function getGetResponseEncodingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetResponseEncodingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetResponseEncodingQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetResponseEncodingQueryKey(),
-    queryFn: async () => parseResponse(client['response-encoding'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['response-encoding'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /schema-encoding

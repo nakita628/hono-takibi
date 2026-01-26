@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
@@ -41,7 +41,7 @@ export function useGetOauthAuthorize(
       parseResponse(
         client.oauth.authorize.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -62,15 +62,20 @@ export function getGetOauthAuthorizeQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOauthAuthorizeQueryOptions(
+export const getGetOauthAuthorizeQueryOptions = (
   args: InferRequestType<typeof client.oauth.authorize.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOauthAuthorizeQueryKey(args),
-    queryFn: async () => parseResponse(client.oauth.authorize.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.oauth.authorize.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /oauth/token
@@ -245,7 +250,7 @@ export function useGetOauthUserinfo(options?: {
       parseResponse(
         client.oauth.userinfo.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -264,12 +269,17 @@ export function getGetOauthUserinfoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOauthUserinfoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetOauthUserinfoQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetOauthUserinfoQueryKey(),
-    queryFn: async () => parseResponse(client.oauth.userinfo.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.oauth.userinfo.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /.well-known/openid-configuration
@@ -305,7 +315,7 @@ export function useGetWellKnownOpenidConfiguration(options?: {
       parseResponse(
         client['.well-known']['openid-configuration'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -324,15 +334,19 @@ export function getGetWellKnownOpenidConfigurationQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWellKnownOpenidConfigurationQueryOptions(
+export const getGetWellKnownOpenidConfigurationQueryOptions = (
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetWellKnownOpenidConfigurationQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['.well-known']['openid-configuration'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['.well-known']['openid-configuration'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /.well-known/jwks.json
@@ -368,7 +382,7 @@ export function useGetWellKnownJwksJson(options?: {
       parseResponse(
         client['.well-known']['jwks.json'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -387,13 +401,17 @@ export function getGetWellKnownJwksJsonQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWellKnownJwksJsonQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWellKnownJwksJsonQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWellKnownJwksJsonQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['.well-known']['jwks.json'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['.well-known']['jwks.json'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /oauth/clients
@@ -427,7 +445,7 @@ export function useGetOauthClients(options?: {
       parseResponse(
         client.oauth.clients.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -446,12 +464,17 @@ export function getGetOauthClientsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOauthClientsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetOauthClientsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetOauthClientsQueryKey(),
-    queryFn: async () => parseResponse(client.oauth.clients.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.oauth.clients.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /oauth/clients
@@ -519,7 +542,7 @@ export function useGetOauthClientsClientId(
       parseResponse(
         client.oauth.clients[':clientId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -540,15 +563,20 @@ export function getGetOauthClientsClientIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOauthClientsClientIdQueryOptions(
+export const getGetOauthClientsClientIdQueryOptions = (
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOauthClientsClientIdQueryKey(args),
-    queryFn: async () => parseResponse(client.oauth.clients[':clientId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.oauth.clients[':clientId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /oauth/clients/{clientId}
@@ -697,7 +725,7 @@ export function useGetOauthConsents(options?: {
       parseResponse(
         client.oauth.consents.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -716,12 +744,17 @@ export function getGetOauthConsentsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOauthConsentsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetOauthConsentsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetOauthConsentsQueryKey(),
-    queryFn: async () => parseResponse(client.oauth.consents.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.oauth.consents.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /oauth/consents/{clientId}

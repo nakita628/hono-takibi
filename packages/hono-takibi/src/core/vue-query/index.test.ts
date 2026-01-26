@@ -468,8 +468,13 @@ export function useGetUsers(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetUsersQueryKey(),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(authClient.users.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        authClient.users.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -557,8 +562,13 @@ export function useGetPing(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetPingQueryKey(),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.ping.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -668,8 +678,13 @@ export function useGetHonoX(options?: {
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetHonoXQueryKey(),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(client['hono-x'].$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client['hono-x'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }
@@ -761,8 +776,13 @@ export function useGetUsersId(
   const { query: queryOptions, client: clientOptions } = options ?? {}
   return useQuery({
     queryKey: getGetUsersIdQueryKey(args),
-    queryFn: async ({ signal }: { signal?: AbortSignal }) =>
-      parseResponse(client.users[':id'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } })),
+    queryFn: async ({ signal }) =>
+      parseResponse(
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+        }),
+      ),
     ...queryOptions,
   })
 }

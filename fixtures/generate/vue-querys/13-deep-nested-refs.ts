@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -46,7 +46,7 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
       parseResponse(
         client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -69,23 +69,22 @@ export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQuery
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(
+export const getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions = (
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(
-          args,
-          clientOptions,
-        ),
+        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
@@ -174,7 +173,7 @@ export function useGetReportsOrganizationSummary(options?: {
       parseResponse(
         client.reports['organization-summary'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -193,10 +192,16 @@ export function getGetReportsOrganizationSummaryQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetReportsOrganizationSummaryQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetReportsOrganizationSummaryQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) =>
+  queryOptions({
     queryKey: getGetReportsOrganizationSummaryQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.reports['organization-summary'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.reports['organization-summary'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

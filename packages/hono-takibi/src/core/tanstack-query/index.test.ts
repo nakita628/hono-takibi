@@ -49,7 +49,7 @@ describe('tanstackQuery', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -86,10 +86,7 @@ export function useGetHono(options?: {
     queryKey: getGetHonoQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.hono.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -107,12 +104,14 @@ export function getGetHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetHonoQueryKey(),
-    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /users
@@ -149,7 +148,7 @@ export function useGetUsers(
     queryKey: getGetUsersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } }),
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -167,15 +166,17 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersQueryOptions(
+export const getGetUsersQueryOptions = (
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /users
@@ -243,7 +244,7 @@ export * from './usePostUsers'
 
       // Check GET hook file without args
       const useGetHono = fs.readFileSync(path.join(dir, 'hooks', 'useGetHono.ts'), 'utf-8')
-      const useGetHonoExpected = `import { useQuery } from '@tanstack/react-query'
+      const useGetHonoExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -280,10 +281,7 @@ export function useGetHono(options?: {
     queryKey: getGetHonoQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.hono.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -301,18 +299,20 @@ export function getGetHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetHonoQueryKey(),
-    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 `
       expect(useGetHono).toBe(useGetHonoExpected)
 
       // Check GET hook file with args
       const useGetUsers = fs.readFileSync(path.join(dir, 'hooks', 'useGetUsers.ts'), 'utf-8')
-      const useGetUsersExpected = `import { useQuery } from '@tanstack/react-query'
+      const useGetUsersExpected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -352,7 +352,7 @@ export function useGetUsers(
     queryKey: getGetUsersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } }),
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -370,15 +370,17 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersQueryOptions(
+export const getGetUsersQueryOptions = (
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 `
       expect(useGetUsers).toBe(useGetUsersExpected)
 
@@ -459,7 +461,7 @@ describe('tanstackQuery (custom client name)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/react-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { authClient } from '../api'
@@ -496,7 +498,7 @@ export function useGetUsers(options?: {
       parseResponse(
         authClient.users.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -515,12 +517,17 @@ export function getGetUsersQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetUsersQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetUsersQueryKey(),
-    queryFn: async () => parseResponse(authClient.users.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        authClient.users.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 `
       expect(code).toBe(expected)
     } finally {
@@ -559,7 +566,7 @@ describe('tanstackQuery (no args operations)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -594,7 +601,7 @@ export function useGetPing(options?: {
     queryKey: getGetPingQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } }),
+        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -612,12 +619,14 @@ export function getGetPingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPingQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPingQueryKey(),
-    queryFn: async () => parseResponse(client.ping.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.ping.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /ping
@@ -678,7 +687,7 @@ describe('tanstackQuery (path with special characters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery } from '@tanstack/react-query'
+      const expected = `import { useQuery, queryOptions } from '@tanstack/react-query'
 import type { InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -715,7 +724,7 @@ export function useGetHonoX(options?: {
       parseResponse(
         client['hono-x'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -734,12 +743,17 @@ export function getGetHonoXQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetHonoXQueryKey(),
-    queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['hono-x'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 `
       expect(code).toBe(expected)
     } finally {
@@ -779,7 +793,7 @@ describe('tanstackQuery (path parameters)', () => {
       }
 
       const code = fs.readFileSync(out, 'utf-8')
-      const expected = `import { useQuery, useMutation } from '@tanstack/react-query'
+      const expected = `import { useQuery, useMutation, queryOptions } from '@tanstack/react-query'
 import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../client'
@@ -817,7 +831,10 @@ export function useGetUsersId(
     queryKey: getGetUsersIdQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.users[':id'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } }),
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
     ...queryOptions,
   })
@@ -837,15 +854,20 @@ export function getGetUsersIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersIdQueryOptions(
+export const getGetUsersIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /users/{id}

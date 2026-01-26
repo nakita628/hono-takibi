@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -106,7 +106,7 @@ export function useGetPetFindByStatus(
       parseResponse(
         client.pet.findByStatus.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -127,15 +127,20 @@ export function getGetPetFindByStatusQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPetFindByStatusQueryOptions(
+export const getGetPetFindByStatusQueryOptions = (
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPetFindByStatusQueryKey(args),
-    queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.pet.findByStatus.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /pet/findByTags
@@ -174,7 +179,7 @@ export function useGetPetFindByTags(
       parseResponse(
         client.pet.findByTags.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -195,15 +200,20 @@ export function getGetPetFindByTagsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPetFindByTagsQueryOptions(
+export const getGetPetFindByTagsQueryOptions = (
   args: InferRequestType<typeof client.pet.findByTags.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPetFindByTagsQueryKey(args),
-    queryFn: async () => parseResponse(client.pet.findByTags.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.pet.findByTags.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /pet/{petId}
@@ -242,7 +252,7 @@ export function useGetPetPetId(
       parseResponse(
         client.pet[':petId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -263,15 +273,20 @@ export function getGetPetPetIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPetPetIdQueryOptions(
+export const getGetPetPetIdQueryOptions = (
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPetPetIdQueryKey(args),
-    queryFn: async () => parseResponse(client.pet[':petId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.pet[':petId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /pet/{petId}
@@ -414,7 +429,7 @@ export function useGetStoreInventory(options?: {
       parseResponse(
         client.store.inventory.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -433,12 +448,17 @@ export function getGetStoreInventoryQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetStoreInventoryQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetStoreInventoryQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetStoreInventoryQueryKey(),
-    queryFn: async () => parseResponse(client.store.inventory.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.store.inventory.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /store/order
@@ -510,7 +530,7 @@ export function useGetStoreOrderOrderId(
       parseResponse(
         client.store.order[':orderId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -531,15 +551,20 @@ export function getGetStoreOrderOrderIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetStoreOrderOrderIdQueryOptions(
+export const getGetStoreOrderOrderIdQueryOptions = (
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetStoreOrderOrderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.store.order[':orderId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.store.order[':orderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /store/order/{orderId}
@@ -684,7 +709,7 @@ export function useGetUserLogin(
       parseResponse(
         client.user.login.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -703,15 +728,20 @@ export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.use
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUserLoginQueryOptions(
+export const getGetUserLoginQueryOptions = (
   args: InferRequestType<typeof client.user.login.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUserLoginQueryKey(args),
-    queryFn: async () => parseResponse(client.user.login.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.user.login.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /user/logout
@@ -745,7 +775,7 @@ export function useGetUserLogout(options?: {
       parseResponse(
         client.user.logout.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -764,12 +794,17 @@ export function getGetUserLogoutQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUserLogoutQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetUserLogoutQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetUserLogoutQueryKey(),
-    queryFn: async () => parseResponse(client.user.logout.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.user.logout.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /user/{username}
@@ -806,7 +841,7 @@ export function useGetUserUsername(
       parseResponse(
         client.user[':username'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -827,15 +862,20 @@ export function getGetUserUsernameQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUserUsernameQueryOptions(
+export const getGetUserUsernameQueryOptions = (
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUserUsernameQueryKey(args),
-    queryFn: async () => parseResponse(client.user[':username'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.user[':username'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /user/{username}

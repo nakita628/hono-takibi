@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
@@ -34,10 +34,7 @@ export function createGetUsers(
     queryKey: getGetUsersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.users.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -55,15 +52,17 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersQueryOptions(
+export const getGetUsersQueryOptions = (
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /users
@@ -127,7 +126,7 @@ export function createGetUsersUserId(
       parseResponse(
         client.users[':userId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -148,15 +147,20 @@ export function getGetUsersUserIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersUserIdQueryOptions(
+export const getGetUsersUserIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users[':userId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /orders
@@ -220,7 +224,7 @@ export function createGetProductsProductIdVariants(
       parseResponse(
         client.products[':productId'].variants.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -241,16 +245,20 @@ export function getGetProductsProductIdVariantsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProductsProductIdVariantsQueryOptions(
+export const getGetProductsProductIdVariantsQueryOptions = (
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProductsProductIdVariantsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.products[':productId'].variants.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.products[':productId'].variants.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /reports/generate

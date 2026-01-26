@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-array'
 
@@ -37,7 +37,7 @@ export function useGetArray(options?: {
       parseResponse(
         client.array.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -56,9 +56,14 @@ export function getGetArrayQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetArrayQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetArrayQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetArrayQueryKey(),
-    queryFn: async () => parseResponse(client.array.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.array.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

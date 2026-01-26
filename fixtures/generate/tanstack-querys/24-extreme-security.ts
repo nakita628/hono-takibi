@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
 
@@ -35,7 +35,7 @@ export function useGetPublic(options?: {
       parseResponse(
         client.public.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -54,12 +54,17 @@ export function getGetPublicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPublicQueryKey(),
-    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.public.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /single-auth
@@ -93,7 +98,7 @@ export function useGetSingleAuth(options?: {
       parseResponse(
         client['single-auth'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -112,12 +117,17 @@ export function getGetSingleAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSingleAuthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSingleAuthQueryKey(),
-    queryFn: async () => parseResponse(client['single-auth'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['single-auth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /any-auth
@@ -151,7 +161,7 @@ export function useGetAnyAuth(options?: {
       parseResponse(
         client['any-auth'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -170,12 +180,17 @@ export function getGetAnyAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAnyAuthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAnyAuthQueryKey(),
-    queryFn: async () => parseResponse(client['any-auth'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['any-auth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /all-auth
@@ -209,7 +224,7 @@ export function useGetAllAuth(options?: {
       parseResponse(
         client['all-auth'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -228,12 +243,17 @@ export function getGetAllAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAllAuthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAllAuthQueryKey(),
-    queryFn: async () => parseResponse(client['all-auth'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['all-auth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /complex-auth
@@ -267,7 +287,7 @@ export function useGetComplexAuth(options?: {
       parseResponse(
         client['complex-auth'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -286,12 +306,17 @@ export function getGetComplexAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetComplexAuthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetComplexAuthQueryKey(),
-    queryFn: async () => parseResponse(client['complex-auth'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['complex-auth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /scoped-oauth
@@ -325,7 +350,7 @@ export function useGetScopedOauth(options?: {
       parseResponse(
         client['scoped-oauth'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -344,12 +369,17 @@ export function getGetScopedOauthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetScopedOauthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetScopedOauthQueryKey(),
-    queryFn: async () => parseResponse(client['scoped-oauth'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['scoped-oauth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /mixed-level-security
@@ -383,7 +413,7 @@ export function useGetMixedLevelSecurity(options?: {
       parseResponse(
         client['mixed-level-security'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -402,13 +432,17 @@ export function getGetMixedLevelSecurityQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMixedLevelSecurityQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMixedLevelSecurityQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['mixed-level-security'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['mixed-level-security'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /mixed-level-security
@@ -535,7 +569,7 @@ export function useGetOverrideGlobal(options?: {
       parseResponse(
         client['override-global'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -554,12 +588,17 @@ export function getGetOverrideGlobalQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOverrideGlobalQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetOverrideGlobalQueryKey(),
-    queryFn: async () => parseResponse(client['override-global'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['override-global'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /optional-enhanced
@@ -593,7 +632,7 @@ export function useGetOptionalEnhanced(options?: {
       parseResponse(
         client['optional-enhanced'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -612,12 +651,17 @@ export function getGetOptionalEnhancedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOptionalEnhancedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetOptionalEnhancedQueryKey(),
-    queryFn: async () => parseResponse(client['optional-enhanced'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['optional-enhanced'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /multi-tenant
@@ -651,7 +695,7 @@ export function useGetMultiTenant(options?: {
       parseResponse(
         client['multi-tenant'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -670,9 +714,14 @@ export function getGetMultiTenantQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMultiTenantQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMultiTenantQueryKey(),
-    queryFn: async () => parseResponse(client['multi-tenant'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['multi-tenant'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

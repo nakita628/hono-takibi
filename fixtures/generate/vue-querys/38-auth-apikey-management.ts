@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -38,7 +38,7 @@ export function useGetApiKeys(
       parseResponse(
         client['api-keys'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -57,15 +57,20 @@ export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['ap
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetApiKeysQueryOptions(
+export const getGetApiKeysQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetApiKeysQueryKey(args),
-    queryFn: async () => parseResponse(client['api-keys'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['api-keys'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /api-keys
@@ -136,7 +141,7 @@ export function useGetApiKeysKeyId(
       parseResponse(
         client['api-keys'][':keyId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -157,15 +162,20 @@ export function getGetApiKeysKeyIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetApiKeysKeyIdQueryOptions(
+export const getGetApiKeysKeyIdQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetApiKeysKeyIdQueryKey(args),
-    queryFn: async () => parseResponse(client['api-keys'][':keyId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['api-keys'][':keyId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /api-keys/{keyId}
@@ -348,7 +358,7 @@ export function useGetApiKeysKeyIdUsage(
       parseResponse(
         client['api-keys'][':keyId'].usage.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -369,16 +379,20 @@ export function getGetApiKeysKeyIdUsageQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetApiKeysKeyIdUsageQueryOptions(
+export const getGetApiKeysKeyIdUsageQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['api-keys'][':keyId'].usage.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['api-keys'][':keyId'].usage.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /api-keys/{keyId}/rate-limit/current
@@ -419,7 +433,7 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
       parseResponse(
         client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -440,16 +454,20 @@ export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetApiKeysKeyIdRateLimitCurrentQueryOptions(
+export const getGetApiKeysKeyIdRateLimitCurrentQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['api-keys'][':keyId']['rate-limit'].current.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /api-keys/verify
@@ -517,7 +535,7 @@ export function useGetScopes(options?: {
       parseResponse(
         client.scopes.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -536,9 +554,14 @@ export function getGetScopesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetScopesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetScopesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetScopesQueryKey(),
-    queryFn: async () => parseResponse(client.scopes.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.scopes.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

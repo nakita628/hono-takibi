@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -34,10 +34,7 @@ export function createGetResources(
     queryKey: getGetResourcesQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.resources.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.resources.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -55,15 +52,17 @@ export function getGetResourcesQueryKey(args: InferRequestType<typeof client.res
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetResourcesQueryOptions(
+export const getGetResourcesQueryOptions = (
   args: InferRequestType<typeof client.resources.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetResourcesQueryKey(args),
-    queryFn: async () => parseResponse(client.resources.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.resources.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /resources/{id}
@@ -98,7 +97,7 @@ export function createGetResourcesId(
       parseResponse(
         client.resources[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -119,15 +118,20 @@ export function getGetResourcesIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetResourcesIdQueryOptions(
+export const getGetResourcesIdQueryOptions = (
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetResourcesIdQueryKey(args),
-    queryFn: async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.resources[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /resources/{id}
@@ -194,7 +198,7 @@ export function createGetDownloadId(
       parseResponse(
         client.download[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -215,12 +219,17 @@ export function getGetDownloadIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDownloadIdQueryOptions(
+export const getGetDownloadIdQueryOptions = (
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetDownloadIdQueryKey(args),
-    queryFn: async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.download[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

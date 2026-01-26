@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -38,10 +38,7 @@ export function useGetPath(
     queryKey: getGetPathQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client[':path'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -59,15 +56,17 @@ export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPathQueryOptions(
+export const getGetPathQueryOptions = (
   args: InferRequestType<(typeof client)[':path']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPathQueryKey(args),
-    queryFn: async () => parseResponse(client[':path'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * PUT /{path}
@@ -525,7 +524,7 @@ export function useGet1IndexesIndexNameObjectID(
       parseResponse(
         client['1'].indexes[':indexName'][':objectID'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -546,16 +545,20 @@ export function getGet1IndexesIndexNameObjectIDQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1IndexesIndexNameObjectIDQueryOptions(
+export const getGet1IndexesIndexNameObjectIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['1'].indexes[':indexName'][':objectID'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].indexes[':indexName'][':objectID'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /1/indexes/{indexName}/{objectID}
@@ -1025,7 +1028,7 @@ export function useGet1IndexesIndexNameSettings(
       parseResponse(
         client['1'].indexes[':indexName'].settings.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1046,16 +1049,20 @@ export function getGet1IndexesIndexNameSettingsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1IndexesIndexNameSettingsQueryOptions(
+export const getGet1IndexesIndexNameSettingsQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['1'].indexes[':indexName'].settings.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].settings.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /1/indexes/{indexName}/settings
@@ -1160,7 +1167,7 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
       parseResponse(
         client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1183,20 +1190,22 @@ export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1IndexesIndexNameSynonymsObjectIDQueryOptions(
+export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, clientOptions),
+        client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * PUT /1/indexes/{indexName}/synonyms/{objectID}
@@ -1520,7 +1529,7 @@ export function useGet1Keys(options?: {
       parseResponse(
         client['1'].keys.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1539,12 +1548,17 @@ export function getGet1KeysQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1KeysQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGet1KeysQueryKey(),
-    queryFn: async () => parseResponse(client['1'].keys.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].keys.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /1/keys
@@ -1623,7 +1637,7 @@ export function useGet1KeysKey(
       parseResponse(
         client['1'].keys[':key'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1644,15 +1658,20 @@ export function getGet1KeysKeyQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1KeysKeyQueryOptions(
+export const getGet1KeysKeyQueryOptions = (
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1KeysKeyQueryKey(args),
-    queryFn: async () => parseResponse(client['1'].keys[':key'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].keys[':key'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /1/keys/{key}
@@ -1822,7 +1841,7 @@ export function useGet1IndexesIndexNameRulesObjectID(
       parseResponse(
         client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1845,18 +1864,22 @@ export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1IndexesIndexNameRulesObjectIDQueryOptions(
+export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /1/indexes/{indexName}/rules/{objectID}
@@ -2293,7 +2316,7 @@ export function useGet1DictionariesSettings(options?: {
       parseResponse(
         client['1'].dictionaries['*'].settings.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2312,13 +2335,17 @@ export function getGet1DictionariesSettingsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1DictionariesSettingsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGet1DictionariesSettingsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['1'].dictionaries['*'].settings.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].dictionaries['*'].settings.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /1/dictionaries/[*]/settings
@@ -2395,7 +2422,7 @@ export function useGet1DictionariesLanguages(options?: {
       parseResponse(
         client['1'].dictionaries['*'].languages.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2414,13 +2441,17 @@ export function getGet1DictionariesLanguagesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1DictionariesLanguagesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGet1DictionariesLanguagesQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['1'].dictionaries['*'].languages.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].dictionaries['*'].languages.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /1/clusters/mapping
@@ -2462,7 +2493,7 @@ export function useGet1ClustersMapping(
       parseResponse(
         client['1'].clusters.mapping.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2483,15 +2514,20 @@ export function getGet1ClustersMappingQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1ClustersMappingQueryOptions(
+export const getGet1ClustersMappingQueryOptions = (
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1ClustersMappingQueryKey(args),
-    queryFn: async () => parseResponse(client['1'].clusters.mapping.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].clusters.mapping.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /1/clusters/mapping
@@ -2614,7 +2650,7 @@ export function useGet1ClustersMappingTop(options?: {
       parseResponse(
         client['1'].clusters.mapping.top.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2633,13 +2669,17 @@ export function getGet1ClustersMappingTopQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1ClustersMappingTopQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGet1ClustersMappingTopQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['1'].clusters.mapping.top.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].clusters.mapping.top.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /1/clusters/mapping/{userID}
@@ -2681,7 +2721,7 @@ export function useGet1ClustersMappingUserID(
       parseResponse(
         client['1'].clusters.mapping[':userID'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2702,16 +2742,20 @@ export function getGet1ClustersMappingUserIDQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1ClustersMappingUserIDQueryOptions(
+export const getGet1ClustersMappingUserIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1ClustersMappingUserIDQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['1'].clusters.mapping[':userID'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].clusters.mapping[':userID'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /1/clusters/mapping/{userID}
@@ -2796,7 +2840,7 @@ export function useGet1Clusters(options?: {
       parseResponse(
         client['1'].clusters.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2815,12 +2859,17 @@ export function getGet1ClustersQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1ClustersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGet1ClustersQueryKey(),
-    queryFn: async () => parseResponse(client['1'].clusters.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].clusters.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /1/clusters/mapping/search
@@ -2903,7 +2952,7 @@ export function useGet1ClustersMappingPending(
       parseResponse(
         client['1'].clusters.mapping.pending.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2924,16 +2973,20 @@ export function getGet1ClustersMappingPendingQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1ClustersMappingPendingQueryOptions(
+export const getGet1ClustersMappingPendingQueryOptions = (
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1ClustersMappingPendingQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['1'].clusters.mapping.pending.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].clusters.mapping.pending.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /1/security/sources
@@ -2969,7 +3022,7 @@ export function useGet1SecuritySources(options?: {
       parseResponse(
         client['1'].security.sources.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2988,12 +3041,17 @@ export function getGet1SecuritySourcesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1SecuritySourcesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGet1SecuritySourcesQueryKey(),
-    queryFn: async () => parseResponse(client['1'].security.sources.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].security.sources.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /1/security/sources
@@ -3163,10 +3221,7 @@ export function useGet1Logs(
     queryKey: getGet1LogsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client['1'].logs.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -3184,15 +3239,17 @@ export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1'][
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1LogsQueryOptions(
+export const getGet1LogsQueryOptions = (
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1LogsQueryKey(args),
-    queryFn: async () => parseResponse(client['1'].logs.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /1/task/{taskID}
@@ -3231,7 +3288,7 @@ export function useGet1TaskTaskID(
       parseResponse(
         client['1'].task[':taskID'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3252,15 +3309,20 @@ export function getGet1TaskTaskIDQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1TaskTaskIDQueryOptions(
+export const getGet1TaskTaskIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1TaskTaskIDQueryKey(args),
-    queryFn: async () => parseResponse(client['1'].task[':taskID'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].task[':taskID'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /1/indexes/{indexName}/task/{taskID}
@@ -3313,7 +3375,7 @@ export function useGet1IndexesIndexNameTaskTaskID(
       parseResponse(
         client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3334,16 +3396,20 @@ export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1IndexesIndexNameTaskTaskIDQueryOptions(
+export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['1'].indexes[':indexName'].task[':taskID'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /1/indexes/{indexName}/operation
@@ -3456,7 +3522,7 @@ export function useGet1Indexes(
       parseResponse(
         client['1'].indexes.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3477,15 +3543,20 @@ export function getGet1IndexesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet1IndexesQueryOptions(
+export const getGet1IndexesQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet1IndexesQueryKey(args),
-    queryFn: async () => parseResponse(client['1'].indexes.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['1'].indexes.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /waitForApiKey
@@ -3524,7 +3595,7 @@ export function useGetWaitForApiKey(
       parseResponse(
         client.waitForApiKey.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3545,15 +3616,20 @@ export function getGetWaitForApiKeyQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWaitForApiKeyQueryOptions(
+export const getGetWaitForApiKeyQueryOptions = (
   args: InferRequestType<typeof client.waitForApiKey.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetWaitForApiKeyQueryKey(args),
-    queryFn: async () => parseResponse(client.waitForApiKey.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.waitForApiKey.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /waitForTask
@@ -3594,7 +3670,7 @@ export function useGetWaitForTask(
       parseResponse(
         client.waitForTask.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3613,15 +3689,20 @@ export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.w
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWaitForTaskQueryOptions(
+export const getGetWaitForTaskQueryOptions = (
   args: InferRequestType<typeof client.waitForTask.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetWaitForTaskQueryKey(args),
-    queryFn: async () => parseResponse(client.waitForTask.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.waitForTask.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /waitForAppTask
@@ -3660,7 +3741,7 @@ export function useGetWaitForAppTask(
       parseResponse(
         client.waitForAppTask.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3681,15 +3762,20 @@ export function getGetWaitForAppTaskQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWaitForAppTaskQueryOptions(
+export const getGetWaitForAppTaskQueryOptions = (
   args: InferRequestType<typeof client.waitForAppTask.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetWaitForAppTaskQueryKey(args),
-    queryFn: async () => parseResponse(client.waitForAppTask.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.waitForAppTask.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /browseObjects
@@ -3732,7 +3818,7 @@ export function useGetBrowseObjects(
       parseResponse(
         client.browseObjects.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3753,15 +3839,20 @@ export function getGetBrowseObjectsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBrowseObjectsQueryOptions(
+export const getGetBrowseObjectsQueryOptions = (
   args: InferRequestType<typeof client.browseObjects.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetBrowseObjectsQueryKey(args),
-    queryFn: async () => parseResponse(client.browseObjects.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.browseObjects.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /generateSecuredApiKey
@@ -3812,7 +3903,7 @@ export function useGetGenerateSecuredApiKey(
       parseResponse(
         client.generateSecuredApiKey.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3833,15 +3924,20 @@ export function getGetGenerateSecuredApiKeyQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetGenerateSecuredApiKeyQueryOptions(
+export const getGetGenerateSecuredApiKeyQueryOptions = (
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
-    queryFn: async () => parseResponse(client.generateSecuredApiKey.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.generateSecuredApiKey.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /accountCopyIndex
@@ -3880,7 +3976,7 @@ export function useGetAccountCopyIndex(
       parseResponse(
         client.accountCopyIndex.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3901,15 +3997,20 @@ export function getGetAccountCopyIndexQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAccountCopyIndexQueryOptions(
+export const getGetAccountCopyIndexQueryOptions = (
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAccountCopyIndexQueryKey(args),
-    queryFn: async () => parseResponse(client.accountCopyIndex.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.accountCopyIndex.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /replaceAllObjects
@@ -3963,7 +4064,7 @@ export function useGetReplaceAllObjects(
       parseResponse(
         client.replaceAllObjects.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3984,15 +4085,20 @@ export function getGetReplaceAllObjectsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetReplaceAllObjectsQueryOptions(
+export const getGetReplaceAllObjectsQueryOptions = (
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetReplaceAllObjectsQueryKey(args),
-    queryFn: async () => parseResponse(client.replaceAllObjects.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.replaceAllObjects.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /replaceAllObjectsWithTransformation
@@ -4043,7 +4149,7 @@ export function useGetReplaceAllObjectsWithTransformation(
       parseResponse(
         client.replaceAllObjectsWithTransformation.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4064,16 +4170,20 @@ export function getGetReplaceAllObjectsWithTransformationQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetReplaceAllObjectsWithTransformationQueryOptions(
+export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.replaceAllObjectsWithTransformation.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.replaceAllObjectsWithTransformation.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /chunkedBatch
@@ -4112,7 +4222,7 @@ export function useGetChunkedBatch(
       parseResponse(
         client.chunkedBatch.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4133,15 +4243,20 @@ export function getGetChunkedBatchQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetChunkedBatchQueryOptions(
+export const getGetChunkedBatchQueryOptions = (
   args: InferRequestType<typeof client.chunkedBatch.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetChunkedBatchQueryKey(args),
-    queryFn: async () => parseResponse(client.chunkedBatch.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.chunkedBatch.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /saveObjects
@@ -4180,7 +4295,7 @@ export function useGetSaveObjects(
       parseResponse(
         client.saveObjects.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4199,15 +4314,20 @@ export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.s
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSaveObjectsQueryOptions(
+export const getGetSaveObjectsQueryOptions = (
   args: InferRequestType<typeof client.saveObjects.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSaveObjectsQueryKey(args),
-    queryFn: async () => parseResponse(client.saveObjects.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.saveObjects.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /saveObjectsWithTransformation
@@ -4246,7 +4366,7 @@ export function useGetSaveObjectsWithTransformation(
       parseResponse(
         client.saveObjectsWithTransformation.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4267,16 +4387,20 @@ export function getGetSaveObjectsWithTransformationQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSaveObjectsWithTransformationQueryOptions(
+export const getGetSaveObjectsWithTransformationQueryOptions = (
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.saveObjectsWithTransformation.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.saveObjectsWithTransformation.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /deleteObjects
@@ -4425,7 +4549,7 @@ export function useGetIndexExists(
       parseResponse(
         client.indexExists.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4444,15 +4568,20 @@ export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.i
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetIndexExistsQueryOptions(
+export const getGetIndexExistsQueryOptions = (
   args: InferRequestType<typeof client.indexExists.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetIndexExistsQueryKey(args),
-    queryFn: async () => parseResponse(client.indexExists.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.indexExists.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /setClientApiKey
@@ -4491,7 +4620,7 @@ export function useGetSetClientApiKey(
       parseResponse(
         client.setClientApiKey.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4512,12 +4641,17 @@ export function getGetSetClientApiKeyQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSetClientApiKeyQueryOptions(
+export const getGetSetClientApiKeyQueryOptions = (
   args: InferRequestType<typeof client.setClientApiKey.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSetClientApiKeyQueryKey(args),
-    queryFn: async () => parseResponse(client.setClientApiKey.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.setClientApiKey.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

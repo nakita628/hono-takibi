@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
 
@@ -37,7 +37,7 @@ export function useGetBoolean(options?: {
       parseResponse(
         client.boolean.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -56,9 +56,14 @@ export function getGetBooleanQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBooleanQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetBooleanQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetBooleanQueryKey(),
-    queryFn: async () => parseResponse(client.boolean.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.boolean.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

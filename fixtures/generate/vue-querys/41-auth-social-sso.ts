@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/41-auth-social-sso'
 
@@ -40,7 +40,7 @@ export function useGetSocialAuthorizeProvider(
       parseResponse(
         client.social.authorize[':provider'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -61,16 +61,20 @@ export function getGetSocialAuthorizeProviderQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSocialAuthorizeProviderQueryOptions(
+export const getGetSocialAuthorizeProviderQueryOptions = (
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSocialAuthorizeProviderQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.social.authorize[':provider'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.social.authorize[':provider'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /social/callback/{provider}
@@ -109,7 +113,7 @@ export function useGetSocialCallbackProvider(
       parseResponse(
         client.social.callback[':provider'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -130,16 +134,20 @@ export function getGetSocialCallbackProviderQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSocialCallbackProviderQueryOptions(
+export const getGetSocialCallbackProviderQueryOptions = (
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSocialCallbackProviderQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.social.callback[':provider'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.social.callback[':provider'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /social/token
@@ -242,7 +250,7 @@ export function useGetProviders(options?: {
       parseResponse(
         client.providers.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -261,12 +269,17 @@ export function getGetProvidersQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProvidersQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetProvidersQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetProvidersQueryKey(),
-    queryFn: async () => parseResponse(client.providers.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.providers.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /providers/admin
@@ -300,7 +313,7 @@ export function useGetProvidersAdmin(options?: {
       parseResponse(
         client.providers.admin.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -319,12 +332,17 @@ export function getGetProvidersAdminQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProvidersAdminQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetProvidersAdminQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetProvidersAdminQueryKey(),
-    queryFn: async () => parseResponse(client.providers.admin.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.providers.admin.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /providers/admin
@@ -395,7 +413,7 @@ export function useGetProvidersProviderId(
       parseResponse(
         client.providers[':providerId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -416,15 +434,20 @@ export function getGetProvidersProviderIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProvidersProviderIdQueryOptions(
+export const getGetProvidersProviderIdQueryOptions = (
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProvidersProviderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.providers[':providerId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.providers[':providerId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /providers/{providerId}
@@ -570,7 +593,7 @@ export function useGetAccountLinked(options?: {
       parseResponse(
         client.account.linked.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -589,12 +612,17 @@ export function getGetAccountLinkedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAccountLinkedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAccountLinkedQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAccountLinkedQueryKey(),
-    queryFn: async () => parseResponse(client.account.linked.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.account.linked.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /account/link/{provider}
@@ -704,7 +732,7 @@ export function useGetEnterpriseSso(options?: {
       parseResponse(
         client.enterprise.sso.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -723,12 +751,17 @@ export function getGetEnterpriseSsoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEnterpriseSsoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetEnterpriseSsoQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetEnterpriseSsoQueryKey(),
-    queryFn: async () => parseResponse(client.enterprise.sso.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /enterprise/sso
@@ -799,7 +832,7 @@ export function useGetEnterpriseSsoConfigId(
       parseResponse(
         client.enterprise.sso[':configId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -820,16 +853,20 @@ export function getGetEnterpriseSsoConfigIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEnterpriseSsoConfigIdQueryOptions(
+export const getGetEnterpriseSsoConfigIdQueryOptions = (
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEnterpriseSsoConfigIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.enterprise.sso[':configId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso[':configId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /enterprise/sso/{configId}
@@ -940,7 +977,7 @@ export function useGetEnterpriseSsoDomainLookup(
       parseResponse(
         client.enterprise.sso['domain-lookup'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -961,16 +998,20 @@ export function getGetEnterpriseSsoDomainLookupQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEnterpriseSsoDomainLookupQueryOptions(
+export const getGetEnterpriseSsoDomainLookupQueryOptions = (
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEnterpriseSsoDomainLookupQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.enterprise.sso['domain-lookup'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso['domain-lookup'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /enterprise/sso/{configId}/metadata
@@ -1009,7 +1050,7 @@ export function useGetEnterpriseSsoConfigIdMetadata(
       parseResponse(
         client.enterprise.sso[':configId'].metadata.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1030,13 +1071,17 @@ export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEnterpriseSsoConfigIdMetadataQueryOptions(
+export const getGetEnterpriseSsoConfigIdMetadataQueryOptions = (
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEnterpriseSsoConfigIdMetadataQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.enterprise.sso[':configId'].metadata.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.enterprise.sso[':configId'].metadata.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

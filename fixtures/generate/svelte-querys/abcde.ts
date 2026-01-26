@@ -1,5 +1,5 @@
-import { createQuery } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/abcde'
 
@@ -35,7 +35,7 @@ export function createGetExample(options?: {
       parseResponse(
         client.example.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -54,9 +54,14 @@ export function getGetExampleQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetExampleQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetExampleQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetExampleQueryKey(),
-    queryFn: async () => parseResponse(client.example.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.example.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

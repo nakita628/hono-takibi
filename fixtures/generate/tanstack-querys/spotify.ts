@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -38,10 +38,7 @@ export function useGetAlbums(
     queryKey: getGetAlbumsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.albums.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -59,15 +56,17 @@ export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAlbumsQueryOptions(
+export const getGetAlbumsQueryOptions = (
   args: InferRequestType<typeof client.albums.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAlbumsQueryKey(args),
-    queryFn: async () => parseResponse(client.albums.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /albums/{id}
@@ -106,7 +105,7 @@ export function useGetAlbumsId(
       parseResponse(
         client.albums[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -127,15 +126,20 @@ export function getGetAlbumsIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAlbumsIdQueryOptions(
+export const getGetAlbumsIdQueryOptions = (
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAlbumsIdQueryKey(args),
-    queryFn: async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.albums[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /albums/{id}/tracks
@@ -175,7 +179,7 @@ export function useGetAlbumsIdTracks(
       parseResponse(
         client.albums[':id'].tracks.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -196,15 +200,20 @@ export function getGetAlbumsIdTracksQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAlbumsIdTracksQueryOptions(
+export const getGetAlbumsIdTracksQueryOptions = (
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAlbumsIdTracksQueryKey(args),
-    queryFn: async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.albums[':id'].tracks.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /artists
@@ -241,10 +250,7 @@ export function useGetArtists(
     queryKey: getGetArtistsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.artists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -262,15 +268,17 @@ export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artis
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetArtistsQueryOptions(
+export const getGetArtistsQueryOptions = (
   args: InferRequestType<typeof client.artists.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetArtistsQueryKey(args),
-    queryFn: async () => parseResponse(client.artists.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /artists/{id}
@@ -309,7 +317,7 @@ export function useGetArtistsId(
       parseResponse(
         client.artists[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -330,15 +338,20 @@ export function getGetArtistsIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetArtistsIdQueryOptions(
+export const getGetArtistsIdQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetArtistsIdQueryKey(args),
-    queryFn: async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.artists[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /artists/{id}/albums
@@ -377,7 +390,7 @@ export function useGetArtistsIdAlbums(
       parseResponse(
         client.artists[':id'].albums.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -398,15 +411,20 @@ export function getGetArtistsIdAlbumsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetArtistsIdAlbumsQueryOptions(
+export const getGetArtistsIdAlbumsQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetArtistsIdAlbumsQueryKey(args),
-    queryFn: async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.artists[':id'].albums.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /artists/{id}/related-artists
@@ -445,7 +463,7 @@ export function useGetArtistsIdRelatedArtists(
       parseResponse(
         client.artists[':id']['related-artists'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -466,16 +484,20 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetArtistsIdRelatedArtistsQueryOptions(
+export const getGetArtistsIdRelatedArtistsQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.artists[':id']['related-artists'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /artists/{id}/top-tracks
@@ -514,7 +536,7 @@ export function useGetArtistsIdTopTracks(
       parseResponse(
         client.artists[':id']['top-tracks'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -535,16 +557,20 @@ export function getGetArtistsIdTopTracksQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetArtistsIdTopTracksQueryOptions(
+export const getGetArtistsIdTopTracksQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetArtistsIdTopTracksQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.artists[':id']['top-tracks'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /audio-analysis/{id}
@@ -583,7 +609,7 @@ export function useGetAudioAnalysisId(
       parseResponse(
         client['audio-analysis'][':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -604,15 +630,20 @@ export function getGetAudioAnalysisIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAudioAnalysisIdQueryOptions(
+export const getGetAudioAnalysisIdQueryOptions = (
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAudioAnalysisIdQueryKey(args),
-    queryFn: async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['audio-analysis'][':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /audio-features
@@ -651,7 +682,7 @@ export function useGetAudioFeatures(
       parseResponse(
         client['audio-features'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -672,15 +703,20 @@ export function getGetAudioFeaturesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAudioFeaturesQueryOptions(
+export const getGetAudioFeaturesQueryOptions = (
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAudioFeaturesQueryKey(args),
-    queryFn: async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['audio-features'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /audio-features/{id}
@@ -720,7 +756,7 @@ export function useGetAudioFeaturesId(
       parseResponse(
         client['audio-features'][':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -741,15 +777,20 @@ export function getGetAudioFeaturesIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAudioFeaturesIdQueryOptions(
+export const getGetAudioFeaturesIdQueryOptions = (
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAudioFeaturesIdQueryKey(args),
-    queryFn: async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['audio-features'][':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /audiobooks
@@ -789,7 +830,7 @@ export function useGetAudiobooks(
       parseResponse(
         client.audiobooks.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -808,15 +849,20 @@ export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.au
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAudiobooksQueryOptions(
+export const getGetAudiobooksQueryOptions = (
   args: InferRequestType<typeof client.audiobooks.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAudiobooksQueryKey(args),
-    queryFn: async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.audiobooks.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /audiobooks/{id}
@@ -856,7 +902,7 @@ export function useGetAudiobooksId(
       parseResponse(
         client.audiobooks[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -877,15 +923,20 @@ export function getGetAudiobooksIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAudiobooksIdQueryOptions(
+export const getGetAudiobooksIdQueryOptions = (
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAudiobooksIdQueryKey(args),
-    queryFn: async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.audiobooks[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /audiobooks/{id}/chapters
@@ -925,7 +976,7 @@ export function useGetAudiobooksIdChapters(
       parseResponse(
         client.audiobooks[':id'].chapters.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -946,15 +997,20 @@ export function getGetAudiobooksIdChaptersQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAudiobooksIdChaptersQueryOptions(
+export const getGetAudiobooksIdChaptersQueryOptions = (
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAudiobooksIdChaptersQueryKey(args),
-    queryFn: async () => parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.audiobooks[':id'].chapters.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /browse/categories
@@ -993,7 +1049,7 @@ export function useGetBrowseCategories(
       parseResponse(
         client.browse.categories.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1014,15 +1070,20 @@ export function getGetBrowseCategoriesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBrowseCategoriesQueryOptions(
+export const getGetBrowseCategoriesQueryOptions = (
   args: InferRequestType<typeof client.browse.categories.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetBrowseCategoriesQueryKey(args),
-    queryFn: async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.browse.categories.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /browse/categories/{category_id}
@@ -1061,7 +1122,7 @@ export function useGetBrowseCategoriesCategoryId(
       parseResponse(
         client.browse.categories[':category_id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1082,16 +1143,20 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBrowseCategoriesCategoryIdQueryOptions(
+export const getGetBrowseCategoriesCategoryIdQueryOptions = (
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.browse.categories[':category_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /browse/categories/{category_id}/playlists
@@ -1134,7 +1199,7 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
       parseResponse(
         client.browse.categories[':category_id'].playlists.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1155,16 +1220,20 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions(
+export const getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions = (
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.browse.categories[':category_id'].playlists.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /browse/featured-playlists
@@ -1203,7 +1272,7 @@ export function useGetBrowseFeaturedPlaylists(
       parseResponse(
         client.browse['featured-playlists'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1224,16 +1293,20 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBrowseFeaturedPlaylistsQueryOptions(
+export const getGetBrowseFeaturedPlaylistsQueryOptions = (
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.browse['featured-playlists'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /browse/new-releases
@@ -1272,7 +1345,7 @@ export function useGetBrowseNewReleases(
       parseResponse(
         client.browse['new-releases'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1293,15 +1366,20 @@ export function getGetBrowseNewReleasesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetBrowseNewReleasesQueryOptions(
+export const getGetBrowseNewReleasesQueryOptions = (
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetBrowseNewReleasesQueryKey(args),
-    queryFn: async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.browse['new-releases'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /chapters
@@ -1339,10 +1417,7 @@ export function useGetChapters(
     queryKey: getGetChaptersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.chapters.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1360,15 +1435,17 @@ export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chap
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetChaptersQueryOptions(
+export const getGetChaptersQueryOptions = (
   args: InferRequestType<typeof client.chapters.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetChaptersQueryKey(args),
-    queryFn: async () => parseResponse(client.chapters.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /chapters/{id}
@@ -1408,7 +1485,7 @@ export function useGetChaptersId(
       parseResponse(
         client.chapters[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1429,15 +1506,20 @@ export function getGetChaptersIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetChaptersIdQueryOptions(
+export const getGetChaptersIdQueryOptions = (
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetChaptersIdQueryKey(args),
-    queryFn: async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.chapters[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /episodes
@@ -1474,10 +1556,7 @@ export function useGetEpisodes(
     queryKey: getGetEpisodesQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.episodes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1495,15 +1574,17 @@ export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.epis
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEpisodesQueryOptions(
+export const getGetEpisodesQueryOptions = (
   args: InferRequestType<typeof client.episodes.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEpisodesQueryKey(args),
-    queryFn: async () => parseResponse(client.episodes.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /episodes/{id}
@@ -1543,7 +1624,7 @@ export function useGetEpisodesId(
       parseResponse(
         client.episodes[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1564,15 +1645,20 @@ export function getGetEpisodesIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEpisodesIdQueryOptions(
+export const getGetEpisodesIdQueryOptions = (
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEpisodesIdQueryKey(args),
-    queryFn: async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.episodes[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /markets
@@ -1608,7 +1694,7 @@ export function useGetMarkets(options?: {
       parseResponse(
         client.markets.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1627,12 +1713,17 @@ export function getGetMarketsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMarketsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMarketsQueryKey(),
-    queryFn: async () => parseResponse(client.markets.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.markets.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me
@@ -1667,10 +1758,7 @@ export function useGetMe(options?: {
     queryKey: getGetMeQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.me.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1688,12 +1776,14 @@ export function getGetMeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMeQueryKey(),
-    queryFn: async () => parseResponse(client.me.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /me/albums
@@ -1730,10 +1820,7 @@ export function useGetMeAlbums(
     queryKey: getGetMeAlbumsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.me.albums.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1751,15 +1838,17 @@ export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.a
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeAlbumsQueryOptions(
+export const getGetMeAlbumsQueryOptions = (
   args: InferRequestType<typeof client.me.albums.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeAlbumsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.albums.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * PUT /me/albums
@@ -1864,7 +1953,7 @@ export function useGetMeAlbumsContains(
       parseResponse(
         client.me.albums.contains.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1885,15 +1974,20 @@ export function getGetMeAlbumsContainsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeAlbumsContainsQueryOptions(
+export const getGetMeAlbumsContainsQueryOptions = (
   args: InferRequestType<typeof client.me.albums.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeAlbumsContainsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.albums.contains.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/audiobooks
@@ -1932,7 +2026,7 @@ export function useGetMeAudiobooks(
       parseResponse(
         client.me.audiobooks.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1953,15 +2047,20 @@ export function getGetMeAudiobooksQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeAudiobooksQueryOptions(
+export const getGetMeAudiobooksQueryOptions = (
   args: InferRequestType<typeof client.me.audiobooks.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeAudiobooksQueryKey(args),
-    queryFn: async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.audiobooks.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /me/audiobooks
@@ -2069,7 +2168,7 @@ export function useGetMeAudiobooksContains(
       parseResponse(
         client.me.audiobooks.contains.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2090,15 +2189,20 @@ export function getGetMeAudiobooksContainsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeAudiobooksContainsQueryOptions(
+export const getGetMeAudiobooksContainsQueryOptions = (
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeAudiobooksContainsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.audiobooks.contains.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/episodes
@@ -2138,7 +2242,7 @@ export function useGetMeEpisodes(
       parseResponse(
         client.me.episodes.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2157,15 +2261,20 @@ export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeEpisodesQueryOptions(
+export const getGetMeEpisodesQueryOptions = (
   args: InferRequestType<typeof client.me.episodes.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeEpisodesQueryKey(args),
-    queryFn: async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.episodes.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /me/episodes
@@ -2273,7 +2382,7 @@ export function useGetMeEpisodesContains(
       parseResponse(
         client.me.episodes.contains.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2294,15 +2403,20 @@ export function getGetMeEpisodesContainsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeEpisodesContainsQueryOptions(
+export const getGetMeEpisodesContainsQueryOptions = (
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeEpisodesContainsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.episodes.contains.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/following
@@ -2341,7 +2455,7 @@ export function useGetMeFollowing(
       parseResponse(
         client.me.following.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2360,15 +2474,20 @@ export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.m
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeFollowingQueryOptions(
+export const getGetMeFollowingQueryOptions = (
   args: InferRequestType<typeof client.me.following.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeFollowingQueryKey(args),
-    queryFn: async () => parseResponse(client.me.following.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.following.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /me/following
@@ -2476,7 +2595,7 @@ export function useGetMeFollowingContains(
       parseResponse(
         client.me.following.contains.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2497,15 +2616,20 @@ export function getGetMeFollowingContainsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeFollowingContainsQueryOptions(
+export const getGetMeFollowingContainsQueryOptions = (
   args: InferRequestType<typeof client.me.following.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeFollowingContainsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.following.contains.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/player
@@ -2542,10 +2666,7 @@ export function useGetMePlayer(
     queryKey: getGetMePlayerQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.me.player.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -2563,15 +2684,17 @@ export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.p
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMePlayerQueryOptions(
+export const getGetMePlayerQueryOptions = (
   args: InferRequestType<typeof client.me.player.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMePlayerQueryKey(args),
-    queryFn: async () => parseResponse(client.me.player.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * PUT /me/player
@@ -2643,7 +2766,7 @@ export function useGetMePlayerCurrentlyPlaying(
       parseResponse(
         client.me.player['currently-playing'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2664,16 +2787,20 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMePlayerCurrentlyPlayingQueryOptions(
+export const getGetMePlayerCurrentlyPlayingQueryOptions = (
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.player['currently-playing'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/player/devices
@@ -2709,7 +2836,7 @@ export function useGetMePlayerDevices(options?: {
       parseResponse(
         client.me.player.devices.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2728,12 +2855,17 @@ export function getGetMePlayerDevicesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMePlayerDevicesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMePlayerDevicesQueryKey(),
-    queryFn: async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.player.devices.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /me/player/next
@@ -2910,7 +3042,7 @@ export function useGetMePlayerQueue(options?: {
       parseResponse(
         client.me.player.queue.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2929,12 +3061,17 @@ export function getGetMePlayerQueueQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMePlayerQueueQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMePlayerQueueQueryKey(),
-    queryFn: async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.player.queue.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /me/player/queue
@@ -3010,7 +3147,7 @@ export function useGetMePlayerRecentlyPlayed(
       parseResponse(
         client.me.player['recently-played'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3031,16 +3168,20 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMePlayerRecentlyPlayedQueryOptions(
+export const getGetMePlayerRecentlyPlayedQueryOptions = (
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.player['recently-played'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /me/player/repeat
@@ -3222,7 +3363,7 @@ export function useGetMePlaylists(
       parseResponse(
         client.me.playlists.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3241,15 +3382,20 @@ export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.m
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMePlaylistsQueryOptions(
+export const getGetMePlaylistsQueryOptions = (
   args: InferRequestType<typeof client.me.playlists.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMePlaylistsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.playlists.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/shows
@@ -3286,10 +3432,7 @@ export function useGetMeShows(
     queryKey: getGetMeShowsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.me.shows.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -3307,15 +3450,17 @@ export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.sh
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeShowsQueryOptions(
+export const getGetMeShowsQueryOptions = (
   args: InferRequestType<typeof client.me.shows.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeShowsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.shows.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * PUT /me/shows
@@ -3420,7 +3565,7 @@ export function useGetMeShowsContains(
       parseResponse(
         client.me.shows.contains.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3441,15 +3586,20 @@ export function getGetMeShowsContainsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeShowsContainsQueryOptions(
+export const getGetMeShowsContainsQueryOptions = (
   args: InferRequestType<typeof client.me.shows.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeShowsContainsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.shows.contains.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/top/{type}
@@ -3488,7 +3638,7 @@ export function useGetMeTopType(
       parseResponse(
         client.me.top[':type'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3509,15 +3659,20 @@ export function getGetMeTopTypeQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeTopTypeQueryOptions(
+export const getGetMeTopTypeQueryOptions = (
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeTopTypeQueryKey(args),
-    queryFn: async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.top[':type'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /me/tracks
@@ -3554,10 +3709,7 @@ export function useGetMeTracks(
     queryKey: getGetMeTracksQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.me.tracks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -3575,15 +3727,17 @@ export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.t
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeTracksQueryOptions(
+export const getGetMeTracksQueryOptions = (
   args: InferRequestType<typeof client.me.tracks.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeTracksQueryKey(args),
-    queryFn: async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * PUT /me/tracks
@@ -3688,7 +3842,7 @@ export function useGetMeTracksContains(
       parseResponse(
         client.me.tracks.contains.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3709,15 +3863,20 @@ export function getGetMeTracksContainsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMeTracksContainsQueryOptions(
+export const getGetMeTracksContainsQueryOptions = (
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMeTracksContainsQueryKey(args),
-    queryFn: async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.me.tracks.contains.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /playlists/{playlist_id}
@@ -3756,7 +3915,7 @@ export function useGetPlaylistsPlaylistId(
       parseResponse(
         client.playlists[':playlist_id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3777,15 +3936,20 @@ export function getGetPlaylistsPlaylistIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPlaylistsPlaylistIdQueryOptions(
+export const getGetPlaylistsPlaylistIdQueryOptions = (
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
-    queryFn: async () => parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.playlists[':playlist_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /playlists/{playlist_id}
@@ -3963,7 +4127,7 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
       parseResponse(
         client.playlists[':playlist_id'].followers.contains.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3986,18 +4150,22 @@ export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPlaylistsPlaylistIdFollowersContainsQueryOptions(
+export const getGetPlaylistsPlaylistIdFollowersContainsQueryOptions = (
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.playlists[':playlist_id'].followers.contains.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /playlists/{playlist_id}/images
@@ -4036,7 +4204,7 @@ export function useGetPlaylistsPlaylistIdImages(
       parseResponse(
         client.playlists[':playlist_id'].images.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4057,16 +4225,20 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPlaylistsPlaylistIdImagesQueryOptions(
+export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.playlists[':playlist_id'].images.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /playlists/{playlist_id}/images
@@ -4146,7 +4318,7 @@ export function useGetPlaylistsPlaylistIdTracks(
       parseResponse(
         client.playlists[':playlist_id'].tracks.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4167,16 +4339,20 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPlaylistsPlaylistIdTracksQueryOptions(
+export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.playlists[':playlist_id'].tracks.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /playlists/{playlist_id}/tracks
@@ -4346,7 +4522,7 @@ export function useGetRecommendations(
       parseResponse(
         client.recommendations.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4367,15 +4543,20 @@ export function getGetRecommendationsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetRecommendationsQueryOptions(
+export const getGetRecommendationsQueryOptions = (
   args: InferRequestType<typeof client.recommendations.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetRecommendationsQueryKey(args),
-    queryFn: async () => parseResponse(client.recommendations.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.recommendations.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /recommendations/available-genre-seeds
@@ -4411,7 +4592,7 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
       parseResponse(
         client.recommendations['available-genre-seeds'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4430,15 +4611,19 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetRecommendationsAvailableGenreSeedsQueryOptions(
+export const getGetRecommendationsAvailableGenreSeedsQueryOptions = (
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.recommendations['available-genre-seeds'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.recommendations['available-genre-seeds'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /search
@@ -4477,10 +4662,7 @@ export function useGetSearch(
     queryKey: getGetSearchQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.search.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -4498,15 +4680,17 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSearchQueryOptions(
+export const getGetSearchQueryOptions = (
   args: InferRequestType<typeof client.search.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSearchQueryKey(args),
-    queryFn: async () => parseResponse(client.search.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /shows
@@ -4543,10 +4727,7 @@ export function useGetShows(
     queryKey: getGetShowsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.shows.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -4564,15 +4745,17 @@ export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetShowsQueryOptions(
+export const getGetShowsQueryOptions = (
   args: InferRequestType<typeof client.shows.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetShowsQueryKey(args),
-    queryFn: async () => parseResponse(client.shows.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /shows/{id}
@@ -4612,7 +4795,7 @@ export function useGetShowsId(
       parseResponse(
         client.shows[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4633,15 +4816,20 @@ export function getGetShowsIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetShowsIdQueryOptions(
+export const getGetShowsIdQueryOptions = (
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetShowsIdQueryKey(args),
-    queryFn: async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.shows[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /shows/{id}/episodes
@@ -4680,7 +4868,7 @@ export function useGetShowsIdEpisodes(
       parseResponse(
         client.shows[':id'].episodes.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4701,15 +4889,20 @@ export function getGetShowsIdEpisodesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetShowsIdEpisodesQueryOptions(
+export const getGetShowsIdEpisodesQueryOptions = (
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetShowsIdEpisodesQueryKey(args),
-    queryFn: async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.shows[':id'].episodes.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /tracks
@@ -4746,10 +4939,7 @@ export function useGetTracks(
     queryKey: getGetTracksQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.tracks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -4767,15 +4957,17 @@ export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTracksQueryOptions(
+export const getGetTracksQueryOptions = (
   args: InferRequestType<typeof client.tracks.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTracksQueryKey(args),
-    queryFn: async () => parseResponse(client.tracks.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /tracks/{id}
@@ -4815,7 +5007,7 @@ export function useGetTracksId(
       parseResponse(
         client.tracks[':id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4836,15 +5028,20 @@ export function getGetTracksIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTracksIdQueryOptions(
+export const getGetTracksIdQueryOptions = (
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTracksIdQueryKey(args),
-    queryFn: async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.tracks[':id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /users/{user_id}
@@ -4883,7 +5080,7 @@ export function useGetUsersUserId(
       parseResponse(
         client.users[':user_id'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4904,15 +5101,20 @@ export function getGetUsersUserIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersUserIdQueryOptions(
+export const getGetUsersUserIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users[':user_id'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /users/{user_id}/playlists
@@ -4951,7 +5153,7 @@ export function useGetUsersUserIdPlaylists(
       parseResponse(
         client.users[':user_id'].playlists.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4972,16 +5174,20 @@ export function getGetUsersUserIdPlaylistsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersUserIdPlaylistsQueryOptions(
+export const getGetUsersUserIdPlaylistsQueryOptions = (
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users[':user_id'].playlists.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /users/{user_id}/playlists

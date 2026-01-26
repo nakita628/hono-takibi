@@ -1,5 +1,5 @@
-import { createQuery } from '@tanstack/svelte-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
 
@@ -37,7 +37,7 @@ export function createGetPrimitive(options?: {
       parseResponse(
         client.primitive.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -56,9 +56,14 @@ export function getGetPrimitiveQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPrimitiveQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPrimitiveQueryKey(),
-    queryFn: async () => parseResponse(client.primitive.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.primitive.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

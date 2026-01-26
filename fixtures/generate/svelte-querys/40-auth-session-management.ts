@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -38,10 +38,7 @@ export function createGetSessions(
     queryKey: getGetSessionsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.sessions.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -59,15 +56,17 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsQueryOptions(
+export const getGetSessionsQueryOptions = (
   args: InferRequestType<typeof client.sessions.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSessionsQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /sessions
@@ -134,7 +133,7 @@ export function createGetSessionsCurrent(options?: {
       parseResponse(
         client.sessions.current.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -153,12 +152,17 @@ export function getGetSessionsCurrentQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsCurrentQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSessionsCurrentQueryKey(),
-    queryFn: async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions.current.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /sessions/current
@@ -331,7 +335,7 @@ export function createGetSessionsSessionId(
       parseResponse(
         client.sessions[':sessionId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -352,15 +356,20 @@ export function getGetSessionsSessionIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsSessionIdQueryOptions(
+export const getGetSessionsSessionIdQueryOptions = (
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSessionsSessionIdQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions[':sessionId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /sessions/{sessionId}
@@ -509,7 +518,7 @@ export function createGetSessionsHistory(
       parseResponse(
         client.sessions.history.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -530,15 +539,20 @@ export function getGetSessionsHistoryQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsHistoryQueryOptions(
+export const getGetSessionsHistoryQueryOptions = (
   args: InferRequestType<typeof client.sessions.history.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSessionsHistoryQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions.history.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /sessions/security-events
@@ -577,7 +591,7 @@ export function createGetSessionsSecurityEvents(
       parseResponse(
         client.sessions['security-events'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -598,16 +612,20 @@ export function getGetSessionsSecurityEventsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsSecurityEventsQueryOptions(
+export const getGetSessionsSecurityEventsQueryOptions = (
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSessionsSecurityEventsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions['security-events'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /sessions/policies
@@ -641,7 +659,7 @@ export function createGetSessionsPolicies(options?: {
       parseResponse(
         client.sessions.policies.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -660,12 +678,17 @@ export function getGetSessionsPoliciesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsPoliciesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSessionsPoliciesQueryKey(),
-    queryFn: async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions.policies.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /sessions/policies
@@ -733,7 +756,7 @@ export function createGetSessionsTrustedDevices(options?: {
       parseResponse(
         client.sessions['trusted-devices'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -752,13 +775,17 @@ export function getGetSessionsTrustedDevicesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsTrustedDevicesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSessionsTrustedDevicesQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions['trusted-devices'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /sessions/trusted-devices

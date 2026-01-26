@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -65,7 +65,7 @@ export function useGetOrdersOrderId(
       parseResponse(
         client.orders[':orderId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -86,15 +86,20 @@ export function getGetOrdersOrderIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOrdersOrderIdQueryOptions(
+export const getGetOrdersOrderIdQueryOptions = (
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOrdersOrderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.orders[':orderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /orders/{orderId}
@@ -161,7 +166,7 @@ export function useGetOrdersOrderIdItems(
       parseResponse(
         client.orders[':orderId'].items.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -182,15 +187,20 @@ export function getGetOrdersOrderIdItemsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOrdersOrderIdItemsQueryOptions(
+export const getGetOrdersOrderIdItemsQueryOptions = (
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOrdersOrderIdItemsQueryKey(args),
-    queryFn: async () => parseResponse(client.orders[':orderId'].items.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.orders[':orderId'].items.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /customers/{customerId}
@@ -225,7 +235,7 @@ export function useGetCustomersCustomerId(
       parseResponse(
         client.customers[':customerId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -246,15 +256,20 @@ export function getGetCustomersCustomerIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCustomersCustomerIdQueryOptions(
+export const getGetCustomersCustomerIdQueryOptions = (
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetCustomersCustomerIdQueryKey(args),
-    queryFn: async () => parseResponse(client.customers[':customerId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.customers[':customerId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /customers/{customerId}/orders
@@ -289,7 +304,7 @@ export function useGetCustomersCustomerIdOrders(
       parseResponse(
         client.customers[':customerId'].orders.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -310,16 +325,20 @@ export function getGetCustomersCustomerIdOrdersQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCustomersCustomerIdOrdersQueryOptions(
+export const getGetCustomersCustomerIdOrdersQueryOptions = (
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetCustomersCustomerIdOrdersQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.customers[':customerId'].orders.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.customers[':customerId'].orders.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /payments/{paymentId}
@@ -354,7 +373,7 @@ export function useGetPaymentsPaymentId(
       parseResponse(
         client.payments[':paymentId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -375,12 +394,17 @@ export function getGetPaymentsPaymentIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPaymentsPaymentIdQueryOptions(
+export const getGetPaymentsPaymentIdQueryOptions = (
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPaymentsPaymentIdQueryKey(args),
-    queryFn: async () => parseResponse(client.payments[':paymentId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.payments[':paymentId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

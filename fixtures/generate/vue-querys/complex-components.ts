@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
@@ -67,10 +67,7 @@ export function useGetUsers(
     queryKey: getGetUsersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.users.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -88,15 +85,17 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersQueryOptions(
+export const getGetUsersQueryOptions = (
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersQueryKey(args),
-    queryFn: async () => parseResponse(client.users.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /users
@@ -164,7 +163,7 @@ export function useGetUsersUserId(
       parseResponse(
         client.users[':userId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -185,15 +184,20 @@ export function getGetUsersUserIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersUserIdQueryOptions(
+export const getGetUsersUserIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':userId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users[':userId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PATCH /users/{userId}
@@ -264,7 +268,7 @@ export function useGetCompaniesCompanyId(
       parseResponse(
         client.companies[':companyId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -285,15 +289,20 @@ export function getGetCompaniesCompanyIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCompaniesCompanyIdQueryOptions(
+export const getGetCompaniesCompanyIdQueryOptions = (
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetCompaniesCompanyIdQueryKey(args),
-    queryFn: async () => parseResponse(client.companies[':companyId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.companies[':companyId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /orders
@@ -328,10 +337,7 @@ export function useGetOrders(
     queryKey: getGetOrdersQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.orders.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -349,15 +355,17 @@ export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOrdersQueryOptions(
+export const getGetOrdersQueryOptions = (
   args: InferRequestType<typeof client.orders.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOrdersQueryKey(args),
-    queryFn: async () => parseResponse(client.orders.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.orders.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /orders
@@ -425,7 +433,7 @@ export function useGetOrdersOrderId(
       parseResponse(
         client.orders[':orderId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -446,15 +454,20 @@ export function getGetOrdersOrderIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOrdersOrderIdQueryOptions(
+export const getGetOrdersOrderIdQueryOptions = (
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetOrdersOrderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.orders[':orderId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.orders[':orderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /files/{fileId}
@@ -491,7 +504,7 @@ export function useGetFilesFileId(
       parseResponse(
         client.files[':fileId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -512,15 +525,20 @@ export function getGetFilesFileIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesFileIdQueryOptions(
+export const getGetFilesFileIdQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesFileIdQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /subscriptions

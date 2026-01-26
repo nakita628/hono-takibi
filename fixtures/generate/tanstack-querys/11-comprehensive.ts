@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
@@ -38,10 +38,7 @@ export function useGetProducts(
     queryKey: getGetProductsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.products.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -59,15 +56,17 @@ export function getGetProductsQueryKey(args: InferRequestType<typeof client.prod
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProductsQueryOptions(
+export const getGetProductsQueryOptions = (
   args: InferRequestType<typeof client.products.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProductsQueryKey(args),
-    queryFn: async () => parseResponse(client.products.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /products
@@ -135,7 +134,7 @@ export function useGetProductsProductId(
       parseResponse(
         client.products[':productId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -156,15 +155,20 @@ export function getGetProductsProductIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProductsProductIdQueryOptions(
+export const getGetProductsProductIdQueryOptions = (
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProductsProductIdQueryKey(args),
-    queryFn: async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.products[':productId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /products/{productId}

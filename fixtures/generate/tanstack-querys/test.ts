@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
 
@@ -35,10 +35,7 @@ export function useGetHono(options?: {
     queryKey: getGetHonoQueryKey(),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.hono.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -56,12 +53,14 @@ export function getGetHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetHonoQueryKey(),
-    queryFn: async () => parseResponse(client.hono.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /hono-x
@@ -97,7 +96,7 @@ export function useGetHonoX(options?: {
       parseResponse(
         client['hono-x'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -116,12 +115,17 @@ export function getGetHonoXQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetHonoXQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetHonoXQueryKey(),
-    queryFn: async () => parseResponse(client['hono-x'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['hono-x'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /zod-openapi-hono
@@ -157,7 +161,7 @@ export function useGetZodOpenapiHono(options?: {
       parseResponse(
         client['zod-openapi-hono'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -176,9 +180,14 @@ export function getGetZodOpenapiHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetZodOpenapiHonoQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetZodOpenapiHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetZodOpenapiHonoQueryKey(),
-    queryFn: async () => parseResponse(client['zod-openapi-hono'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['zod-openapi-hono'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

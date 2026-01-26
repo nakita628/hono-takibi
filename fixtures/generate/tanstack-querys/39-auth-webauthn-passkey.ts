@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
@@ -185,7 +185,7 @@ export function useGetWebauthnCredentials(options?: {
       parseResponse(
         client.webauthn.credentials.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -204,12 +204,17 @@ export function getGetWebauthnCredentialsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWebauthnCredentialsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWebauthnCredentialsQueryKey(),
-    queryFn: async () => parseResponse(client.webauthn.credentials.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.webauthn.credentials.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /webauthn/credentials/{credentialId}
@@ -246,7 +251,7 @@ export function useGetWebauthnCredentialsCredentialId(
       parseResponse(
         client.webauthn.credentials[':credentialId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -267,16 +272,20 @@ export function getGetWebauthnCredentialsCredentialIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWebauthnCredentialsCredentialIdQueryOptions(
+export const getGetWebauthnCredentialsCredentialIdQueryOptions = (
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetWebauthnCredentialsCredentialIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.webauthn.credentials[':credentialId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.webauthn.credentials[':credentialId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /webauthn/credentials/{credentialId}
@@ -396,7 +405,7 @@ export function useGetWebauthnSettings(options?: {
       parseResponse(
         client.webauthn.settings.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -415,12 +424,17 @@ export function getGetWebauthnSettingsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWebauthnSettingsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWebauthnSettingsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWebauthnSettingsQueryKey(),
-    queryFn: async () => parseResponse(client.webauthn.settings.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.webauthn.settings.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /webauthn/settings/rp
@@ -454,7 +468,7 @@ export function useGetWebauthnSettingsRp(options?: {
       parseResponse(
         client.webauthn.settings.rp.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -473,12 +487,17 @@ export function getGetWebauthnSettingsRpQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWebauthnSettingsRpQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWebauthnSettingsRpQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWebauthnSettingsRpQueryKey(),
-    queryFn: async () => parseResponse(client.webauthn.settings.rp.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.webauthn.settings.rp.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /webauthn/settings/rp
@@ -548,7 +567,7 @@ export function useGetWebauthnAuthenticators(options?: {
       parseResponse(
         client.webauthn.authenticators.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -567,10 +586,14 @@ export function getGetWebauthnAuthenticatorsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetWebauthnAuthenticatorsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetWebauthnAuthenticatorsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetWebauthnAuthenticatorsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.webauthn.authenticators.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.webauthn.authenticators.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

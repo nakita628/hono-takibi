@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -33,7 +33,7 @@ export function useGetAllMethods(options?: {
       parseResponse(
         client['all-methods'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -52,12 +52,17 @@ export function getGetAllMethodsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAllMethodsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAllMethodsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAllMethodsQueryKey(),
-    queryFn: async () => parseResponse(client['all-methods'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['all-methods'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /all-methods
@@ -298,7 +303,7 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
       parseResponse(
         client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -321,20 +326,22 @@ export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions(
+export const getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions = (
   args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, clientOptions),
+        client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /params-test/{pathParam}
@@ -369,7 +376,7 @@ export function useGetParamsTestPathParam(
       parseResponse(
         client['params-test'][':pathParam'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -390,16 +397,20 @@ export function getGetParamsTestPathParamQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetParamsTestPathParamQueryOptions(
+export const getGetParamsTestPathParamQueryOptions = (
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetParamsTestPathParamQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['params-test'][':pathParam'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['params-test'][':pathParam'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /no-content
@@ -459,7 +470,7 @@ export function useGetMultiContent(options?: {
       parseResponse(
         client['multi-content'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -478,12 +489,17 @@ export function getGetMultiContentQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMultiContentQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMultiContentQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMultiContentQueryKey(),
-    queryFn: async () => parseResponse(client['multi-content'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['multi-content'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /multi-content
@@ -547,7 +563,7 @@ export function useGetResponseRanges(options?: {
       parseResponse(
         client['response-ranges'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -566,12 +582,17 @@ export function getGetResponseRangesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetResponseRangesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetResponseRangesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetResponseRangesQueryKey(),
-    queryFn: async () => parseResponse(client['response-ranges'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['response-ranges'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /deprecated
@@ -605,7 +626,7 @@ export function useGetDeprecated(options?: {
       parseResponse(
         client.deprecated.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -624,12 +645,17 @@ export function getGetDeprecatedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDeprecatedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetDeprecatedQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetDeprecatedQueryKey(),
-    queryFn: async () => parseResponse(client.deprecated.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.deprecated.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /no-operation-id
@@ -663,7 +689,7 @@ export function useGetNoOperationId(options?: {
       parseResponse(
         client['no-operation-id'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -682,12 +708,17 @@ export function getGetNoOperationIdQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNoOperationIdQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetNoOperationIdQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetNoOperationIdQueryKey(),
-    queryFn: async () => parseResponse(client['no-operation-id'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['no-operation-id'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /empty-body
@@ -751,7 +782,7 @@ export function useGetCircular(options?: {
       parseResponse(
         client.circular.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -770,12 +801,17 @@ export function getGetCircularQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCircularQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCircularQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCircularQueryKey(),
-    queryFn: async () => parseResponse(client.circular.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.circular.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /deep-nesting
@@ -807,7 +843,7 @@ export function useGetDeepNesting(options?: {
       parseResponse(
         client['deep-nesting'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -826,12 +862,17 @@ export function getGetDeepNestingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDeepNestingQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetDeepNestingQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetDeepNestingQueryKey(),
-    queryFn: async () => parseResponse(client['deep-nesting'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['deep-nesting'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /array-params
@@ -866,7 +907,7 @@ export function useGetArrayParams(
       parseResponse(
         client['array-params'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -887,15 +928,20 @@ export function getGetArrayParamsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetArrayParamsQueryOptions(
+export const getGetArrayParamsQueryOptions = (
   args: InferRequestType<(typeof client)['array-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetArrayParamsQueryKey(args),
-    queryFn: async () => parseResponse(client['array-params'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['array-params'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /object-param
@@ -930,7 +976,7 @@ export function useGetObjectParam(
       parseResponse(
         client['object-param'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -951,12 +997,17 @@ export function getGetObjectParamQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetObjectParamQueryOptions(
+export const getGetObjectParamQueryOptions = (
   args: InferRequestType<(typeof client)['object-param']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetObjectParamQueryKey(args),
-    queryFn: async () => parseResponse(client['object-param'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['object-param'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

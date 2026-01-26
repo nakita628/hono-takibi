@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/31-practical-blog-api'
 
@@ -36,10 +36,7 @@ export function useGetPosts(
     queryKey: getGetPostsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.posts.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -57,15 +54,17 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPostsQueryOptions(
+export const getGetPostsQueryOptions = (
   args: InferRequestType<typeof client.posts.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPostsQueryKey(args),
-    queryFn: async () => parseResponse(client.posts.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /posts
@@ -133,7 +132,7 @@ export function useGetPostsPostId(
       parseResponse(
         client.posts[':postId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -154,15 +153,20 @@ export function getGetPostsPostIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPostsPostIdQueryOptions(
+export const getGetPostsPostIdQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPostsPostIdQueryKey(args),
-    queryFn: async () => parseResponse(client.posts[':postId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.posts[':postId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /posts/{postId}
@@ -267,7 +271,7 @@ export function useGetPostsSlugSlug(
       parseResponse(
         client.posts.slug[':slug'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -288,15 +292,20 @@ export function getGetPostsSlugSlugQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPostsSlugSlugQueryOptions(
+export const getGetPostsSlugSlugQueryOptions = (
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPostsSlugSlugQueryKey(args),
-    queryFn: async () => parseResponse(client.posts.slug[':slug'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.posts.slug[':slug'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /posts/{postId}/publish
@@ -407,7 +416,7 @@ export function useGetPostsPostIdComments(
       parseResponse(
         client.posts[':postId'].comments.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -428,15 +437,20 @@ export function getGetPostsPostIdCommentsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPostsPostIdCommentsQueryOptions(
+export const getGetPostsPostIdCommentsQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetPostsPostIdCommentsQueryKey(args),
-    queryFn: async () => parseResponse(client.posts[':postId'].comments.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.posts[':postId'].comments.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /posts/{postId}/comments
@@ -582,7 +596,7 @@ export function useGetCategories(options?: {
       parseResponse(
         client.categories.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -601,12 +615,17 @@ export function getGetCategoriesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCategoriesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCategoriesQueryKey(),
-    queryFn: async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.categories.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /categories
@@ -674,7 +693,7 @@ export function useGetCategoriesCategoryId(
       parseResponse(
         client.categories[':categoryId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -695,15 +714,20 @@ export function getGetCategoriesCategoryIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCategoriesCategoryIdQueryOptions(
+export const getGetCategoriesCategoryIdQueryOptions = (
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetCategoriesCategoryIdQueryKey(args),
-    queryFn: async () => parseResponse(client.categories[':categoryId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.categories[':categoryId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /categories/{categoryId}
@@ -811,10 +835,7 @@ export function useGetTags(
     queryKey: getGetTagsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.tags.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.tags.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -832,15 +853,17 @@ export function getGetTagsQueryKey(args: InferRequestType<typeof client.tags.$ge
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTagsQueryOptions(
+export const getGetTagsQueryOptions = (
   args: InferRequestType<typeof client.tags.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTagsQueryKey(args),
-    queryFn: async () => parseResponse(client.tags.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.tags.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /tags
@@ -906,10 +929,7 @@ export function useGetMedia(
     queryKey: getGetMediaQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.media.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.media.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -927,15 +947,17 @@ export function getGetMediaQueryKey(args: InferRequestType<typeof client.media.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMediaQueryOptions(
+export const getGetMediaQueryOptions = (
   args: InferRequestType<typeof client.media.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMediaQueryKey(args),
-    queryFn: async () => parseResponse(client.media.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.media.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /media
@@ -1003,7 +1025,7 @@ export function useGetMediaMediaId(
       parseResponse(
         client.media[':mediaId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1024,15 +1046,20 @@ export function getGetMediaMediaIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMediaMediaIdQueryOptions(
+export const getGetMediaMediaIdQueryOptions = (
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetMediaMediaIdQueryKey(args),
-    queryFn: async () => parseResponse(client.media[':mediaId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.media[':mediaId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /media/{mediaId}
@@ -1134,7 +1161,7 @@ export function useGetAuthors(options?: {
       parseResponse(
         client.authors.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1153,12 +1180,17 @@ export function getGetAuthorsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAuthorsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAuthorsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAuthorsQueryKey(),
-    queryFn: async () => parseResponse(client.authors.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.authors.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /authors/{authorId}
@@ -1195,7 +1227,7 @@ export function useGetAuthorsAuthorId(
       parseResponse(
         client.authors[':authorId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1216,12 +1248,17 @@ export function getGetAuthorsAuthorIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAuthorsAuthorIdQueryOptions(
+export const getGetAuthorsAuthorIdQueryOptions = (
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAuthorsAuthorIdQueryKey(args),
-    queryFn: async () => parseResponse(client.authors[':authorId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.authors[':authorId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

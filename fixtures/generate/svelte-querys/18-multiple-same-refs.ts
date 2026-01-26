@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -34,10 +34,7 @@ export function createGetDocuments(
     queryKey: getGetDocumentsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.documents.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.documents.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -55,15 +52,17 @@ export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.doc
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDocumentsQueryOptions(
+export const getGetDocumentsQueryOptions = (
   args: InferRequestType<typeof client.documents.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetDocumentsQueryKey(args),
-    queryFn: async () => parseResponse(client.documents.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.documents.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /documents
@@ -127,7 +126,7 @@ export function createGetDocumentsDocumentId(
       parseResponse(
         client.documents[':documentId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -148,15 +147,20 @@ export function getGetDocumentsDocumentIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDocumentsDocumentIdQueryOptions(
+export const getGetDocumentsDocumentIdQueryOptions = (
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetDocumentsDocumentIdQueryKey(args),
-    queryFn: async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.documents[':documentId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /documents/{documentId}
@@ -225,7 +229,7 @@ export function createGetDocumentsDocumentIdVersions(
       parseResponse(
         client.documents[':documentId'].versions.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -246,16 +250,20 @@ export function getGetDocumentsDocumentIdVersionsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDocumentsDocumentIdVersionsQueryOptions(
+export const getGetDocumentsDocumentIdVersionsQueryOptions = (
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetDocumentsDocumentIdVersionsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.documents[':documentId'].versions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /documents/{documentId}/share
@@ -327,7 +335,7 @@ export function createGetUsersUserIdDocuments(
       parseResponse(
         client.users[':userId'].documents.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -348,15 +356,20 @@ export function getGetUsersUserIdDocumentsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUsersUserIdDocumentsQueryOptions(
+export const getGetUsersUserIdDocumentsQueryOptions = (
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetUsersUserIdDocumentsQueryKey(args),
-    queryFn: async () => parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.users[':userId'].documents.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /compare
@@ -417,7 +430,7 @@ export function createGetTemplates(options?: {
       parseResponse(
         client.templates.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -436,12 +449,17 @@ export function getGetTemplatesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTemplatesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetTemplatesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetTemplatesQueryKey(),
-    queryFn: async () => parseResponse(client.templates.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.templates.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /templates

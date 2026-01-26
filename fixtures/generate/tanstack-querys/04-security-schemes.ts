@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
 
@@ -33,7 +33,7 @@ export function useGetPublic(options?: {
       parseResponse(
         client.public.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -52,12 +52,17 @@ export function getGetPublicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetPublicQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetPublicQueryKey(),
-    queryFn: async () => parseResponse(client.public.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.public.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /protected
@@ -89,7 +94,7 @@ export function useGetProtected(options?: {
       parseResponse(
         client.protected.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -108,12 +113,17 @@ export function getGetProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProtectedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetProtectedQueryKey(),
-    queryFn: async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.protected.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /admin
@@ -145,7 +155,7 @@ export function useGetAdmin(options?: {
       parseResponse(
         client.admin.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -164,12 +174,17 @@ export function getGetAdminQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAdminQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAdminQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAdminQueryKey(),
-    queryFn: async () => parseResponse(client.admin.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.admin.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /oauth-resource
@@ -201,7 +216,7 @@ export function useGetOauthResource(options?: {
       parseResponse(
         client['oauth-resource'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -220,12 +235,17 @@ export function getGetOauthResourceQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetOauthResourceQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetOauthResourceQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetOauthResourceQueryKey(),
-    queryFn: async () => parseResponse(client['oauth-resource'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['oauth-resource'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /multi-auth
@@ -257,7 +277,7 @@ export function useGetMultiAuth(options?: {
       parseResponse(
         client['multi-auth'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -276,9 +296,14 @@ export function getGetMultiAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMultiAuthQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMultiAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMultiAuthQueryKey(),
-    queryFn: async () => parseResponse(client['multi-auth'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['multi-auth'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -36,10 +36,7 @@ export function useGetFiles(
     queryKey: getGetFilesQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.files.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -57,15 +54,17 @@ export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesQueryOptions(
+export const getGetFilesQueryOptions = (
   args: InferRequestType<typeof client.files.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesQueryKey(args),
-    queryFn: async () => parseResponse(client.files.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /files/upload
@@ -272,7 +271,7 @@ export function useGetFilesFileId(
       parseResponse(
         client.files[':fileId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -293,15 +292,20 @@ export function getGetFilesFileIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesFileIdQueryOptions(
+export const getGetFilesFileIdQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesFileIdQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /files/{fileId}
@@ -406,7 +410,7 @@ export function useGetFilesFileIdDownload(
       parseResponse(
         client.files[':fileId'].download.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -427,15 +431,20 @@ export function getGetFilesFileIdDownloadQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesFileIdDownloadQueryOptions(
+export const getGetFilesFileIdDownloadQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesFileIdDownloadQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].download.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].download.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /files/{fileId}/download-url
@@ -472,7 +481,7 @@ export function useGetFilesFileIdDownloadUrl(
       parseResponse(
         client.files[':fileId']['download-url'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -493,16 +502,20 @@ export function getGetFilesFileIdDownloadUrlQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesFileIdDownloadUrlQueryOptions(
+export const getGetFilesFileIdDownloadUrlQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.files[':fileId']['download-url'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files[':fileId']['download-url'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /files/{fileId}/copy
@@ -611,7 +624,7 @@ export function useGetFilesFileIdThumbnail(
       parseResponse(
         client.files[':fileId'].thumbnail.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -632,15 +645,20 @@ export function getGetFilesFileIdThumbnailQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesFileIdThumbnailQueryOptions(
+export const getGetFilesFileIdThumbnailQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesFileIdThumbnailQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].thumbnail.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].thumbnail.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /folders
@@ -708,7 +726,7 @@ export function useGetFoldersFolderId(
       parseResponse(
         client.folders[':folderId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -729,15 +747,20 @@ export function getGetFoldersFolderIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFoldersFolderIdQueryOptions(
+export const getGetFoldersFolderIdQueryOptions = (
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFoldersFolderIdQueryKey(args),
-    queryFn: async () => parseResponse(client.folders[':folderId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.folders[':folderId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /folders/{folderId}
@@ -844,7 +867,7 @@ export function useGetFilesFileIdShare(
       parseResponse(
         client.files[':fileId'].share.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -865,15 +888,20 @@ export function getGetFilesFileIdShareQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesFileIdShareQueryOptions(
+export const getGetFilesFileIdShareQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesFileIdShareQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].share.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].share.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /files/{fileId}/share
@@ -1023,7 +1051,7 @@ export function useGetFilesFileIdVersions(
       parseResponse(
         client.files[':fileId'].versions.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1044,15 +1072,20 @@ export function getGetFilesFileIdVersionsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFilesFileIdVersionsQueryOptions(
+export const getGetFilesFileIdVersionsQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFilesFileIdVersionsQueryKey(args),
-    queryFn: async () => parseResponse(client.files[':fileId'].versions.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.files[':fileId'].versions.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /files/{fileId}/versions/{versionId}/restore
@@ -1143,10 +1176,7 @@ export function useGetTrash(
     queryKey: getGetTrashQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.trash.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1164,15 +1194,17 @@ export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTrashQueryOptions(
+export const getGetTrashQueryOptions = (
   args: InferRequestType<typeof client.trash.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTrashQueryKey(args),
-    queryFn: async () => parseResponse(client.trash.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * DELETE /trash
@@ -1273,7 +1305,7 @@ export function useGetStorageUsage(options?: {
       parseResponse(
         client.storage.usage.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1292,9 +1324,14 @@ export function getGetStorageUsageQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetStorageUsageQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetStorageUsageQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetStorageUsageQueryKey(),
-    queryFn: async () => parseResponse(client.storage.usage.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.storage.usage.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

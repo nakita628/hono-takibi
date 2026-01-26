@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
@@ -34,10 +34,7 @@ export function useGetTest(
     queryKey: getGetTestQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.test.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.test.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -55,15 +52,17 @@ export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$ge
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTestQueryOptions(
+export const getGetTestQueryOptions = (
   args: InferRequestType<typeof client.test.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTestQueryKey(args),
-    queryFn: async () => parseResponse(client.test.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.test.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * GET /empty-refs
@@ -95,7 +94,7 @@ export function useGetEmptyRefs(options?: {
       parseResponse(
         client['empty-refs'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -114,12 +113,17 @@ export function getGetEmptyRefsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEmptyRefsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetEmptyRefsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetEmptyRefsQueryKey(),
-    queryFn: async () => parseResponse(client['empty-refs'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['empty-refs'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /unicode-refs
@@ -151,7 +155,7 @@ export function useGetUnicodeRefs(options?: {
       parseResponse(
         client['unicode-refs'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -170,12 +174,17 @@ export function getGetUnicodeRefsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetUnicodeRefsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetUnicodeRefsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetUnicodeRefsQueryKey(),
-    queryFn: async () => parseResponse(client['unicode-refs'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['unicode-refs'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /special-chars
@@ -207,7 +216,7 @@ export function useGetSpecialChars(options?: {
       parseResponse(
         client['special-chars'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -226,12 +235,17 @@ export function getGetSpecialCharsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSpecialCharsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSpecialCharsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSpecialCharsQueryKey(),
-    queryFn: async () => parseResponse(client['special-chars'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['special-chars'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /numeric-start
@@ -263,7 +277,7 @@ export function useGetNumericStart(options?: {
       parseResponse(
         client['numeric-start'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -282,12 +296,17 @@ export function getGetNumericStartQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetNumericStartQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetNumericStartQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetNumericStartQueryKey(),
-    queryFn: async () => parseResponse(client['numeric-start'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['numeric-start'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /ref-in-allof
@@ -319,7 +338,7 @@ export function useGetRefInAllof(options?: {
       parseResponse(
         client['ref-in-allof'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -338,12 +357,17 @@ export function getGetRefInAllofQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetRefInAllofQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetRefInAllofQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetRefInAllofQueryKey(),
-    queryFn: async () => parseResponse(client['ref-in-allof'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['ref-in-allof'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /deeply-nested
@@ -375,7 +399,7 @@ export function useGetDeeplyNested(options?: {
       parseResponse(
         client['deeply-nested'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -394,12 +418,17 @@ export function getGetDeeplyNestedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetDeeplyNestedQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetDeeplyNestedQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetDeeplyNestedQueryKey(),
-    queryFn: async () => parseResponse(client['deeply-nested'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['deeply-nested'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /same-name-diff-context
@@ -431,7 +460,7 @@ export function useGetSameNameDiffContext(options?: {
       parseResponse(
         client['same-name-diff-context'].$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -450,10 +479,14 @@ export function getGetSameNameDiffContextQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSameNameDiffContextQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSameNameDiffContextQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSameNameDiffContextQueryKey(),
-    queryFn: async () =>
-      parseResponse(client['same-name-diff-context'].$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['same-name-diff-context'].$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

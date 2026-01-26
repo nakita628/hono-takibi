@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -34,10 +34,7 @@ export function createGetEntities(
     queryKey: getGetEntitiesQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.entities.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.entities.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -55,15 +52,17 @@ export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.enti
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEntitiesQueryOptions(
+export const getGetEntitiesQueryOptions = (
   args: InferRequestType<typeof client.entities.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEntitiesQueryKey(args),
-    queryFn: async () => parseResponse(client.entities.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.entities.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /entities
@@ -127,7 +126,7 @@ export function createGetEntitiesEntityId(
       parseResponse(
         client.entities[':entityId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -148,15 +147,20 @@ export function getGetEntitiesEntityIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEntitiesEntityIdQueryOptions(
+export const getGetEntitiesEntityIdQueryOptions = (
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEntitiesEntityIdQueryKey(args),
-    queryFn: async () => parseResponse(client.entities[':entityId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.entities[':entityId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /entities/{entityId}
@@ -257,7 +261,7 @@ export function createGetEntitiesEntityIdRelationships(
       parseResponse(
         client.entities[':entityId'].relationships.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -278,16 +282,20 @@ export function getGetEntitiesEntityIdRelationshipsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetEntitiesEntityIdRelationshipsQueryOptions(
+export const getGetEntitiesEntityIdRelationshipsQueryOptions = (
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.entities[':entityId'].relationships.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.entities[':entityId'].relationships.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /entities/{entityId}/relationships

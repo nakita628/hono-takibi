@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -36,10 +36,7 @@ export function useGetProjects(
     queryKey: getGetProjectsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.projects.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -57,15 +54,17 @@ export function getGetProjectsQueryKey(args: InferRequestType<typeof client.proj
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProjectsQueryOptions(
+export const getGetProjectsQueryOptions = (
   args: InferRequestType<typeof client.projects.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProjectsQueryKey(args),
-    queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /projects
@@ -133,7 +132,7 @@ export function useGetProjectsProjectId(
       parseResponse(
         client.projects[':projectId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -154,15 +153,20 @@ export function getGetProjectsProjectIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProjectsProjectIdQueryOptions(
+export const getGetProjectsProjectIdQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProjectsProjectIdQueryKey(args),
-    queryFn: async () => parseResponse(client.projects[':projectId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.projects[':projectId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /projects/{projectId}
@@ -269,7 +273,7 @@ export function useGetProjectsProjectIdMembers(
       parseResponse(
         client.projects[':projectId'].members.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -290,16 +294,20 @@ export function getGetProjectsProjectIdMembersQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProjectsProjectIdMembersQueryOptions(
+export const getGetProjectsProjectIdMembersQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProjectsProjectIdMembersQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.projects[':projectId'].members.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.projects[':projectId'].members.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /projects/{projectId}/members
@@ -375,7 +383,7 @@ export function useGetProjectsProjectIdTasks(
       parseResponse(
         client.projects[':projectId'].tasks.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -396,16 +404,20 @@ export function getGetProjectsProjectIdTasksQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProjectsProjectIdTasksQueryOptions(
+export const getGetProjectsProjectIdTasksQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProjectsProjectIdTasksQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.projects[':projectId'].tasks.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.projects[':projectId'].tasks.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /projects/{projectId}/tasks
@@ -479,7 +491,7 @@ export function useGetTasksTaskId(
       parseResponse(
         client.tasks[':taskId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -500,15 +512,20 @@ export function getGetTasksTaskIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTasksTaskIdQueryOptions(
+export const getGetTasksTaskIdQueryOptions = (
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTasksTaskIdQueryKey(args),
-    queryFn: async () => parseResponse(client.tasks[':taskId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.tasks[':taskId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /tasks/{taskId}
@@ -650,7 +667,7 @@ export function useGetTasksTaskIdComments(
       parseResponse(
         client.tasks[':taskId'].comments.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -671,15 +688,20 @@ export function getGetTasksTaskIdCommentsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTasksTaskIdCommentsQueryOptions(
+export const getGetTasksTaskIdCommentsQueryOptions = (
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTasksTaskIdCommentsQueryKey(args),
-    queryFn: async () => parseResponse(client.tasks[':taskId'].comments.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.tasks[':taskId'].comments.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /tasks/{taskId}/comments
@@ -753,7 +775,7 @@ export function useGetTasksTaskIdTimeEntries(
       parseResponse(
         client.tasks[':taskId']['time-entries'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -774,16 +796,20 @@ export function getGetTasksTaskIdTimeEntriesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTasksTaskIdTimeEntriesQueryOptions(
+export const getGetTasksTaskIdTimeEntriesQueryOptions = (
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.tasks[':taskId']['time-entries'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.tasks[':taskId']['time-entries'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /tasks/{taskId}/time-entries
@@ -859,7 +885,7 @@ export function useGetProjectsProjectIdMilestones(
       parseResponse(
         client.projects[':projectId'].milestones.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -880,16 +906,20 @@ export function getGetProjectsProjectIdMilestonesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProjectsProjectIdMilestonesQueryOptions(
+export const getGetProjectsProjectIdMilestonesQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client.projects[':projectId'].milestones.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.projects[':projectId'].milestones.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /projects/{projectId}/milestones
@@ -962,7 +992,7 @@ export function useGetTeams(options?: {
       parseResponse(
         client.teams.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -981,12 +1011,17 @@ export function getGetTeamsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetTeamsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetTeamsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetTeamsQueryKey(),
-    queryFn: async () => parseResponse(client.teams.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.teams.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /teams

@@ -1,5 +1,5 @@
-import { useQuery, useMutation } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/twilio_api_v2010'
 
@@ -40,7 +40,7 @@ export function useGet20100401AccountsJson(
       parseResponse(
         client['2010-04-01']['Accounts.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -61,16 +61,20 @@ export function getGet20100401AccountsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsJsonQueryOptions(
+export const getGet20100401AccountsJsonQueryOptions = (
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['2010-04-01']['Accounts.json'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['2010-04-01']['Accounts.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts.json
@@ -148,7 +152,7 @@ export function useGet20100401AccountsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -169,16 +173,20 @@ export function getGet20100401AccountsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsSidJsonQueryOptions(
+export const getGet20100401AccountsSidJsonQueryOptions = (
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsSidJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{Sid}.json
@@ -264,7 +272,7 @@ export function useGet20100401AccountsAccountSidAddressesJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -287,20 +295,22 @@ export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAddressesJsonQueryOptions(
+export const getGet20100401AccountsAccountSidAddressesJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidAddressesJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
@@ -399,7 +409,7 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -422,23 +432,22 @@ export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
@@ -603,7 +612,7 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -626,20 +635,22 @@ export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidApplicationsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidApplicationsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidApplicationsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Applications.json
@@ -749,7 +760,7 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -772,23 +783,22 @@ export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
@@ -961,10 +971,7 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
           ':ConnectAppSid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -989,22 +996,21 @@ export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
           ':ConnectAppSid.json'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
@@ -1053,7 +1059,7 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1076,23 +1082,22 @@ export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKe
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
@@ -1137,7 +1142,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1160,23 +1165,22 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKe
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions(
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}.json
@@ -1221,10 +1225,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[
           ':CountryCode.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1246,22 +1247,21 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions(
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[
           ':CountryCode.json'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
@@ -1307,10 +1307,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'Local.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1335,23 +1332,23 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Local.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'Local.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
@@ -1399,10 +1396,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'MachineToMachine.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1427,25 +1421,25 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'MachineToMachine.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'MachineToMachine.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
@@ -1491,10 +1485,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'Mobile.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1519,23 +1510,23 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Mobile.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'Mobile.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
@@ -1581,10 +1572,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'National.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1609,23 +1597,23 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'National.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'National.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
@@ -1671,10 +1659,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'SharedCost.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1699,23 +1684,25 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'SharedCost.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'SharedCost.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
@@ -1761,10 +1748,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'TollFree.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1789,23 +1773,23 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'TollFree.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'TollFree.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
@@ -1851,10 +1835,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
           'Voip.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1879,23 +1860,23 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-          'Voip.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+            'Voip.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Balance.json
@@ -1944,7 +1925,7 @@ export function useGet20100401AccountsAccountSidBalanceJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1967,20 +1948,22 @@ export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidBalanceJsonQueryOptions(
+export const getGet20100401AccountsAccountSidBalanceJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidBalanceJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Calls.json
@@ -2029,7 +2012,7 @@ export function useGet20100401AccountsAccountSidCallsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2052,20 +2035,22 @@ export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidCallsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidCallsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidCallsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls.json
@@ -2172,7 +2157,7 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2195,20 +2180,22 @@ export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidCallsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidCallsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidCallsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
@@ -2378,7 +2365,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -2401,23 +2388,22 @@ export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid}.json
@@ -2462,10 +2448,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
           ':Sid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -2487,22 +2470,21 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
           ':Sid.json'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
@@ -2547,7 +2529,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -2570,23 +2552,22 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQue
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
@@ -2635,7 +2616,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -2658,23 +2639,22 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryK
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
@@ -2784,7 +2764,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -2807,23 +2787,22 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQue
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
@@ -2994,7 +2973,7 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3017,23 +2996,22 @@ export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
@@ -3139,7 +3117,7 @@ export function useGet20100401AccountsAccountSidConferencesJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3162,20 +3140,22 @@ export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConferencesJsonQueryOptions(
+export const getGet20100401AccountsAccountSidConferencesJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidConferencesJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
@@ -3224,10 +3204,7 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
           'Recordings.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -3252,22 +3229,21 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
           'Recordings.json'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
@@ -3317,10 +3293,7 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
           ':Sid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -3345,23 +3318,23 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+            ':Sid.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
@@ -3532,7 +3505,7 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3555,23 +3528,22 @@ export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
@@ -3744,7 +3716,7 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3767,20 +3739,22 @@ export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
@@ -3826,10 +3800,7 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
           'DependentPhoneNumbers.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -3854,23 +3825,23 @@ export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
-          'DependentPhoneNumbers.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
+            'DependentPhoneNumbers.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
@@ -3919,7 +3890,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -3942,23 +3913,22 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQuery
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
@@ -4131,7 +4101,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4154,23 +4124,22 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions(
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
@@ -4285,7 +4254,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
           ':ResourceSid'
         ].AssignedAddOns[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4311,25 +4280,28 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+            ':ResourceSid'
+          ].AssignedAddOns[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
@@ -4443,10 +4415,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
           'AssignedAddOns.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -4471,25 +4440,25 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-          'AssignedAddOns.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
+            'AssignedAddOns.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
@@ -4603,7 +4572,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
           ':ResourceSid'
         ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4629,25 +4598,28 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+            ':ResourceSid'
+          ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
@@ -4701,7 +4673,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
           ':ResourceSid'
         ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4727,25 +4699,28 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+            ':ResourceSid'
+          ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
@@ -4790,7 +4765,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -4813,23 +4788,22 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQue
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions(
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
@@ -4931,7 +4905,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -4954,23 +4928,22 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQu
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions(
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
@@ -5072,7 +5045,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -5095,23 +5068,22 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions(
+export const getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
@@ -5213,7 +5185,7 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -5236,20 +5208,22 @@ export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidKeysSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidKeysSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidKeysSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
@@ -5404,7 +5378,7 @@ export function useGet20100401AccountsAccountSidKeysJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -5427,20 +5401,22 @@ export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidKeysJsonQueryOptions(
+export const getGet20100401AccountsAccountSidKeysJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidKeysJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys.json
@@ -5543,10 +5519,7 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
           ':Sid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -5568,22 +5541,21 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQu
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
           ':Sid.json'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
@@ -5694,7 +5666,7 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -5717,23 +5689,22 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQuery
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions(
+export const getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
@@ -5782,10 +5753,7 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
           ':CallSid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -5807,22 +5775,21 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
           ':CallSid.json'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
@@ -5931,7 +5898,7 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -5954,23 +5921,22 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKe
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions(
+export const getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Messages.json
@@ -6019,7 +5985,7 @@ export function useGet20100401AccountsAccountSidMessagesJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -6042,20 +6008,22 @@ export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidMessagesJsonQueryOptions(
+export const getGet20100401AccountsAccountSidMessagesJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidMessagesJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Messages.json
@@ -6162,7 +6130,7 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -6185,23 +6153,22 @@ export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
@@ -6431,7 +6398,7 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -6454,20 +6421,22 @@ export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
@@ -6574,7 +6543,7 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -6597,23 +6566,22 @@ export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
@@ -6662,7 +6630,7 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -6685,23 +6653,22 @@ export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidNotificationsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidNotificationsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidNotificationsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
@@ -6750,7 +6717,7 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -6773,23 +6740,22 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
@@ -6962,7 +6928,7 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -6985,23 +6951,22 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
@@ -7108,10 +7073,7 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
           ':CallSid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -7136,23 +7098,25 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+            ':CallSid.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
@@ -7324,10 +7288,7 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
           'Participants.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -7352,23 +7313,23 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-          'Participants.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+            'Participants.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
@@ -7595,7 +7556,7 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -7618,20 +7579,22 @@ export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
@@ -7801,7 +7764,7 @@ export function useGet20100401AccountsAccountSidQueuesJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -7824,20 +7787,22 @@ export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidQueuesJsonQueryOptions(
+export const getGet20100401AccountsAccountSidQueuesJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidQueuesJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues.json
@@ -8065,7 +8030,7 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -8088,23 +8053,22 @@ export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
@@ -8216,7 +8180,7 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -8239,20 +8203,22 @@ export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidRecordingsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidRecordingsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
@@ -8302,10 +8268,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
           ':Sid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -8330,23 +8293,23 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':Sid.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
@@ -8457,10 +8420,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
           'AddOnResults.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -8485,22 +8445,21 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
           'AddOnResults.json'
-        ].$get(args, clientOptions),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
@@ -8554,7 +8513,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
           ':AddOnResultSid'
         ].Payloads[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -8580,25 +8539,28 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':AddOnResultSid'
+          ].Payloads[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
@@ -8714,7 +8676,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
           ':AddOnResultSid'
         ]['Payloads.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -8740,25 +8702,28 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ]['Payloads.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':AddOnResultSid'
+          ]['Payloads.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
@@ -8812,7 +8777,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
           ':AddOnResultSid'
         ].Payloads[':PayloadSid']['Data.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -8838,25 +8803,28 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':PayloadSid']['Data.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+            ':AddOnResultSid'
+          ].Payloads[':PayloadSid']['Data.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
@@ -8902,10 +8870,7 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
           ':Sid.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -8930,23 +8895,23 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-          ':Sid.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
+            ':Sid.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
@@ -9050,10 +9015,7 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
           'Transcriptions.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -9078,23 +9040,23 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
-          'Transcriptions.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
+            'Transcriptions.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
@@ -9143,7 +9105,7 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -9166,23 +9128,22 @@ export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
@@ -9292,7 +9253,7 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -9315,23 +9276,22 @@ export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
@@ -9376,7 +9336,7 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -9399,23 +9359,22 @@ export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
@@ -9583,10 +9542,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
           'CredentialListMappings.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -9611,25 +9567,25 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'CredentialListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+            'CredentialListMappings.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
@@ -9743,7 +9699,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
           ':DomainSid'
         ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -9769,25 +9725,28 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
@@ -9901,10 +9860,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
           'IpAccessControlListMappings.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -9929,25 +9885,25 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'IpAccessControlListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+            'IpAccessControlListMappings.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
@@ -10061,7 +10017,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
           ':DomainSid'
         ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -10087,25 +10043,28 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
@@ -10219,10 +10178,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
           'CredentialListMappings.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -10247,25 +10203,25 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-          'CredentialListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
+            'CredentialListMappings.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
@@ -10379,7 +10335,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
           ':DomainSid'
         ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -10405,25 +10361,28 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
@@ -10537,10 +10496,7 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
           'Credentials.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -10565,25 +10521,25 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-          'Credentials.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
+            'Credentials.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
@@ -10697,7 +10653,7 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
           ':CredentialListSid'
         ].Credentials[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -10723,25 +10679,28 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+            ':CredentialListSid'
+          ].Credentials[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
@@ -10912,7 +10871,7 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -10935,23 +10894,22 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
@@ -11061,7 +11019,7 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -11084,23 +11042,22 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKe
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
@@ -11274,10 +11231,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
           'CredentialListMappings.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -11302,23 +11256,23 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(args),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'CredentialListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(args),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+            'CredentialListMappings.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
@@ -11432,7 +11386,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
           ':DomainSid'
         ].CredentialListMappings[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -11458,25 +11412,28 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].CredentialListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].CredentialListMappings[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
@@ -11587,7 +11544,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -11610,20 +11567,22 @@ export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(args, clientOptions),
+        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
@@ -11730,7 +11689,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -11753,23 +11712,22 @@ export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
@@ -11942,7 +11900,7 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -11965,23 +11923,22 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQuery
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
@@ -12091,7 +12048,7 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$get(
           args,
-          { ...clientOptions, init: { ...clientOptions?.init, ...(signal ? { signal } : {}) } },
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
     ...queryOptions,
@@ -12114,23 +12071,22 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQu
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$get(
           args,
-          clientOptions,
+          { ...clientOptions, init: { ...clientOptions?.init, signal } },
         ),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
@@ -12308,7 +12264,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
           ':DomainSid'
         ].IpAccessControlListMappings[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -12334,25 +12290,28 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+            ':DomainSid'
+          ].IpAccessControlListMappings[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
@@ -12466,10 +12425,7 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
           'IpAccessControlListMappings.json'
-        ].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -12494,25 +12450,25 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'IpAccessControlListMappings.json'
-        ].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+            'IpAccessControlListMappings.json'
+          ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
@@ -12626,7 +12582,7 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
           ':IpAccessControlListSid'
         ]['IpAddresses.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -12652,25 +12608,28 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ]['IpAddresses.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':IpAccessControlListSid'
+          ]['IpAddresses.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
@@ -12784,7 +12743,7 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
           ':IpAccessControlListSid'
         ].IpAddresses[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -12810,25 +12769,28 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions(
-  args: InferRequestType<
-    (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
-  >,
-  clientOptions?: ClientRequestOptions,
-) {
-  return {
-    queryKey:
-      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
-        args,
-      ),
-    queryFn: async () =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$get(args, clientOptions),
-      ),
-  }
-}
+export const getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions =
+  (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
+    >,
+    clientOptions?: ClientRequestOptions,
+  ) =>
+    queryOptions({
+      queryKey:
+        getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
+          args,
+        ),
+      queryFn: ({ signal }) =>
+        parseResponse(
+          client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+            ':IpAccessControlListSid'
+          ].IpAddresses[':Sid.json'].$get(args, {
+            ...clientOptions,
+            init: { ...clientOptions?.init, signal },
+          }),
+        ),
+    })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
@@ -13301,7 +13263,7 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13324,23 +13286,22 @@ export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
@@ -13452,7 +13413,7 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13475,23 +13436,22 @@ export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
@@ -13540,7 +13500,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13563,23 +13523,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
@@ -13624,7 +13583,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13647,23 +13606,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
@@ -13708,7 +13666,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13731,23 +13689,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
@@ -13792,7 +13749,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13815,23 +13772,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKe
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
@@ -13876,7 +13832,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13899,23 +13855,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
@@ -13960,7 +13915,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -13983,23 +13938,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKe
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
@@ -14044,7 +13998,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -14067,23 +14021,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
@@ -14128,7 +14081,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -14151,23 +14104,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
@@ -14212,7 +14164,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -14235,23 +14187,22 @@ export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKe
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
@@ -14300,7 +14251,7 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -14323,23 +14274,22 @@ export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
@@ -14508,7 +14458,7 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
       parseResponse(
         client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -14531,23 +14481,22 @@ export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions(
+export const getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions = (
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(args),
-    queryFn: async () =>
+    queryFn: ({ signal }) =>
       parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(
-          args,
-          clientOptions,
-        ),
+        client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
       ),
-  }
-}
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json

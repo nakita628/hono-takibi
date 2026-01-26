@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/36-auth-saml-idp'
 
@@ -38,10 +38,7 @@ export function createGetSamlSso(
     queryKey: getGetSamlSsoQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.saml.sso.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.saml.sso.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -59,15 +56,17 @@ export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSamlSsoQueryOptions(
+export const getGetSamlSsoQueryOptions = (
   args: InferRequestType<typeof client.saml.sso.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSamlSsoQueryKey(args),
-    queryFn: async () => parseResponse(client.saml.sso.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.saml.sso.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /saml/sso
@@ -137,10 +136,7 @@ export function createGetSamlSlo(
     queryKey: getGetSamlSloQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.saml.slo.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.saml.slo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -158,15 +154,17 @@ export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSamlSloQueryOptions(
+export const getGetSamlSloQueryOptions = (
   args: InferRequestType<typeof client.saml.slo.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSamlSloQueryKey(args),
-    queryFn: async () => parseResponse(client.saml.slo.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.saml.slo.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * POST /saml/slo
@@ -268,7 +266,7 @@ export function createGetSamlMetadata(options?: {
       parseResponse(
         client.saml.metadata.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -287,12 +285,17 @@ export function getGetSamlMetadataQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSamlMetadataQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetSamlMetadataQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetSamlMetadataQueryKey(),
-    queryFn: async () => parseResponse(client.saml.metadata.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.saml.metadata.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /service-providers
@@ -329,7 +332,7 @@ export function createGetServiceProviders(
       parseResponse(
         client['service-providers'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -350,15 +353,20 @@ export function getGetServiceProvidersQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetServiceProvidersQueryOptions(
+export const getGetServiceProvidersQueryOptions = (
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetServiceProvidersQueryKey(args),
-    queryFn: async () => parseResponse(client['service-providers'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['service-providers'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /service-providers
@@ -429,7 +437,7 @@ export function createGetServiceProvidersSpId(
       parseResponse(
         client['service-providers'][':spId'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -450,16 +458,20 @@ export function getGetServiceProvidersSpIdQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetServiceProvidersSpIdQueryOptions(
+export const getGetServiceProvidersSpIdQueryOptions = (
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetServiceProvidersSpIdQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['service-providers'][':spId'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['service-providers'][':spId'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /service-providers/{spId}
@@ -574,7 +586,7 @@ export function createGetServiceProvidersSpIdMetadata(
       parseResponse(
         client['service-providers'][':spId'].metadata.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -595,16 +607,20 @@ export function getGetServiceProvidersSpIdMetadataQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetServiceProvidersSpIdMetadataQueryOptions(
+export const getGetServiceProvidersSpIdMetadataQueryOptions = (
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetServiceProvidersSpIdMetadataQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['service-providers'][':spId'].metadata.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['service-providers'][':spId'].metadata.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /service-providers/{spId}/metadata
@@ -692,7 +708,7 @@ export function createGetServiceProvidersSpIdAttributes(
       parseResponse(
         client['service-providers'][':spId'].attributes.$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -713,16 +729,20 @@ export function getGetServiceProvidersSpIdAttributesQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetServiceProvidersSpIdAttributesQueryOptions(
+export const getGetServiceProvidersSpIdAttributesQueryOptions = (
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetServiceProvidersSpIdAttributesQueryKey(args),
-    queryFn: async () =>
-      parseResponse(client['service-providers'][':spId'].attributes.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['service-providers'][':spId'].attributes.$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /service-providers/{spId}/attributes
@@ -803,7 +823,7 @@ export function createGetAttributes(options?: {
       parseResponse(
         client.attributes.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -822,12 +842,17 @@ export function getGetAttributesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAttributesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetAttributesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetAttributesQueryKey(),
-    queryFn: async () => parseResponse(client.attributes.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.attributes.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /certificates
@@ -861,7 +886,7 @@ export function createGetCertificates(options?: {
       parseResponse(
         client.certificates.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -880,12 +905,17 @@ export function getGetCertificatesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetCertificatesQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetCertificatesQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetCertificatesQueryKey(),
-    queryFn: async () => parseResponse(client.certificates.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.certificates.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /certificates
@@ -1027,10 +1057,7 @@ export function createGetSessions(
     queryKey: getGetSessionsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.sessions.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -1048,15 +1075,17 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetSessionsQueryOptions(
+export const getGetSessionsQueryOptions = (
   args: InferRequestType<typeof client.sessions.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetSessionsQueryKey(args),
-    queryFn: async () => parseResponse(client.sessions.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })
 
 /**
  * DELETE /sessions/{sessionId}
@@ -1129,7 +1158,7 @@ export function createGetAuditLogs(
       parseResponse(
         client['audit-logs'].$get(args, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -1150,12 +1179,17 @@ export function getGetAuditLogsQueryKey(
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetAuditLogsQueryOptions(
+export const getGetAuditLogsQueryOptions = (
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetAuditLogsQueryKey(args),
-    queryFn: async () => parseResponse(client['audit-logs'].$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client['audit-logs'].$get(args, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })

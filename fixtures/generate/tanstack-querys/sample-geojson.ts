@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/react-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/sample-geojson'
 
@@ -37,7 +37,7 @@ export function useGet(options?: {
       parseResponse(
         client.index.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -56,12 +56,17 @@ export function getGetQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetQueryKey(),
-    queryFn: async () => parseResponse(client.index.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.index.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /projects
@@ -98,10 +103,7 @@ export function useGetProjects(
     queryKey: getGetProjectsQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.projects.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -119,12 +121,14 @@ export function getGetProjectsQueryKey(args: InferRequestType<typeof client.proj
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetProjectsQueryOptions(
+export const getGetProjectsQueryOptions = (
   args: InferRequestType<typeof client.projects.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetProjectsQueryKey(args),
-    queryFn: async () => parseResponse(client.projects.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })

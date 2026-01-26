@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/vue-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { queryOptions, useQuery } from '@tanstack/vue-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -38,10 +38,7 @@ export function useGetFizzbuzz(
     queryKey: getGetFizzbuzzQueryKey(args),
     queryFn: async ({ signal }) =>
       parseResponse(
-        client.fizzbuzz.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
-        }),
+        client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
       ),
     ...queryOptions,
   })
@@ -59,12 +56,14 @@ export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizz
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetFizzbuzzQueryOptions(
+export const getGetFizzbuzzQueryOptions = (
   args: InferRequestType<typeof client.fizzbuzz.$get>,
   clientOptions?: ClientRequestOptions,
-) {
-  return {
+) =>
+  queryOptions({
     queryKey: getGetFizzbuzzQueryKey(args),
-    queryFn: async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+      ),
+  })

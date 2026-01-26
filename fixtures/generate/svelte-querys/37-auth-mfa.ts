@@ -1,5 +1,5 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
-import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -35,7 +35,7 @@ export function createGetMfaStatus(options?: {
       parseResponse(
         client.mfa.status.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -54,12 +54,17 @@ export function getGetMfaStatusQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMfaStatusQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMfaStatusQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMfaStatusQueryKey(),
-    queryFn: async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.mfa.status.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * GET /mfa/methods
@@ -93,7 +98,7 @@ export function createGetMfaMethods(options?: {
       parseResponse(
         client.mfa.methods.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -112,12 +117,17 @@ export function getGetMfaMethodsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMfaMethodsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMfaMethodsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMfaMethodsQueryKey(),
-    queryFn: async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.mfa.methods.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * PUT /mfa/preferred
@@ -530,7 +540,7 @@ export function createGetMfaWebauthnCredentials(options?: {
       parseResponse(
         client.mfa.webauthn.credentials.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -549,13 +559,17 @@ export function getGetMfaWebauthnCredentialsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMfaWebauthnCredentialsQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMfaWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMfaWebauthnCredentialsQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.mfa.webauthn.credentials.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * DELETE /mfa/webauthn/credentials/{credentialId}
@@ -726,7 +740,7 @@ export function createGetMfaBackupCodesStatus(options?: {
       parseResponse(
         client.mfa['backup-codes'].status.$get(undefined, {
           ...clientOptions,
-          init: { ...clientOptions?.init, ...(signal ? { signal } : {}) },
+          init: { ...clientOptions?.init, signal },
         }),
       ),
     ...queryOptions,
@@ -745,13 +759,17 @@ export function getGetMfaBackupCodesStatusQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export function getGetMfaBackupCodesStatusQueryOptions(clientOptions?: ClientRequestOptions) {
-  return {
+export const getGetMfaBackupCodesStatusQueryOptions = (clientOptions?: ClientRequestOptions) =>
+  queryOptions({
     queryKey: getGetMfaBackupCodesStatusQueryKey(),
-    queryFn: async () =>
-      parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
-  }
-}
+    queryFn: ({ signal }) =>
+      parseResponse(
+        client.mfa['backup-codes'].status.$get(undefined, {
+          ...clientOptions,
+          init: { ...clientOptions?.init, signal },
+        }),
+      ),
+  })
 
 /**
  * POST /mfa/challenge
