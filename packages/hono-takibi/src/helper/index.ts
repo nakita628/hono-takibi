@@ -60,7 +60,6 @@ export {
 } from './openapi.js'
 export {
   makeQueryHooks,
-  type QueryFrameworkConfig,
 } from './query.js'
 export {
   findSchemaRefs,

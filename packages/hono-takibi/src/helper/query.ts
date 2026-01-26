@@ -23,7 +23,7 @@
  */
 import path from 'node:path'
 import type { OpenAPI, OpenAPIPaths } from '../openapi/index.js'
-import { isRecord, methodPath } from '../utils/index.js'
+import { escapeCommentEnd, isRecord, methodPath, upperFirst } from '../utils/index.js'
 import type { HttpMethod, OperationDeps, PathItemLike } from './index.js'
 import {
   buildInferRequestType,
@@ -41,41 +41,6 @@ import {
   resolveSplitOutDir,
 } from './index.js'
 
-/* ─────────────────────────────── Types ─────────────────────────────── */
-
-type HookCode = {
-  readonly hookName: string
-  readonly code: string
-  readonly isQuery: boolean
-  readonly hasArgs: boolean
-}
-
-type GeneratedHook = { code: string; isQuery: boolean; hasArgs: boolean } | null
-
-/**
- * Configuration for different query library frameworks.
- */
-export type QueryFrameworkConfig = {
-  /** Package name for imports (e.g., '@tanstack/react-query') */
-  readonly packageName: string
-  /** Framework display name for docs (e.g., 'TanStack Query') */
-  readonly frameworkName: string
-  /** Hook prefix (e.g., 'use' or 'create') */
-  readonly hookPrefix: string
-  /** Query function name (e.g., 'useQuery' or 'createQuery') */
-  readonly queryFn: string
-  /** Mutation function name (e.g., 'useMutation' or 'createMutation') */
-  readonly mutationFn: string
-  /** Query options type name (e.g., 'UseQueryOptions' or 'CreateQueryOptions') */
-  readonly queryOptionsType: string
-  /** Mutation options type name (e.g., 'UseMutationOptions' or 'CreateMutationOptions') */
-  readonly mutationOptionsType: string
-  /** Whether to omit TQueryKey type parameter from query options (for Vue Query compatibility) */
-  readonly omitQueryKeyType?: boolean
-  /** Query options helper function name (e.g., 'queryOptions') */
-  readonly queryOptionsHelper?: string
-}
-
 /* ─────────────────────────────── Hook Name Generation ─────────────────────────────── */
 
 /**
@@ -86,9 +51,9 @@ export type QueryFrameworkConfig = {
  * @param prefix - Hook prefix ('use' or 'create')
  * @returns Hook name (e.g., "useGetUsers" or "createGetUsers")
  */
-const makeHookName = (method: string, pathStr: string, prefix: string): string => {
+function makeHookName(method: string, pathStr: string, prefix: string): string {
   const funcName = methodPath(method, pathStr)
-  return `${prefix}${funcName.charAt(0).toUpperCase()}${funcName.slice(1)}`
+  return `${prefix}${upperFirst(funcName)}`
 }
 
 /* ─────────────────────────────── Fetcher Helper ─────────────────────────────── */
@@ -103,7 +68,9 @@ const makeHookName = (method: string, pathStr: string, prefix: string): string =
  * @param clientCall - Client method call expression
  * @returns Fetcher function body
  */
-const buildFetcher = (clientCall: string): string => `parseResponse(${clientCall})`
+function makeFetcher(clientCall: string): string {
+  return `parseResponse(${clientCall})`
+}
 
 /* ─────────────────────────────── Query Key Getter ─────────────────────────────── */
 
@@ -114,9 +81,9 @@ const buildFetcher = (clientCall: string): string => `parseResponse(${clientCall
  * @param pathStr - API path
  * @returns Query key getter function name (e.g., "getGetUsersQueryKey")
  */
-const makeQueryKeyGetterName = (method: string, pathStr: string): string => {
+function makeQueryKeyGetterName(method: string, pathStr: string): string {
   const funcName = methodPath(method, pathStr)
-  return `get${funcName.charAt(0).toUpperCase()}${funcName.slice(1)}QueryKey`
+  return `get${upperFirst(funcName)}QueryKey`
 }
 
 /* ─────────────────────────────── Query Options Getter ─────────────────────────────── */
@@ -128,9 +95,9 @@ const makeQueryKeyGetterName = (method: string, pathStr: string): string => {
  * @param pathStr - API path
  * @returns Query options getter function name (e.g., "getGetUsersQueryOptions")
  */
-const makeQueryOptionsGetterName = (method: string, pathStr: string): string => {
+function makeQueryOptionsGetterName(method: string, pathStr: string): string {
   const funcName = methodPath(method, pathStr)
-  return `get${funcName.charAt(0).toUpperCase()}${funcName.slice(1)}QueryOptions`
+  return `get${upperFirst(funcName)}QueryOptions`
 }
 
 /**
@@ -143,16 +110,15 @@ const makeQueryOptionsGetterName = (method: string, pathStr: string): string => 
  * @param config - Framework configuration
  * @returns Query key getter function code
  */
-const makeQueryKeyGetterCode = (
+function makeQueryKeyGetterCode(
   keyGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
   honoPath: string,
-  config: QueryFrameworkConfig,
-): string => {
-  // Add space between * and / to prevent early comment termination (* / instead of */)
-  const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
-  const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
+  config: { frameworkName: string },
+): string {
+  const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
+  const safeCommentPathNoParam = escapeCommentEnd(honoPath)
   if (hasArgs) {
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
@@ -186,7 +152,7 @@ export function ${keyGetterName}(){return['${honoPath}']as const}`
  * @param config - Framework configuration
  * @returns Query options getter function code
  */
-const makeQueryOptionsGetterCode = (
+function makeQueryOptionsGetterCode(
   optionsGetterName: string,
   keyGetterName: string,
   hasArgs: boolean,
@@ -194,11 +160,10 @@ const makeQueryOptionsGetterCode = (
   clientPath: string,
   method: string,
   honoPath: string,
-  config: QueryFrameworkConfig,
-): string => {
-  // Add space between * and / to prevent early comment termination (* / instead of */)
-  const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
-  const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
+  config: { frameworkName: string; queryOptionsHelper?: string },
+): string {
+  const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
+  const safeCommentPathNoParam = escapeCommentEnd(honoPath)
   const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
 
   // Build client call WITH signal for queryOptions
@@ -207,7 +172,7 @@ const makeQueryOptionsGetterCode = (
   const clientCallWithSignal = hasArgs
     ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
     : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}})`
-  const fetcherBody = buildFetcher(clientCallWithSignal)
+  const fetcherBody = makeFetcher(clientCallWithSignal)
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
   const optionsHelper = config.queryOptionsHelper ?? 'queryOptions'
 
@@ -231,14 +196,14 @@ export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>${optio
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
 
-const makeQueryHookCode = (
+function makeQueryHookCode(
   hookName: string,
   optionsGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
   docs: string,
-  config: QueryFrameworkConfig,
-): string => {
+  config: { queryFn: string },
+): string {
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
   // Get base options from getter (no override options)
   const optionsGetterCall = hasArgs
@@ -264,7 +229,7 @@ export function ${hookName}(${argsSig}options?:${optionsType}){const{query:query
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
 
-const makeMutationHookCode = (
+function makeMutationHookCode(
   hookName: string,
   hasArgs: boolean,
   inferRequestType: string,
@@ -272,9 +237,9 @@ const makeMutationHookCode = (
   clientPath: string,
   method: string,
   docs: string,
-  config: QueryFrameworkConfig,
+  config: { mutationFn: string },
   hasNoContent: boolean,
-): string => {
+): string {
   // Simple pattern with typed callbacks
   const variablesType = hasArgs ? inferRequestType : 'undefined'
 
@@ -287,25 +252,31 @@ const makeMutationHookCode = (
 
   if (hasArgs) {
     const clientCall = `${clientPath}.$${method}(args,clientOptions)`
-    const fetcherBody = buildFetcher(clientCall)
+    const fetcherBody = makeFetcher(clientCall)
     return `${docs}
 export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,mutationFn:async(args:${inferRequestType})=>${fetcherBody}})}`
   }
   const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
-  const fetcherBody = buildFetcher(clientCall)
+  const fetcherBody = makeFetcher(clientCall)
   return `${docs}
 export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${config.mutationFn}({...mutationOptions,mutationFn:async()=>${fetcherBody}})}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
 
-const makeHookCode = (
+function makeHookCode(
   pathStr: string,
   method: HttpMethod,
   item: PathItemLike,
   deps: OperationDeps,
-  config: QueryFrameworkConfig,
-): GeneratedHook => {
+  config: {
+    hookPrefix: string
+    frameworkName: string
+    queryFn: string
+    mutationFn: string
+    queryOptionsHelper?: string
+  },
+): { code: string; isQuery: boolean; hasArgs: boolean } | null {
   const op = item[method]
   if (!isOperationLike(op)) return null
 
@@ -380,12 +351,18 @@ const makeHookCode = (
 /**
  * Builds hook codes from OpenAPI paths.
  */
-const makeHookCodes = (
+function makeHookCodes(
   paths: OpenAPIPaths,
   deps: OperationDeps,
-  config: QueryFrameworkConfig,
-): HookCode[] =>
-  Object.entries(paths)
+  config: {
+    hookPrefix: string
+    frameworkName: string
+    queryFn: string
+    mutationFn: string
+    queryOptionsHelper?: string
+  },
+): { hookName: string; code: string; isQuery: boolean; hasArgs: boolean }[] {
+  return Object.entries(paths)
     .filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
     .flatMap(([p, rawItem]) => {
       const pathItem = parsePathItem(rawItem)
@@ -399,8 +376,12 @@ const makeHookCodes = (
               hasArgs: result.hasArgs,
             }
           : null
-      }).filter((item): item is HookCode => item !== null)
+      }).filter(
+        (item): item is { hookName: string; code: string; isQuery: boolean; hasArgs: boolean } =>
+          item !== null,
+      )
     })
+}
 
 /* ─────────────────────────────── Header ─────────────────────────────── */
 
@@ -412,14 +393,14 @@ const makeHookCodes = (
  * - Hono client types (InferRequestType, InferResponseType, ClientRequestOptions)
  * - parseResponse for type-safe response handling
  */
-const makeHeader = (
+function makeHeader(
   importPath: string,
   hasQuery: boolean,
   hasMutation: boolean,
   needsInferRequestType: boolean,
   clientName: string,
-  config: QueryFrameworkConfig,
-): string => {
+  config: { packageName: string; queryFn: string; mutationFn: string; queryOptionsHelper?: string },
+): string {
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
@@ -492,7 +473,14 @@ export async function makeQueryHooks(
   openAPI: OpenAPI,
   output: string | `${string}.ts`,
   importPath: string,
-  config: QueryFrameworkConfig,
+  config: {
+    packageName: string
+    frameworkName: string
+    hookPrefix: string
+    queryFn: string
+    mutationFn: string
+    queryOptionsHelper?: string
+  },
   split?: boolean,
   clientName = 'client',
 ): Promise<

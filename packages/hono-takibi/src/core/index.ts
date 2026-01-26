@@ -7,7 +7,6 @@
 // Shared query module
 export {
   makeQueryHooks,
-  type QueryFrameworkConfig,
 } from '../helper/query.js'
 export * from './components/index.js'
 // Generation functions

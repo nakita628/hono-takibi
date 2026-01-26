@@ -76,25 +76,43 @@ export function usePostPet(options?: {
  *
  * Multiple status values can be provided with comma separated strings
  */
+// export function useGetPetFindByStatus(
+//   args: InferRequestType<typeof client.pet.findByStatus.$get>,
+//   options?: {
+//     query?: {
+//       enabled?: boolean
+//       staleTime?: number
+//       gcTime?: number
+//       refetchInterval?: number | false
+//       refetchOnWindowFocus?: boolean
+//       refetchOnMount?: boolean
+//       refetchOnReconnect?: boolean
+//       retry?: boolean | number
+//       retryDelay?: number
+//     }
+//     client?: ClientRequestOptions
+//   },
+// ) {
+//   const { query: queryOptions, client: clientOptions } = options ?? {}
+//   return useQuery({ ...getGetPetFindByStatusQueryOptions(args, clientOptions), ...queryOptions })
+// }
+
 export function useGetPetFindByStatus(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: ReturnType<typeof getGetPetFindByStatusQueryOptions>
     client?: ClientRequestOptions
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPetFindByStatusQueryOptions(args, clientOptions), ...queryOptions })
+  const base = getGetPetFindByStatusQueryOptions(args, clientOptions)
+
+  return useQuery({
+    ...base,
+    ...queryOptions,
+    queryKey: base.queryKey,
+    queryFn: base.queryFn,
+  })
 }
 
 /**
