@@ -2,12 +2,12 @@ import type { RouteHandler } from '@hono/zod-openapi'
 import { createDb } from '@/api/db'
 import { DatabaseError, DataNotFoundError } from '@/api/domain/error'
 import {
-  deleteApiTodoIdRoute,
-  getApiRoute,
-  getApiTodoIdRoute,
-  getApiTodoRoute,
-  postApiTodoRoute,
-  putApiTodoIdRoute,
+  deleteTodoIdRoute,
+  getRoute,
+  getTodoIdRoute,
+  getTodoRoute,
+  postTodoRoute,
+  putTodoIdRoute,
 } from '@/api/routes'
 import * as TodoService from '@/api/services/todo'
 
@@ -25,8 +25,8 @@ import * as TodoService from '@/api/services/todo'
  * @param c - The Hono context object
  * @returns JSON response with status message
  */
-export const getApiRouteHandler: RouteHandler<
-  typeof getApiRoute,
+export const getRouteHandler: RouteHandler<
+  typeof getRoute,
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   return c.json({ message: 'Hono🔥 React' }, 200)
@@ -58,8 +58,8 @@ export const getApiRouteHandler: RouteHandler<
  * @param c - The Hono context object with DB binding
  * @returns JSON response with array of todos or error
  */
-export const getApiTodoRouteHandler: RouteHandler<
-  typeof getApiTodoRoute,
+export const getTodoRouteHandler: RouteHandler<
+  typeof getTodoRoute,
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { limit, offset } = c.req.valid('query')
@@ -101,8 +101,8 @@ export const getApiTodoRouteHandler: RouteHandler<
  * @param c - The Hono context object with DB binding
  * @returns JSON response indicating creation success or error
  */
-export const postApiTodoRouteHandler: RouteHandler<
-  typeof postApiTodoRoute,
+export const postTodoRouteHandler: RouteHandler<
+  typeof postTodoRoute,
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { content } = c.req.valid('json')
@@ -146,8 +146,8 @@ export const postApiTodoRouteHandler: RouteHandler<
  * @param c - The Hono context object with DB binding
  * @returns JSON response with the todo or error
  */
-export const getApiTodoIdRouteHandler: RouteHandler<
-  typeof getApiTodoIdRoute,
+export const getTodoIdRouteHandler: RouteHandler<
+  typeof getTodoIdRoute,
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { id } = c.req.valid('param')
@@ -192,8 +192,8 @@ export const getApiTodoIdRouteHandler: RouteHandler<
  * @param c - The Hono context object with DB binding
  * @returns Empty response on success or JSON error
  */
-export const putApiTodoIdRouteHandler: RouteHandler<
-  typeof putApiTodoIdRoute,
+export const putTodoIdRouteHandler: RouteHandler<
+  typeof putTodoIdRoute,
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { id } = c.req.valid('param')
@@ -236,8 +236,8 @@ export const putApiTodoIdRouteHandler: RouteHandler<
  * @param c - The Hono context object with DB binding
  * @returns Empty response on success or JSON error
  */
-export const deleteApiTodoIdRouteHandler: RouteHandler<
-  typeof deleteApiTodoIdRoute,
+export const deleteTodoIdRouteHandler: RouteHandler<
+  typeof deleteTodoIdRoute,
   { Bindings: { DB: D1Database } }
 > = async (c) => {
   const { id } = c.req.valid('param')

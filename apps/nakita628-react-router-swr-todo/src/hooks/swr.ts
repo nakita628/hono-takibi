@@ -1,46 +1,47 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, InferResponseType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '@/lib'
 
 /**
- * GET /api
+ * GET /
  *
  * Health Check
  */
-export function useGetApi(options?: {
+export function useGet(options?: {
   swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiKey() : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
-      async () => parseResponse(client.api.$get(undefined, clientOptions)),
+      async () => parseResponse(client.index.$get(undefined, clientOptions)),
       swrOptions,
     ),
   }
 }
 
 /**
- * Generates SWR cache key for GET /api
+ * Generates SWR cache key for GET /
  */
-export function getGetApiKey() {
-  return ['/api'] as const
+export function getGetKey() {
+  return ['/'] as const
 }
 
 /**
- * GET /api/todo
+ * GET /todo
  *
  * Retrieve a list of posts
  */
-export function useGetApiTodo(
-  args: InferRequestType<typeof client.api.todo.$get>,
+export function useGetTodo(
+  args: InferRequestType<typeof client.todo.$get>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -48,44 +49,50 @@ export function useGetApiTodo(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiTodoKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTodoKey(args) : null)
   return {
     swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.api.todo.$get(args, clientOptions)),
-      swrOptions,
-    ),
+    ...useSWR(swrKey, async () => parseResponse(client.todo.$get(args, clientOptions)), swrOptions),
   }
 }
 
 /**
- * Generates SWR cache key for GET /api/todo
+ * Generates SWR cache key for GET /todo
  */
-export function getGetApiTodoKey(args?: InferRequestType<typeof client.api.todo.$get>) {
-  return ['/api/todo', ...(args ? [args] : [])] as const
+export function getGetTodoKey(args?: InferRequestType<typeof client.todo.$get>) {
+  return ['/todo', ...(args ? [args] : [])] as const
 }
 
 /**
- * POST /api/todo
+ * POST /todo
  *
  * Create a new post
  */
-export function usePostApiTodo(options?: { client?: ClientRequestOptions }) {
+export function usePostTodo(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<typeof client.todo.$post>,
+    Error,
+    string,
+    InferRequestType<typeof client.todo.$post>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
-    'POST /api/todo',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.api.todo.$post> }) =>
-      parseResponse(client.api.todo.$post(arg, options?.client)),
+    'POST /todo',
+    async (_: string, { arg }: { arg: InferRequestType<typeof client.todo.$post> }) =>
+      parseResponse(client.todo.$post(arg, clientOptions)),
+    mutationOptions,
   )
 }
 
 /**
- * GET /api/todo/{id}
+ * GET /todo/{id}
  *
  * Get a single todo
  */
-export function useGetApiTodoId(
-  args: InferRequestType<(typeof client.api.todo)[':id']['$get']>,
+export function useGetTodoId(
+  args: InferRequestType<(typeof client.todo)[':id']['$get']>,
   options?: {
     swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
     client?: ClientRequestOptions
@@ -93,52 +100,66 @@ export function useGetApiTodoId(
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
   const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApiTodoIdKey(args) : null)
+  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTodoIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
-      async () => parseResponse(client.api.todo[':id'].$get(args, clientOptions)),
+      async () => parseResponse(client.todo[':id'].$get(args, clientOptions)),
       swrOptions,
     ),
   }
 }
 
 /**
- * Generates SWR cache key for GET /api/todo/{id}
+ * Generates SWR cache key for GET /todo/{id}
  */
-export function getGetApiTodoIdKey(
-  args?: InferRequestType<(typeof client.api.todo)[':id']['$get']>,
-) {
-  return ['/api/todo/:id', ...(args ? [args] : [])] as const
+export function getGetTodoIdKey(args?: InferRequestType<(typeof client.todo)[':id']['$get']>) {
+  return ['/todo/:id', ...(args ? [args] : [])] as const
 }
 
 /**
- * PUT /api/todo/{id}
+ * PUT /todo/{id}
  *
  * Update an existing todo
  */
-export function usePutApiTodoId(options?: { client?: ClientRequestOptions }) {
+export function usePutTodoId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.todo)[':id']['$put']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.todo)[':id']['$put']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
-    'PUT /api/todo/:id',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.api.todo)[':id']['$put']> },
-    ) => parseResponse(client.api.todo[':id'].$put(arg, options?.client)),
+    'PUT /todo/:id',
+    async (_: string, { arg }: { arg: InferRequestType<(typeof client.todo)[':id']['$put']> }) =>
+      parseResponse(client.todo[':id'].$put(arg, clientOptions)),
+    mutationOptions,
   )
 }
 
 /**
- * DELETE /api/todo/{id}
+ * DELETE /todo/{id}
  *
  * Delete a todo
  */
-export function useDeleteApiTodoId(options?: { client?: ClientRequestOptions }) {
+export function useDeleteTodoId(options?: {
+  mutation?: SWRMutationConfiguration<
+    InferResponseType<(typeof client.todo)[':id']['$delete']> | undefined,
+    Error,
+    string,
+    InferRequestType<(typeof client.todo)[':id']['$delete']>
+  >
+  client?: ClientRequestOptions
+}) {
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
   return useSWRMutation(
-    'DELETE /api/todo/:id',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.api.todo)[':id']['$delete']> },
-    ) => parseResponse(client.api.todo[':id'].$delete(arg, options?.client)),
+    'DELETE /todo/:id',
+    async (_: string, { arg }: { arg: InferRequestType<(typeof client.todo)[':id']['$delete']> }) =>
+      parseResponse(client.todo[':id'].$delete(arg, clientOptions)),
+    mutationOptions,
   )
 }

@@ -216,7 +216,9 @@ export function ${keyGetterName}(){return['${honoPath}']as const}`
  * This function returns an object compatible with TanStack Query's queryOptions pattern,
  * enabling prefetching, ensureQueryData, and other advanced patterns.
  *
- * Uses the queryOptions() helper for proper type inference and signal handling.
+ * Uses the queryOptions() helper for proper type inference, signal handling, and DataTag branding.
+ * Does NOT accept override options to avoid Vue Query's MaybeRefDeep type conflicts.
+ * Override options should be spread at useQuery() level instead.
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
  *
  * @param optionsGetterName - Function name for options getter
@@ -254,6 +256,8 @@ const makeQueryOptionsGetterCode = (
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
   const optionsHelper = config.queryOptionsHelper ?? 'queryOptions'
 
+  // No override options here - spread happens at useQuery() level
+  // This preserves DataTag branding and avoids Vue Query's MaybeRefDeep type conflicts
   if (hasArgs) {
     return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
@@ -281,17 +285,25 @@ const makeQueryHookCode = (
   docs: string,
   config: QueryFrameworkConfig,
 ): string => {
-  // Pattern with query options for flexibility
-  // Users can customize enabled, staleTime, gcTime, etc.
-  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
-  const queryOptionsType =
-    '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
-  const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
+  // Get base options from getter (no override options)
   const optionsGetterCall = hasArgs
     ? `${optionsGetterName}(args,clientOptions)`
     : `${optionsGetterName}(clientOptions)`
 
+  // Query options type - inline type for all frameworks
+  // Explicitly excludes queryKey and queryFn to avoid type conflicts
+  // (Vue Query's MaybeRefDeep causes issues when spreading inside queryOptions())
+  // Generic options (select, placeholderData, initialData) are NOT included
+  // because they conflict with Vue Query's MaybeRefDeep type system
+  // For these advanced options, use getXxxQueryOptions() directly with useQuery
+  // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
+  const queryOptionsTypeStr =
+    '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
+  const optionsType = `{query?:${queryOptionsTypeStr};client?:ClientRequestOptions}`
+
+  // Spread at useQuery level to override options
+  // queryOptions() returns DataTag-branded options, spread preserves type safety
   return `${docs}
 export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${config.queryFn}({...${optionsGetterCall},...queryOptions})}`
 }

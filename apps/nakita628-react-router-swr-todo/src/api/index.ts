@@ -1,21 +1,21 @@
 import { swaggerUI } from '@hono/swagger-ui'
 import { OpenAPIHono } from '@hono/zod-openapi'
 import {
-  deleteApiTodoIdRouteHandler,
-  getApiRouteHandler,
-  getApiTodoIdRouteHandler,
-  getApiTodoRouteHandler,
-  postApiTodoRouteHandler,
-  putApiTodoIdRouteHandler,
+  deleteTodoIdRouteHandler,
+  getRouteHandler,
+  getTodoIdRouteHandler,
+  getTodoRouteHandler,
+  postTodoRouteHandler,
+  putTodoIdRouteHandler,
 } from '@/api/handlers/todo'
 import { configureCustomErrors, makeProblemDetails, makeZodErrors } from '@/api/lib/error-config'
 import {
-  deleteApiTodoIdRoute,
-  getApiRoute,
-  getApiTodoIdRoute,
-  getApiTodoRoute,
-  postApiTodoRoute,
-  putApiTodoIdRoute,
+  deleteTodoIdRoute,
+  getRoute,
+  getTodoIdRoute,
+  getTodoRoute,
+  postTodoRoute,
+  putTodoIdRoute,
 } from '@/api/routes'
 
 // Initialize custom error messages
@@ -48,7 +48,7 @@ const app = new OpenAPIHono<{
       return c.json(makeProblemDetails(errors), 422)
     }
   },
-})
+}).basePath('/api')
 
 /**
  * Configured API router with all Todo endpoints.
@@ -57,23 +57,23 @@ const app = new OpenAPIHono<{
  * All routes are prefixed with `/api` and follow RESTful conventions.
  */
 const api = app
-  .openapi(getApiRoute, getApiRouteHandler)
-  .openapi(getApiTodoRoute, getApiTodoRouteHandler)
-  .openapi(postApiTodoRoute, postApiTodoRouteHandler)
-  .openapi(getApiTodoIdRoute, getApiTodoIdRouteHandler)
-  .openapi(putApiTodoIdRoute, putApiTodoIdRouteHandler)
-  .openapi(deleteApiTodoIdRoute, deleteApiTodoIdRouteHandler)
+  .openapi(getRoute, getRouteHandler)
+  .openapi(getTodoRoute, getTodoRouteHandler)
+  .openapi(postTodoRoute, postTodoRouteHandler)
+  .openapi(getTodoIdRoute, getTodoIdRouteHandler)
+  .openapi(putTodoIdRoute, putTodoIdRouteHandler)
+  .openapi(deleteTodoIdRoute, deleteTodoIdRouteHandler)
 
 // Swagger UI (development only)
 if (import.meta.env.DEV) {
-  app.doc('/api/doc', {
+  app.doc('/doc', {
     openapi: '3.0.0',
     info: {
       title: 'Takibi Todo API',
       version: '1.0.0',
     },
   })
-  app.get('/api/swagger', swaggerUI({ url: '/api/doc' }))
+  app.get('/swagger', swaggerUI({ url: '/api/doc' }))
 }
 
 /**

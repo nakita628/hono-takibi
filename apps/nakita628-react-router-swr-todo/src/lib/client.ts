@@ -16,4 +16,4 @@ import type { AppType } from '@/api'
  * }
  * ```
  */
-export const client = hc<AppType>('/')
+export const client = hc<AppType>('/').api

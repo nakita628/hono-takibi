@@ -3,16 +3,11 @@ import { defineConfig } from 'hono-takibi/config'
 export default defineConfig({
   input: 'typespec/main.tsp',
   'zod-openapi': {
-    output: 'src/api/routes/index.ts',
+    output: 'src/backend/routes/index.ts',
   },
-  swr: {
-    output: 'src/hooks/swr.ts',
+  'svelte-query': {
+    output: 'src/hooks/svelte-query.ts',
     import: '@/lib',
-    client: 'client',
-  },
-  rpc: {
-    output: 'src/rpc/index.ts',
-    import: '../lib',
     client: 'client',
   },
 })

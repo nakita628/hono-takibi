@@ -10,14 +10,14 @@ using Http;
 @server("http://localhost:8787/api", "Development server")
 namespace HonoService;
 
-@route("/")
+@route("/api")
 @tag("Health")
 interface Health {
   @summary("Health Check")
   @get list(): OK;
 }
 
-@route("/todo")
+@route("/api/todo")
 @tag("Todos")
 interface Todos {
   @summary("Retrieve a list of posts")

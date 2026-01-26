@@ -1,71 +1,71 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { client } from '../lib'
 
 /**
- * GET /api
+ * GET /
  *
  * Health Check
  */
-export async function getApi(options?: ClientRequestOptions) {
-  return await client.api.$get(undefined, options)
+export async function get(options?: ClientRequestOptions) {
+  return await client.index.$get(undefined, options)
 }
 
 /**
- * GET /api/todo
+ * GET /todo
  *
  * Retrieve a list of posts
  */
-export async function getApiTodo(
-  args: InferRequestType<typeof client.api.todo.$get>,
+export async function getTodo(
+  args: InferRequestType<typeof client.todo.$get>,
   options?: ClientRequestOptions,
 ) {
-  return await client.api.todo.$get(args, options)
+  return await client.todo.$get(args, options)
 }
 
 /**
- * POST /api/todo
+ * POST /todo
  *
  * Create a new post
  */
-export async function postApiTodo(
-  args: InferRequestType<typeof client.api.todo.$post>,
+export async function postTodo(
+  args: InferRequestType<typeof client.todo.$post>,
   options?: ClientRequestOptions,
 ) {
-  return await client.api.todo.$post(args, options)
+  return await client.todo.$post(args, options)
 }
 
 /**
- * GET /api/todo/{id}
+ * GET /todo/{id}
  *
  * Get a single todo
  */
-export async function getApiTodoId(
-  args: InferRequestType<(typeof client.api.todo)[':id']['$get']>,
+export async function getTodoId(
+  args: InferRequestType<(typeof client.todo)[':id']['$get']>,
   options?: ClientRequestOptions,
 ) {
-  return await client.api.todo[':id'].$get(args, options)
+  return await client.todo[':id'].$get(args, options)
 }
 
 /**
- * PUT /api/todo/{id}
+ * PUT /todo/{id}
  *
  * Update an existing todo
  */
-export async function putApiTodoId(
-  args: InferRequestType<(typeof client.api.todo)[':id']['$put']>,
+export async function putTodoId(
+  args: InferRequestType<(typeof client.todo)[':id']['$put']>,
   options?: ClientRequestOptions,
 ) {
-  return await client.api.todo[':id'].$put(args, options)
+  return await client.todo[':id'].$put(args, options)
 }
 
 /**
- * DELETE /api/todo/{id}
+ * DELETE /todo/{id}
  *
  * Delete a todo
  */
-export async function deleteApiTodoId(
-  args: InferRequestType<(typeof client.api.todo)[':id']['$delete']>,
+export async function deleteTodoId(
+  args: InferRequestType<(typeof client.todo)[':id']['$delete']>,
   options?: ClientRequestOptions,
 ) {
-  return await client.api.todo[':id'].$delete(args, options)
+  return await client.todo[':id'].$delete(args, options)
 }
