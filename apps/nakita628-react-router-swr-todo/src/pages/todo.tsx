@@ -1,31 +1,75 @@
-import { useCallback, useState } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { Link } from 'react-router'
 import { useSWRConfig } from 'swr'
 import type { Todo } from '@/api/routes'
-import {
-  getGetApiTodoKey,
-  useDeleteApiTodoId,
-  useGetApiTodo,
-  usePostApiTodo,
-  usePutApiTodoId,
-} from '@/generated/swr'
+import { getGetTodoKey, useDeleteTodoId, useGetTodo, usePostTodo, usePutTodoId } from '@/hooks/swr'
+
+/** TodoItem - メモ化されたリストアイテムコンポーネント */
+const TodoItem = memo(function TodoItem({
+  todo,
+  onToggle,
+  onDelete,
+}: {
+  todo: Todo
+  onToggle: (id: string, completed: number) => void
+  onDelete: (id: string) => void
+}) {
+  const handleToggle = useCallback(() => {
+    onToggle(todo.id, todo.completed)
+  }, [todo.id, todo.completed, onToggle])
+
+  const handleDelete = useCallback(() => {
+    onDelete(todo.id)
+  }, [todo.id, onDelete])
+
+  return (
+    <li className='flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors group'>
+      <input
+        type='checkbox'
+        checked={todo.completed === 1}
+        onChange={handleToggle}
+        className='w-5 h-5 text-orange-500 rounded focus:ring-orange-500 cursor-pointer accent-orange-500'
+      />
+      <Link
+        to={`/todos/${todo.id}`}
+        className={`flex-1 ${
+          todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
+        } hover:text-orange-600 transition-colors`}
+      >
+        {todo.content}
+      </Link>
+      <button
+        type='button'
+        onClick={handleDelete}
+        className='text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1'
+      >
+        Delete
+      </button>
+    </li>
+  )
+})
 
 export function TodoPage() {
   const [newContent, setNewContent] = useState('')
   const { mutate } = useSWRConfig()
 
-  const { data, isLoading } = useGetApiTodo({ query: {} })
+  const { data, isLoading } = useGetTodo({ query: {} })
   const todos: Todo[] = Array.isArray(data) ? data : []
-  const { trigger: createTodo } = usePostApiTodo()
-  const { trigger: updateTodo } = usePutApiTodoId()
-  const { trigger: deleteTodo } = useDeleteApiTodoId()
+  const { trigger: createTodo } = usePostTodo()
+  const { trigger: updateTodo } = usePutTodoId()
+  const { trigger: deleteTodo } = useDeleteTodoId()
+
+  const revalidate = useCallback(() => {
+    mutate(getGetTodoKey({ query: {} }))
+  }, [mutate])
 
   const handleAddTodo = useCallback(async () => {
-    if (!newContent.trim()) return
-    await createTodo({ json: { content: newContent } })
+    const trimmed = newContent.trim()
+    if (!trimmed) return
+    await createTodo({ json: { content: trimmed } })
     setNewContent('')
-    mutate(getGetApiTodoKey({ query: {} }))
-  }, [newContent, createTodo, mutate])
+    revalidate()
+  }, [newContent, createTodo, revalidate])
 
   const handleToggleTodo = useCallback(
     async (id: string, completed: number) => {
@@ -33,24 +77,23 @@ export function TodoPage() {
         param: { id },
         json: { completed: completed === 0 ? 1 : 0 },
       })
-      mutate(getGetApiTodoKey({ query: {} }))
+      revalidate()
     },
-    [updateTodo, mutate],
+    [updateTodo, revalidate],
   )
 
   const handleRemoveTodo = useCallback(
     async (id: string) => {
       await deleteTodo({ param: { id } })
-      mutate(getGetApiTodoKey({ query: {} }))
+      revalidate()
     },
-    [deleteTodo, mutate],
+    [deleteTodo, revalidate],
   )
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleAddTodo()
-      }
+      if (e.key !== 'Enter') return
+      handleAddTodo()
     },
     [handleAddTodo],
   )
@@ -106,32 +149,12 @@ export function TodoPage() {
           ) : (
             <ul className='space-y-2'>
               {todos.map((todo) => (
-                <li
+                <TodoItem
                   key={todo.id}
-                  className='flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors group'
-                >
-                  <input
-                    type='checkbox'
-                    checked={todo.completed === 1}
-                    onChange={() => handleToggleTodo(todo.id, todo.completed)}
-                    className='w-5 h-5 text-orange-500 rounded focus:ring-orange-500 cursor-pointer accent-orange-500'
-                  />
-                  <Link
-                    to={`/todos/${todo.id}`}
-                    className={`flex-1 ${
-                      todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-800'
-                    } hover:text-orange-600 transition-colors`}
-                  >
-                    {todo.content}
-                  </Link>
-                  <button
-                    type='button'
-                    onClick={() => handleRemoveTodo(todo.id)}
-                    className='text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1'
-                  >
-                    Delete
-                  </button>
-                </li>
+                  todo={todo}
+                  onToggle={handleToggleTodo}
+                  onDelete={handleRemoveTodo}
+                />
               ))}
             </ul>
           )}

@@ -594,6 +594,8 @@ export function usePostUserCreateWithList(options?: {
   })
 }
 
+const {data} = usePutUserUsername()
+
 /**
  * GET /user/login
  *
@@ -784,6 +786,8 @@ export function usePutUserUsername(options?: {
       parseResponse(client.user[':username'].$put(args, clientOptions)),
   })
 }
+
+
 
 /**
  * DELETE /user/{username}

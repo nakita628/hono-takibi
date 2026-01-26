@@ -3,34 +3,12 @@ import { createDb } from '@/api/db'
 import { DatabaseError, DataNotFoundError } from '@/api/domain/error'
 import {
   deleteTodoIdRoute,
-  getRoute,
   getTodoIdRoute,
   getTodoRoute,
   postTodoRoute,
   putTodoIdRoute,
 } from '@/api/routes'
 import * as TodoService from '@/api/services/todo'
-
-/**
- * Handler for the health check endpoint.
- *
- * ```mermaid
- * sequenceDiagram
- *   participant Client
- *   participant Handler
- *   Client->>Handler: GET /api
- *   Handler-->>Client: 200 OK { message }
- * ```
- *
- * @param c - The Hono context object
- * @returns JSON response with status message
- */
-export const getRouteHandler: RouteHandler<
-  typeof getRoute,
-  { Bindings: { DB: D1Database } }
-> = async (c) => {
-  return c.json({ message: 'Hono🔥 React' }, 200)
-}
 
 /**
  * Handler for retrieving all todos.

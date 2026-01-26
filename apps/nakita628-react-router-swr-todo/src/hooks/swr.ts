@@ -7,35 +7,6 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '@/lib'
 
 /**
- * GET /
- *
- * Health Check
- */
-export function useGet(options?: {
-  swr?: SWRConfiguration & { swrKey?: Key; enabled?: boolean }
-  client?: ClientRequestOptions
-}) {
-  const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetKey() : null)
-  return {
-    swrKey,
-    ...useSWR(
-      swrKey,
-      async () => parseResponse(client.index.$get(undefined, clientOptions)),
-      swrOptions,
-    ),
-  }
-}
-
-/**
- * Generates SWR cache key for GET /
- */
-export function getGetKey() {
-  return ['/'] as const
-}
-
-/**
  * GET /todo
  *
  * Retrieve a list of posts

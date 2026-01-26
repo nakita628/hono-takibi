@@ -9,6 +9,14 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 export default defineConfig(({ mode }) => {
   if (mode === 'client') {
     return {
+      plugins: [
+        tanstackRouter({
+          target: 'react',
+          autoCodeSplitting: true,
+        }),
+        tailwindcss(),
+        tsconfigPaths(),
+      ],
       build: {
         rollupOptions: {
           input: './src/main.tsx',

@@ -1,41 +1,79 @@
-import { useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { useSWRConfig } from 'swr'
 import type { Todo } from '@/api/routes'
-import {
-  getGetApiTodoKey,
-  useDeleteApiTodoId,
-  useGetApiTodo,
-  usePostApiTodo,
-} from '@/generated/swr'
+import { getGetTodoKey, useDeleteTodoId, useGetTodo, usePostTodo } from '@/hooks/swr'
+
+/** RecentTodoItem - メモ化されたリストアイテムコンポーネント */
+const RecentTodoItem = memo(function RecentTodoItem({
+  todo,
+  onDelete,
+}: {
+  todo: Todo
+  onDelete: (id: string) => void
+}) {
+  const handleDelete = useCallback(() => {
+    onDelete(todo.id)
+  }, [todo.id, onDelete])
+
+  return (
+    <li className='flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors group'>
+      <span
+        className={`w-2 h-2 rounded-full ${
+          todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'
+        }`}
+      />
+      <Link
+        to={`/todos/${todo.id}`}
+        className={`flex-1 ${
+          todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-700'
+        } hover:text-orange-600 transition-colors`}
+      >
+        {todo.content}
+      </Link>
+      <button
+        type='button'
+        onClick={handleDelete}
+        className='text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1'
+      >
+        Delete
+      </button>
+    </li>
+  )
+})
 
 function App() {
   const [content, setContent] = useState('')
   const { mutate } = useSWRConfig()
 
-  const { data, isLoading } = useGetApiTodo({ query: {} })
+  const { data, isLoading } = useGetTodo({ query: {} })
   const todos: Todo[] = Array.isArray(data) ? data : []
-  const { trigger: createTodo } = usePostApiTodo()
-  const { trigger: deleteTodo } = useDeleteApiTodoId()
+  const { trigger: createTodo } = usePostTodo()
+  const { trigger: deleteTodo } = useDeleteTodoId()
+
+  const revalidate = useCallback(() => {
+    mutate(getGetTodoKey({ query: {} }))
+  }, [mutate])
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault()
-      if (!content.trim()) return
+      const trimmed = content.trim()
+      if (!trimmed) return
 
-      await createTodo({ json: { content } })
+      await createTodo({ json: { content: trimmed } })
       setContent('')
-      mutate(getGetApiTodoKey({ query: {} }))
+      revalidate()
     },
-    [content, createTodo, mutate],
+    [content, createTodo, revalidate],
   )
 
   const handleRemoveTodo = useCallback(
     async (id: string) => {
       await deleteTodo({ param: { id } })
-      mutate(getGetApiTodoKey({ query: {} }))
+      revalidate()
     },
-    [deleteTodo, mutate],
+    [deleteTodo, revalidate],
   )
 
   const recentTodos = useMemo(() => todos.slice(0, 5), [todos])
@@ -92,31 +130,7 @@ function App() {
           ) : (
             <ul className='space-y-2'>
               {recentTodos.map((todo) => (
-                <li
-                  key={todo.id}
-                  className='flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-orange-50 transition-colors group'
-                >
-                  <span
-                    className={`w-2 h-2 rounded-full ${
-                      todo.completed === 1 ? 'bg-green-500' : 'bg-orange-500'
-                    }`}
-                  />
-                  <Link
-                    to={`/todos/${todo.id}`}
-                    className={`flex-1 ${
-                      todo.completed === 1 ? 'line-through text-gray-400' : 'text-gray-700'
-                    } hover:text-orange-600 transition-colors`}
-                  >
-                    {todo.content}
-                  </Link>
-                  <button
-                    type='button'
-                    onClick={() => handleRemoveTodo(todo.id)}
-                    className='text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity px-2 py-1'
-                  >
-                    Delete
-                  </button>
-                </li>
+                <RecentTodoItem key={todo.id} todo={todo} onDelete={handleRemoveTodo} />
               ))}
             </ul>
           )}

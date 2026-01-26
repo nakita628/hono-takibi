@@ -10,13 +10,6 @@ using Http;
 @server("http://localhost:8787/api", "Development server")
 namespace HonoService;
 
-@route("/")
-@tag("Health")
-interface Health {
-  @summary("Health Check")
-  @get list(): OK;
-}
-
 @route("/todo")
 @tag("Todos")
 interface Todos {

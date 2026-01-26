@@ -1,11 +1,10 @@
 import { z } from '@hono/zod-openapi'
 import type { Kysely } from 'kysely'
+import { sql } from 'kysely'
 import { err, ok, ResultAsync } from 'neverthrow'
 import type { Database } from '@/api/db'
 import { DatabaseError, DataNotFoundError, ValidationError } from '@/api/domain/error'
 import { TodoSchema } from '@/api/routes'
-
-const TodoArraySchema = z.array(TodoSchema)
 
 /**
  * Retrieves all todos from the database.
@@ -34,14 +33,16 @@ const TodoArraySchema = z.array(TodoSchema)
  * @returns A ResultAsync containing an array of todos or an error
  */
 export function readAll(db: Kysely<Database>, limit?: number, offset?: number) {
+  const TodoArraySchema = z.array(TodoSchema)
+
   const baseQuery = db
     .selectFrom('todos')
     .select([
       'id',
       'content',
       'completed',
-      (eb) => eb.fn('strftime', ['%Y-%m-%dT%H:%M:%SZ', eb.ref('created_at')]).as('createdAt'),
-      (eb) => eb.fn('strftime', ['%Y-%m-%dT%H:%M:%SZ', eb.ref('updated_at')]).as('updatedAt'),
+      sql<string>`strftime('%Y-%m-%dT%H:%M:%SZ', created_at)`.as('createdAt'),
+      sql<string>`strftime('%Y-%m-%dT%H:%M:%SZ', updated_at)`.as('updatedAt'),
     ])
     .orderBy('created_at', 'desc')
 
@@ -90,8 +91,8 @@ export function readById(db: Kysely<Database>, id: string) {
         'id',
         'content',
         'completed',
-        (eb) => eb.fn('strftime', ['%Y-%m-%dT%H:%M:%SZ', eb.ref('created_at')]).as('createdAt'),
-        (eb) => eb.fn('strftime', ['%Y-%m-%dT%H:%M:%SZ', eb.ref('updated_at')]).as('updatedAt'),
+        sql<string>`strftime('%Y-%m-%dT%H:%M:%SZ', created_at)`.as('createdAt'),
+        sql<string>`strftime('%Y-%m-%dT%H:%M:%SZ', updated_at)`.as('updatedAt'),
       ])
       .where('id', '=', id)
       .executeTakeFirst(),

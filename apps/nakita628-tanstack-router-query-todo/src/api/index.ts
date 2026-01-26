@@ -1,19 +1,41 @@
-import { createRoute, OpenAPIHono, RouteHandler } from '@hono/zod-openapi'
+import { OpenAPIHono } from '@hono/zod-openapi'
+import {
+  deleteTodoIdRouteHandler,
+  getTodoIdRouteHandler,
+  getTodoRouteHandler,
+  postTodoRouteHandler,
+  putTodoIdRouteHandler,
+} from '@/api/handlers/todo'
+import { configureCustomErrors, formatZodErrors } from '@/api/lib/error-config'
+import {
+  deleteTodoIdRoute,
+  getTodoIdRoute,
+  getTodoRoute,
+  postTodoRoute,
+  putTodoIdRoute,
+} from '@/api/routes'
 
-const app = new OpenAPIHono()
+configureCustomErrors()
 
-const getHealthRoute = createRoute({
-  method: 'get',
-  path: '/',
-  operationId: 'getHealth',
-  responses: { 200: { description: 'OK' } },
+const app = new OpenAPIHono<{
+  Bindings: {
+    DB: D1Database
+  }
+}>({
+  defaultHook: (result, c) => {
+    if (!result.success) {
+      return c.json(formatZodErrors(result), 422)
+    }
+  },
 })
 
-const getHealthHandler: RouteHandler<typeof getHealthRoute> = async (c) => {
-  return c.json({ message: 'Hono🔥 React' }, 200)
-}
-
-const api = app.basePath('/api').openapi(getHealthRoute, getHealthHandler)
+const api = app
+  .basePath('/api')
+  .openapi(getTodoRoute, getTodoRouteHandler)
+  .openapi(postTodoRoute, postTodoRouteHandler)
+  .openapi(getTodoIdRoute, getTodoIdRouteHandler)
+  .openapi(putTodoIdRoute, putTodoIdRouteHandler)
+  .openapi(deleteTodoIdRoute, deleteTodoIdRouteHandler)
 
 export type AppType = typeof api
 

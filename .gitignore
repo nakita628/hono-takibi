@@ -28,3 +28,4 @@ nakita628-todo-docs
 server-build
 worker-configuration.d.ts
 .svelte-kit
+.wrangler

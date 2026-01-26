@@ -10,21 +10,22 @@
     "deploy": "pnpm build && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "takibi": "hono-takibi",
-    "typecheck": "tsc --noEmit",
-    "docs": "typedoc"
+    "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260121.0",
     "@hono/vite-build": "^1.9.2",
     "@hono/vite-dev-server": "^0.24.1",
+    "@tanstack/react-query-devtools": "^5.62.16",
     "@tanstack/react-router-devtools": "^1.157.14",
     "@tanstack/router-plugin": "^1.157.14",
     "@types/react": "^19.2.9",
     "@types/react-dom": "^19.2.3",
-    "@typescript/native-preview": "7.0.0-dev.20260107.1",
     "@typespec/http": "^1.8.0",
     "@typespec/openapi3": "^1.8.0",
     "@typespec/versioning": "^0.78.0",
-    "hono-takibi": "^0.9.78",
+    "drizzle-kit": "^0.30.4",
+    "hono-takibi": "workspace:^",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.0.5",
     "wrangler": "^4.60.0"
@@ -32,8 +33,13 @@
   "dependencies": {
     "@hono/zod-openapi": "^1.2.0",
     "@tailwindcss/vite": "^4.1.18",
+    "@tanstack/react-query": "^5.62.16",
     "@tanstack/react-router": "^1.157.14",
+    "drizzle-orm": "^0.39.3",
     "hono": "^4.11.5",
+    "neverthrow": "^8.2.0",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
     "tailwindcss": "^4.1.18",
     "zod": "^4.3.6"
   }

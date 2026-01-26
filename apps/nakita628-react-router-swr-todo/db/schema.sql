@@ -1,5 +1,4 @@
--- Migration: Create todos table
--- Description: Initial schema for Todo application
+-- Schema for Todo application (SWR + Kysely)
 
 CREATE TABLE IF NOT EXISTS todos (
   id TEXT PRIMARY KEY,
@@ -9,8 +8,5 @@ CREATE TABLE IF NOT EXISTS todos (
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
--- Index for faster queries on completed status
 CREATE INDEX IF NOT EXISTS idx_todos_completed ON todos(completed);
-
--- Index for ordering by creation date
 CREATE INDEX IF NOT EXISTS idx_todos_created_at ON todos(created_at);
