@@ -8,12 +8,12 @@ import { client } from '../clients/15-cross-component-refs'
 
 /**
  * Generates Vue Query cache key for GET /entities
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesQueryKey(
   args: MaybeRef<InferRequestType<typeof client.entities.$get>>,
 ) {
-  return ['entities', '/entities', unref(args)] as const
+  return ['entities', 'GET', '/entities', unref(args)] as const
 }
 
 /**
@@ -59,10 +59,10 @@ export function useGetEntities(
 
 /**
  * Generates Vue Query mutation key for POST /entities
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEntitiesMutationKey() {
-  return ['POST', '/entities'] as const
+  return ['entities', 'POST', '/entities'] as const
 }
 
 /**
@@ -89,27 +89,24 @@ export function usePostEntities(options?: {
         Error,
         InferRequestType<typeof client.entities.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.entities.$post>) =>
-      parseResponse(client.entities.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostEntitiesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /entities/{entityId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.entities)[':entityId']['$get']>>,
 ) {
-  return ['entities', '/entities/:entityId', unref(args)] as const
+  return ['entities', 'GET', '/entities/:entityId', unref(args)] as const
 }
 
 /**
@@ -165,10 +162,10 @@ export function useGetEntitiesEntityId(
 
 /**
  * Generates Vue Query mutation key for PUT /entities/{entityId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutEntitiesEntityIdMutationKey() {
-  return ['PUT', '/entities/:entityId'] as const
+  return ['entities', 'PUT', '/entities/:entityId'] as const
 }
 
 /**
@@ -197,25 +194,23 @@ export function usePutEntitiesEntityId(options?: {
         Error,
         InferRequestType<(typeof client.entities)[':entityId']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$put']>) =>
-      parseResponse(client.entities[':entityId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutEntitiesEntityIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /entities/{entityId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteEntitiesEntityIdMutationKey() {
-  return ['DELETE', '/entities/:entityId'] as const
+  return ['entities', 'DELETE', '/entities/:entityId'] as const
 }
 
 /**
@@ -247,27 +242,25 @@ export function useDeleteEntitiesEntityId(options?: {
         Error,
         InferRequestType<(typeof client.entities)[':entityId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$delete']>) =>
-      parseResponse(client.entities[':entityId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteEntitiesEntityIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /entities/{entityId}/relationships
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>>,
 ) {
-  return ['entities', '/entities/:entityId/relationships', unref(args)] as const
+  return ['entities', 'GET', '/entities/:entityId/relationships', unref(args)] as const
 }
 
 /**
@@ -323,10 +316,10 @@ export function useGetEntitiesEntityIdRelationships(
 
 /**
  * Generates Vue Query mutation key for POST /entities/{entityId}/relationships
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEntitiesEntityIdRelationshipsMutationKey() {
-  return ['POST', '/entities/:entityId/relationships'] as const
+  return ['entities', 'POST', '/entities/:entityId/relationships'] as const
 }
 
 /**
@@ -360,26 +353,23 @@ export function usePostEntitiesEntityIdRelationships(options?: {
         Error,
         InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
-    ) => parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostEntitiesEntityIdRelationshipsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostBatchMutationKey() {
-  return ['POST', '/batch'] as const
+  return ['batch', 'POST', '/batch'] as const
 }
 
 /**
@@ -404,15 +394,12 @@ export function usePostBatch(options?: {
         Error,
         InferRequestType<typeof client.batch.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.batch.$post>) =>
-      parseResponse(client.batch.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostBatchMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

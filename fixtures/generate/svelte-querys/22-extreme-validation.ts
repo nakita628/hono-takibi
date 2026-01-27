@@ -6,10 +6,10 @@ import { client } from '../clients/22-extreme-validation'
 
 /**
  * Generates Svelte Query mutation key for POST /validate
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostValidateMutationKey() {
-  return ['POST', '/validate'] as const
+  return ['validate', 'POST', '/validate'] as const
 }
 
 /**
@@ -26,18 +26,19 @@ export const getPostValidateMutationOptions = (clientOptions?: ClientRequestOpti
 /**
  * POST /validate
  */
-export function createPostValidate(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.validate.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.validate.$post>) =>
-      parseResponse(client.validate.$post(args, clientOptions)),
-  }))
+export function createPostValidate(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.validate.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostValidateMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

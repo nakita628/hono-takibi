@@ -103,15 +103,16 @@ function makeQueryOptionsGetterName(method: string, pathStr: string): string {
 /**
  * Generates query key getter function code using structured keys.
  *
- * Pattern: ['prefix', '/full/path', args?]
- * - prefix: First path segment for prefix invalidation (e.g., 'pet')
+ * Pattern: ['prefix', 'GET', '/full/path', args?]
+ * - prefix: First path segment for prefix filtering (e.g., 'pet')
+ * - method: HTTP method for method filtering (e.g., 'GET')
  * - path: Full path for uniqueness (e.g., '/pet/findByStatus')
  * - args: Request arguments when present
  *
- * This enables:
- * - Prefix invalidation: invalidateQueries({ queryKey: ['pet'] }) → all pet queries
- * - Unique keys: Different endpoints never collide
- * - No query string order issues (query params as object)
+ * This enables consistent filtering:
+ * - All pet: invalidateQueries({ queryKey: ['pet'] })
+ * - GET only: invalidateQueries({ queryKey: ['pet', 'GET'] })
+ * - POST only: isMutating({ mutationKey: ['pet', 'POST'] })
  *
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
@@ -142,30 +143,30 @@ function makeQueryKeyGetterCode(
     if (hasArgs) {
       return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:MaybeRef<${inferRequestType}>){return['${prefix}','${honoPath}',unref(args)]as const}`
+export function ${keyGetterName}(args:MaybeRef<${inferRequestType}>){return['${prefix}','GET','${honoPath}',unref(args)]as const}`
     }
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
+export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as const}`
   }
 
-  // TanStack Query / Svelte Query: ['prefix', '/path', args]
+  // TanStack Query / Svelte Query: ['prefix', 'GET', '/path', args?]
   if (hasArgs) {
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:${inferRequestType}){return['${prefix}','${honoPath}',args]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){return['${prefix}','GET','${honoPath}',args]as const}`
   }
   return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function ${keyGetterName}(){return['${prefix}','${honoPath}']as const}`
+export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as const}`
 }
 
 /**
@@ -289,8 +290,14 @@ function makeMutationKeyGetterName(method: string, pathStr: string): string {
 /**
  * Generates mutation key getter function code.
  *
- * Pattern: ['METHOD', '/path'] to avoid collisions between different methods on same path.
- * e.g., PUT /pet and POST /pet get different keys: ['PUT', '/pet'] vs ['POST', '/pet']
+ * Pattern: ['prefix', 'METHOD', '/path'] to match Query key structure.
+ * - prefix: First path segment for prefix-based filtering (e.g., 'pet')
+ * - method: HTTP method to avoid collisions (e.g., 'PUT', 'POST')
+ * - path: Full path template (e.g., '/pet/:petId')
+ *
+ * This enables:
+ * - Prefix filtering: isMutating({ mutationKey: ['pet'] }) → all pet mutations
+ * - No collisions: PUT /pet and POST /pet have different keys
  *
  * @param keyGetterName - Function name for key getter
  * @param honoPath - Hono-style path (with :param)
@@ -306,11 +313,13 @@ function makeMutationKeyGetterCode(
 ): string {
   const methodUpper = method.toUpperCase()
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
+  // Extract prefix (first path segment without leading slash)
+  const prefix = honoPath.replace(/^\//, '').split('/')[0]
   return `/**
  * Generates ${config.frameworkName} mutation key for ${methodUpper} ${safeCommentPath}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function ${keyGetterName}(){return['${methodUpper}','${honoPath}']as const}`
+export function ${keyGetterName}(){return['${prefix}','${methodUpper}','${honoPath}']as const}`
 }
 
 /* ─────────────────────────────── Mutation Options Getter ─────────────────────────────── */
@@ -381,16 +390,14 @@ export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({mutat
 
 function makeMutationHookCode(
   hookName: string,
+  optionsGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
   inferResponseType: string,
-  clientPath: string,
-  method: string,
   docs: string,
   config: { mutationFn: string; useThunk?: boolean; useMutationOptionsType: string; usePartialOmit?: boolean },
   hasNoContent: boolean,
 ): string {
-  // Simple pattern with typed callbacks
   const variablesType = hasArgs ? inferRequestType : 'void'
 
   // For 204/205 responses, parseResponse returns undefined
@@ -399,29 +406,20 @@ function makeMutationHookCode(
   // Use official TanStack Query mutation options type
   // Vue Query needs Partial<Omit<...>> due to type conflicts with MaybeRefOrGetter
   const mutationOptionsType = config.usePartialOmit
-    ? `Partial<Omit<${config.useMutationOptionsType}<${dataType},Error,${variablesType}>,'mutationFn'>>`
+    ? `Partial<Omit<${config.useMutationOptionsType}<${dataType},Error,${variablesType}>,'mutationFn'|'mutationKey'>>`
     : `${config.useMutationOptionsType}<${dataType},Error,${variablesType}>`
   const optionsType = `{mutation?:${mutationOptionsType};client?:ClientRequestOptions}`
 
+  // Use getMutationOptions to include mutationKey (for setMutationDefaults, isMutating, etc.)
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
-  if (hasArgs) {
-    const clientCall = `${clientPath}.$${method}(args,clientOptions)`
-    const fetcherBody = makeFetcher(clientCall)
-    const optionsExpr = `{...mutationOptions,mutationFn:async(args:${inferRequestType})=>${fetcherBody}}`
-    const mutationCall = config.useThunk
-      ? `${config.mutationFn}(()=>(${optionsExpr}))`
-      : `${config.mutationFn}(${optionsExpr})`
+  if (config.useThunk) {
     return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${mutationCall}}`
+export function ${hookName}(options?:()=>${optionsType}){return ${config.mutationFn}(()=>{const opts=options?.();const{mutationKey,mutationFn,...baseOptions}=${optionsGetterName}(opts?.client);return{...baseOptions,...opts?.mutation,mutationKey,mutationFn}})}`
   }
-  const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
-  const fetcherBody = makeFetcher(clientCall)
-  const optionsExpr = `{...mutationOptions,mutationFn:async()=>${fetcherBody}}`
-  const mutationCall = config.useThunk
-    ? `${config.mutationFn}(()=>(${optionsExpr}))`
-    : `${config.mutationFn}(${optionsExpr})`
+
+  // React TanStack Query / Vue Query: use getMutationOptions
   return `${docs}
-export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};return ${mutationCall}}`
+export function ${hookName}(options?:${optionsType}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{mutationKey,mutationFn,...baseOptions}=${optionsGetterName}(clientOptions);return ${config.mutationFn}({...baseOptions,...mutationOptions,mutationKey,mutationFn})}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -519,11 +517,10 @@ function makeHookCode(
   )
   const hookCode = makeMutationHookCode(
     hookName,
+    optionsGetterName,
     hasArgs,
     inferRequestType,
     parseResponseType,
-    clientPath,
-    method,
     docs,
     config,
     hasNoContent,

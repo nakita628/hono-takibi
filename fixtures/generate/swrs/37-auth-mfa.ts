@@ -8,10 +8,10 @@ import { client } from '../clients/37-auth-mfa'
 
 /**
  * Generates SWR cache key for GET /mfa/status
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaStatusKey() {
-  return ['/mfa/status'] as const
+  return ['mfa', 'GET', '/mfa/status'] as const
 }
 
 /**
@@ -39,10 +39,10 @@ export function useGetMfaStatus(options?: {
 
 /**
  * Generates SWR cache key for GET /mfa/methods
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaMethodsKey() {
-  return ['/mfa/methods'] as const
+  return ['mfa', 'GET', '/mfa/methods'] as const
 }
 
 /**
@@ -70,10 +70,10 @@ export function useGetMfaMethods(options?: {
 
 /**
  * Generates SWR mutation key for PUT /mfa/preferred
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMfaPreferredMutationKey() {
-  return ['PUT', '/mfa/preferred'] as const
+  return ['mfa', 'PUT', '/mfa/preferred'] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function usePutMfaPreferred(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/totp/setup
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaTotpSetupMutationKey() {
-  return ['POST', '/mfa/totp/setup'] as const
+  return ['mfa', 'POST', '/mfa/totp/setup'] as const
 }
 
 /**
@@ -148,10 +148,10 @@ export function usePostMfaTotpSetup(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/totp/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaTotpVerifyMutationKey() {
-  return ['POST', '/mfa/totp/verify'] as const
+  return ['mfa', 'POST', '/mfa/totp/verify'] as const
 }
 
 /**
@@ -188,10 +188,10 @@ export function usePostMfaTotpVerify(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mfa/totp
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaTotpMutationKey() {
-  return ['DELETE', '/mfa/totp'] as const
+  return ['mfa', 'DELETE', '/mfa/totp'] as const
 }
 
 /**
@@ -225,10 +225,10 @@ export function useDeleteMfaTotp(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/sms/setup
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaSmsSetupMutationKey() {
-  return ['POST', '/mfa/sms/setup'] as const
+  return ['mfa', 'POST', '/mfa/sms/setup'] as const
 }
 
 /**
@@ -265,10 +265,10 @@ export function usePostMfaSmsSetup(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/sms/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaSmsVerifyMutationKey() {
-  return ['POST', '/mfa/sms/verify'] as const
+  return ['mfa', 'POST', '/mfa/sms/verify'] as const
 }
 
 /**
@@ -303,10 +303,10 @@ export function usePostMfaSmsVerify(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mfa/sms/{methodId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaSmsMethodIdMutationKey() {
-  return ['DELETE', '/mfa/sms/:methodId'] as const
+  return ['mfa', 'DELETE', '/mfa/sms/:methodId'] as const
 }
 
 /**
@@ -346,10 +346,10 @@ export function useDeleteMfaSmsMethodId(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/email/setup
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaEmailSetupMutationKey() {
-  return ['POST', '/mfa/email/setup'] as const
+  return ['mfa', 'POST', '/mfa/email/setup'] as const
 }
 
 /**
@@ -384,10 +384,10 @@ export function usePostMfaEmailSetup(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/email/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaEmailVerifyMutationKey() {
-  return ['POST', '/mfa/email/verify'] as const
+  return ['mfa', 'POST', '/mfa/email/verify'] as const
 }
 
 /**
@@ -422,10 +422,10 @@ export function usePostMfaEmailVerify(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/register/options
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnRegisterOptionsMutationKey() {
-  return ['POST', '/mfa/webauthn/register/options'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/register/options'] as const
 }
 
 /**
@@ -466,10 +466,10 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/register/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnRegisterVerifyMutationKey() {
-  return ['POST', '/mfa/webauthn/register/verify'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/register/verify'] as const
 }
 
 /**
@@ -508,10 +508,10 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
 
 /**
  * Generates SWR cache key for GET /mfa/webauthn/credentials
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaWebauthnCredentialsKey() {
-  return ['/mfa/webauthn/credentials'] as const
+  return ['mfa', 'GET', '/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -539,10 +539,10 @@ export function useGetMfaWebauthnCredentials(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mfa/webauthn/credentials/{credentialId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['DELETE', '/mfa/webauthn/credentials/:credentialId'] as const
+  return ['mfa', 'DELETE', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -593,10 +593,10 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /mfa/webauthn/credentials/{credentialId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['PATCH', '/mfa/webauthn/credentials/:credentialId'] as const
+  return ['mfa', 'PATCH', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -642,10 +642,10 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/backup-codes/generate
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaBackupCodesGenerateMutationKey() {
-  return ['POST', '/mfa/backup-codes/generate'] as const
+  return ['mfa', 'POST', '/mfa/backup-codes/generate'] as const
 }
 
 /**
@@ -690,10 +690,10 @@ export function usePostMfaBackupCodesGenerate(options?: {
 
 /**
  * Generates SWR cache key for GET /mfa/backup-codes/status
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaBackupCodesStatusKey() {
-  return ['/mfa/backup-codes/status'] as const
+  return ['mfa', 'GET', '/mfa/backup-codes/status'] as const
 }
 
 /**
@@ -721,10 +721,10 @@ export function useGetMfaBackupCodesStatus(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/challenge
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaChallengeMutationKey() {
-  return ['POST', '/mfa/challenge'] as const
+  return ['mfa', 'POST', '/mfa/challenge'] as const
 }
 
 /**
@@ -761,10 +761,10 @@ export function usePostMfaChallenge(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/challenge/send
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaChallengeSendMutationKey() {
-  return ['POST', '/mfa/challenge/send'] as const
+  return ['mfa', 'POST', '/mfa/challenge/send'] as const
 }
 
 /**
@@ -801,10 +801,10 @@ export function usePostMfaChallengeSend(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaVerifyMutationKey() {
-  return ['POST', '/mfa/verify'] as const
+  return ['mfa', 'POST', '/mfa/verify'] as const
 }
 
 /**
@@ -839,10 +839,10 @@ export function usePostMfaVerify(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/authenticate/options
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
-  return ['POST', '/mfa/webauthn/authenticate/options'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -883,10 +883,10 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/recovery
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaRecoveryMutationKey() {
-  return ['POST', '/mfa/recovery'] as const
+  return ['mfa', 'POST', '/mfa/recovery'] as const
 }
 
 /**
@@ -923,10 +923,10 @@ export function usePostMfaRecovery(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/recovery/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaRecoveryVerifyMutationKey() {
-  return ['POST', '/mfa/recovery/verify'] as const
+  return ['mfa', 'POST', '/mfa/recovery/verify'] as const
 }
 
 /**

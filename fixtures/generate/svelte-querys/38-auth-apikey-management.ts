@@ -10,10 +10,10 @@ import { client } from '../clients/38-auth-apikey-management'
 
 /**
  * Generates Svelte Query cache key for GET /api-keys
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['api-keys', '/api-keys', args] as const
+  return ['api-keys', 'GET', '/api-keys', args] as const
 }
 
 /**
@@ -58,10 +58,10 @@ export function createGetApiKeys(
 
 /**
  * Generates Svelte Query mutation key for POST /api-keys
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysMutationKey() {
-  return ['POST', '/api-keys'] as const
+  return ['api-keys', 'POST', '/api-keys'] as const
 }
 
 /**
@@ -80,32 +80,33 @@ export const getPostApiKeysMutationOptions = (clientOptions?: ClientRequestOptio
  *
  * APIキー作成
  */
-export function createPostApiKeys(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
-    >,
-    Error,
-    InferRequestType<(typeof client)['api-keys']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
-      parseResponse(client['api-keys'].$post(args, clientOptions)),
-  }))
+export function createPostApiKeys(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
+      >,
+      Error,
+      InferRequestType<(typeof client)['api-keys']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostApiKeysMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /api-keys/{keyId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  return ['api-keys', '/api-keys/:keyId', args] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId', args] as const
 }
 
 /**
@@ -155,10 +156,10 @@ export function createGetApiKeysKeyId(
 
 /**
  * Generates Svelte Query mutation key for DELETE /api-keys/{keyId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteApiKeysKeyIdMutationKey() {
-  return ['DELETE', '/api-keys/:keyId'] as const
+  return ['api-keys', 'DELETE', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -177,35 +178,38 @@ export const getDeleteApiKeysKeyIdMutationOptions = (clientOptions?: ClientReque
  *
  * APIキー削除
  */
-export function createDeleteApiKeysKeyId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
+export function createDeleteApiKeysKeyId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
+            >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>) =>
-      parseResponse(client['api-keys'][':keyId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteApiKeysKeyIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for PATCH /api-keys/{keyId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchApiKeysKeyIdMutationKey() {
-  return ['PATCH', '/api-keys/:keyId'] as const
+  return ['api-keys', 'PATCH', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -224,32 +228,35 @@ export const getPatchApiKeysKeyIdMutationOptions = (clientOptions?: ClientReques
  *
  * APIキー更新
  */
-export function createPatchApiKeysKeyId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
-      parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
-  }))
+export function createPatchApiKeysKeyId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPatchApiKeysKeyIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /api-keys/{keyId}/revoke
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysKeyIdRevokeMutationKey() {
-  return ['POST', '/api-keys/:keyId/revoke'] as const
+  return ['api-keys', 'POST', '/api-keys/:keyId/revoke'] as const
 }
 
 /**
@@ -269,35 +276,37 @@ export const getPostApiKeysKeyIdRevokeMutationOptions = (clientOptions?: ClientR
  *
  * APIキー無効化
  */
-export function createPostApiKeysKeyIdRevoke(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
+export function createPostApiKeysKeyIdRevoke(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-    ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostApiKeysKeyIdRevokeMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /api-keys/{keyId}/rotate
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysKeyIdRotateMutationKey() {
-  return ['POST', '/api-keys/:keyId/rotate'] as const
+  return ['api-keys', 'POST', '/api-keys/:keyId/rotate'] as const
 }
 
 /**
@@ -317,37 +326,39 @@ export const getPostApiKeysKeyIdRotateMutationOptions = (clientOptions?: ClientR
  *
  * APIキーローテーション
  */
-export function createPostApiKeysKeyIdRotate(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
+export function createPostApiKeysKeyIdRotate(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-    ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostApiKeysKeyIdRotateMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /api-keys/{keyId}/usage
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  return ['api-keys', '/api-keys/:keyId/usage', args] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId/usage', args] as const
 }
 
 /**
@@ -402,12 +413,12 @@ export function createGetApiKeysKeyIdUsage(
 
 /**
  * Generates Svelte Query cache key for GET /api-keys/{keyId}/rate-limit/current
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['api-keys', '/api-keys/:keyId/rate-limit/current', args] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId/rate-limit/current', args] as const
 }
 
 /**
@@ -464,10 +475,10 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
 
 /**
  * Generates Svelte Query mutation key for POST /api-keys/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysVerifyMutationKey() {
-  return ['POST', '/api-keys/verify'] as const
+  return ['api-keys', 'POST', '/api-keys/verify'] as const
 }
 
 /**
@@ -486,32 +497,35 @@ export const getPostApiKeysVerifyMutationOptions = (clientOptions?: ClientReques
  *
  * APIキー検証
  */
-export function createPostApiKeysVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['api-keys']['verify']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
-      parseResponse(client['api-keys'].verify.$post(args, clientOptions)),
-  }))
+export function createPostApiKeysVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['api-keys']['verify']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostApiKeysVerifyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /scopes
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetScopesQueryKey() {
-  return ['scopes', '/scopes'] as const
+  return ['scopes', 'GET', '/scopes'] as const
 }
 
 /**

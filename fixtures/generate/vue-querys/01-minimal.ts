@@ -8,10 +8,10 @@ import { client } from '../clients/01-minimal'
 
 /**
  * Generates Vue Query cache key for GET /health
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHealthQueryKey() {
-  return ['health', '/health'] as const
+  return ['health', 'GET', '/health'] as const
 }
 
 /**

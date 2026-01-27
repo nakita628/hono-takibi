@@ -7,10 +7,10 @@ import { client } from '../clients/discriminated-union'
 
 /**
  * Generates SWR mutation key for POST /messages
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMessagesMutationKey() {
-  return ['POST', '/messages'] as const
+  return ['messages', 'POST', '/messages'] as const
 }
 
 /**

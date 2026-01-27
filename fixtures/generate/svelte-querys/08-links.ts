@@ -10,10 +10,10 @@ import { client } from '../clients/08-links'
 
 /**
  * Generates Svelte Query mutation key for POST /orders
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**
@@ -30,30 +30,31 @@ export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOption
 /**
  * POST /orders
  */
-export function createPostOrders(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.orders.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
-      parseResponse(client.orders.$post(args, clientOptions)),
-  }))
+export function createPostOrders(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.orders.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /orders/{orderId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['orders', '/orders/:orderId', args] as const
+  return ['orders', 'GET', '/orders/:orderId', args] as const
 }
 
 /**
@@ -104,10 +105,10 @@ export function createGetOrdersOrderId(
 
 /**
  * Generates Svelte Query mutation key for DELETE /orders/{orderId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteOrdersOrderIdMutationKey() {
-  return ['DELETE', '/orders/:orderId'] as const
+  return ['orders', 'DELETE', '/orders/:orderId'] as const
 }
 
 /**
@@ -124,34 +125,37 @@ export const getDeleteOrdersOrderIdMutationOptions = (clientOptions?: ClientRequ
 /**
  * DELETE /orders/{orderId}
  */
-export function createDeleteOrdersOrderId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.orders)[':orderId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) =>
-      parseResponse(client.orders[':orderId'].$delete(args, clientOptions)),
-  }))
+export function createDeleteOrdersOrderId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client.orders)[':orderId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteOrdersOrderIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /orders/{orderId}/items
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdItemsQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  return ['orders', '/orders/:orderId/items', args] as const
+  return ['orders', 'GET', '/orders/:orderId/items', args] as const
 }
 
 /**
@@ -204,12 +208,12 @@ export function createGetOrdersOrderIdItems(
 
 /**
  * Generates Svelte Query cache key for GET /customers/{customerId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCustomersCustomerIdQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['customers', '/customers/:customerId', args] as const
+  return ['customers', 'GET', '/customers/:customerId', args] as const
 }
 
 /**
@@ -262,12 +266,12 @@ export function createGetCustomersCustomerId(
 
 /**
  * Generates Svelte Query cache key for GET /customers/{customerId}/orders
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['customers', '/customers/:customerId/orders', args] as const
+  return ['customers', 'GET', '/customers/:customerId/orders', args] as const
 }
 
 /**
@@ -320,12 +324,12 @@ export function createGetCustomersCustomerIdOrders(
 
 /**
  * Generates Svelte Query cache key for GET /payments/{paymentId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPaymentsPaymentIdQueryKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['payments', '/payments/:paymentId', args] as const
+  return ['payments', 'GET', '/payments/:paymentId', args] as const
 }
 
 /**

@@ -8,10 +8,10 @@ import { client } from '../clients/20-ref-edge-cases'
 
 /**
  * Generates Vue Query cache key for GET /test
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTestQueryKey(args: MaybeRef<InferRequestType<typeof client.test.$get>>) {
-  return ['test', '/test', unref(args)] as const
+  return ['test', 'GET', '/test', unref(args)] as const
 }
 
 /**
@@ -55,10 +55,10 @@ export function useGetTest(
 
 /**
  * Generates Vue Query cache key for GET /empty-refs
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEmptyRefsQueryKey() {
-  return ['empty-refs', '/empty-refs'] as const
+  return ['empty-refs', 'GET', '/empty-refs'] as const
 }
 
 /**
@@ -103,10 +103,10 @@ export function useGetEmptyRefs(options?: {
 
 /**
  * Generates Vue Query cache key for GET /unicode-refs
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUnicodeRefsQueryKey() {
-  return ['unicode-refs', '/unicode-refs'] as const
+  return ['unicode-refs', 'GET', '/unicode-refs'] as const
 }
 
 /**
@@ -151,10 +151,10 @@ export function useGetUnicodeRefs(options?: {
 
 /**
  * Generates Vue Query cache key for GET /special-chars
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSpecialCharsQueryKey() {
-  return ['special-chars', '/special-chars'] as const
+  return ['special-chars', 'GET', '/special-chars'] as const
 }
 
 /**
@@ -199,10 +199,10 @@ export function useGetSpecialChars(options?: {
 
 /**
  * Generates Vue Query cache key for GET /numeric-start
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNumericStartQueryKey() {
-  return ['numeric-start', '/numeric-start'] as const
+  return ['numeric-start', 'GET', '/numeric-start'] as const
 }
 
 /**
@@ -247,10 +247,10 @@ export function useGetNumericStart(options?: {
 
 /**
  * Generates Vue Query cache key for GET /ref-in-allof
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetRefInAllofQueryKey() {
-  return ['ref-in-allof', '/ref-in-allof'] as const
+  return ['ref-in-allof', 'GET', '/ref-in-allof'] as const
 }
 
 /**
@@ -295,10 +295,10 @@ export function useGetRefInAllof(options?: {
 
 /**
  * Generates Vue Query cache key for GET /deeply-nested
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeeplyNestedQueryKey() {
-  return ['deeply-nested', '/deeply-nested'] as const
+  return ['deeply-nested', 'GET', '/deeply-nested'] as const
 }
 
 /**
@@ -343,10 +343,10 @@ export function useGetDeeplyNested(options?: {
 
 /**
  * Generates Vue Query cache key for GET /same-name-diff-context
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSameNameDiffContextQueryKey() {
-  return ['same-name-diff-context', '/same-name-diff-context'] as const
+  return ['same-name-diff-context', 'GET', '/same-name-diff-context'] as const
 }
 
 /**

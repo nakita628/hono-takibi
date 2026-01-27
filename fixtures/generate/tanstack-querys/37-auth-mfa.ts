@@ -10,10 +10,10 @@ import { client } from '../clients/37-auth-mfa'
 
 /**
  * Generates TanStack Query cache key for GET /mfa/status
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaStatusQueryKey() {
-  return ['mfa', '/mfa/status'] as const
+  return ['mfa', 'GET', '/mfa/status'] as const
 }
 
 /**
@@ -51,10 +51,10 @@ export function useGetMfaStatus(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /mfa/methods
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaMethodsQueryKey() {
-  return ['mfa', '/mfa/methods'] as const
+  return ['mfa', 'GET', '/mfa/methods'] as const
 }
 
 /**
@@ -92,10 +92,10 @@ export function useGetMfaMethods(options?: {
 
 /**
  * Generates TanStack Query mutation key for PUT /mfa/preferred
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMfaPreferredMutationKey() {
-  return ['PUT', '/mfa/preferred'] as const
+  return ['mfa', 'PUT', '/mfa/preferred'] as const
 }
 
 /**
@@ -125,19 +125,17 @@ export function usePutMfaPreferred(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.preferred.$put>) =>
-      parseResponse(client.mfa.preferred.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMfaPreferredMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/totp/setup
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaTotpSetupMutationKey() {
-  return ['POST', '/mfa/totp/setup'] as const
+  return ['mfa', 'POST', '/mfa/totp/setup'] as const
 }
 
 /**
@@ -169,19 +167,17 @@ export function usePostMfaTotpSetup(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.totp.setup.$post>) =>
-      parseResponse(client.mfa.totp.setup.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaTotpSetupMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/totp/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaTotpVerifyMutationKey() {
-  return ['POST', '/mfa/totp/verify'] as const
+  return ['mfa', 'POST', '/mfa/totp/verify'] as const
 }
 
 /**
@@ -213,19 +209,17 @@ export function usePostMfaTotpVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.totp.verify.$post>) =>
-      parseResponse(client.mfa.totp.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaTotpVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /mfa/totp
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaTotpMutationKey() {
-  return ['DELETE', '/mfa/totp'] as const
+  return ['mfa', 'DELETE', '/mfa/totp'] as const
 }
 
 /**
@@ -254,19 +248,16 @@ export function useDeleteMfaTotp(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.totp.$delete>) =>
-      parseResponse(client.mfa.totp.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getDeleteMfaTotpMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/sms/setup
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaSmsSetupMutationKey() {
-  return ['POST', '/mfa/sms/setup'] as const
+  return ['mfa', 'POST', '/mfa/sms/setup'] as const
 }
 
 /**
@@ -298,19 +289,17 @@ export function usePostMfaSmsSetup(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.sms.setup.$post>) =>
-      parseResponse(client.mfa.sms.setup.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaSmsSetupMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/sms/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaSmsVerifyMutationKey() {
-  return ['POST', '/mfa/sms/verify'] as const
+  return ['mfa', 'POST', '/mfa/sms/verify'] as const
 }
 
 /**
@@ -340,19 +329,17 @@ export function usePostMfaSmsVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.sms.verify.$post>) =>
-      parseResponse(client.mfa.sms.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaSmsVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /mfa/sms/{methodId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaSmsMethodIdMutationKey() {
-  return ['DELETE', '/mfa/sms/:methodId'] as const
+  return ['mfa', 'DELETE', '/mfa/sms/:methodId'] as const
 }
 
 /**
@@ -385,19 +372,17 @@ export function useDeleteMfaSmsMethodId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>) =>
-      parseResponse(client.mfa.sms[':methodId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMfaSmsMethodIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/email/setup
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaEmailSetupMutationKey() {
-  return ['POST', '/mfa/email/setup'] as const
+  return ['mfa', 'POST', '/mfa/email/setup'] as const
 }
 
 /**
@@ -427,19 +412,17 @@ export function usePostMfaEmailSetup(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.email.setup.$post>) =>
-      parseResponse(client.mfa.email.setup.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaEmailSetupMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/email/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaEmailVerifyMutationKey() {
-  return ['POST', '/mfa/email/verify'] as const
+  return ['mfa', 'POST', '/mfa/email/verify'] as const
 }
 
 /**
@@ -469,19 +452,17 @@ export function usePostMfaEmailVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.email.verify.$post>) =>
-      parseResponse(client.mfa.email.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaEmailVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/webauthn/register/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnRegisterOptionsMutationKey() {
-  return ['POST', '/mfa/webauthn/register/options'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/register/options'] as const
 }
 
 /**
@@ -517,19 +498,17 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.webauthn.register.options.$post>) =>
-      parseResponse(client.mfa.webauthn.register.options.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaWebauthnRegisterOptionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/webauthn/register/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnRegisterVerifyMutationKey() {
-  return ['POST', '/mfa/webauthn/register/verify'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/register/verify'] as const
 }
 
 /**
@@ -563,19 +542,17 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>) =>
-      parseResponse(client.mfa.webauthn.register.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaWebauthnRegisterVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /mfa/webauthn/credentials
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaWebauthnCredentialsQueryKey() {
-  return ['mfa', '/mfa/webauthn/credentials'] as const
+  return ['mfa', 'GET', '/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -618,10 +595,10 @@ export function useGetMfaWebauthnCredentials(options?: {
 
 /**
  * Generates TanStack Query mutation key for DELETE /mfa/webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['DELETE', '/mfa/webauthn/credentials/:credentialId'] as const
+  return ['mfa', 'DELETE', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -661,21 +638,17 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>,
-    ) =>
-      parseResponse(client.mfa.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMfaWebauthnCredentialsCredentialIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PATCH /mfa/webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['PATCH', '/mfa/webauthn/credentials/:credentialId'] as const
+  return ['mfa', 'PATCH', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -712,21 +685,17 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
-    ) =>
-      parseResponse(client.mfa.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchMfaWebauthnCredentialsCredentialIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/backup-codes/generate
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaBackupCodesGenerateMutationKey() {
-  return ['POST', '/mfa/backup-codes/generate'] as const
+  return ['mfa', 'POST', '/mfa/backup-codes/generate'] as const
 }
 
 /**
@@ -765,20 +734,17 @@ export function usePostMfaBackupCodesGenerate(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    ) => parseResponse(client.mfa['backup-codes'].generate.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaBackupCodesGenerateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /mfa/backup-codes/status
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaBackupCodesStatusQueryKey() {
-  return ['mfa', '/mfa/backup-codes/status'] as const
+  return ['mfa', 'GET', '/mfa/backup-codes/status'] as const
 }
 
 /**
@@ -823,10 +789,10 @@ export function useGetMfaBackupCodesStatus(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/challenge
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaChallengeMutationKey() {
-  return ['POST', '/mfa/challenge'] as const
+  return ['mfa', 'POST', '/mfa/challenge'] as const
 }
 
 /**
@@ -858,19 +824,17 @@ export function usePostMfaChallenge(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.$post>) =>
-      parseResponse(client.mfa.challenge.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaChallengeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/challenge/send
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaChallengeSendMutationKey() {
-  return ['POST', '/mfa/challenge/send'] as const
+  return ['mfa', 'POST', '/mfa/challenge/send'] as const
 }
 
 /**
@@ -902,19 +866,17 @@ export function usePostMfaChallengeSend(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.send.$post>) =>
-      parseResponse(client.mfa.challenge.send.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaChallengeSendMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaVerifyMutationKey() {
-  return ['POST', '/mfa/verify'] as const
+  return ['mfa', 'POST', '/mfa/verify'] as const
 }
 
 /**
@@ -944,19 +906,16 @@ export function usePostMfaVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.verify.$post>) =>
-      parseResponse(client.mfa.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostMfaVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/webauthn/authenticate/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
-  return ['POST', '/mfa/webauthn/authenticate/options'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -993,20 +952,17 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaWebauthnAuthenticateOptionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/recovery
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaRecoveryMutationKey() {
-  return ['POST', '/mfa/recovery'] as const
+  return ['mfa', 'POST', '/mfa/recovery'] as const
 }
 
 /**
@@ -1038,19 +994,17 @@ export function usePostMfaRecovery(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.$post>) =>
-      parseResponse(client.mfa.recovery.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaRecoveryMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /mfa/recovery/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaRecoveryVerifyMutationKey() {
-  return ['POST', '/mfa/recovery/verify'] as const
+  return ['mfa', 'POST', '/mfa/recovery/verify'] as const
 }
 
 /**
@@ -1080,9 +1034,7 @@ export function usePostMfaRecoveryVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.verify.$post>) =>
-      parseResponse(client.mfa.recovery.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMfaRecoveryVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

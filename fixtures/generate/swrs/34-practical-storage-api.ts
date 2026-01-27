@@ -8,10 +8,10 @@ import { client } from '../clients/34-practical-storage-api'
 
 /**
  * Generates SWR cache key for GET /files
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['/files', args] as const
+  return ['files', 'GET', '/files', args] as const
 }
 
 /**
@@ -42,10 +42,10 @@ export function useGetFiles(
 
 /**
  * Generates SWR mutation key for POST /files/upload
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMutationKey() {
-  return ['POST', '/files/upload'] as const
+  return ['files', 'POST', '/files/upload'] as const
 }
 
 /**
@@ -80,10 +80,10 @@ export function usePostFilesUpload(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/upload/multipart/init
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartInitMutationKey() {
-  return ['POST', '/files/upload/multipart/init'] as const
+  return ['files', 'POST', '/files/upload/multipart/init'] as const
 }
 
 /**
@@ -124,10 +124,10 @@ export function usePostFilesUploadMultipartInit(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/part
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
-  return ['POST', '/files/upload/multipart/:uploadId/part'] as const
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/part'] as const
 }
 
 /**
@@ -174,10 +174,10 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/complete
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
-  return ['POST', '/files/upload/multipart/:uploadId/complete'] as const
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/complete'] as const
 }
 
 /**
@@ -229,12 +229,12 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
 
 /**
  * Generates SWR cache key for GET /files/{fileId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return [`/files/${args.param.fileId}`, args] as const
+  return ['files', 'GET', '/files/:fileId', args] as const
 }
 
 /**
@@ -265,10 +265,10 @@ export function useGetFilesFileId(
 
 /**
  * Generates SWR mutation key for DELETE /files/{fileId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFilesFileIdMutationKey() {
-  return ['DELETE', '/files/:fileId'] as const
+  return ['files', 'DELETE', '/files/:fileId'] as const
 }
 
 /**
@@ -308,10 +308,10 @@ export function useDeleteFilesFileId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /files/{fileId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchFilesFileIdMutationKey() {
-  return ['PATCH', '/files/:fileId'] as const
+  return ['files', 'PATCH', '/files/:fileId'] as const
 }
 
 /**
@@ -350,12 +350,12 @@ export function usePatchFilesFileId(options?: {
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/download
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdDownloadKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return [`/files/${args.param.fileId}/download`, args] as const
+  return ['files', 'GET', '/files/:fileId/download', args] as const
 }
 
 /**
@@ -386,12 +386,12 @@ export function useGetFilesFileIdDownload(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/download-url
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdDownloadUrlKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return [`/files/${args.param.fileId}/download-url`, args] as const
+  return ['files', 'GET', '/files/:fileId/download-url', args] as const
 }
 
 /**
@@ -422,10 +422,10 @@ export function useGetFilesFileIdDownloadUrl(
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/copy
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdCopyMutationKey() {
-  return ['POST', '/files/:fileId/copy'] as const
+  return ['files', 'POST', '/files/:fileId/copy'] as const
 }
 
 /**
@@ -464,10 +464,10 @@ export function usePostFilesFileIdCopy(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/move
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdMoveMutationKey() {
-  return ['POST', '/files/:fileId/move'] as const
+  return ['files', 'POST', '/files/:fileId/move'] as const
 }
 
 /**
@@ -506,12 +506,12 @@ export function usePostFilesFileIdMove(options?: {
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/thumbnail
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdThumbnailKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return [`/files/${args.param.fileId}/thumbnail`, args] as const
+  return ['files', 'GET', '/files/:fileId/thumbnail', args] as const
 }
 
 /**
@@ -542,10 +542,10 @@ export function useGetFilesFileIdThumbnail(
 
 /**
  * Generates SWR mutation key for POST /folders
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFoldersMutationKey() {
-  return ['POST', '/folders'] as const
+  return ['folders', 'POST', '/folders'] as const
 }
 
 /**
@@ -578,12 +578,12 @@ export function usePostFolders(options?: {
 
 /**
  * Generates SWR cache key for GET /folders/{folderId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFoldersFolderIdKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return [`/folders/${args.param.folderId}`, args] as const
+  return ['folders', 'GET', '/folders/:folderId', args] as const
 }
 
 /**
@@ -614,10 +614,10 @@ export function useGetFoldersFolderId(
 
 /**
  * Generates SWR mutation key for DELETE /folders/{folderId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFoldersFolderIdMutationKey() {
-  return ['DELETE', '/folders/:folderId'] as const
+  return ['folders', 'DELETE', '/folders/:folderId'] as const
 }
 
 /**
@@ -657,10 +657,10 @@ export function useDeleteFoldersFolderId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /folders/{folderId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchFoldersFolderIdMutationKey() {
-  return ['PATCH', '/folders/:folderId'] as const
+  return ['folders', 'PATCH', '/folders/:folderId'] as const
 }
 
 /**
@@ -699,12 +699,12 @@ export function usePatchFoldersFolderId(options?: {
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/share
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdShareKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return [`/files/${args.param.fileId}/share`, args] as const
+  return ['files', 'GET', '/files/:fileId/share', args] as const
 }
 
 /**
@@ -735,10 +735,10 @@ export function useGetFilesFileIdShare(
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/share
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdShareMutationKey() {
-  return ['POST', '/files/:fileId/share'] as const
+  return ['files', 'POST', '/files/:fileId/share'] as const
 }
 
 /**
@@ -779,10 +779,10 @@ export function usePostFilesFileIdShare(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /files/{fileId}/share
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFilesFileIdShareMutationKey() {
-  return ['DELETE', '/files/:fileId/share'] as const
+  return ['files', 'DELETE', '/files/:fileId/share'] as const
 }
 
 /**
@@ -824,10 +824,10 @@ export function useDeleteFilesFileIdShare(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/share/link
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdShareLinkMutationKey() {
-  return ['POST', '/files/:fileId/share/link'] as const
+  return ['files', 'POST', '/files/:fileId/share/link'] as const
 }
 
 /**
@@ -870,12 +870,12 @@ export function usePostFilesFileIdShareLink(options?: {
 
 /**
  * Generates SWR cache key for GET /files/{fileId}/versions
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdVersionsKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return [`/files/${args.param.fileId}/versions`, args] as const
+  return ['files', 'GET', '/files/:fileId/versions', args] as const
 }
 
 /**
@@ -906,10 +906,10 @@ export function useGetFilesFileIdVersions(
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/versions/{versionId}/restore
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
-  return ['POST', '/files/:fileId/versions/:versionId/restore'] as const
+  return ['files', 'POST', '/files/:fileId/versions/:versionId/restore'] as const
 }
 
 /**
@@ -963,10 +963,10 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
 
 /**
  * Generates SWR cache key for GET /trash
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTrashKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', args] as const
+  return ['trash', 'GET', '/trash', args] as const
 }
 
 /**
@@ -997,10 +997,10 @@ export function useGetTrash(
 
 /**
  * Generates SWR mutation key for DELETE /trash
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTrashMutationKey() {
-  return ['DELETE', '/trash'] as const
+  return ['trash', 'DELETE', '/trash'] as const
 }
 
 /**
@@ -1033,10 +1033,10 @@ export function useDeleteTrash(options?: {
 
 /**
  * Generates SWR mutation key for POST /trash/{fileId}/restore
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTrashFileIdRestoreMutationKey() {
-  return ['POST', '/trash/:fileId/restore'] as const
+  return ['trash', 'POST', '/trash/:fileId/restore'] as const
 }
 
 /**
@@ -1077,10 +1077,10 @@ export function usePostTrashFileIdRestore(options?: {
 
 /**
  * Generates SWR cache key for GET /storage/usage
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStorageUsageKey() {
-  return ['/storage/usage'] as const
+  return ['storage', 'GET', '/storage/usage'] as const
 }
 
 /**

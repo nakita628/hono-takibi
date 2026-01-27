@@ -8,10 +8,10 @@ import { client } from '../clients/08-links'
 
 /**
  * Generates Vue Query mutation key for POST /orders
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**
@@ -36,27 +36,24 @@ export function usePostOrders(options?: {
         Error,
         InferRequestType<typeof client.orders.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
-      parseResponse(client.orders.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /orders/{orderId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.orders)[':orderId']['$get']>>,
 ) {
-  return ['orders', '/orders/:orderId', unref(args)] as const
+  return ['orders', 'GET', '/orders/:orderId', unref(args)] as const
 }
 
 /**
@@ -107,10 +104,10 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates Vue Query mutation key for DELETE /orders/{orderId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteOrdersOrderIdMutationKey() {
-  return ['DELETE', '/orders/:orderId'] as const
+  return ['orders', 'DELETE', '/orders/:orderId'] as const
 }
 
 /**
@@ -139,27 +136,25 @@ export function useDeleteOrdersOrderId(options?: {
         Error,
         InferRequestType<(typeof client.orders)[':orderId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) =>
-      parseResponse(client.orders[':orderId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteOrdersOrderIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /orders/{orderId}/items
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdItemsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>>,
 ) {
-  return ['orders', '/orders/:orderId/items', unref(args)] as const
+  return ['orders', 'GET', '/orders/:orderId/items', unref(args)] as const
 }
 
 /**
@@ -215,12 +210,12 @@ export function useGetOrdersOrderIdItems(
 
 /**
  * Generates Vue Query cache key for GET /customers/{customerId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCustomersCustomerIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.customers)[':customerId']['$get']>>,
 ) {
-  return ['customers', '/customers/:customerId', unref(args)] as const
+  return ['customers', 'GET', '/customers/:customerId', unref(args)] as const
 }
 
 /**
@@ -276,12 +271,12 @@ export function useGetCustomersCustomerId(
 
 /**
  * Generates Vue Query cache key for GET /customers/{customerId}/orders
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>>,
 ) {
-  return ['customers', '/customers/:customerId/orders', unref(args)] as const
+  return ['customers', 'GET', '/customers/:customerId/orders', unref(args)] as const
 }
 
 /**
@@ -337,12 +332,12 @@ export function useGetCustomersCustomerIdOrders(
 
 /**
  * Generates Vue Query cache key for GET /payments/{paymentId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPaymentsPaymentIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.payments)[':paymentId']['$get']>>,
 ) {
-  return ['payments', '/payments/:paymentId', unref(args)] as const
+  return ['payments', 'GET', '/payments/:paymentId', unref(args)] as const
 }
 
 /**

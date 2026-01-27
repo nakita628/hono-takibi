@@ -8,10 +8,10 @@ import { client } from '../clients/40-auth-session-management'
 
 /**
  * Generates SWR cache key for GET /sessions
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+  return ['sessions', 'GET', '/sessions', args] as const
 }
 
 /**
@@ -44,10 +44,10 @@ export function useGetSessions(
 
 /**
  * Generates SWR mutation key for POST /sessions
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsMutationKey() {
-  return ['POST', '/sessions'] as const
+  return ['sessions', 'POST', '/sessions'] as const
 }
 
 /**
@@ -82,10 +82,10 @@ export function usePostSessions(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions/current
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSessionsCurrentKey() {
-  return ['/sessions/current'] as const
+  return ['sessions', 'GET', '/sessions/current'] as const
 }
 
 /**
@@ -113,10 +113,10 @@ export function useGetSessionsCurrent(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /sessions/current
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSessionsCurrentMutationKey() {
-  return ['DELETE', '/sessions/current'] as const
+  return ['sessions', 'DELETE', '/sessions/current'] as const
 }
 
 /**
@@ -153,10 +153,10 @@ export function useDeleteSessionsCurrent(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/current/refresh
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsCurrentRefreshMutationKey() {
-  return ['POST', '/sessions/current/refresh'] as const
+  return ['sessions', 'POST', '/sessions/current/refresh'] as const
 }
 
 /**
@@ -197,10 +197,10 @@ export function usePostSessionsCurrentRefresh(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/current/extend
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsCurrentExtendMutationKey() {
-  return ['POST', '/sessions/current/extend'] as const
+  return ['sessions', 'POST', '/sessions/current/extend'] as const
 }
 
 /**
@@ -241,10 +241,10 @@ export function usePostSessionsCurrentExtend(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/current/activity
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsCurrentActivityMutationKey() {
-  return ['POST', '/sessions/current/activity'] as const
+  return ['sessions', 'POST', '/sessions/current/activity'] as const
 }
 
 /**
@@ -282,12 +282,12 @@ export function usePostSessionsCurrentActivity(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions/{sessionId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsSessionIdKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return [`/sessions/${args.param.sessionId}`, args] as const
+  return ['sessions', 'GET', '/sessions/:sessionId', args] as const
 }
 
 /**
@@ -318,10 +318,10 @@ export function useGetSessionsSessionId(
 
 /**
  * Generates SWR mutation key for DELETE /sessions/{sessionId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSessionsSessionIdMutationKey() {
-  return ['DELETE', '/sessions/:sessionId'] as const
+  return ['sessions', 'DELETE', '/sessions/:sessionId'] as const
 }
 
 /**
@@ -365,10 +365,10 @@ export function useDeleteSessionsSessionId(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/revoke-all
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsRevokeAllMutationKey() {
-  return ['POST', '/sessions/revoke-all'] as const
+  return ['sessions', 'POST', '/sessions/revoke-all'] as const
 }
 
 /**
@@ -409,10 +409,10 @@ export function usePostSessionsRevokeAll(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/validate
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsValidateMutationKey() {
-  return ['POST', '/sessions/validate'] as const
+  return ['sessions', 'POST', '/sessions/validate'] as const
 }
 
 /**
@@ -449,12 +449,12 @@ export function usePostSessionsValidate(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions/history
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsHistoryKey(
   args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['/sessions/history', args] as const
+  return ['sessions', 'GET', '/sessions/history', args] as const
 }
 
 /**
@@ -485,12 +485,12 @@ export function useGetSessionsHistory(
 
 /**
  * Generates SWR cache key for GET /sessions/security-events
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsSecurityEventsKey(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/security-events', args] as const
+  return ['sessions', 'GET', '/sessions/security-events', args] as const
 }
 
 /**
@@ -523,10 +523,10 @@ export function useGetSessionsSecurityEvents(
 
 /**
  * Generates SWR cache key for GET /sessions/policies
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSessionsPoliciesKey() {
-  return ['/sessions/policies'] as const
+  return ['sessions', 'GET', '/sessions/policies'] as const
 }
 
 /**
@@ -554,10 +554,10 @@ export function useGetSessionsPolicies(options?: {
 
 /**
  * Generates SWR mutation key for PUT /sessions/policies
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutSessionsPoliciesMutationKey() {
-  return ['PUT', '/sessions/policies'] as const
+  return ['sessions', 'PUT', '/sessions/policies'] as const
 }
 
 /**
@@ -592,10 +592,10 @@ export function usePutSessionsPolicies(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions/trusted-devices
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSessionsTrustedDevicesKey() {
-  return ['/sessions/trusted-devices'] as const
+  return ['sessions', 'GET', '/sessions/trusted-devices'] as const
 }
 
 /**
@@ -623,10 +623,10 @@ export function useGetSessionsTrustedDevices(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/trusted-devices
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsTrustedDevicesMutationKey() {
-  return ['POST', '/sessions/trusted-devices'] as const
+  return ['sessions', 'POST', '/sessions/trusted-devices'] as const
 }
 
 /**
@@ -667,10 +667,10 @@ export function usePostSessionsTrustedDevices(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /sessions/trusted-devices/{deviceId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
-  return ['DELETE', '/sessions/trusted-devices/:deviceId'] as const
+  return ['sessions', 'DELETE', '/sessions/trusted-devices/:deviceId'] as const
 }
 
 /**

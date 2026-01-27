@@ -8,10 +8,10 @@ import { client } from '../clients/15-cross-component-refs'
 
 /**
  * Generates SWR cache key for GET /entities
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesKey(args: InferRequestType<typeof client.entities.$get>) {
-  return ['/entities', args] as const
+  return ['entities', 'GET', '/entities', args] as const
 }
 
 /**
@@ -40,10 +40,10 @@ export function useGetEntities(
 
 /**
  * Generates SWR mutation key for POST /entities
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEntitiesMutationKey() {
-  return ['POST', '/entities'] as const
+  return ['entities', 'POST', '/entities'] as const
 }
 
 /**
@@ -74,12 +74,12 @@ export function usePostEntities(options?: {
 
 /**
  * Generates SWR cache key for GET /entities/{entityId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesEntityIdKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return [`/entities/${args.param.entityId}`, args] as const
+  return ['entities', 'GET', '/entities/:entityId', args] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function useGetEntitiesEntityId(
 
 /**
  * Generates SWR mutation key for PUT /entities/{entityId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutEntitiesEntityIdMutationKey() {
-  return ['PUT', '/entities/:entityId'] as const
+  return ['entities', 'PUT', '/entities/:entityId'] as const
 }
 
 /**
@@ -148,10 +148,10 @@ export function usePutEntitiesEntityId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /entities/{entityId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteEntitiesEntityIdMutationKey() {
-  return ['DELETE', '/entities/:entityId'] as const
+  return ['entities', 'DELETE', '/entities/:entityId'] as const
 }
 
 /**
@@ -191,12 +191,12 @@ export function useDeleteEntitiesEntityId(options?: {
 
 /**
  * Generates SWR cache key for GET /entities/{entityId}/relationships
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesEntityIdRelationshipsKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return [`/entities/${args.param.entityId}/relationships`, args] as const
+  return ['entities', 'GET', '/entities/:entityId/relationships', args] as const
 }
 
 /**
@@ -226,10 +226,10 @@ export function useGetEntitiesEntityIdRelationships(
 
 /**
  * Generates SWR mutation key for POST /entities/{entityId}/relationships
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEntitiesEntityIdRelationshipsMutationKey() {
-  return ['POST', '/entities/:entityId/relationships'] as const
+  return ['entities', 'POST', '/entities/:entityId/relationships'] as const
 }
 
 /**
@@ -272,10 +272,10 @@ export function usePostEntitiesEntityIdRelationships(options?: {
 
 /**
  * Generates SWR mutation key for POST /batch
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostBatchMutationKey() {
-  return ['POST', '/batch'] as const
+  return ['batch', 'POST', '/batch'] as const
 }
 
 /**

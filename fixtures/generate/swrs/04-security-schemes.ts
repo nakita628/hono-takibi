@@ -6,10 +6,10 @@ import { client } from '../clients/04-security-schemes'
 
 /**
  * Generates SWR cache key for GET /public
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicKey() {
-  return ['/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
@@ -35,10 +35,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /protected
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProtectedKey() {
-  return ['/protected'] as const
+  return ['protected', 'GET', '/protected'] as const
 }
 
 /**
@@ -64,10 +64,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates SWR cache key for GET /admin
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAdminKey() {
-  return ['/admin'] as const
+  return ['admin', 'GET', '/admin'] as const
 }
 
 /**
@@ -93,10 +93,10 @@ export function useGetAdmin(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth-resource
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthResourceKey() {
-  return ['/oauth-resource'] as const
+  return ['oauth-resource', 'GET', '/oauth-resource'] as const
 }
 
 /**
@@ -122,10 +122,10 @@ export function useGetOauthResource(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-auth
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiAuthKey() {
-  return ['/multi-auth'] as const
+  return ['multi-auth', 'GET', '/multi-auth'] as const
 }
 
 /**

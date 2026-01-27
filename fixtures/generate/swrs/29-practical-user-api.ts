@@ -8,10 +8,10 @@ import { client } from '../clients/29-practical-user-api'
 
 /**
  * Generates SWR mutation key for POST /auth/register
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthRegisterMutationKey() {
-  return ['POST', '/auth/register'] as const
+  return ['auth', 'POST', '/auth/register'] as const
 }
 
 /**
@@ -48,10 +48,10 @@ export function usePostAuthRegister(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/login
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthLoginMutationKey() {
-  return ['POST', '/auth/login'] as const
+  return ['auth', 'POST', '/auth/login'] as const
 }
 
 /**
@@ -86,10 +86,10 @@ export function usePostAuthLogin(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/refresh
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthRefreshMutationKey() {
-  return ['POST', '/auth/refresh'] as const
+  return ['auth', 'POST', '/auth/refresh'] as const
 }
 
 /**
@@ -126,10 +126,10 @@ export function usePostAuthRefresh(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/logout
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthLogoutMutationKey() {
-  return ['POST', '/auth/logout'] as const
+  return ['auth', 'POST', '/auth/logout'] as const
 }
 
 /**
@@ -164,10 +164,10 @@ export function usePostAuthLogout(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/password/forgot
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthPasswordForgotMutationKey() {
-  return ['POST', '/auth/password/forgot'] as const
+  return ['auth', 'POST', '/auth/password/forgot'] as const
 }
 
 /**
@@ -208,10 +208,10 @@ export function usePostAuthPasswordForgot(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/password/reset
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthPasswordResetMutationKey() {
-  return ['POST', '/auth/password/reset'] as const
+  return ['auth', 'POST', '/auth/password/reset'] as const
 }
 
 /**
@@ -246,10 +246,10 @@ export function usePostAuthPasswordReset(options?: {
 
 /**
  * Generates SWR cache key for GET /users
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
+  return ['users', 'GET', '/users', args] as const
 }
 
 /**
@@ -282,12 +282,12 @@ export function useGetUsers(
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return [`/users/${args.param.userId}`, args] as const
+  return ['users', 'GET', '/users/:userId', args] as const
 }
 
 /**
@@ -318,10 +318,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR mutation key for DELETE /users/{userId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUsersUserIdMutationKey() {
-  return ['DELETE', '/users/:userId'] as const
+  return ['users', 'DELETE', '/users/:userId'] as const
 }
 
 /**
@@ -361,10 +361,10 @@ export function useDeleteUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /users/{userId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchUsersUserIdMutationKey() {
-  return ['PATCH', '/users/:userId'] as const
+  return ['users', 'PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -403,10 +403,10 @@ export function usePatchUsersUserId(options?: {
 
 /**
  * Generates SWR cache key for GET /users/me
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUsersMeKey() {
-  return ['/users/me'] as const
+  return ['users', 'GET', '/users/me'] as const
 }
 
 /**
@@ -434,10 +434,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /users/me
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchUsersMeMutationKey() {
-  return ['PATCH', '/users/me'] as const
+  return ['users', 'PATCH', '/users/me'] as const
 }
 
 /**
@@ -470,10 +470,10 @@ export function usePatchUsersMe(options?: {
 
 /**
  * Generates SWR mutation key for PUT /users/me/password
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUsersMePasswordMutationKey() {
-  return ['PUT', '/users/me/password'] as const
+  return ['users', 'PUT', '/users/me/password'] as const
 }
 
 /**
@@ -508,10 +508,10 @@ export function usePutUsersMePassword(options?: {
 
 /**
  * Generates SWR mutation key for PUT /users/me/avatar
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUsersMeAvatarMutationKey() {
-  return ['PUT', '/users/me/avatar'] as const
+  return ['users', 'PUT', '/users/me/avatar'] as const
 }
 
 /**
@@ -546,10 +546,10 @@ export function usePutUsersMeAvatar(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/me/avatar
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUsersMeAvatarMutationKey() {
-  return ['DELETE', '/users/me/avatar'] as const
+  return ['users', 'DELETE', '/users/me/avatar'] as const
 }
 
 /**

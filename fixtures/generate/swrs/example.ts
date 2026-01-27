@@ -6,10 +6,10 @@ import { client } from '../clients/example'
 
 /**
  * Generates SWR cache key for GET /sample
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSampleKey() {
-  return ['/sample'] as const
+  return ['sample', 'GET', '/sample'] as const
 }
 
 /**

@@ -8,10 +8,10 @@ import { client } from '../clients/30-practical-ecommerce-api'
 
 /**
  * Generates SWR cache key for GET /products
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['/products', args] as const
+  return ['products', 'GET', '/products', args] as const
 }
 
 /**
@@ -42,10 +42,10 @@ export function useGetProducts(
 
 /**
  * Generates SWR mutation key for POST /products
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProductsMutationKey() {
-  return ['POST', '/products'] as const
+  return ['products', 'POST', '/products'] as const
 }
 
 /**
@@ -78,12 +78,12 @@ export function usePostProducts(options?: {
 
 /**
  * Generates SWR cache key for GET /products/{productId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsProductIdKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return [`/products/${args.param.productId}`, args] as const
+  return ['products', 'GET', '/products/:productId', args] as const
 }
 
 /**
@@ -114,10 +114,10 @@ export function useGetProductsProductId(
 
 /**
  * Generates SWR mutation key for PUT /products/{productId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutProductsProductIdMutationKey() {
-  return ['PUT', '/products/:productId'] as const
+  return ['products', 'PUT', '/products/:productId'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutProductsProductId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /products/{productId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteProductsProductIdMutationKey() {
-  return ['DELETE', '/products/:productId'] as const
+  return ['products', 'DELETE', '/products/:productId'] as const
 }
 
 /**
@@ -201,10 +201,10 @@ export function useDeleteProductsProductId(options?: {
 
 /**
  * Generates SWR mutation key for POST /products/{productId}/images
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProductsProductIdImagesMutationKey() {
-  return ['POST', '/products/:productId/images'] as const
+  return ['products', 'POST', '/products/:productId/images'] as const
 }
 
 /**
@@ -247,10 +247,10 @@ export function usePostProductsProductIdImages(options?: {
 
 /**
  * Generates SWR cache key for GET /categories
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCategoriesKey() {
-  return ['/categories'] as const
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**
@@ -278,10 +278,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR mutation key for POST /categories
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCategoriesMutationKey() {
-  return ['POST', '/categories'] as const
+  return ['categories', 'POST', '/categories'] as const
 }
 
 /**
@@ -314,10 +314,10 @@ export function usePostCategories(options?: {
 
 /**
  * Generates SWR cache key for GET /cart
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCartKey() {
-  return ['/cart'] as const
+  return ['cart', 'GET', '/cart'] as const
 }
 
 /**
@@ -345,10 +345,10 @@ export function useGetCart(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /cart
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteCartMutationKey() {
-  return ['DELETE', '/cart'] as const
+  return ['cart', 'DELETE', '/cart'] as const
 }
 
 /**
@@ -381,10 +381,10 @@ export function useDeleteCart(options?: {
 
 /**
  * Generates SWR mutation key for POST /cart/items
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCartItemsMutationKey() {
-  return ['POST', '/cart/items'] as const
+  return ['cart', 'POST', '/cart/items'] as const
 }
 
 /**
@@ -417,10 +417,10 @@ export function usePostCartItems(options?: {
 
 /**
  * Generates SWR mutation key for PUT /cart/items/{itemId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutCartItemsItemIdMutationKey() {
-  return ['PUT', '/cart/items/:itemId'] as const
+  return ['cart', 'PUT', '/cart/items/:itemId'] as const
 }
 
 /**
@@ -459,10 +459,10 @@ export function usePutCartItemsItemId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /cart/items/{itemId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteCartItemsItemIdMutationKey() {
-  return ['DELETE', '/cart/items/:itemId'] as const
+  return ['cart', 'DELETE', '/cart/items/:itemId'] as const
 }
 
 /**
@@ -501,10 +501,10 @@ export function useDeleteCartItemsItemId(options?: {
 
 /**
  * Generates SWR cache key for GET /orders
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', args] as const
+  return ['orders', 'GET', '/orders', args] as const
 }
 
 /**
@@ -535,10 +535,10 @@ export function useGetOrders(
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**
@@ -573,12 +573,12 @@ export function usePostOrders(options?: {
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return [`/orders/${args.param.orderId}`, args] as const
+  return ['orders', 'GET', '/orders/:orderId', args] as const
 }
 
 /**
@@ -609,10 +609,10 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR mutation key for POST /orders/{orderId}/cancel
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersOrderIdCancelMutationKey() {
-  return ['POST', '/orders/:orderId/cancel'] as const
+  return ['orders', 'POST', '/orders/:orderId/cancel'] as const
 }
 
 /**
@@ -653,12 +653,12 @@ export function usePostOrdersOrderIdCancel(options?: {
 
 /**
  * Generates SWR cache key for GET /inventory/{productId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetInventoryProductIdKey(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
 ) {
-  return [`/inventory/${args.param.productId}`, args] as const
+  return ['inventory', 'GET', '/inventory/:productId', args] as const
 }
 
 /**
@@ -689,10 +689,10 @@ export function useGetInventoryProductId(
 
 /**
  * Generates SWR mutation key for PUT /inventory/{productId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutInventoryProductIdMutationKey() {
-  return ['PUT', '/inventory/:productId'] as const
+  return ['inventory', 'PUT', '/inventory/:productId'] as const
 }
 
 /**

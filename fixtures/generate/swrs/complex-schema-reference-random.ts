@@ -6,10 +6,10 @@ import { client } from '../clients/complex-schema-reference-random'
 
 /**
  * Generates SWR cache key for GET /test
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTestKey() {
-  return ['/test'] as const
+  return ['test', 'GET', '/test'] as const
 }
 
 /**

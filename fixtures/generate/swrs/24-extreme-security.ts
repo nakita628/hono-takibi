@@ -8,10 +8,10 @@ import { client } from '../clients/24-extreme-security'
 
 /**
  * Generates SWR cache key for GET /public
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicKey() {
-  return ['/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
@@ -39,10 +39,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /single-auth
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSingleAuthKey() {
-  return ['/single-auth'] as const
+  return ['single-auth', 'GET', '/single-auth'] as const
 }
 
 /**
@@ -70,10 +70,10 @@ export function useGetSingleAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /any-auth
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAnyAuthKey() {
-  return ['/any-auth'] as const
+  return ['any-auth', 'GET', '/any-auth'] as const
 }
 
 /**
@@ -101,10 +101,10 @@ export function useGetAnyAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /all-auth
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAllAuthKey() {
-  return ['/all-auth'] as const
+  return ['all-auth', 'GET', '/all-auth'] as const
 }
 
 /**
@@ -132,10 +132,10 @@ export function useGetAllAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /complex-auth
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetComplexAuthKey() {
-  return ['/complex-auth'] as const
+  return ['complex-auth', 'GET', '/complex-auth'] as const
 }
 
 /**
@@ -163,10 +163,10 @@ export function useGetComplexAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /scoped-oauth
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetScopedOauthKey() {
-  return ['/scoped-oauth'] as const
+  return ['scoped-oauth', 'GET', '/scoped-oauth'] as const
 }
 
 /**
@@ -194,10 +194,10 @@ export function useGetScopedOauth(options?: {
 
 /**
  * Generates SWR cache key for GET /mixed-level-security
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMixedLevelSecurityKey() {
-  return ['/mixed-level-security'] as const
+  return ['mixed-level-security', 'GET', '/mixed-level-security'] as const
 }
 
 /**
@@ -225,10 +225,10 @@ export function useGetMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR mutation key for PUT /mixed-level-security
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMixedLevelSecurityMutationKey() {
-  return ['PUT', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'PUT', '/mixed-level-security'] as const
 }
 
 /**
@@ -264,10 +264,10 @@ export function usePutMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR mutation key for POST /mixed-level-security
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMixedLevelSecurityMutationKey() {
-  return ['POST', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'POST', '/mixed-level-security'] as const
 }
 
 /**
@@ -303,10 +303,10 @@ export function usePostMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mixed-level-security
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMixedLevelSecurityMutationKey() {
-  return ['DELETE', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'DELETE', '/mixed-level-security'] as const
 }
 
 /**
@@ -345,10 +345,10 @@ export function useDeleteMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR cache key for GET /override-global
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOverrideGlobalKey() {
-  return ['/override-global'] as const
+  return ['override-global', 'GET', '/override-global'] as const
 }
 
 /**
@@ -376,10 +376,10 @@ export function useGetOverrideGlobal(options?: {
 
 /**
  * Generates SWR cache key for GET /optional-enhanced
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOptionalEnhancedKey() {
-  return ['/optional-enhanced'] as const
+  return ['optional-enhanced', 'GET', '/optional-enhanced'] as const
 }
 
 /**
@@ -407,10 +407,10 @@ export function useGetOptionalEnhanced(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-tenant
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiTenantKey() {
-  return ['/multi-tenant'] as const
+  return ['multi-tenant', 'GET', '/multi-tenant'] as const
 }
 
 /**

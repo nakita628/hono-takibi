@@ -6,10 +6,10 @@ import { client } from '../clients/25-pathological-schemas'
 
 /**
  * Generates TanStack Query mutation key for POST /pathological
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPathologicalMutationKey() {
-  return ['POST', '/pathological'] as const
+  return ['pathological', 'POST', '/pathological'] as const
 }
 
 /**
@@ -37,9 +37,7 @@ export function usePostPathological(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.pathological.$post>) =>
-      parseResponse(client.pathological.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPathologicalMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

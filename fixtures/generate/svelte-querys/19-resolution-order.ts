@@ -10,10 +10,10 @@ import { client } from '../clients/19-resolution-order'
 
 /**
  * Generates Svelte Query cache key for GET /entities
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEntitiesQueryKey() {
-  return ['entities', '/entities'] as const
+  return ['entities', 'GET', '/entities'] as const
 }
 
 /**
@@ -53,10 +53,10 @@ export function createGetEntities(
 
 /**
  * Generates Svelte Query mutation key for POST /process
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProcessMutationKey() {
-  return ['POST', '/process'] as const
+  return ['process', 'POST', '/process'] as const
 }
 
 /**
@@ -73,28 +73,29 @@ export const getPostProcessMutationOptions = (clientOptions?: ClientRequestOptio
 /**
  * POST /process
  */
-export function createPostProcess(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.process.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
-      parseResponse(client.process.$post(args, clientOptions)),
-  }))
+export function createPostProcess(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.process.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostProcessMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /graph
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGraphQueryKey() {
-  return ['graph', '/graph'] as const
+  return ['graph', 'GET', '/graph'] as const
 }
 
 /**
@@ -131,10 +132,10 @@ export function createGetGraph(
 
 /**
  * Generates Svelte Query mutation key for POST /transform
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTransformMutationKey() {
-  return ['POST', '/transform'] as const
+  return ['transform', 'POST', '/transform'] as const
 }
 
 /**
@@ -151,18 +152,21 @@ export const getPostTransformMutationOptions = (clientOptions?: ClientRequestOpt
 /**
  * POST /transform
  */
-export function createPostTransform(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.transform.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
-      parseResponse(client.transform.$post(args, clientOptions)),
-  }))
+export function createPostTransform(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.transform.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostTransformMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

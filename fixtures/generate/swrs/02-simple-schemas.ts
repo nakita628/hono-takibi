@@ -8,10 +8,10 @@ import { client } from '../clients/02-simple-schemas'
 
 /**
  * Generates SWR cache key for GET /users
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUsersKey() {
-  return ['/users'] as const
+  return ['users', 'GET', '/users'] as const
 }
 
 /**
@@ -37,10 +37,10 @@ export function useGetUsers(options?: {
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersMutationKey() {
-  return ['POST', '/users'] as const
+  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -71,12 +71,12 @@ export function usePostUsers(options?: {
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return [`/users/${args.param.userId}`, args] as const
+  return ['users', 'GET', '/users/:userId', args] as const
 }
 
 /**

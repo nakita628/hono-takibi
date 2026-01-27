@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-number'
 
 /**
  * Generates SWR cache key for GET /number
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNumberKey() {
-  return ['/number'] as const
+  return ['number', 'GET', '/number'] as const
 }
 
 /**

@@ -6,10 +6,10 @@ import { client } from '../clients/abcde'
 
 /**
  * Generates SWR cache key for GET /example
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExampleKey() {
-  return ['/example'] as const
+  return ['example', 'GET', '/example'] as const
 }
 
 /**

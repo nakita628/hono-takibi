@@ -8,12 +8,12 @@ import { client } from '../clients/twilio_api_v2010'
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsJsonKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
 ) {
-  return ['/2010-04-01/Accounts.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts.json', args] as const
 }
 
 /**
@@ -46,10 +46,10 @@ export function useGet20100401AccountsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts.json'] as const
 }
 
 /**
@@ -92,12 +92,12 @@ export function usePost20100401AccountsJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsSidJsonKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.Sid.json}`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:Sid.json', args] as const
 }
 
 /**
@@ -131,10 +131,10 @@ export function useGet20100401AccountsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:Sid.json'] as const
 }
 
 /**
@@ -181,14 +181,14 @@ export function usePost20100401AccountsSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Addresses.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
 }
 
 /**
@@ -223,10 +223,10 @@ export function useGet20100401AccountsAccountSidAddressesJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidAddressesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
 }
 
 /**
@@ -280,7 +280,7 @@ export function usePost20100401AccountsAccountSidAddressesJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonKey(
   args: InferRequestType<
@@ -288,7 +288,9 @@ export function getGet20100401AccountsAccountSidAddressesSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Addresses/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json',
     args,
   ] as const
 }
@@ -328,10 +330,10 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -388,10 +390,10 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -449,14 +451,14 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Applications.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
 }
 
 /**
@@ -498,10 +500,10 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidApplicationsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
 }
 
 /**
@@ -562,7 +564,7 @@ export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
   args: InferRequestType<
@@ -570,7 +572,9 @@ export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Applications/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
     args,
   ] as const
 }
@@ -614,10 +618,10 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
 }
 
 /**
@@ -678,10 +682,14 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+  ] as const
 }
 
 /**
@@ -743,7 +751,7 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?:
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(
   args: InferRequestType<
@@ -751,7 +759,9 @@ export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AuthorizedConnectApps/${args.param.ConnectAppSid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
     args,
   ] as const
 }
@@ -797,14 +807,19 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/AuthorizedConnectApps.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
+    args,
+  ] as const
 }
 
 /**
@@ -847,14 +862,19 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -893,7 +913,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(
   args: InferRequestType<
@@ -901,7 +921,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
     args,
   ] as const
 }
@@ -943,7 +965,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(
   args: InferRequestType<
@@ -951,7 +973,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode}/Local.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
     args,
   ] as const
 }
@@ -993,7 +1017,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
   args: InferRequestType<
@@ -1001,7 +1025,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode}/MachineToMachine.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
     args,
   ] as const
 }
@@ -1045,7 +1071,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(
   args: InferRequestType<
@@ -1053,7 +1079,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode}/Mobile.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
     args,
   ] as const
 }
@@ -1095,7 +1123,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(
   args: InferRequestType<
@@ -1103,7 +1131,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode}/National.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
     args,
   ] as const
 }
@@ -1145,7 +1175,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(
   args: InferRequestType<
@@ -1153,7 +1183,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode}/SharedCost.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
     args,
   ] as const
 }
@@ -1195,7 +1227,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(
   args: InferRequestType<
@@ -1203,7 +1235,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode}/TollFree.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
     args,
   ] as const
 }
@@ -1245,7 +1279,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(
   args: InferRequestType<
@@ -1253,7 +1287,9 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/AvailablePhoneNumbers/${args.param.CountryCode}/Voip.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
     args,
   ] as const
 }
@@ -1295,14 +1331,14 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidBalanceJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Balance.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
 }
 
 /**
@@ -1341,14 +1377,14 @@ export function useGet20100401AccountsAccountSidBalanceJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Calls.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
 }
 
 /**
@@ -1387,10 +1423,10 @@ export function useGet20100401AccountsAccountSidCallsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
 }
 
 /**
@@ -1448,17 +1484,14 @@ export function usePost20100401AccountsAccountSidCallsJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Calls/${args.param.Sid.json}`,
-    args,
-  ] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
 }
 
 /**
@@ -1497,10 +1530,10 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -1558,10 +1591,10 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -1623,7 +1656,7 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(
   args: InferRequestType<
@@ -1631,7 +1664,9 @@ export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Calls/${args.param.CallSid}/Events.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
     args,
   ] as const
 }
@@ -1676,7 +1711,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(
   args: InferRequestType<
@@ -1684,7 +1719,9 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Calls/${args.param.CallSid}/Notifications/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
     args,
   ] as const
 }
@@ -1724,7 +1761,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(
   args: InferRequestType<
@@ -1732,7 +1769,9 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Calls/${args.param.CallSid}/Notifications.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
     args,
   ] as const
 }
@@ -1773,7 +1812,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
   args: InferRequestType<
@@ -1781,7 +1820,9 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Calls/${args.param.CallSid}/Recordings.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
     args,
   ] as const
 }
@@ -1826,10 +1867,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
+  ] as const
 }
 
 /**
@@ -1891,7 +1936,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(opti
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(
   args: InferRequestType<
@@ -1899,7 +1944,9 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Calls/${args.param.CallSid}/Recordings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
     args,
   ] as const
 }
@@ -1943,10 +1990,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2007,10 +2058,14 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2072,7 +2127,7 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonKey(
   args: InferRequestType<
@@ -2080,7 +2135,9 @@ export function getGet20100401AccountsAccountSidConferencesSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Conferences/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
     args,
   ] as const
 }
@@ -2124,10 +2181,10 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
 }
 
 /**
@@ -2184,14 +2241,14 @@ export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Conferences.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
 }
 
 /**
@@ -2233,7 +2290,7 @@ export function useGet20100401AccountsAccountSidConferencesJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(
   args: InferRequestType<
@@ -2241,7 +2298,9 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Conferences/${args.param.ConferenceSid}/Recordings.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
     args,
   ] as const
 }
@@ -2287,7 +2346,7 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(
   args: InferRequestType<
@@ -2295,7 +2354,9 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Conferences/${args.param.ConferenceSid}/Recordings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
     args,
   ] as const
 }
@@ -2341,10 +2402,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
@@ -2409,10 +2471,11 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
@@ -2478,7 +2541,7 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
   args: InferRequestType<
@@ -2486,7 +2549,9 @@ export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/ConnectApps/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
     args,
   ] as const
 }
@@ -2530,10 +2595,10 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -2594,10 +2659,10 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -2659,14 +2724,14 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: 
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/ConnectApps.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
 }
 
 /**
@@ -2708,7 +2773,7 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(
   args: InferRequestType<
@@ -2716,7 +2781,9 @@ export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Addresses/${args.param.AddressSid}/DependentPhoneNumbers.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
     args,
   ] as const
 }
@@ -2758,7 +2825,7 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
   args: InferRequestType<
@@ -2766,7 +2833,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
     args,
   ] as const
 }
@@ -2811,10 +2880,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2876,10 +2949,14 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2942,14 +3019,19 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(o
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2992,10 +3074,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+  ] as const
 }
 
 /**
@@ -3056,7 +3142,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(option
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
   args: InferRequestType<
@@ -3064,7 +3150,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/${args.param.ResourceSid}/AssignedAddOns/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
     args,
   ] as const
 }
@@ -3112,10 +3200,11 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
   ] as const
@@ -3181,7 +3270,7 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(
   args: InferRequestType<
@@ -3189,7 +3278,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/${args.param.ResourceSid}/AssignedAddOns.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
     args,
   ] as const
 }
@@ -3235,10 +3326,11 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
   ] as const
@@ -3303,7 +3395,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSid
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
   args: InferRequestType<
@@ -3311,7 +3403,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/${args.param.ResourceSid}/AssignedAddOns/${args.param.AssignedAddOnSid}/Extensions/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
     args,
   ] as const
 }
@@ -3359,7 +3453,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
   args: InferRequestType<
@@ -3367,7 +3461,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/${args.param.ResourceSid}/AssignedAddOns/${args.param.AssignedAddOnSid}/Extensions.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
     args,
   ] as const
 }
@@ -3415,7 +3511,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(
   args: InferRequestType<
@@ -3423,7 +3519,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/Local.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
     args,
   ] as const
 }
@@ -3464,10 +3562,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
+  ] as const
 }
 
 /**
@@ -3525,7 +3627,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(o
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(
   args: InferRequestType<
@@ -3533,7 +3635,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKe
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/Mobile.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
     args,
   ] as const
 }
@@ -3574,10 +3678,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
+  ] as const
 }
 
 /**
@@ -3635,7 +3743,7 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(
   args: InferRequestType<
@@ -3643,7 +3751,9 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/IncomingPhoneNumbers/TollFree.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
     args,
   ] as const
 }
@@ -3684,10 +3794,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
+  ] as const
 }
 
 /**
@@ -3745,17 +3859,14 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJso
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Keys/${args.param.Sid.json}`,
-    args,
-  ] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
 }
 
 /**
@@ -3790,10 +3901,10 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -3847,10 +3958,10 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -3908,14 +4019,14 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidKeysJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Keys.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
 }
 
 /**
@@ -3949,10 +4060,10 @@ export function useGet20100401AccountsAccountSidKeysJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidKeysJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
 }
 
 /**
@@ -4004,7 +4115,7 @@ export function usePost20100401AccountsAccountSidKeysJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(
   args: InferRequestType<
@@ -4012,7 +4123,9 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKe
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Messages/${args.param.MessageSid}/Media/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
     args,
   ] as const
 }
@@ -4056,10 +4169,11 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
   ] as const
@@ -4124,7 +4238,7 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(
   args: InferRequestType<
@@ -4132,7 +4246,9 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Messages/${args.param.MessageSid}/Media.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
     args,
   ] as const
 }
@@ -4177,7 +4293,7 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(
   args: InferRequestType<
@@ -4185,7 +4301,9 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Queues/${args.param.QueueSid}/Members/${args.param.CallSid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
     args,
   ] as const
 }
@@ -4229,10 +4347,11 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
   ] as const
@@ -4296,7 +4415,7 @@ export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJso
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(
   args: InferRequestType<
@@ -4304,7 +4423,9 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Queues/${args.param.QueueSid}/Members.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
     args,
   ] as const
 }
@@ -4349,14 +4470,14 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Messages.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
 }
 
 /**
@@ -4395,10 +4516,10 @@ export function useGet20100401AccountsAccountSidMessagesJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
 }
 
 /**
@@ -4456,17 +4577,14 @@ export function usePost20100401AccountsAccountSidMessagesJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Messages/${args.param.Sid.json}`,
-    args,
-  ] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
 }
 
 /**
@@ -4508,10 +4626,10 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -4572,10 +4690,10 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -4637,10 +4755,14 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json',
+  ] as const
 }
 
 /**
@@ -4701,14 +4823,14 @@ export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/SigningKeys.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
 }
 
 /**
@@ -4746,10 +4868,10 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSigningKeysJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
 }
 
 /**
@@ -4810,7 +4932,7 @@ export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonKey(
   args: InferRequestType<
@@ -4818,7 +4940,9 @@ export function getGet20100401AccountsAccountSidNotificationsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Notifications/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json',
     args,
   ] as const
 }
@@ -4862,14 +4986,14 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Notifications.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
 }
 
 /**
@@ -4911,7 +5035,7 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
   args: InferRequestType<
@@ -4919,7 +5043,9 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/OutgoingCallerIds/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
     args,
   ] as const
 }
@@ -4964,10 +5090,14 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+  ] as const
 }
 
 /**
@@ -5028,10 +5158,14 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+  ] as const
 }
 
 /**
@@ -5094,14 +5228,19 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(opti
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/OutgoingCallerIds.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5143,10 +5282,10 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
 }
 
 /**
@@ -5203,7 +5342,7 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?:
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(
   args: InferRequestType<
@@ -5211,7 +5350,9 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Conferences/${args.param.ConferenceSid}/Participants/${args.param.CallSid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
     args,
   ] as const
 }
@@ -5257,10 +5398,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
@@ -5325,10 +5467,11 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
@@ -5394,7 +5537,7 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(
   args: InferRequestType<
@@ -5402,7 +5545,9 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Conferences/${args.param.ConferenceSid}/Participants.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
     args,
   ] as const
 }
@@ -5448,10 +5593,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
   ] as const
@@ -5512,10 +5658,14 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json',
+  ] as const
 }
 
 /**
@@ -5576,10 +5726,14 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json',
+  ] as const
 }
 
 /**
@@ -5640,17 +5794,14 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(opt
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Queues/${args.param.Sid.json}`,
-    args,
-  ] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
 }
 
 /**
@@ -5692,10 +5843,10 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -5756,10 +5907,10 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -5821,14 +5972,14 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Queues.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
 }
 
 /**
@@ -5867,10 +6018,10 @@ export function useGet20100401AccountsAccountSidQueuesJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
 }
 
 /**
@@ -5928,10 +6079,14 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json',
+  ] as const
 }
 
 /**
@@ -5992,10 +6147,11 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json',
   ] as const
@@ -6059,7 +6215,7 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJs
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
   args: InferRequestType<
@@ -6067,7 +6223,9 @@ export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json',
     args,
   ] as const
 }
@@ -6111,10 +6269,10 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
 }
 
 /**
@@ -6176,14 +6334,14 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Recordings.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
 }
 
 /**
@@ -6222,7 +6380,7 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(
   args: InferRequestType<
@@ -6230,7 +6388,9 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.ReferenceSid}/AddOnResults/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
     args,
   ] as const
 }
@@ -6276,10 +6436,11 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
   ] as const
@@ -6345,7 +6506,7 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(
   args: InferRequestType<
@@ -6353,7 +6514,9 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.ReferenceSid}/AddOnResults.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
     args,
   ] as const
 }
@@ -6399,7 +6562,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
   args: InferRequestType<
@@ -6407,7 +6570,9 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.ReferenceSid}/AddOnResults/${args.param.AddOnResultSid}/Payloads/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
     args,
   ] as const
 }
@@ -6455,10 +6620,11 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
   ] as const
@@ -6524,7 +6690,7 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
   args: InferRequestType<
@@ -6532,7 +6698,9 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.ReferenceSid}/AddOnResults/${args.param.AddOnResultSid}/Payloads.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
     args,
   ] as const
 }
@@ -6580,7 +6748,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
   args: InferRequestType<
@@ -6588,7 +6756,9 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.ReferenceSid}/AddOnResults/${args.param.AddOnResultSid}/Payloads/${args.param.PayloadSid}/Data.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
     args,
   ] as const
 }
@@ -6636,7 +6806,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(
   args: InferRequestType<
@@ -6644,7 +6814,9 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.RecordingSid}/Transcriptions/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
     args,
   ] as const
 }
@@ -6686,10 +6858,11 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
   ] as const
@@ -6751,7 +6924,7 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(
   args: InferRequestType<
@@ -6759,7 +6932,9 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Recordings/${args.param.RecordingSid}/Transcriptions.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
     args,
   ] as const
 }
@@ -6801,7 +6976,7 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
   args: InferRequestType<
@@ -6809,7 +6984,9 @@ export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SMS/ShortCodes/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
     args,
   ] as const
 }
@@ -6853,10 +7030,14 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
+  ] as const
 }
 
 /**
@@ -6917,14 +7098,19 @@ export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: 
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/SMS/ShortCodes.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6966,7 +7152,7 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonKey(
   args: InferRequestType<
@@ -6974,7 +7160,9 @@ export function getGet20100401AccountsAccountSidSigningKeysSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SigningKeys/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
     args,
   ] as const
 }
@@ -7014,10 +7202,10 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -7074,10 +7262,10 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -7135,7 +7323,7 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: 
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
   args: InferRequestType<
@@ -7143,7 +7331,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/Auth/Calls/CredentialListMappings.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
     args,
   ] as const
 }
@@ -7191,10 +7381,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
   ] as const
@@ -7259,7 +7450,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCre
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
   args: InferRequestType<
@@ -7267,7 +7458,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/Auth/Calls/CredentialListMappings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
     args,
   ] as const
 }
@@ -7315,10 +7508,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
   ] as const
@@ -7384,7 +7578,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
   args: InferRequestType<
@@ -7392,7 +7586,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/Auth/Calls/IpAccessControlListMappings.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
     args,
   ] as const
 }
@@ -7440,10 +7636,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
   ] as const
@@ -7508,7 +7705,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpA
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
   args: InferRequestType<
@@ -7516,7 +7713,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/Auth/Calls/IpAccessControlListMappings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
     args,
   ] as const
 }
@@ -7564,10 +7763,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
   ] as const
@@ -7633,7 +7833,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
   args: InferRequestType<
@@ -7641,7 +7841,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/Auth/Registrations/CredentialListMappings.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
     args,
   ] as const
 }
@@ -7689,10 +7891,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
   ] as const
@@ -7757,7 +7960,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistra
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
   args: InferRequestType<
@@ -7765,7 +7968,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/Auth/Registrations/CredentialListMappings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
     args,
   ] as const
 }
@@ -7813,10 +8018,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
   ] as const
@@ -7882,7 +8088,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(
   args: InferRequestType<
@@ -7890,7 +8096,9 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/CredentialLists/${args.param.CredentialListSid}/Credentials.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
     args,
   ] as const
 }
@@ -7936,10 +8144,11 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
   ] as const
@@ -8004,7 +8213,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
   args: InferRequestType<
@@ -8012,7 +8221,9 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/CredentialLists/${args.param.CredentialListSid}/Credentials/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
     args,
   ] as const
 }
@@ -8060,10 +8271,11 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
@@ -8128,10 +8340,11 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
@@ -8197,14 +8410,19 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/SIP/CredentialLists.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8247,10 +8465,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+  ] as const
 }
 
 /**
@@ -8311,7 +8533,7 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
   args: InferRequestType<
@@ -8319,7 +8541,9 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/CredentialLists/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
     args,
   ] as const
 }
@@ -8364,10 +8588,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -8429,10 +8657,14 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -8495,7 +8727,7 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(opt
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(
   args: InferRequestType<
@@ -8503,7 +8735,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/CredentialListMappings.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
     args,
   ] as const
 }
@@ -8549,10 +8783,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
   ] as const
@@ -8617,7 +8852,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialLi
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(
   args: InferRequestType<
@@ -8625,7 +8860,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/CredentialListMappings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
     args,
   ] as const
 }
@@ -8671,10 +8908,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
   ] as const
@@ -8740,14 +8978,14 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
 }
 
 /**
@@ -8789,10 +9027,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
 }
 
 /**
@@ -8853,7 +9091,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
   args: InferRequestType<
@@ -8861,7 +9099,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
     args,
   ] as const
 }
@@ -8905,10 +9145,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -8969,10 +9209,10 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -9034,7 +9274,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
   args: InferRequestType<
@@ -9042,7 +9282,9 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/IpAccessControlLists.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
     args,
   ] as const
 }
@@ -9087,10 +9329,14 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
+  ] as const
 }
 
 /**
@@ -9152,7 +9398,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(opt
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(
   args: InferRequestType<
@@ -9160,7 +9406,9 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKe
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/IpAccessControlLists/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
     args,
   ] as const
 }
@@ -9205,10 +9453,14 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -9270,10 +9522,14 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -9335,7 +9591,7 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
   args: InferRequestType<
@@ -9343,7 +9599,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/IpAccessControlListMappings/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
     args,
   ] as const
 }
@@ -9391,10 +9649,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
   ] as const
@@ -9460,7 +9719,7 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(
   args: InferRequestType<
@@ -9468,7 +9727,9 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/Domains/${args.param.DomainSid}/IpAccessControlListMappings.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
     args,
   ] as const
 }
@@ -9514,10 +9775,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
   ] as const
@@ -9582,7 +9844,7 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCont
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
   args: InferRequestType<
@@ -9590,7 +9852,9 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/IpAccessControlLists/${args.param.IpAccessControlListSid}/IpAddresses.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
     args,
   ] as const
 }
@@ -9638,10 +9902,11 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
   ] as const
@@ -9706,7 +9971,7 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
   args: InferRequestType<
@@ -9714,7 +9979,9 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/SIP/IpAccessControlLists/${args.param.IpAccessControlListSid}/IpAddresses/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
     args,
   ] as const
 }
@@ -9762,10 +10029,11 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
@@ -9830,10 +10098,11 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
@@ -9899,10 +10168,14 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json',
+  ] as const
 }
 
 /**
@@ -9963,10 +10236,14 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json',
+  ] as const
 }
 
 /**
@@ -10028,10 +10305,14 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json',
+  ] as const
 }
 
 /**
@@ -10092,10 +10373,14 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json',
+  ] as const
 }
 
 /**
@@ -10157,10 +10442,10 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidTokensJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
 }
 
 /**
@@ -10218,7 +10503,7 @@ export function usePost20100401AccountsAccountSidTokensJson(options?: {
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
   args: InferRequestType<
@@ -10226,7 +10511,9 @@ export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Transcriptions/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
     args,
   ] as const
 }
@@ -10270,10 +10557,14 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
+  ] as const
 }
 
 /**
@@ -10335,14 +10626,19 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Transcriptions.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10384,14 +10680,14 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records.json`, args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
 }
 
 /**
@@ -10433,14 +10729,19 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/AllTime.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10479,14 +10780,19 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/Daily.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10524,7 +10830,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(
   args: InferRequestType<
@@ -10532,7 +10838,9 @@ export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/LastMonth.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
     args,
   ] as const
 }
@@ -10573,14 +10881,19 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/Monthly.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10619,7 +10932,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(
   args: InferRequestType<
@@ -10627,7 +10940,9 @@ export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/ThisMonth.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
     args,
   ] as const
 }
@@ -10668,14 +10983,19 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/Today.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10713,14 +11033,19 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/Yearly.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10759,7 +11084,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(
   args: InferRequestType<
@@ -10767,7 +11092,9 @@ export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Records/Yesterday.json`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
     args,
   ] as const
 }
@@ -10808,7 +11135,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
   args: InferRequestType<
@@ -10816,7 +11143,9 @@ export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
   >,
 ) {
   return [
-    `/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Triggers/${args.param.Sid.json}`,
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
     args,
   ] as const
 }
@@ -10860,10 +11189,14 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -10924,10 +11257,14 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -10985,14 +11322,19 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
 ) {
-  return [`/2010-04-01/Accounts/${args.param.AccountSid}/Usage/Triggers.json`, args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -11034,10 +11376,10 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
 }
 
 /**
@@ -11098,10 +11440,11 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json',
   ] as const
@@ -11165,10 +11508,11 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions.json',
   ] as const
@@ -11233,10 +11577,11 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions/:Sid.json',
   ] as const

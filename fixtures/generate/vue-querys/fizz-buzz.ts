@@ -8,12 +8,12 @@ import { client } from '../clients/fizz-buzz'
 
 /**
  * Generates Vue Query cache key for GET /fizzbuzz
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFizzbuzzQueryKey(
   args: MaybeRef<InferRequestType<typeof client.fizzbuzz.$get>>,
 ) {
-  return ['fizzbuzz', '/fizzbuzz', unref(args)] as const
+  return ['fizzbuzz', 'GET', '/fizzbuzz', unref(args)] as const
 }
 
 /**

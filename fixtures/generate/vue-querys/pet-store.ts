@@ -8,10 +8,10 @@ import { client } from '../clients/pet-store'
 
 /**
  * Generates Vue Query mutation key for PUT /pet
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPetMutationKey() {
-  return ['PUT', '/pet'] as const
+  return ['pet', 'PUT', '/pet'] as const
 }
 
 /**
@@ -40,25 +40,22 @@ export function usePutPet(options?: {
         Error,
         InferRequestType<typeof client.pet.$put>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
-      parseResponse(client.pet.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutPetMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /pet
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPetMutationKey() {
-  return ['POST', '/pet'] as const
+  return ['pet', 'POST', '/pet'] as const
 }
 
 /**
@@ -87,27 +84,24 @@ export function usePostPet(options?: {
         Error,
         InferRequestType<typeof client.pet.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.pet.$post>) =>
-      parseResponse(client.pet.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostPetMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /pet/findByStatus
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPetFindByStatusQueryKey(
   args: MaybeRef<InferRequestType<typeof client.pet.findByStatus.$get>>,
 ) {
-  return ['pet', '/pet/findByStatus', unref(args)] as const
+  return ['pet', 'GET', '/pet/findByStatus', unref(args)] as const
 }
 
 /**
@@ -165,12 +159,12 @@ export function useGetPetFindByStatus(
 
 /**
  * Generates Vue Query cache key for GET /pet/findByTags
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPetFindByTagsQueryKey(
   args: MaybeRef<InferRequestType<typeof client.pet.findByTags.$get>>,
 ) {
-  return ['pet', '/pet/findByTags', unref(args)] as const
+  return ['pet', 'GET', '/pet/findByTags', unref(args)] as const
 }
 
 /**
@@ -223,12 +217,12 @@ export function useGetPetFindByTags(
 
 /**
  * Generates Vue Query cache key for GET /pet/{petId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPetPetIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.pet)[':petId']['$get']>>,
 ) {
-  return ['pet', '/pet/:petId', unref(args)] as const
+  return ['pet', 'GET', '/pet/:petId', unref(args)] as const
 }
 
 /**
@@ -283,10 +277,10 @@ export function useGetPetPetId(
 
 /**
  * Generates Vue Query mutation key for POST /pet/{petId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPetPetIdMutationKey() {
-  return ['POST', '/pet/:petId'] as const
+  return ['pet', 'POST', '/pet/:petId'] as const
 }
 
 /**
@@ -317,25 +311,22 @@ export function usePostPetPetId(options?: {
         Error,
         InferRequestType<(typeof client.pet)[':petId']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$post']>) =>
-      parseResponse(client.pet[':petId'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostPetPetIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /pet/{petId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePetPetIdMutationKey() {
-  return ['DELETE', '/pet/:petId'] as const
+  return ['pet', 'DELETE', '/pet/:petId'] as const
 }
 
 /**
@@ -368,25 +359,23 @@ export function useDeletePetPetId(options?: {
         Error,
         InferRequestType<(typeof client.pet)[':petId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.pet)[':petId']['$delete']>) =>
-      parseResponse(client.pet[':petId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeletePetPetIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /pet/{petId}/uploadImage
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPetPetIdUploadImageMutationKey() {
-  return ['POST', '/pet/:petId/uploadImage'] as const
+  return ['pet', 'POST', '/pet/:petId/uploadImage'] as const
 }
 
 /**
@@ -422,26 +411,23 @@ export function usePostPetPetIdUploadImage(options?: {
         Error,
         InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
-    ) => parseResponse(client.pet[':petId'].uploadImage.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPetPetIdUploadImageMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /store/inventory
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStoreInventoryQueryKey() {
-  return ['store', '/store/inventory'] as const
+  return ['store', 'GET', '/store/inventory'] as const
 }
 
 /**
@@ -488,10 +474,10 @@ export function useGetStoreInventory(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /store/order
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostStoreOrderMutationKey() {
-  return ['POST', '/store/order'] as const
+  return ['store', 'POST', '/store/order'] as const
 }
 
 /**
@@ -522,27 +508,25 @@ export function usePostStoreOrder(options?: {
         Error,
         InferRequestType<typeof client.store.order.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.store.order.$post>) =>
-      parseResponse(client.store.order.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostStoreOrderMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /store/order/{orderId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetStoreOrderOrderIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.store.order)[':orderId']['$get']>>,
 ) {
-  return ['store', '/store/order/:orderId', unref(args)] as const
+  return ['store', 'GET', '/store/order/:orderId', unref(args)] as const
 }
 
 /**
@@ -602,10 +586,10 @@ export function useGetStoreOrderOrderId(
 
 /**
  * Generates Vue Query mutation key for DELETE /store/order/{orderId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteStoreOrderOrderIdMutationKey() {
-  return ['DELETE', '/store/order/:orderId'] as const
+  return ['store', 'DELETE', '/store/order/:orderId'] as const
 }
 
 /**
@@ -642,26 +626,23 @@ export function useDeleteStoreOrderOrderId(options?: {
         Error,
         InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
-    ) => parseResponse(client.store.order[':orderId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteStoreOrderOrderIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /user
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUserMutationKey() {
-  return ['POST', '/user'] as const
+  return ['user', 'POST', '/user'] as const
 }
 
 /**
@@ -690,25 +671,22 @@ export function usePostUser(options?: {
         Error,
         InferRequestType<typeof client.user.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.user.$post>) =>
-      parseResponse(client.user.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostUserMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /user/createWithList
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUserCreateWithListMutationKey() {
-  return ['POST', '/user/createWithList'] as const
+  return ['user', 'POST', '/user/createWithList'] as const
 }
 
 /**
@@ -741,27 +719,25 @@ export function usePostUserCreateWithList(options?: {
         Error,
         InferRequestType<typeof client.user.createWithList.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.user.createWithList.$post>) =>
-      parseResponse(client.user.createWithList.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostUserCreateWithListMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /user/login
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUserLoginQueryKey(
   args: MaybeRef<InferRequestType<typeof client.user.login.$get>>,
 ) {
-  return ['user', '/user/login', unref(args)] as const
+  return ['user', 'GET', '/user/login', unref(args)] as const
 }
 
 /**
@@ -809,10 +785,10 @@ export function useGetUserLogin(
 
 /**
  * Generates Vue Query cache key for GET /user/logout
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUserLogoutQueryKey() {
-  return ['user', '/user/logout'] as const
+  return ['user', 'GET', '/user/logout'] as const
 }
 
 /**
@@ -857,12 +833,12 @@ export function useGetUserLogout(options?: {
 
 /**
  * Generates Vue Query cache key for GET /user/{username}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUserUsernameQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.user)[':username']['$get']>>,
 ) {
-  return ['user', '/user/:username', unref(args)] as const
+  return ['user', 'GET', '/user/:username', unref(args)] as const
 }
 
 /**
@@ -915,10 +891,10 @@ export function useGetUserUsername(
 
 /**
  * Generates Vue Query mutation key for PUT /user/{username}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUserUsernameMutationKey() {
-  return ['PUT', '/user/:username'] as const
+  return ['user', 'PUT', '/user/:username'] as const
 }
 
 /**
@@ -951,25 +927,23 @@ export function usePutUserUsername(options?: {
         Error,
         InferRequestType<(typeof client.user)[':username']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$put']>) =>
-      parseResponse(client.user[':username'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutUserUsernameMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /user/{username}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUserUsernameMutationKey() {
-  return ['DELETE', '/user/:username'] as const
+  return ['user', 'DELETE', '/user/:username'] as const
 }
 
 /**
@@ -1002,15 +976,13 @@ export function useDeleteUserUsername(options?: {
         Error,
         InferRequestType<(typeof client.user)[':username']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.user)[':username']['$delete']>) =>
-      parseResponse(client.user[':username'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteUserUsernameMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

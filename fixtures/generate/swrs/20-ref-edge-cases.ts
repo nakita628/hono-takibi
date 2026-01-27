@@ -6,10 +6,10 @@ import { client } from '../clients/20-ref-edge-cases'
 
 /**
  * Generates SWR cache key for GET /test
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTestKey(args: InferRequestType<typeof client.test.$get>) {
-  return ['/test', args] as const
+  return ['test', 'GET', '/test', args] as const
 }
 
 /**
@@ -38,10 +38,10 @@ export function useGetTest(
 
 /**
  * Generates SWR cache key for GET /empty-refs
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEmptyRefsKey() {
-  return ['/empty-refs'] as const
+  return ['empty-refs', 'GET', '/empty-refs'] as const
 }
 
 /**
@@ -67,10 +67,10 @@ export function useGetEmptyRefs(options?: {
 
 /**
  * Generates SWR cache key for GET /unicode-refs
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUnicodeRefsKey() {
-  return ['/unicode-refs'] as const
+  return ['unicode-refs', 'GET', '/unicode-refs'] as const
 }
 
 /**
@@ -96,10 +96,10 @@ export function useGetUnicodeRefs(options?: {
 
 /**
  * Generates SWR cache key for GET /special-chars
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSpecialCharsKey() {
-  return ['/special-chars'] as const
+  return ['special-chars', 'GET', '/special-chars'] as const
 }
 
 /**
@@ -125,10 +125,10 @@ export function useGetSpecialChars(options?: {
 
 /**
  * Generates SWR cache key for GET /numeric-start
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNumericStartKey() {
-  return ['/numeric-start'] as const
+  return ['numeric-start', 'GET', '/numeric-start'] as const
 }
 
 /**
@@ -154,10 +154,10 @@ export function useGetNumericStart(options?: {
 
 /**
  * Generates SWR cache key for GET /ref-in-allof
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetRefInAllofKey() {
-  return ['/ref-in-allof'] as const
+  return ['ref-in-allof', 'GET', '/ref-in-allof'] as const
 }
 
 /**
@@ -183,10 +183,10 @@ export function useGetRefInAllof(options?: {
 
 /**
  * Generates SWR cache key for GET /deeply-nested
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeeplyNestedKey() {
-  return ['/deeply-nested'] as const
+  return ['deeply-nested', 'GET', '/deeply-nested'] as const
 }
 
 /**
@@ -212,10 +212,10 @@ export function useGetDeeplyNested(options?: {
 
 /**
  * Generates SWR cache key for GET /same-name-diff-context
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSameNameDiffContextKey() {
-  return ['/same-name-diff-context'] as const
+  return ['same-name-diff-context', 'GET', '/same-name-diff-context'] as const
 }
 
 /**

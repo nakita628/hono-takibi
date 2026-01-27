@@ -8,12 +8,12 @@ import { client } from '../clients/06-headers'
 
 /**
  * Generates Vue Query cache key for GET /resources
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetResourcesQueryKey(
   args: MaybeRef<InferRequestType<typeof client.resources.$get>>,
 ) {
-  return ['resources', '/resources', unref(args)] as const
+  return ['resources', 'GET', '/resources', unref(args)] as const
 }
 
 /**
@@ -59,12 +59,12 @@ export function useGetResources(
 
 /**
  * Generates Vue Query cache key for GET /resources/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetResourcesIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.resources)[':id']['$get']>>,
 ) {
-  return ['resources', '/resources/:id', unref(args)] as const
+  return ['resources', 'GET', '/resources/:id', unref(args)] as const
 }
 
 /**
@@ -115,10 +115,10 @@ export function useGetResourcesId(
 
 /**
  * Generates Vue Query mutation key for PUT /resources/{id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutResourcesIdMutationKey() {
-  return ['PUT', '/resources/:id'] as const
+  return ['resources', 'PUT', '/resources/:id'] as const
 }
 
 /**
@@ -147,27 +147,25 @@ export function usePutResourcesId(options?: {
         Error,
         InferRequestType<(typeof client.resources)[':id']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
-      parseResponse(client.resources[':id'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutResourcesIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /download/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDownloadIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.download)[':id']['$get']>>,
 ) {
-  return ['download', '/download/:id', unref(args)] as const
+  return ['download', 'GET', '/download/:id', unref(args)] as const
 }
 
 /**

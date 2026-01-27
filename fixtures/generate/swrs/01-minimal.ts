@@ -6,10 +6,10 @@ import { client } from '../clients/01-minimal'
 
 /**
  * Generates SWR cache key for GET /health
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHealthKey() {
-  return ['/health'] as const
+  return ['health', 'GET', '/health'] as const
 }
 
 /**

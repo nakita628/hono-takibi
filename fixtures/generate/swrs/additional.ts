@@ -6,10 +6,10 @@ import { client } from '../clients/additional'
 
 /**
  * Generates SWR cache key for GET /passthrough
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPassthroughKey() {
-  return ['/passthrough'] as const
+  return ['passthrough', 'GET', '/passthrough'] as const
 }
 
 /**

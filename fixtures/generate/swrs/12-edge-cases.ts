@@ -8,10 +8,10 @@ import { client } from '../clients/12-edge-cases'
 
 /**
  * Generates SWR cache key for GET /all-methods
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAllMethodsKey() {
-  return ['/all-methods'] as const
+  return ['all-methods', 'GET', '/all-methods'] as const
 }
 
 /**
@@ -37,10 +37,10 @@ export function useGetAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for PUT /all-methods
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutAllMethodsMutationKey() {
-  return ['PUT', '/all-methods'] as const
+  return ['all-methods', 'PUT', '/all-methods'] as const
 }
 
 /**
@@ -72,10 +72,10 @@ export function usePutAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for POST /all-methods
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAllMethodsMutationKey() {
-  return ['POST', '/all-methods'] as const
+  return ['all-methods', 'POST', '/all-methods'] as const
 }
 
 /**
@@ -107,10 +107,10 @@ export function usePostAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /all-methods
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteAllMethodsMutationKey() {
-  return ['DELETE', '/all-methods'] as const
+  return ['all-methods', 'DELETE', '/all-methods'] as const
 }
 
 /**
@@ -144,10 +144,10 @@ export function useDeleteAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for OPTIONS /all-methods
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getOptionsAllMethodsMutationKey() {
-  return ['OPTIONS', '/all-methods'] as const
+  return ['all-methods', 'OPTIONS', '/all-methods'] as const
 }
 
 /**
@@ -181,10 +181,10 @@ export function useOptionsAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for HEAD /all-methods
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getHeadAllMethodsMutationKey() {
-  return ['HEAD', '/all-methods'] as const
+  return ['all-methods', 'HEAD', '/all-methods'] as const
 }
 
 /**
@@ -216,10 +216,10 @@ export function useHeadAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /all-methods
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchAllMethodsMutationKey() {
-  return ['PATCH', '/all-methods'] as const
+  return ['all-methods', 'PATCH', '/all-methods'] as const
 }
 
 /**
@@ -253,10 +253,10 @@ export function usePatchAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for TRACE /all-methods
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getTraceAllMethodsMutationKey() {
-  return ['TRACE', '/all-methods'] as const
+  return ['all-methods', 'TRACE', '/all-methods'] as const
 }
 
 /**
@@ -290,17 +290,14 @@ export function useTraceAllMethods(options?: {
 
 /**
  * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
   args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return [
-    `/users/${args.param.userId}/posts/${args.param.postId}/comments/${args.param.commentId}`,
-    args,
-  ] as const
+  return ['users', 'GET', '/users/:userId/posts/:postId/comments/:commentId', args] as const
 }
 
 /**
@@ -335,12 +332,12 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 
 /**
  * Generates SWR cache key for GET /params-test/{pathParam}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetParamsTestPathParamKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return [`/params-test/${args.param.pathParam}`, args] as const
+  return ['params-test', 'GET', '/params-test/:pathParam', args] as const
 }
 
 /**
@@ -369,10 +366,10 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates SWR mutation key for POST /no-content
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNoContentMutationKey() {
-  return ['POST', '/no-content'] as const
+  return ['no-content', 'POST', '/no-content'] as const
 }
 
 /**
@@ -407,10 +404,10 @@ export function usePostNoContent(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-content
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiContentKey() {
-  return ['/multi-content'] as const
+  return ['multi-content', 'GET', '/multi-content'] as const
 }
 
 /**
@@ -436,10 +433,10 @@ export function useGetMultiContent(options?: {
 
 /**
  * Generates SWR mutation key for POST /multi-content
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMultiContentMutationKey() {
-  return ['POST', '/multi-content'] as const
+  return ['multi-content', 'POST', '/multi-content'] as const
 }
 
 /**
@@ -476,10 +473,10 @@ export function usePostMultiContent(options?: {
 
 /**
  * Generates SWR cache key for GET /response-ranges
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetResponseRangesKey() {
-  return ['/response-ranges'] as const
+  return ['response-ranges', 'GET', '/response-ranges'] as const
 }
 
 /**
@@ -505,10 +502,10 @@ export function useGetResponseRanges(options?: {
 
 /**
  * Generates SWR cache key for GET /deprecated
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeprecatedKey() {
-  return ['/deprecated'] as const
+  return ['deprecated', 'GET', '/deprecated'] as const
 }
 
 /**
@@ -536,10 +533,10 @@ export function useGetDeprecated(options?: {
 
 /**
  * Generates SWR cache key for GET /no-operation-id
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNoOperationIdKey() {
-  return ['/no-operation-id'] as const
+  return ['no-operation-id', 'GET', '/no-operation-id'] as const
 }
 
 /**
@@ -567,10 +564,10 @@ export function useGetNoOperationId(options?: {
 
 /**
  * Generates SWR mutation key for POST /empty-body
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEmptyBodyMutationKey() {
-  return ['POST', '/empty-body'] as const
+  return ['empty-body', 'POST', '/empty-body'] as const
 }
 
 /**
@@ -603,10 +600,10 @@ export function usePostEmptyBody(options?: {
 
 /**
  * Generates SWR cache key for GET /circular
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCircularKey() {
-  return ['/circular'] as const
+  return ['circular', 'GET', '/circular'] as const
 }
 
 /**
@@ -632,10 +629,10 @@ export function useGetCircular(options?: {
 
 /**
  * Generates SWR cache key for GET /deep-nesting
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeepNestingKey() {
-  return ['/deep-nesting'] as const
+  return ['deep-nesting', 'GET', '/deep-nesting'] as const
 }
 
 /**
@@ -661,12 +658,12 @@ export function useGetDeepNesting(options?: {
 
 /**
  * Generates SWR cache key for GET /array-params
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetArrayParamsKey(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return ['/array-params', args] as const
+  return ['array-params', 'GET', '/array-params', args] as const
 }
 
 /**
@@ -695,12 +692,12 @@ export function useGetArrayParams(
 
 /**
  * Generates SWR cache key for GET /object-param
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetObjectParamKey(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['/object-param', args] as const
+  return ['object-param', 'GET', '/object-param', args] as const
 }
 
 /**

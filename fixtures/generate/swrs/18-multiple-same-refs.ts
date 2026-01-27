@@ -8,10 +8,10 @@ import { client } from '../clients/18-multiple-same-refs'
 
 /**
  * Generates SWR cache key for GET /documents
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDocumentsKey(args: InferRequestType<typeof client.documents.$get>) {
-  return ['/documents', args] as const
+  return ['documents', 'GET', '/documents', args] as const
 }
 
 /**
@@ -40,10 +40,10 @@ export function useGetDocuments(
 
 /**
  * Generates SWR mutation key for POST /documents
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDocumentsMutationKey() {
-  return ['POST', '/documents'] as const
+  return ['documents', 'POST', '/documents'] as const
 }
 
 /**
@@ -74,12 +74,12 @@ export function usePostDocuments(options?: {
 
 /**
  * Generates SWR cache key for GET /documents/{documentId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDocumentsDocumentIdKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return [`/documents/${args.param.documentId}`, args] as const
+  return ['documents', 'GET', '/documents/:documentId', args] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function useGetDocumentsDocumentId(
 
 /**
  * Generates SWR mutation key for PUT /documents/{documentId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutDocumentsDocumentIdMutationKey() {
-  return ['PUT', '/documents/:documentId'] as const
+  return ['documents', 'PUT', '/documents/:documentId'] as const
 }
 
 /**
@@ -148,12 +148,12 @@ export function usePutDocumentsDocumentId(options?: {
 
 /**
  * Generates SWR cache key for GET /documents/{documentId}/versions
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDocumentsDocumentIdVersionsKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return [`/documents/${args.param.documentId}/versions`, args] as const
+  return ['documents', 'GET', '/documents/:documentId/versions', args] as const
 }
 
 /**
@@ -182,10 +182,10 @@ export function useGetDocumentsDocumentIdVersions(
 
 /**
  * Generates SWR mutation key for POST /documents/{documentId}/share
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDocumentsDocumentIdShareMutationKey() {
-  return ['POST', '/documents/:documentId/share'] as const
+  return ['documents', 'POST', '/documents/:documentId/share'] as const
 }
 
 /**
@@ -226,12 +226,12 @@ export function usePostDocumentsDocumentIdShare(options?: {
 
 /**
  * Generates SWR cache key for GET /users/{userId}/documents
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdDocumentsKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return [`/users/${args.param.userId}/documents`, args] as const
+  return ['users', 'GET', '/users/:userId/documents', args] as const
 }
 
 /**
@@ -260,10 +260,10 @@ export function useGetUsersUserIdDocuments(
 
 /**
  * Generates SWR mutation key for POST /compare
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCompareMutationKey() {
-  return ['POST', '/compare'] as const
+  return ['compare', 'POST', '/compare'] as const
 }
 
 /**
@@ -294,10 +294,10 @@ export function usePostCompare(options?: {
 
 /**
  * Generates SWR cache key for GET /templates
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTemplatesKey() {
-  return ['/templates'] as const
+  return ['templates', 'GET', '/templates'] as const
 }
 
 /**
@@ -323,10 +323,10 @@ export function useGetTemplates(options?: {
 
 /**
  * Generates SWR mutation key for POST /templates
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTemplatesMutationKey() {
-  return ['POST', '/templates'] as const
+  return ['templates', 'POST', '/templates'] as const
 }
 
 /**
@@ -357,10 +357,10 @@ export function usePostTemplates(options?: {
 
 /**
  * Generates SWR mutation key for POST /workflows
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWorkflowsMutationKey() {
-  return ['POST', '/workflows'] as const
+  return ['workflows', 'POST', '/workflows'] as const
 }
 
 /**

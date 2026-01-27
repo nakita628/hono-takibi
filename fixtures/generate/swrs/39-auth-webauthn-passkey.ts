@@ -8,10 +8,10 @@ import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
  * Generates SWR mutation key for POST /webauthn/register/options
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnRegisterOptionsMutationKey() {
-  return ['POST', '/webauthn/register/options'] as const
+  return ['webauthn', 'POST', '/webauthn/register/options'] as const
 }
 
 /**
@@ -52,10 +52,10 @@ export function usePostWebauthnRegisterOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /webauthn/register/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnRegisterVerifyMutationKey() {
-  return ['POST', '/webauthn/register/verify'] as const
+  return ['webauthn', 'POST', '/webauthn/register/verify'] as const
 }
 
 /**
@@ -96,10 +96,10 @@ export function usePostWebauthnRegisterVerify(options?: {
 
 /**
  * Generates SWR mutation key for POST /webauthn/authenticate/options
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnAuthenticateOptionsMutationKey() {
-  return ['POST', '/webauthn/authenticate/options'] as const
+  return ['webauthn', 'POST', '/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -140,10 +140,10 @@ export function usePostWebauthnAuthenticateOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /webauthn/authenticate/verify
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnAuthenticateVerifyMutationKey() {
-  return ['POST', '/webauthn/authenticate/verify'] as const
+  return ['webauthn', 'POST', '/webauthn/authenticate/verify'] as const
 }
 
 /**
@@ -184,10 +184,10 @@ export function usePostWebauthnAuthenticateVerify(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/credentials
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnCredentialsKey() {
-  return ['/webauthn/credentials'] as const
+  return ['webauthn', 'GET', '/webauthn/credentials'] as const
 }
 
 /**
@@ -217,12 +217,12 @@ export function useGetWebauthnCredentials(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/credentials/{credentialId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebauthnCredentialsCredentialIdKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return [`/webauthn/credentials/${args.param.credentialId}`, args] as const
+  return ['webauthn', 'GET', '/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
@@ -254,10 +254,10 @@ export function useGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates SWR mutation key for DELETE /webauthn/credentials/{credentialId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
-  return ['DELETE', '/webauthn/credentials/:credentialId'] as const
+  return ['webauthn', 'DELETE', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -305,10 +305,10 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /webauthn/credentials/{credentialId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
-  return ['PATCH', '/webauthn/credentials/:credentialId'] as const
+  return ['webauthn', 'PATCH', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -355,10 +355,10 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/settings
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnSettingsKey() {
-  return ['/webauthn/settings'] as const
+  return ['webauthn', 'GET', '/webauthn/settings'] as const
 }
 
 /**
@@ -388,10 +388,10 @@ export function useGetWebauthnSettings(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/settings/rp
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnSettingsRpKey() {
-  return ['/webauthn/settings/rp'] as const
+  return ['webauthn', 'GET', '/webauthn/settings/rp'] as const
 }
 
 /**
@@ -419,10 +419,10 @@ export function useGetWebauthnSettingsRp(options?: {
 
 /**
  * Generates SWR mutation key for PUT /webauthn/settings/rp
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutWebauthnSettingsRpMutationKey() {
-  return ['PUT', '/webauthn/settings/rp'] as const
+  return ['webauthn', 'PUT', '/webauthn/settings/rp'] as const
 }
 
 /**
@@ -457,10 +457,10 @@ export function usePutWebauthnSettingsRp(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/authenticators
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnAuthenticatorsKey() {
-  return ['/webauthn/authenticators'] as const
+  return ['webauthn', 'GET', '/webauthn/authenticators'] as const
 }
 
 /**

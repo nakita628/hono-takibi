@@ -10,10 +10,10 @@ import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
  * Generates TanStack Query mutation key for POST /webauthn/register/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnRegisterOptionsMutationKey() {
-  return ['POST', '/webauthn/register/options'] as const
+  return ['webauthn', 'POST', '/webauthn/register/options'] as const
 }
 
 /**
@@ -49,19 +49,17 @@ export function usePostWebauthnRegisterOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
-      parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnRegisterOptionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /webauthn/register/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnRegisterVerifyMutationKey() {
-  return ['POST', '/webauthn/register/verify'] as const
+  return ['webauthn', 'POST', '/webauthn/register/verify'] as const
 }
 
 /**
@@ -97,19 +95,17 @@ export function usePostWebauthnRegisterVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
-      parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnRegisterVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /webauthn/authenticate/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnAuthenticateOptionsMutationKey() {
-  return ['POST', '/webauthn/authenticate/options'] as const
+  return ['webauthn', 'POST', '/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -145,19 +141,17 @@ export function usePostWebauthnAuthenticateOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
-      parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnAuthenticateOptionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /webauthn/authenticate/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnAuthenticateVerifyMutationKey() {
-  return ['POST', '/webauthn/authenticate/verify'] as const
+  return ['webauthn', 'POST', '/webauthn/authenticate/verify'] as const
 }
 
 /**
@@ -193,19 +187,17 @@ export function usePostWebauthnAuthenticateVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
-      parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebauthnAuthenticateVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /webauthn/credentials
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnCredentialsQueryKey() {
-  return ['webauthn', '/webauthn/credentials'] as const
+  return ['webauthn', 'GET', '/webauthn/credentials'] as const
 }
 
 /**
@@ -247,12 +239,12 @@ export function useGetWebauthnCredentials(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /webauthn/credentials/{credentialId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return ['webauthn', '/webauthn/credentials/:credentialId', args] as const
+  return ['webauthn', 'GET', '/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
@@ -305,10 +297,10 @@ export function useGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates TanStack Query mutation key for DELETE /webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
-  return ['DELETE', '/webauthn/credentials/:credentialId'] as const
+  return ['webauthn', 'DELETE', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -348,20 +340,17 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteWebauthnCredentialsCredentialIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PATCH /webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
-  return ['PATCH', '/webauthn/credentials/:credentialId'] as const
+  return ['webauthn', 'PATCH', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -400,20 +389,17 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchWebauthnCredentialsCredentialIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /webauthn/settings
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnSettingsQueryKey() {
-  return ['webauthn', '/webauthn/settings'] as const
+  return ['webauthn', 'GET', '/webauthn/settings'] as const
 }
 
 /**
@@ -455,10 +441,10 @@ export function useGetWebauthnSettings(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /webauthn/settings/rp
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnSettingsRpQueryKey() {
-  return ['webauthn', '/webauthn/settings/rp'] as const
+  return ['webauthn', 'GET', '/webauthn/settings/rp'] as const
 }
 
 /**
@@ -498,10 +484,10 @@ export function useGetWebauthnSettingsRp(options?: {
 
 /**
  * Generates TanStack Query mutation key for PUT /webauthn/settings/rp
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutWebauthnSettingsRpMutationKey() {
-  return ['PUT', '/webauthn/settings/rp'] as const
+  return ['webauthn', 'PUT', '/webauthn/settings/rp'] as const
 }
 
 /**
@@ -531,19 +517,17 @@ export function usePutWebauthnSettingsRp(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
-      parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutWebauthnSettingsRpMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /webauthn/authenticators
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnAuthenticatorsQueryKey() {
-  return ['webauthn', '/webauthn/authenticators'] as const
+  return ['webauthn', 'GET', '/webauthn/authenticators'] as const
 }
 
 /**

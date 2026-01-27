@@ -8,10 +8,10 @@ import { client } from '../clients/32-practical-project-api'
 
 /**
  * Generates SWR cache key for GET /projects
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', args] as const
+  return ['projects', 'GET', '/projects', args] as const
 }
 
 /**
@@ -42,10 +42,10 @@ export function useGetProjects(
 
 /**
  * Generates SWR mutation key for POST /projects
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsMutationKey() {
-  return ['POST', '/projects'] as const
+  return ['projects', 'POST', '/projects'] as const
 }
 
 /**
@@ -78,12 +78,12 @@ export function usePostProjects(options?: {
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return [`/projects/${args.param.projectId}`, args] as const
+  return ['projects', 'GET', '/projects/:projectId', args] as const
 }
 
 /**
@@ -114,10 +114,10 @@ export function useGetProjectsProjectId(
 
 /**
  * Generates SWR mutation key for PUT /projects/{projectId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutProjectsProjectIdMutationKey() {
-  return ['PUT', '/projects/:projectId'] as const
+  return ['projects', 'PUT', '/projects/:projectId'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutProjectsProjectId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /projects/{projectId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteProjectsProjectIdMutationKey() {
-  return ['DELETE', '/projects/:projectId'] as const
+  return ['projects', 'DELETE', '/projects/:projectId'] as const
 }
 
 /**
@@ -201,12 +201,12 @@ export function useDeleteProjectsProjectId(options?: {
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/members
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdMembersKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return [`/projects/${args.param.projectId}/members`, args] as const
+  return ['projects', 'GET', '/projects/:projectId/members', args] as const
 }
 
 /**
@@ -237,10 +237,10 @@ export function useGetProjectsProjectIdMembers(
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/members
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsProjectIdMembersMutationKey() {
-  return ['POST', '/projects/:projectId/members'] as const
+  return ['projects', 'POST', '/projects/:projectId/members'] as const
 }
 
 /**
@@ -283,12 +283,12 @@ export function usePostProjectsProjectIdMembers(options?: {
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/tasks
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdTasksKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return [`/projects/${args.param.projectId}/tasks`, args] as const
+  return ['projects', 'GET', '/projects/:projectId/tasks', args] as const
 }
 
 /**
@@ -319,10 +319,10 @@ export function useGetProjectsProjectIdTasks(
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/tasks
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsProjectIdTasksMutationKey() {
-  return ['POST', '/projects/:projectId/tasks'] as const
+  return ['projects', 'POST', '/projects/:projectId/tasks'] as const
 }
 
 /**
@@ -365,12 +365,12 @@ export function usePostProjectsProjectIdTasks(options?: {
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTasksTaskIdKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return [`/tasks/${args.param.taskId}`, args] as const
+  return ['tasks', 'GET', '/tasks/:taskId', args] as const
 }
 
 /**
@@ -401,10 +401,10 @@ export function useGetTasksTaskId(
 
 /**
  * Generates SWR mutation key for PUT /tasks/{taskId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutTasksTaskIdMutationKey() {
-  return ['PUT', '/tasks/:taskId'] as const
+  return ['tasks', 'PUT', '/tasks/:taskId'] as const
 }
 
 /**
@@ -443,10 +443,10 @@ export function usePutTasksTaskId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /tasks/{taskId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTasksTaskIdMutationKey() {
-  return ['DELETE', '/tasks/:taskId'] as const
+  return ['tasks', 'DELETE', '/tasks/:taskId'] as const
 }
 
 /**
@@ -486,10 +486,10 @@ export function useDeleteTasksTaskId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /tasks/{taskId}/status
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchTasksTaskIdStatusMutationKey() {
-  return ['PATCH', '/tasks/:taskId/status'] as const
+  return ['tasks', 'PATCH', '/tasks/:taskId/status'] as const
 }
 
 /**
@@ -530,12 +530,12 @@ export function usePatchTasksTaskIdStatus(options?: {
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}/comments
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTasksTaskIdCommentsKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return [`/tasks/${args.param.taskId}/comments`, args] as const
+  return ['tasks', 'GET', '/tasks/:taskId/comments', args] as const
 }
 
 /**
@@ -566,10 +566,10 @@ export function useGetTasksTaskIdComments(
 
 /**
  * Generates SWR mutation key for POST /tasks/{taskId}/comments
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTasksTaskIdCommentsMutationKey() {
-  return ['POST', '/tasks/:taskId/comments'] as const
+  return ['tasks', 'POST', '/tasks/:taskId/comments'] as const
 }
 
 /**
@@ -610,12 +610,12 @@ export function usePostTasksTaskIdComments(options?: {
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}/time-entries
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTasksTaskIdTimeEntriesKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return [`/tasks/${args.param.taskId}/time-entries`, args] as const
+  return ['tasks', 'GET', '/tasks/:taskId/time-entries', args] as const
 }
 
 /**
@@ -646,10 +646,10 @@ export function useGetTasksTaskIdTimeEntries(
 
 /**
  * Generates SWR mutation key for POST /tasks/{taskId}/time-entries
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTasksTaskIdTimeEntriesMutationKey() {
-  return ['POST', '/tasks/:taskId/time-entries'] as const
+  return ['tasks', 'POST', '/tasks/:taskId/time-entries'] as const
 }
 
 /**
@@ -692,12 +692,12 @@ export function usePostTasksTaskIdTimeEntries(options?: {
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/milestones
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdMilestonesKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return [`/projects/${args.param.projectId}/milestones`, args] as const
+  return ['projects', 'GET', '/projects/:projectId/milestones', args] as const
 }
 
 /**
@@ -728,10 +728,10 @@ export function useGetProjectsProjectIdMilestones(
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/milestones
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsProjectIdMilestonesMutationKey() {
-  return ['POST', '/projects/:projectId/milestones'] as const
+  return ['projects', 'POST', '/projects/:projectId/milestones'] as const
 }
 
 /**
@@ -774,10 +774,10 @@ export function usePostProjectsProjectIdMilestones(options?: {
 
 /**
  * Generates SWR cache key for GET /teams
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTeamsKey() {
-  return ['/teams'] as const
+  return ['teams', 'GET', '/teams'] as const
 }
 
 /**
@@ -805,10 +805,10 @@ export function useGetTeams(options?: {
 
 /**
  * Generates SWR mutation key for POST /teams
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTeamsMutationKey() {
-  return ['POST', '/teams'] as const
+  return ['teams', 'POST', '/teams'] as const
 }
 
 /**

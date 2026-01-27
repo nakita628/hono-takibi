@@ -6,10 +6,10 @@ import { client } from '../clients/25-pathological-schemas'
 
 /**
  * Generates Svelte Query mutation key for POST /pathological
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPathologicalMutationKey() {
-  return ['POST', '/pathological'] as const
+  return ['pathological', 'POST', '/pathological'] as const
 }
 
 /**
@@ -26,20 +26,23 @@ export const getPostPathologicalMutationOptions = (clientOptions?: ClientRequest
 /**
  * POST /pathological
  */
-export function createPostPathological(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pathological.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.pathological.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.pathological.$post>) =>
-      parseResponse(client.pathological.$post(args, clientOptions)),
-  }))
+export function createPostPathological(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pathological.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.pathological.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostPathologicalMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

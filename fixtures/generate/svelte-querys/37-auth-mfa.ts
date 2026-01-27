@@ -10,10 +10,10 @@ import { client } from '../clients/37-auth-mfa'
 
 /**
  * Generates Svelte Query cache key for GET /mfa/status
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaStatusQueryKey() {
-  return ['mfa', '/mfa/status'] as const
+  return ['mfa', 'GET', '/mfa/status'] as const
 }
 
 /**
@@ -55,10 +55,10 @@ export function createGetMfaStatus(
 
 /**
  * Generates Svelte Query cache key for GET /mfa/methods
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaMethodsQueryKey() {
-  return ['mfa', '/mfa/methods'] as const
+  return ['mfa', 'GET', '/mfa/methods'] as const
 }
 
 /**
@@ -102,10 +102,10 @@ export function createGetMfaMethods(
 
 /**
  * Generates Svelte Query mutation key for PUT /mfa/preferred
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMfaPreferredMutationKey() {
-  return ['PUT', '/mfa/preferred'] as const
+  return ['mfa', 'PUT', '/mfa/preferred'] as const
 }
 
 /**
@@ -124,30 +124,33 @@ export const getPutMfaPreferredMutationOptions = (clientOptions?: ClientRequestO
  *
  * 優先MFA方式設定
  */
-export function createPutMfaPreferred(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.preferred.$put>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.preferred.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.preferred.$put>) =>
-      parseResponse(client.mfa.preferred.$put(args, clientOptions)),
-  }))
+export function createPutMfaPreferred(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.preferred.$put>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.preferred.$put>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMfaPreferredMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/totp/setup
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaTotpSetupMutationKey() {
-  return ['POST', '/mfa/totp/setup'] as const
+  return ['mfa', 'POST', '/mfa/totp/setup'] as const
 }
 
 /**
@@ -168,30 +171,33 @@ export const getPostMfaTotpSetupMutationOptions = (clientOptions?: ClientRequest
  *
  * TOTP認証の設定を開始し、QRコードとシークレットを取得します
  */
-export function createPostMfaTotpSetup(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.setup.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.totp.setup.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.totp.setup.$post>) =>
-      parseResponse(client.mfa.totp.setup.$post(args, clientOptions)),
-  }))
+export function createPostMfaTotpSetup(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.setup.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.totp.setup.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaTotpSetupMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/totp/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaTotpVerifyMutationKey() {
-  return ['POST', '/mfa/totp/verify'] as const
+  return ['mfa', 'POST', '/mfa/totp/verify'] as const
 }
 
 /**
@@ -212,30 +218,33 @@ export const getPostMfaTotpVerifyMutationOptions = (clientOptions?: ClientReques
  *
  * TOTPコードを検証して設定を完了します
  */
-export function createPostMfaTotpVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.verify.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.totp.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.totp.verify.$post>) =>
-      parseResponse(client.mfa.totp.verify.$post(args, clientOptions)),
-  }))
+export function createPostMfaTotpVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.verify.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.totp.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaTotpVerifyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /mfa/totp
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaTotpMutationKey() {
-  return ['DELETE', '/mfa/totp'] as const
+  return ['mfa', 'DELETE', '/mfa/totp'] as const
 }
 
 /**
@@ -254,29 +263,34 @@ export const getDeleteMfaTotpMutationOptions = (clientOptions?: ClientRequestOpt
  *
  * TOTP無効化
  */
-export function createDeleteMfaTotp(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.$delete>>>>>
-    | undefined,
-    Error,
-    InferRequestType<typeof client.mfa.totp.$delete>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.totp.$delete>) =>
-      parseResponse(client.mfa.totp.$delete(args, clientOptions)),
-  }))
+export function createDeleteMfaTotp(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.$delete>>>>
+        >
+      | undefined,
+      Error,
+      InferRequestType<typeof client.mfa.totp.$delete>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMfaTotpMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/sms/setup
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaSmsSetupMutationKey() {
-  return ['POST', '/mfa/sms/setup'] as const
+  return ['mfa', 'POST', '/mfa/sms/setup'] as const
 }
 
 /**
@@ -297,30 +311,33 @@ export const getPostMfaSmsSetupMutationOptions = (clientOptions?: ClientRequestO
  *
  * 電話番号を登録し、確認コードを送信します
  */
-export function createPostMfaSmsSetup(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.setup.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.sms.setup.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.sms.setup.$post>) =>
-      parseResponse(client.mfa.sms.setup.$post(args, clientOptions)),
-  }))
+export function createPostMfaSmsSetup(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.setup.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.sms.setup.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaSmsSetupMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/sms/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaSmsVerifyMutationKey() {
-  return ['POST', '/mfa/sms/verify'] as const
+  return ['mfa', 'POST', '/mfa/sms/verify'] as const
 }
 
 /**
@@ -339,30 +356,33 @@ export const getPostMfaSmsVerifyMutationOptions = (clientOptions?: ClientRequest
  *
  * SMS認証設定確認
  */
-export function createPostMfaSmsVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.verify.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.sms.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.sms.verify.$post>) =>
-      parseResponse(client.mfa.sms.verify.$post(args, clientOptions)),
-  }))
+export function createPostMfaSmsVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.verify.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.sms.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaSmsVerifyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /mfa/sms/{methodId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaSmsMethodIdMutationKey() {
-  return ['DELETE', '/mfa/sms/:methodId'] as const
+  return ['mfa', 'DELETE', '/mfa/sms/:methodId'] as const
 }
 
 /**
@@ -381,33 +401,38 @@ export const getDeleteMfaSmsMethodIdMutationOptions = (clientOptions?: ClientReq
  *
  * SMS認証削除
  */
-export function createDeleteMfaSmsMethodId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.mfa.sms)[':methodId']['$delete']>>>
+export function createDeleteMfaSmsMethodId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.mfa.sms)[':methodId']['$delete']>>
+            >
+          >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>) =>
-      parseResponse(client.mfa.sms[':methodId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMfaSmsMethodIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/email/setup
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaEmailSetupMutationKey() {
-  return ['POST', '/mfa/email/setup'] as const
+  return ['mfa', 'POST', '/mfa/email/setup'] as const
 }
 
 /**
@@ -426,30 +451,33 @@ export const getPostMfaEmailSetupMutationOptions = (clientOptions?: ClientReques
  *
  * メール認証設定開始
  */
-export function createPostMfaEmailSetup(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.setup.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.email.setup.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.email.setup.$post>) =>
-      parseResponse(client.mfa.email.setup.$post(args, clientOptions)),
-  }))
+export function createPostMfaEmailSetup(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.setup.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.email.setup.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaEmailSetupMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/email/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaEmailVerifyMutationKey() {
-  return ['POST', '/mfa/email/verify'] as const
+  return ['mfa', 'POST', '/mfa/email/verify'] as const
 }
 
 /**
@@ -468,30 +496,33 @@ export const getPostMfaEmailVerifyMutationOptions = (clientOptions?: ClientReque
  *
  * メール認証設定確認
  */
-export function createPostMfaEmailVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.verify.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.email.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.email.verify.$post>) =>
-      parseResponse(client.mfa.email.verify.$post(args, clientOptions)),
-  }))
+export function createPostMfaEmailVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.verify.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.email.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaEmailVerifyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/webauthn/register/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnRegisterOptionsMutationKey() {
-  return ['POST', '/mfa/webauthn/register/options'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/register/options'] as const
 }
 
 /**
@@ -514,32 +545,36 @@ export const getPostMfaWebauthnRegisterOptionsMutationOptions = (
  *
  * WebAuthn認証器登録のためのオプションを取得します
  */
-export function createPostMfaWebauthnRegisterOptions(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.mfa.webauthn.register.options.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.webauthn.register.options.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.webauthn.register.options.$post>) =>
-      parseResponse(client.mfa.webauthn.register.options.$post(args, clientOptions)),
-  }))
+export function createPostMfaWebauthnRegisterOptions(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.mfa.webauthn.register.options.$post>>
+          >
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.webauthn.register.options.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostMfaWebauthnRegisterOptionsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/webauthn/register/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnRegisterVerifyMutationKey() {
-  return ['POST', '/mfa/webauthn/register/verify'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/register/verify'] as const
 }
 
 /**
@@ -560,32 +595,36 @@ export const getPostMfaWebauthnRegisterVerifyMutationOptions = (
  *
  * WebAuthn登録検証
  */
-export function createPostMfaWebauthnRegisterVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.mfa.webauthn.register.verify.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>) =>
-      parseResponse(client.mfa.webauthn.register.verify.$post(args, clientOptions)),
-  }))
+export function createPostMfaWebauthnRegisterVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.mfa.webauthn.register.verify.$post>>
+          >
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostMfaWebauthnRegisterVerifyMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /mfa/webauthn/credentials
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaWebauthnCredentialsQueryKey() {
-  return ['mfa', '/mfa/webauthn/credentials'] as const
+  return ['mfa', 'GET', '/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -633,10 +672,10 @@ export function createGetMfaWebauthnCredentials(
 
 /**
  * Generates Svelte Query mutation key for DELETE /mfa/webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['DELETE', '/mfa/webauthn/credentials/:credentialId'] as const
+  return ['mfa', 'DELETE', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -658,39 +697,39 @@ export const getDeleteMfaWebauthnCredentialsCredentialIdMutationOptions = (
  *
  * WebAuthn認証器削除
  */
-export function createDeleteMfaWebauthnCredentialsCredentialId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+export function createDeleteMfaWebauthnCredentialsCredentialId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+              >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>,
-    ) =>
-      parseResponse(client.mfa.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteMfaWebauthnCredentialsCredentialIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for PATCH /mfa/webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['PATCH', '/mfa/webauthn/credentials/:credentialId'] as const
+  return ['mfa', 'PATCH', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -712,36 +751,36 @@ export const getPatchMfaWebauthnCredentialsCredentialIdMutationOptions = (
  *
  * WebAuthn認証器更新
  */
-export function createPatchMfaWebauthnCredentialsCredentialId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>>
+export function createPatchMfaWebauthnCredentialsCredentialId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>,
-    ) =>
-      parseResponse(client.mfa.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPatchMfaWebauthnCredentialsCredentialIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/backup-codes/generate
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaBackupCodesGenerateMutationKey() {
-  return ['POST', '/mfa/backup-codes/generate'] as const
+  return ['mfa', 'POST', '/mfa/backup-codes/generate'] as const
 }
 
 /**
@@ -765,35 +804,36 @@ export const getPostMfaBackupCodesGenerateMutationOptions = (
  *
  * 新しいバックアップコードを生成します（既存のコードは無効化されます）
  */
-export function createPostMfaBackupCodesGenerate(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.mfa)['backup-codes']['generate']['$post']>>
+export function createPostMfaBackupCodesGenerate(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.mfa)['backup-codes']['generate']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    ) => parseResponse(client.mfa['backup-codes'].generate.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostMfaBackupCodesGenerateMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /mfa/backup-codes/status
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMfaBackupCodesStatusQueryKey() {
-  return ['mfa', '/mfa/backup-codes/status'] as const
+  return ['mfa', 'GET', '/mfa/backup-codes/status'] as const
 }
 
 /**
@@ -843,10 +883,10 @@ export function createGetMfaBackupCodesStatus(
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/challenge
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaChallengeMutationKey() {
-  return ['POST', '/mfa/challenge'] as const
+  return ['mfa', 'POST', '/mfa/challenge'] as const
 }
 
 /**
@@ -867,30 +907,33 @@ export const getPostMfaChallengeMutationOptions = (clientOptions?: ClientRequest
  *
  * ログイン時などにMFA認証チャレンジを作成します
  */
-export function createPostMfaChallenge(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.challenge.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.$post>) =>
-      parseResponse(client.mfa.challenge.$post(args, clientOptions)),
-  }))
+export function createPostMfaChallenge(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.challenge.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaChallengeMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/challenge/send
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaChallengeSendMutationKey() {
-  return ['POST', '/mfa/challenge/send'] as const
+  return ['mfa', 'POST', '/mfa/challenge/send'] as const
 }
 
 /**
@@ -911,30 +954,35 @@ export const getPostMfaChallengeSendMutationOptions = (clientOptions?: ClientReq
  *
  * SMSまたはメールでMFAコードを送信します
  */
-export function createPostMfaChallengeSend(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.send.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.challenge.send.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.challenge.send.$post>) =>
-      parseResponse(client.mfa.challenge.send.$post(args, clientOptions)),
-  }))
+export function createPostMfaChallengeSend(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.send.$post>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.challenge.send.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaChallengeSendMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaVerifyMutationKey() {
-  return ['POST', '/mfa/verify'] as const
+  return ['mfa', 'POST', '/mfa/verify'] as const
 }
 
 /**
@@ -955,28 +1003,33 @@ export const getPostMfaVerifyMutationOptions = (clientOptions?: ClientRequestOpt
  *
  * MFAコードを検証し、認証を完了します
  */
-export function createPostMfaVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.verify.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.mfa.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.verify.$post>) =>
-      parseResponse(client.mfa.verify.$post(args, clientOptions)),
-  }))
+export function createPostMfaVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.verify.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaVerifyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/webauthn/authenticate/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
-  return ['POST', '/mfa/webauthn/authenticate/options'] as const
+  return ['mfa', 'POST', '/mfa/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -998,35 +1051,36 @@ export const getPostMfaWebauthnAuthenticateOptionsMutationOptions = (
  *
  * WebAuthn認証オプション取得
  */
-export function createPostMfaWebauthnAuthenticateOptions(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<typeof client.mfa.webauthn.authenticate.options.$post>>
+export function createPostMfaWebauthnAuthenticateOptions(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.mfa.webauthn.authenticate.options.$post>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostMfaWebauthnAuthenticateOptionsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/recovery
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaRecoveryMutationKey() {
-  return ['POST', '/mfa/recovery'] as const
+  return ['mfa', 'POST', '/mfa/recovery'] as const
 }
 
 /**
@@ -1047,30 +1101,33 @@ export const getPostMfaRecoveryMutationOptions = (clientOptions?: ClientRequestO
  *
  * MFA認証器にアクセスできない場合のリカバリーを開始します
  */
-export function createPostMfaRecovery(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.recovery.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.$post>) =>
-      parseResponse(client.mfa.recovery.$post(args, clientOptions)),
-  }))
+export function createPostMfaRecovery(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.recovery.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaRecoveryMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mfa/recovery/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMfaRecoveryVerifyMutationKey() {
-  return ['POST', '/mfa/recovery/verify'] as const
+  return ['mfa', 'POST', '/mfa/recovery/verify'] as const
 }
 
 /**
@@ -1089,20 +1146,25 @@ export const getPostMfaRecoveryVerifyMutationOptions = (clientOptions?: ClientRe
  *
  * MFAリカバリー検証
  */
-export function createPostMfaRecoveryVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.verify.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.mfa.recovery.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.mfa.recovery.verify.$post>) =>
-      parseResponse(client.mfa.recovery.verify.$post(args, clientOptions)),
-  }))
+export function createPostMfaRecoveryVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.verify.$post>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.mfa.recovery.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMfaRecoveryVerifyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

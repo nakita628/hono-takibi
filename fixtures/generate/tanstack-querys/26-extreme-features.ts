@@ -10,10 +10,10 @@ import { client } from '../clients/26-extreme-features'
 
 /**
  * Generates TanStack Query cache key for GET /stream
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStreamQueryKey() {
-  return ['stream', '/stream'] as const
+  return ['stream', 'GET', '/stream'] as const
 }
 
 /**
@@ -48,10 +48,10 @@ export function useGetStream(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /graphql
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGraphqlMutationKey() {
-  return ['POST', '/graphql'] as const
+  return ['graphql', 'POST', '/graphql'] as const
 }
 
 /**
@@ -79,19 +79,16 @@ export function usePostGraphql(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
-      parseResponse(client.graphql.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostGraphqlMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /grpc-gateway
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGrpcGatewayMutationKey() {
-  return ['POST', '/grpc-gateway'] as const
+  return ['grpc-gateway', 'POST', '/grpc-gateway'] as const
 }
 
 /**
@@ -123,19 +120,17 @@ export function usePostGrpcGateway(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
-      parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGrpcGatewayMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /deprecated-endpoint
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeprecatedEndpointQueryKey() {
-  return ['deprecated-endpoint', '/deprecated-endpoint'] as const
+  return ['deprecated-endpoint', 'GET', '/deprecated-endpoint'] as const
 }
 
 /**

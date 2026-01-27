@@ -6,10 +6,10 @@ import { client } from '../clients/sample-geojson'
 
 /**
  * Generates Svelte Query cache key for GET /
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetQueryKey() {
-  return ['', '/'] as const
+  return ['', 'GET', '/'] as const
 }
 
 /**
@@ -50,10 +50,10 @@ export function createGet(
 
 /**
  * Generates Svelte Query cache key for GET /projects
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['projects', '/projects', args] as const
+  return ['projects', 'GET', '/projects', args] as const
 }
 
 /**

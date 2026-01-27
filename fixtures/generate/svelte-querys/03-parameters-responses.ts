@@ -10,10 +10,10 @@ import { client } from '../clients/03-parameters-responses'
 
 /**
  * Generates Svelte Query cache key for GET /items
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', '/items', args] as const
+  return ['items', 'GET', '/items', args] as const
 }
 
 /**
@@ -54,12 +54,12 @@ export function createGetItems(
 
 /**
  * Generates Svelte Query cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['items', '/items/:itemId', args] as const
+  return ['items', 'GET', '/items/:itemId', args] as const
 }
 
 /**
@@ -107,10 +107,10 @@ export function createGetItemsItemId(
 
 /**
  * Generates Svelte Query mutation key for DELETE /items/{itemId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteItemsItemIdMutationKey() {
-  return ['DELETE', '/items/:itemId'] as const
+  return ['items', 'DELETE', '/items/:itemId'] as const
 }
 
 /**
@@ -127,23 +127,26 @@ export const getDeleteItemsItemIdMutationOptions = (clientOptions?: ClientReques
 /**
  * DELETE /items/{itemId}
  */
-export function createDeleteItemsItemId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+export function createDeleteItemsItemId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.items)[':itemId']['$delete']>>>
+          >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.items)[':itemId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
-      parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.items)[':itemId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteItemsItemIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

@@ -7,10 +7,10 @@ import { client } from '../clients/05-request-bodies'
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersMutationKey() {
-  return ['POST', '/users'] as const
+  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -41,10 +41,10 @@ export function usePostUsers(options?: {
 
 /**
  * Generates SWR mutation key for PUT /users/{userId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUsersUserIdMutationKey() {
-  return ['PUT', '/users/:userId'] as const
+  return ['users', 'PUT', '/users/:userId'] as const
 }
 
 /**
@@ -81,10 +81,10 @@ export function usePutUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /users/{userId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchUsersUserIdMutationKey() {
-  return ['PATCH', '/users/:userId'] as const
+  return ['users', 'PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -121,10 +121,10 @@ export function usePatchUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for POST /users/{userId}/avatar
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersUserIdAvatarMutationKey() {
-  return ['POST', '/users/:userId/avatar'] as const
+  return ['users', 'POST', '/users/:userId/avatar'] as const
 }
 
 /**
@@ -163,10 +163,10 @@ export function usePostUsersUserIdAvatar(options?: {
 
 /**
  * Generates SWR mutation key for POST /bulk/users
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostBulkUsersMutationKey() {
-  return ['POST', '/bulk/users'] as const
+  return ['bulk', 'POST', '/bulk/users'] as const
 }
 
 /**

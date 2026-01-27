@@ -8,10 +8,10 @@ import { client } from '../clients/02-simple-schemas'
 
 /**
  * Generates Vue Query cache key for GET /users
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUsersQueryKey() {
-  return ['users', '/users'] as const
+  return ['users', 'GET', '/users'] as const
 }
 
 /**
@@ -49,10 +49,10 @@ export function useGetUsers(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /users
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersMutationKey() {
-  return ['POST', '/users'] as const
+  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -77,27 +77,24 @@ export function usePostUsers(options?: {
         Error,
         InferRequestType<typeof client.users.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
-      parseResponse(client.users.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostUsersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.users)[':userId']['$get']>>,
 ) {
-  return ['users', '/users/:userId', unref(args)] as const
+  return ['users', 'GET', '/users/:userId', unref(args)] as const
 }
 
 /**

@@ -8,10 +8,10 @@ import { client } from '../clients/16-complex-composition'
 
 /**
  * Generates Vue Query mutation key for POST /messages
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMessagesMutationKey() {
-  return ['POST', '/messages'] as const
+  return ['messages', 'POST', '/messages'] as const
 }
 
 /**
@@ -38,25 +38,22 @@ export function usePostMessages(options?: {
         Error,
         InferRequestType<typeof client.messages.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
-      parseResponse(client.messages.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostMessagesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /events
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEventsMutationKey() {
-  return ['POST', '/events'] as const
+  return ['events', 'POST', '/events'] as const
 }
 
 /**
@@ -81,25 +78,22 @@ export function usePostEvents(options?: {
         Error,
         InferRequestType<typeof client.events.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
-      parseResponse(client.events.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostEventsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /configs
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetConfigsQueryKey() {
-  return ['configs', '/configs'] as const
+  return ['configs', 'GET', '/configs'] as const
 }
 
 /**
@@ -140,10 +134,10 @@ export function useGetConfigs(options?: {
 
 /**
  * Generates Vue Query mutation key for PUT /configs
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutConfigsMutationKey() {
-  return ['PUT', '/configs'] as const
+  return ['configs', 'PUT', '/configs'] as const
 }
 
 /**
@@ -168,25 +162,22 @@ export function usePutConfigs(options?: {
         Error,
         InferRequestType<typeof client.configs.$put>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.configs.$put>) =>
-      parseResponse(client.configs.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutConfigsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /resources
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostResourcesMutationKey() {
-  return ['POST', '/resources'] as const
+  return ['resources', 'POST', '/resources'] as const
 }
 
 /**
@@ -213,25 +204,22 @@ export function usePostResources(options?: {
         Error,
         InferRequestType<typeof client.resources.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.resources.$post>) =>
-      parseResponse(client.resources.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostResourcesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /validations
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostValidationsMutationKey() {
-  return ['POST', '/validations'] as const
+  return ['validations', 'POST', '/validations'] as const
 }
 
 /**
@@ -258,15 +246,13 @@ export function usePostValidations(options?: {
         Error,
         InferRequestType<typeof client.validations.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.validations.$post>) =>
-      parseResponse(client.validations.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostValidationsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

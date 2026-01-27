@@ -10,12 +10,12 @@ import { client } from '../clients/twilio_api_v2010'
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsJsonQueryKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts.json', args] as const
 }
 
 /**
@@ -72,10 +72,10 @@ export function createGet20100401AccountsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts.json'] as const
 }
 
 /**
@@ -99,37 +99,39 @@ export const getPost20100401AccountsJsonMutationOptions = (
  *
  * Create a new Twilio Subaccount from the account making the request
  */
-export function createPost20100401AccountsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts.json']['$post']>>
+export function createPost20100401AccountsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts.json']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
-    ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost20100401AccountsJsonMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsSidJsonQueryKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:Sid.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:Sid.json', args] as const
 }
 
 /**
@@ -186,10 +188,10 @@ export function createGet20100401AccountsSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:Sid.json'] as const
 }
 
 /**
@@ -213,39 +215,40 @@ export const getPost20100401AccountsSidJsonMutationOptions = (
  *
  * Modify the properties of a given Account
  */
-export function createPost20100401AccountsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>>
+export function createPost20100401AccountsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
-    ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
 }
 
 /**
@@ -304,10 +307,10 @@ export function createGet20100401AccountsAccountSidAddressesJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidAddressesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
 }
 
 /**
@@ -332,50 +335,51 @@ export const getPost20100401AccountsAccountSidAddressesJsonMutationOptions = (
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
  */
-export function createPost20100401AccountsAccountSidAddressesJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+export function createPost20100401AccountsAccountSidAddressesJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidAddressesJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -434,10 +438,10 @@ export function createGet20100401AccountsAccountSidAddressesSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -465,49 +469,42 @@ export const getPost20100401AccountsAccountSidAddressesSidJsonMutationOptions = 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
-export function createPost20100401AccountsAccountSidAddressesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidAddressesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidAddressesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -535,54 +532,47 @@ export const getDelete20100401AccountsAccountSidAddressesSidJsonMutationOptions 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
-export function createDelete20100401AccountsAccountSidAddressesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidAddressesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidAddressesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
 }
 
 /**
@@ -645,10 +635,10 @@ export function createGet20100401AccountsAccountSidApplicationsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidApplicationsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
 }
 
 /**
@@ -677,53 +667,51 @@ export const getPost20100401AccountsAccountSidApplicationsJsonMutationOptions = 
  *
  * Create a new application within your account
  */
-export function createPost20100401AccountsAccountSidApplicationsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+export function createPost20100401AccountsAccountSidApplicationsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidApplicationsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -786,10 +774,10 @@ export function createGet20100401AccountsAccountSidApplicationsSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
 }
 
 /**
@@ -821,49 +809,46 @@ export const getPost20100401AccountsAccountSidApplicationsSidJsonMutationOptions
  *
  * Updates the application's properties
  */
-export function createPost20100401AccountsAccountSidApplicationsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidApplicationsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidApplicationsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+  ] as const
 }
 
 /**
@@ -895,47 +880,40 @@ export const getDelete20100401AccountsAccountSidApplicationsSidJsonMutationOptio
  *
  * Delete the application by the specified application sid
  */
-export function createDelete20100401AccountsAccountSidApplicationsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidApplicationsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidApplicationsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
   args: InferRequestType<
@@ -944,6 +922,7 @@ export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
     args,
   ] as const
@@ -1011,7 +990,7 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsConnectA
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
   args: InferRequestType<
@@ -1020,6 +999,7 @@ export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
     args,
   ] as const
@@ -1085,7 +1065,7 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
   args: InferRequestType<
@@ -1094,6 +1074,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
     args,
   ] as const
@@ -1155,7 +1136,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
   args: InferRequestType<
@@ -1164,6 +1145,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
     args,
   ] as const
@@ -1228,7 +1210,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
   args: InferRequestType<
@@ -1237,6 +1219,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
     args,
   ] as const
@@ -1302,7 +1285,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
   args: InferRequestType<
@@ -1311,6 +1294,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
     args,
   ] as const
@@ -1378,7 +1362,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
   args: InferRequestType<
@@ -1387,6 +1371,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
     args,
   ] as const
@@ -1452,7 +1437,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
   args: InferRequestType<
@@ -1461,6 +1446,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
     args,
   ] as const
@@ -1526,7 +1512,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
   args: InferRequestType<
@@ -1535,6 +1521,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
     args,
   ] as const
@@ -1600,7 +1587,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
   args: InferRequestType<
@@ -1609,6 +1596,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
     args,
   ] as const
@@ -1674,7 +1662,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
   args: InferRequestType<
@@ -1683,6 +1671,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
     args,
   ] as const
@@ -1748,14 +1737,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
 }
 
 /**
@@ -1818,14 +1807,14 @@ export function createGet20100401AccountsAccountSidBalanceJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
 }
 
 /**
@@ -1888,10 +1877,10 @@ export function createGet20100401AccountsAccountSidCallsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
 }
 
 /**
@@ -1920,50 +1909,46 @@ export const getPost20100401AccountsAccountSidCallsJsonMutationOptions = (
  *
  * Create a new outgoing call to phones, SIP-enabled endpoints or Twilio Client connections
  */
-export function createPost20100401AccountsAccountSidCallsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+export function createPost20100401AccountsAccountSidCallsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
 }
 
 /**
@@ -2026,10 +2011,10 @@ export function createGet20100401AccountsAccountSidCallsSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -2058,46 +2043,42 @@ export const getPost20100401AccountsAccountSidCallsSidJsonMutationOptions = (
  *
  * Initiates a call redirect or terminates a call
  */
-export function createPost20100401AccountsAccountSidCallsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidCallsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -2126,47 +2107,40 @@ export const getDelete20100401AccountsAccountSidCallsSidJsonMutationOptions = (
  *
  * Delete a Call record from your account. Once the record is deleted, it will no longer appear in the API and Account Portal logs.
  */
-export function createDelete20100401AccountsAccountSidCallsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidCallsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidCallsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
   args: InferRequestType<
@@ -2175,6 +2149,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
     args,
   ] as const
@@ -2240,7 +2215,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidEventsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
@@ -2249,6 +2224,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
     args,
   ] as const
@@ -2312,7 +2288,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsSidJ
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
   args: InferRequestType<
@@ -2321,6 +2297,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQue
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
     args,
   ] as const
@@ -2382,7 +2359,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsJson
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
   args: InferRequestType<
@@ -2391,6 +2368,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryK
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
     args,
   ] as const
@@ -2456,10 +2434,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
+  ] as const
 }
 
 /**
@@ -2491,46 +2473,39 @@ export const getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutation
  *
  * Create a recording for the call
  */
-export function createPost20100401AccountsAccountSidCallsCallSidRecordingsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidRecordingsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
@@ -2539,6 +2514,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQue
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
     args,
   ] as const
@@ -2604,10 +2580,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2639,48 +2619,46 @@ export const getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutat
  *
  * Changes the status of the recording to paused, stopped, or in-progress. Note: Pass `Twilio.CURRENT` instead of recording sid to reference current active recording.
  */
-export function createPost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
-          ':Sid.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2711,53 +2689,52 @@ export const getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMut
  *
  * Delete a recording from your account
  */
-export function createDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2820,10 +2797,10 @@ export function createGet20100401AccountsAccountSidConferencesSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
 }
 
 /**
@@ -2851,53 +2828,46 @@ export const getPost20100401AccountsAccountSidConferencesSidJsonMutationOptions 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
  */
-export function createPost20100401AccountsAccountSidConferencesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidConferencesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidConferencesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
 }
 
 /**
@@ -2960,7 +2930,7 @@ export function createGet20100401AccountsAccountSidConferencesJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
   args: InferRequestType<
@@ -2969,6 +2939,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
     args,
   ] as const
@@ -3036,7 +3007,7 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
@@ -3045,6 +3016,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
     args,
   ] as const
@@ -3114,10 +3086,11 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
@@ -3151,48 +3124,45 @@ export const getPost20100401AccountsAccountSidConferencesConferenceSidRecordings
  *
  * Changes the status of the recording to paused, stopped, or in-progress. Note: To use `Twilio.CURRENT`, pass it as recording sid.
  */
-export function createPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
@@ -3226,53 +3196,54 @@ export const getDelete20100401AccountsAccountSidConferencesConferenceSidRecordin
  *
  * Delete a recording from your account
  */
-export function createDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3335,10 +3306,10 @@ export function createGet20100401AccountsAccountSidConnectAppsSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -3370,49 +3341,42 @@ export const getPost20100401AccountsAccountSidConnectAppsSidJsonMutationOptions 
  *
  * Update a connect-app with the specified parameters
  */
-export function createPost20100401AccountsAccountSidConnectAppsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidConnectAppsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidConnectAppsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -3444,54 +3408,47 @@ export const getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationOption
  *
  * Delete an instance of a connect-app
  */
-export function createDelete20100401AccountsAccountSidConnectAppsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidConnectAppsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
 }
 
 /**
@@ -3554,7 +3511,7 @@ export function createGet20100401AccountsAccountSidConnectAppsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
   args: InferRequestType<
@@ -3563,6 +3520,7 @@ export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
     args,
   ] as const
@@ -3628,7 +3586,7 @@ export function createGet20100401AccountsAccountSidAddressesAddressSidDependentP
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
   args: InferRequestType<
@@ -3637,6 +3595,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQuery
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
     args,
   ] as const
@@ -3702,10 +3661,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -3737,49 +3700,46 @@ export const getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutatio
  *
  * Update an incoming-phone-number instance.
  */
-export function createPost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -3811,54 +3771,52 @@ export const getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutat
  *
  * Delete a phone-numbers belonging to the account used to make the request.
  */
-export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3921,10 +3879,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+  ] as const
 }
 
 /**
@@ -3956,46 +3918,39 @@ export const getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationOp
  *
  * Purchase a phone-number for the account.
  */
-export function createPost20100401AccountsAccountSidIncomingPhoneNumbersJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+export function createPost20100401AccountsAccountSidIncomingPhoneNumbersJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
   args: InferRequestType<
@@ -4004,6 +3959,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
     args,
   ] as const
@@ -4078,10 +4034,11 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
   ] as const
@@ -4115,46 +4072,42 @@ export const getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
  *
  * Remove the assignment of an Add-on installation from the Number specified.
  */
-export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
   args: InferRequestType<
@@ -4163,6 +4116,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
     args,
   ] as const
@@ -4234,10 +4188,11 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
   ] as const
@@ -4271,45 +4226,41 @@ export const getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAss
  *
  * Assign an Add-on installation to the Number specified.
  */
-export function createPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+export function createPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-          'AssignedAddOns.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
   args: InferRequestType<
@@ -4318,6 +4269,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
     args,
   ] as const
@@ -4392,7 +4344,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
   args: InferRequestType<
@@ -4401,6 +4353,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
     args,
   ] as const
@@ -4475,7 +4428,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
   args: InferRequestType<
@@ -4484,6 +4437,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQue
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
     args,
   ] as const
@@ -4545,10 +4499,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
+  ] as const
 }
 
 /**
@@ -4576,46 +4534,39 @@ export const getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutat
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  */
-export function createPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+export function createPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
   args: InferRequestType<
@@ -4624,6 +4575,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQu
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
     args,
   ] as const
@@ -4685,10 +4637,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJso
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
+  ] as const
 }
 
 /**
@@ -4716,46 +4672,39 @@ export const getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMuta
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
  */
-export function createPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+export function createPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
   args: InferRequestType<
@@ -4764,6 +4713,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
     args,
   ] as const
@@ -4828,10 +4778,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJ
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
+  ] as const
 }
 
 /**
@@ -4859,53 +4813,46 @@ export const getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMu
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
-export function createPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+export function createPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
 }
 
 /**
@@ -4964,10 +4911,10 @@ export function createGet20100401AccountsAccountSidKeysSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -4992,46 +4939,42 @@ export const getPost20100401AccountsAccountSidKeysSidJsonMutationOptions = (
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
-export function createPost20100401AccountsAccountSidKeysSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidKeysSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidKeysSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -5056,51 +4999,47 @@ export const getDelete20100401AccountsAccountSidKeysSidJsonMutationOptions = (
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
-export function createDelete20100401AccountsAccountSidKeysSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidKeysSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidKeysSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
 }
 
 /**
@@ -5159,10 +5098,10 @@ export function createGet20100401AccountsAccountSidKeysJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidKeysJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
 }
 
 /**
@@ -5187,41 +5126,39 @@ export const getPost20100401AccountsAccountSidKeysJsonMutationOptions = (
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys.json
  */
-export function createPost20100401AccountsAccountSidKeysJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+export function createPost20100401AccountsAccountSidKeysJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidKeysJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
   args: InferRequestType<
@@ -5230,6 +5167,7 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQu
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
     args,
   ] as const
@@ -5295,10 +5233,11 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaSidJso
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
   ] as const
@@ -5332,46 +5271,40 @@ export const getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMu
  *
  * Delete the Media resource.
  */
-export function createDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
   args: InferRequestType<
@@ -5380,6 +5313,7 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQuery
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
     args,
   ] as const
@@ -5445,7 +5379,7 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
   args: InferRequestType<
@@ -5454,6 +5388,7 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
     args,
   ] as const
@@ -5521,10 +5456,11 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJ
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
   ] as const
@@ -5558,45 +5494,39 @@ export const getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMu
  *
  * Dequeue a member from a queue and have the member's call begin executing the TwiML document at that URL
  */
-export function createPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+export function createPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
-          ':CallSid.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
   args: InferRequestType<
@@ -5605,6 +5535,7 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
     args,
   ] as const
@@ -5670,14 +5601,14 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
 }
 
 /**
@@ -5740,10 +5671,10 @@ export function createGet20100401AccountsAccountSidMessagesJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
 }
 
 /**
@@ -5772,50 +5703,46 @@ export const getPost20100401AccountsAccountSidMessagesJsonMutationOptions = (
  *
  * Send a message
  */
-export function createPost20100401AccountsAccountSidMessagesJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+export function createPost20100401AccountsAccountSidMessagesJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidMessagesJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
 }
 
 /**
@@ -5878,10 +5805,10 @@ export function createGet20100401AccountsAccountSidMessagesSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -5910,49 +5837,42 @@ export const getPost20100401AccountsAccountSidMessagesSidJsonMutationOptions = (
  *
  * Update a Message resource (used to redact Message `body` text and to cancel not-yet-sent messages)
  */
-export function createPost20100401AccountsAccountSidMessagesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidMessagesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidMessagesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -5984,50 +5904,47 @@ export const getDelete20100401AccountsAccountSidMessagesSidJsonMutationOptions =
  *
  * Deletes a Message resource from your account
  */
-export function createDelete20100401AccountsAccountSidMessagesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidMessagesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidMessagesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json',
+  ] as const
 }
 
 /**
@@ -6059,53 +5976,46 @@ export const getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMuta
  *
  * Create Message Feedback to confirm a tracked user action was performed by the recipient of the associated Message
  */
-export function createPost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+export function createPost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Feedback.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
 }
 
 /**
@@ -6164,10 +6074,10 @@ export function createGet20100401AccountsAccountSidSigningKeysJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSigningKeysJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
 }
 
 /**
@@ -6196,50 +6106,51 @@ export const getPost20100401AccountsAccountSidSigningKeysJsonMutationOptions = (
  *
  * Create a new Signing Key for the account making the request.
  */
-export function createPost20100401AccountsAccountSidSigningKeysJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+export function createPost20100401AccountsAccountSidSigningKeysJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSigningKeysJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6302,14 +6213,14 @@ export function createGet20100401AccountsAccountSidNotificationsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
 }
 
 /**
@@ -6372,7 +6283,7 @@ export function createGet20100401AccountsAccountSidNotificationsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
   args: InferRequestType<
@@ -6381,6 +6292,7 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
     args,
   ] as const
@@ -6446,10 +6358,14 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+  ] as const
 }
 
 /**
@@ -6481,49 +6397,46 @@ export const getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationOp
  *
  * Updates the caller-id
  */
-export function createPost20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidOutgoingCallerIdsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+  ] as const
 }
 
 /**
@@ -6555,54 +6468,52 @@ export const getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutation
  *
  * Delete the caller-id specified from the account
  */
-export function createDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6665,10 +6576,10 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
 }
 
 /**
@@ -6696,46 +6607,39 @@ export const getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationOptio
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
  */
-export function createPost20100401AccountsAccountSidOutgoingCallerIdsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+export function createPost20100401AccountsAccountSidOutgoingCallerIdsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
   args: InferRequestType<
@@ -6744,6 +6648,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
     args,
   ] as const
@@ -6813,10 +6718,11 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
@@ -6850,48 +6756,45 @@ export const getPost20100401AccountsAccountSidConferencesConferenceSidParticipan
  *
  * Update the properties of the participant
  */
-export function createPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+export function createPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
@@ -6925,46 +6828,42 @@ export const getDelete20100401AccountsAccountSidConferencesConferenceSidParticip
  *
  * Kick a participant from a given conference
  */
-export function createDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+export function createDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
   args: InferRequestType<
@@ -6973,6 +6872,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
     args,
   ] as const
@@ -7042,10 +6942,11 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
   ] as const
@@ -7075,48 +6976,48 @@ export const getPost20100401AccountsAccountSidConferencesConferenceSidParticipan
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  */
-export function createPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+export function createPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-          'Participants.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json',
+  ] as const
 }
 
 /**
@@ -7148,49 +7049,46 @@ export const getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationOp
  *
  * create an instance of payments. This will start a new payments session
  */
-export function createPost20100401AccountsAccountSidCallsCallSidPaymentsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidPaymentsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json',
+  ] as const
 }
 
 /**
@@ -7222,53 +7120,46 @@ export const getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutatio
  *
  * update an instance of payments with different phases of payment flows.
  */
-export function createPost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
 }
 
 /**
@@ -7331,10 +7222,10 @@ export function createGet20100401AccountsAccountSidQueuesSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -7363,46 +7254,42 @@ export const getPost20100401AccountsAccountSidQueuesSidJsonMutationOptions = (
  *
  * Update the queue with the new parameters
  */
-export function createPost20100401AccountsAccountSidQueuesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidQueuesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidQueuesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -7431,54 +7318,47 @@ export const getDelete20100401AccountsAccountSidQueuesSidJsonMutationOptions = (
  *
  * Remove an empty queue
  */
-export function createDelete20100401AccountsAccountSidQueuesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidQueuesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidQueuesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
 }
 
 /**
@@ -7541,10 +7421,10 @@ export function createGet20100401AccountsAccountSidQueuesJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
 }
 
 /**
@@ -7573,46 +7453,46 @@ export const getPost20100401AccountsAccountSidQueuesJsonMutationOptions = (
  *
  * Create a queue
  */
-export function createPost20100401AccountsAccountSidQueuesJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+export function createPost20100401AccountsAccountSidQueuesJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidQueuesJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json',
+  ] as const
 }
 
 /**
@@ -7644,49 +7524,43 @@ export const getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMuta
  *
  * Create a Transcription
  */
-export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Transcriptions.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json',
   ] as const
@@ -7720,52 +7594,53 @@ export const getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonM
  *
  * Stop a Transcription using either the SID of the Transcription resource or the `name` used when creating the resource
  */
-export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[
-          ':Sid.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7828,10 +7703,10 @@ export function createGet20100401AccountsAccountSidRecordingsSidJson(
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
 }
 
 /**
@@ -7863,54 +7738,47 @@ export const getDelete20100401AccountsAccountSidRecordingsSidJsonMutationOptions
  *
  * Delete a recording from your account
  */
-export function createDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidRecordingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidRecordingsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
 }
 
 /**
@@ -7973,7 +7841,7 @@ export function createGet20100401AccountsAccountSidRecordingsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
   args: InferRequestType<
@@ -7982,6 +7850,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
     args,
   ] as const
@@ -8051,10 +7920,11 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
   ] as const
@@ -8088,46 +7958,42 @@ export const getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Delete a result and purge all associated Payloads
  */
-export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
   args: InferRequestType<
@@ -8136,6 +8002,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
     args,
   ] as const
@@ -8203,7 +8070,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
   args: InferRequestType<
@@ -8212,6 +8079,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
     args,
   ] as const
@@ -8286,10 +8154,11 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
   ] as const
@@ -8323,46 +8192,42 @@ export const getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
  *
  * Delete a payload from the result along with all associated Data
  */
-export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
   args: InferRequestType<
@@ -8371,6 +8236,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
     args,
   ] as const
@@ -8445,7 +8311,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
   args: InferRequestType<
@@ -8454,6 +8320,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
     args,
   ] as const
@@ -8528,7 +8395,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
@@ -8537,6 +8404,7 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
     args,
   ] as const
@@ -8602,10 +8470,11 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
   ] as const
@@ -8635,46 +8504,42 @@ export const getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscript
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
  */
-export function createDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
@@ -8683,6 +8548,7 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
     args,
   ] as const
@@ -8748,14 +8614,19 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8818,10 +8689,14 @@ export function createGet20100401AccountsAccountSidSMSShortCodesSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
+  ] as const
 }
 
 /**
@@ -8853,53 +8728,51 @@ export const getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationOption
  *
  * Update a short code with the following parameters
  */
-export function createPost20100401AccountsAccountSidSMSShortCodesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidSMSShortCodesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8962,14 +8835,19 @@ export function createGet20100401AccountsAccountSidSMSShortCodesJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -9028,10 +8906,10 @@ export function createGet20100401AccountsAccountSidSigningKeysSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -9059,49 +8937,42 @@ export const getPost20100401AccountsAccountSidSigningKeysSidJsonMutationOptions 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
-export function createPost20100401AccountsAccountSidSigningKeysSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidSigningKeysSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSigningKeysSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -9129,47 +9000,40 @@ export const getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationOption
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
-export function createDelete20100401AccountsAccountSidSigningKeysSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSigningKeysSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -9178,6 +9042,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
     args,
   ] as const
@@ -9249,10 +9114,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
   ] as const
@@ -9286,45 +9152,41 @@ export const getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCreden
  *
  * Create a new credential list mapping resource
  */
-export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'CredentialListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -9333,6 +9195,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
     args,
   ] as const
@@ -9407,10 +9270,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
   ] as const
@@ -9444,46 +9308,42 @@ export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
  *
  * Delete a credential list mapping from the requested domain
  */
-export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -9492,6 +9352,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
     args,
   ] as const
@@ -9563,10 +9424,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
   ] as const
@@ -9600,45 +9462,41 @@ export const getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAcce
  *
  * Create a new IP Access Control List mapping
  */
-export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'IpAccessControlListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -9647,6 +9505,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
     args,
   ] as const
@@ -9721,10 +9580,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
   ] as const
@@ -9758,46 +9618,42 @@ export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
  *
  * Delete an IP Access Control List mapping from the requested domain
  */
-export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -9806,6 +9662,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
     args,
   ] as const
@@ -9877,10 +9734,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
   ] as const
@@ -9914,45 +9772,41 @@ export const getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistratio
  *
  * Create a new credential list mapping resource
  */
-export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+export function createPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-          'CredentialListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -9961,6 +9815,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
     args,
   ] as const
@@ -10035,10 +9890,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
   ] as const
@@ -10072,46 +9928,42 @@ export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
  *
  * Delete a credential list mapping from the requested domain
  */
-export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
   args: InferRequestType<
@@ -10120,6 +9972,7 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
     args,
   ] as const
@@ -10191,10 +10044,11 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
   ] as const
@@ -10228,45 +10082,41 @@ export const getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSi
  *
  * Create a new credential resource.
  */
-export function createPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+export function createPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-          'Credentials.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
   args: InferRequestType<
@@ -10275,6 +10125,7 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
     args,
   ] as const
@@ -10349,10 +10200,11 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
@@ -10386,48 +10238,45 @@ export const getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSi
  *
  * Update a credential resource.
  */
-export function createPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
@@ -10461,53 +10310,54 @@ export const getDelete20100401AccountsAccountSidSIPCredentialListsCredentialList
  *
  * Delete a credential resource.
  */
-export function createDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10570,10 +10420,14 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+  ] as const
 }
 
 /**
@@ -10605,46 +10459,39 @@ export const getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationOpti
  *
  * Create a Credential List
  */
-export function createPost20100401AccountsAccountSidSIPCredentialListsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+export function createPost20100401AccountsAccountSidSIPCredentialListsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
   args: InferRequestType<
@@ -10653,6 +10500,7 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
     args,
   ] as const
@@ -10718,10 +10566,14 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -10753,49 +10605,46 @@ export const getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationO
  *
  * Update a Credential List
  */
-export function createPost20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidSIPCredentialListsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -10827,47 +10676,40 @@ export const getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutatio
  *
  * Delete a Credential List
  */
-export function createDelete20100401AccountsAccountSidSIPCredentialListsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPCredentialListsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -10876,6 +10718,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
     args,
   ] as const
@@ -10945,10 +10788,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
   ] as const
@@ -10982,45 +10826,41 @@ export const getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListM
  *
  * Create a CredentialListMapping resource for an account.
  */
-export function createPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+export function createPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'CredentialListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -11029,6 +10869,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
     args,
   ] as const
@@ -11103,10 +10944,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
   ] as const
@@ -11140,53 +10982,49 @@ export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
  *
  * Delete a CredentialListMapping resource from an account.
  */
-export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
 }
 
 /**
@@ -11249,10 +11087,10 @@ export function createGet20100401AccountsAccountSidSIPDomainsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
 }
 
 /**
@@ -11281,50 +11119,51 @@ export const getPost20100401AccountsAccountSidSIPDomainsJsonMutationOptions = (
  *
  * Create a new Domain
  */
-export function createPost20100401AccountsAccountSidSIPDomainsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+export function createPost20100401AccountsAccountSidSIPDomainsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPDomainsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -11387,10 +11226,10 @@ export function createGet20100401AccountsAccountSidSIPDomainsSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -11422,49 +11261,42 @@ export const getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions =
  *
  * Update the attributes of a domain
  */
-export function createPost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidSIPDomainsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -11496,47 +11328,40 @@ export const getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions
  *
  * Delete an instance of a Domain
  */
-export function createDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPDomainsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
   args: InferRequestType<
@@ -11545,6 +11370,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQuery
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
     args,
   ] as const
@@ -11610,10 +11436,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
+  ] as const
 }
 
 /**
@@ -11645,46 +11475,39 @@ export const getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutatio
  *
  * Create a new IpAccessControlList resource
  */
-export function createPost20100401AccountsAccountSidSIPIpAccessControlListsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+export function createPost20100401AccountsAccountSidSIPIpAccessControlListsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
   args: InferRequestType<
@@ -11693,6 +11516,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQu
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
     args,
   ] as const
@@ -11758,10 +11582,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsSidJso
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -11793,49 +11621,46 @@ export const getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMuta
  *
  * Rename an IpAccessControlList
  */
-export function createPost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -11867,47 +11692,40 @@ export const getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMu
  *
  * Delete an IpAccessControlList from the requested account
  */
-export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
@@ -11916,6 +11734,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
     args,
   ] as const
@@ -11990,10 +11809,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
   ] as const
@@ -12027,46 +11847,42 @@ export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
  *
  * Delete an IpAccessControlListMapping resource.
  */
-export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
@@ -12075,6 +11891,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
     args,
   ] as const
@@ -12146,10 +11963,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
   ] as const
@@ -12183,45 +12001,41 @@ export const getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControl
  *
  * Create a new IpAccessControlListMapping resource.
  */
-export function createPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+export function createPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'IpAccessControlListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
   args: InferRequestType<
@@ -12230,6 +12044,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
     args,
   ] as const
@@ -12304,10 +12119,11 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
   ] as const
@@ -12341,45 +12157,41 @@ export const getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessCon
  *
  * Create a new IpAddress resource.
  */
-export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ]['IpAddresses.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
   args: InferRequestType<
@@ -12388,6 +12200,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
     args,
   ] as const
@@ -12462,10 +12275,11 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
@@ -12499,48 +12313,45 @@ export const getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessCon
  *
  * Update an IpAddress resource.
  */
-export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
@@ -12574,49 +12385,49 @@ export const getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
  *
  * Delete an IpAddress resource.
  */
-export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json',
+  ] as const
 }
 
 /**
@@ -12648,49 +12459,46 @@ export const getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationOpti
  *
  * Create a Siprec
  */
-export function createPost20100401AccountsAccountSidCallsCallSidSiprecJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidSiprecJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json',
+  ] as const
 }
 
 /**
@@ -12722,49 +12530,46 @@ export const getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationO
  *
  * Stop a Siprec using either the SID of the Siprec resource or the `name` used when creating the resource
  */
-export function createPost20100401AccountsAccountSidCallsCallSidSiprecSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidSiprecSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json',
+  ] as const
 }
 
 /**
@@ -12796,49 +12601,46 @@ export const getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationOpt
  *
  * Create a Stream
  */
-export function createPost20100401AccountsAccountSidCallsCallSidStreamsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidStreamsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json',
+  ] as const
 }
 
 /**
@@ -12870,49 +12672,42 @@ export const getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutation
  *
  * Stop a Stream using either the SID of the Stream resource or the `name` used when creating the resource
  */
-export function createPost20100401AccountsAccountSidCallsCallSidStreamsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidStreamsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidTokensJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
 }
 
 /**
@@ -12941,50 +12736,51 @@ export const getPost20100401AccountsAccountSidTokensJsonMutationOptions = (
  *
  * Create a new token for ICE servers
  */
-export function createPost20100401AccountsAccountSidTokensJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+export function createPost20100401AccountsAccountSidTokensJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidTokensJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -13047,10 +12843,14 @@ export function createGet20100401AccountsAccountSidTranscriptionsSidJson(
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
+  ] as const
 }
 
 /**
@@ -13082,54 +12882,52 @@ export const getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationOpt
  *
  * Delete a transcription from the account used to make the request
  */
-export function createDelete20100401AccountsAccountSidTranscriptionsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidTranscriptionsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Transcriptions.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions.json',
+    args,
+  ] as const
 }
 
 /**
@@ -13192,14 +12990,14 @@ export function createGet20100401AccountsAccountSidTranscriptionsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
 }
 
 /**
@@ -13262,7 +13060,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
   args: InferRequestType<
@@ -13271,6 +13069,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
     args,
   ] as const
@@ -13332,14 +13131,19 @@ export function createGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json',
+    args,
+  ] as const
 }
 
 /**
@@ -13398,7 +13202,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsDailyJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
   args: InferRequestType<
@@ -13407,6 +13211,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
     args,
   ] as const
@@ -13468,7 +13273,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
   args: InferRequestType<
@@ -13477,6 +13282,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
     args,
   ] as const
@@ -13538,7 +13344,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
   args: InferRequestType<
@@ -13547,6 +13353,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
     args,
   ] as const
@@ -13608,14 +13415,19 @@ export function createGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json',
+    args,
+  ] as const
 }
 
 /**
@@ -13674,14 +13486,19 @@ export function createGet20100401AccountsAccountSidUsageRecordsTodayJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json',
+    args,
+  ] as const
 }
 
 /**
@@ -13740,7 +13557,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsYearlyJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
   args: InferRequestType<
@@ -13749,6 +13566,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
     args,
   ] as const
@@ -13810,14 +13628,19 @@ export function createGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -13880,10 +13703,14 @@ export function createGet20100401AccountsAccountSidUsageTriggersSidJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -13915,49 +13742,46 @@ export const getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationOption
  *
  * Update an instance of a usage trigger
  */
-export function createPost20100401AccountsAccountSidUsageTriggersSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+export function createPost20100401AccountsAccountSidUsageTriggersSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -13985,54 +13809,52 @@ export const getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationOpti
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
  */
-export function createDelete20100401AccountsAccountSidUsageTriggersSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidUsageTriggersSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', args] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -14095,10 +13917,10 @@ export function createGet20100401AccountsAccountSidUsageTriggersJson(
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
 }
 
 /**
@@ -14130,49 +13952,43 @@ export const getPost20100401AccountsAccountSidUsageTriggersJsonMutationOptions =
  *
  * Create a new UsageTrigger
  */
-export function createPost20100401AccountsAccountSidUsageTriggersJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+export function createPost20100401AccountsAccountSidUsageTriggersJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidUsageTriggersJsonMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json',
   ] as const
@@ -14206,48 +14022,45 @@ export const getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJso
  *
  * Create a new User Defined Message for the given Call SID.
  */
-export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
-          'UserDefinedMessages.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions.json',
   ] as const
@@ -14281,48 +14094,45 @@ export const getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubs
  *
  * Subscribe to User Defined Messages for a given Call SID.
  */
-export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+export function createPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
-          'UserDefinedMessageSubscriptions.json'
-        ].$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions/:Sid.json',
   ] as const
@@ -14356,39 +14166,35 @@ export const getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSu
  *
  * Delete a specific User Defined Message Subscription.
  */
-export function createDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJson(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+export function createDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJson(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+                >
               >
             >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<
-      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
+      | undefined,
+      Error,
+      InferRequestType<
         (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[
-          ':CallSid'
-        ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(args, clientOptions),
-      ),
-  }))
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationOptions(
+        opts?.client,
+      )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

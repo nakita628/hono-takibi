@@ -10,10 +10,10 @@ import { client } from '../clients/34-practical-storage-api'
 
 /**
  * Generates Svelte Query cache key for GET /files
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['files', '/files', args] as const
+  return ['files', 'GET', '/files', args] as const
 }
 
 /**
@@ -56,10 +56,10 @@ export function createGetFiles(
 
 /**
  * Generates Svelte Query mutation key for POST /files/upload
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMutationKey() {
-  return ['POST', '/files/upload'] as const
+  return ['files', 'POST', '/files/upload'] as const
 }
 
 /**
@@ -78,30 +78,33 @@ export const getPostFilesUploadMutationOptions = (clientOptions?: ClientRequestO
  *
  * ファイルアップロード
  */
-export function createPostFilesUpload(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.files.upload.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.files.upload.$post>) =>
-      parseResponse(client.files.upload.$post(args, clientOptions)),
-  }))
+export function createPostFilesUpload(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.files.upload.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostFilesUploadMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /files/upload/multipart/init
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartInitMutationKey() {
-  return ['POST', '/files/upload/multipart/init'] as const
+  return ['files', 'POST', '/files/upload/multipart/init'] as const
 }
 
 /**
@@ -124,32 +127,34 @@ export const getPostFilesUploadMultipartInitMutationOptions = (
  *
  * 大容量ファイルの分割アップロードを開始します
  */
-export function createPostFilesUploadMultipartInit(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.files.upload.multipart.init.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.files.upload.multipart.init.$post>) =>
-      parseResponse(client.files.upload.multipart.init.$post(args, clientOptions)),
-  }))
+export function createPostFilesUploadMultipartInit(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.files.upload.multipart.init.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostFilesUploadMultipartInitMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /files/upload/multipart/{uploadId}/part
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
-  return ['POST', '/files/upload/multipart/:uploadId/part'] as const
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/part'] as const
 }
 
 /**
@@ -171,35 +176,38 @@ export const getPostFilesUploadMultipartUploadIdPartMutationOptions = (
  *
  * パートアップロード
  */
-export function createPostFilesUploadMultipartUploadIdPart(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>>
+export function createPostFilesUploadMultipartUploadIdPart(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+            >
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
-    ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostFilesUploadMultipartUploadIdPartMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /files/upload/multipart/{uploadId}/complete
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
-  return ['POST', '/files/upload/multipart/:uploadId/complete'] as const
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/complete'] as const
 }
 
 /**
@@ -224,42 +232,40 @@ export const getPostFilesUploadMultipartUploadIdCompleteMutationOptions = (
  *
  * マルチパートアップロード完了
  */
-export function createPostFilesUploadMultipartUploadIdComplete(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+export function createPostFilesUploadMultipartUploadIdComplete(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
       >,
-    ) =>
-      parseResponse(client.files.upload.multipart[':uploadId'].complete.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostFilesUploadMultipartUploadIdCompleteMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['files', '/files/:fileId', args] as const
+  return ['files', 'GET', '/files/:fileId', args] as const
 }
 
 /**
@@ -309,10 +315,10 @@ export function createGetFilesFileId(
 
 /**
  * Generates Svelte Query mutation key for DELETE /files/{fileId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFilesFileIdMutationKey() {
-  return ['DELETE', '/files/:fileId'] as const
+  return ['files', 'DELETE', '/files/:fileId'] as const
 }
 
 /**
@@ -331,33 +337,36 @@ export const getDeleteFilesFileIdMutationOptions = (clientOptions?: ClientReques
  *
  * ファイル削除（ゴミ箱へ移動）
  */
-export function createDeleteFilesFileId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+export function createDeleteFilesFileId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
+          >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$delete']>) =>
-      parseResponse(client.files[':fileId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.files)[':fileId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteFilesFileIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for PATCH /files/{fileId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchFilesFileIdMutationKey() {
-  return ['PATCH', '/files/:fileId'] as const
+  return ['files', 'PATCH', '/files/:fileId'] as const
 }
 
 /**
@@ -376,34 +385,37 @@ export const getPatchFilesFileIdMutationOptions = (clientOptions?: ClientRequest
  *
  * ファイル情報更新
  */
-export function createPatchFilesFileId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['$patch']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$patch']>) =>
-      parseResponse(client.files[':fileId'].$patch(args, clientOptions)),
-  }))
+export function createPatchFilesFileId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client.files)[':fileId']['$patch']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPatchFilesFileIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/download
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return ['files', '/files/:fileId/download', args] as const
+  return ['files', 'GET', '/files/:fileId/download', args] as const
 }
 
 /**
@@ -458,12 +470,12 @@ export function createGetFilesFileIdDownload(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/download-url
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['files', '/files/:fileId/download-url', args] as const
+  return ['files', 'GET', '/files/:fileId/download-url', args] as const
 }
 
 /**
@@ -518,10 +530,10 @@ export function createGetFilesFileIdDownloadUrl(
 
 /**
  * Generates Svelte Query mutation key for POST /files/{fileId}/copy
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdCopyMutationKey() {
-  return ['POST', '/files/:fileId/copy'] as const
+  return ['files', 'POST', '/files/:fileId/copy'] as const
 }
 
 /**
@@ -540,32 +552,37 @@ export const getPostFilesFileIdCopyMutationOptions = (clientOptions?: ClientRequ
  *
  * ファイルコピー
  */
-export function createPostFilesFileIdCopy(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>) =>
-      parseResponse(client.files[':fileId'].copy.$post(args, clientOptions)),
-  }))
+export function createPostFilesFileIdCopy(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
+          >
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostFilesFileIdCopyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /files/{fileId}/move
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdMoveMutationKey() {
-  return ['POST', '/files/:fileId/move'] as const
+  return ['files', 'POST', '/files/:fileId/move'] as const
 }
 
 /**
@@ -584,34 +601,39 @@ export const getPostFilesFileIdMoveMutationOptions = (clientOptions?: ClientRequ
  *
  * ファイル移動
  */
-export function createPostFilesFileIdMove(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>) =>
-      parseResponse(client.files[':fileId'].move.$post(args, clientOptions)),
-  }))
+export function createPostFilesFileIdMove(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
+          >
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostFilesFileIdMoveMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/thumbnail
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return ['files', '/files/:fileId/thumbnail', args] as const
+  return ['files', 'GET', '/files/:fileId/thumbnail', args] as const
 }
 
 /**
@@ -666,10 +688,10 @@ export function createGetFilesFileIdThumbnail(
 
 /**
  * Generates Svelte Query mutation key for POST /folders
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFoldersMutationKey() {
-  return ['POST', '/folders'] as const
+  return ['folders', 'POST', '/folders'] as const
 }
 
 /**
@@ -688,30 +710,31 @@ export const getPostFoldersMutationOptions = (clientOptions?: ClientRequestOptio
  *
  * フォルダ作成
  */
-export function createPostFolders(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.folders.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.folders.$post>) =>
-      parseResponse(client.folders.$post(args, clientOptions)),
-  }))
+export function createPostFolders(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.folders.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostFoldersMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /folders/{folderId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return ['folders', '/folders/:folderId', args] as const
+  return ['folders', 'GET', '/folders/:folderId', args] as const
 }
 
 /**
@@ -764,10 +787,10 @@ export function createGetFoldersFolderId(
 
 /**
  * Generates Svelte Query mutation key for DELETE /folders/{folderId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFoldersFolderIdMutationKey() {
-  return ['DELETE', '/folders/:folderId'] as const
+  return ['folders', 'DELETE', '/folders/:folderId'] as const
 }
 
 /**
@@ -786,33 +809,38 @@ export const getDeleteFoldersFolderIdMutationOptions = (clientOptions?: ClientRe
  *
  * フォルダ削除
  */
-export function createDeleteFoldersFolderId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>>
+export function createDeleteFoldersFolderId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>
+            >
+          >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.folders)[':folderId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>) =>
-      parseResponse(client.folders[':folderId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.folders)[':folderId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteFoldersFolderIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for PATCH /folders/{folderId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchFoldersFolderIdMutationKey() {
-  return ['PATCH', '/folders/:folderId'] as const
+  return ['folders', 'PATCH', '/folders/:folderId'] as const
 }
 
 /**
@@ -831,34 +859,37 @@ export const getPatchFoldersFolderIdMutationOptions = (clientOptions?: ClientReq
  *
  * フォルダ情報更新
  */
-export function createPatchFoldersFolderId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.folders)[':folderId']['$patch']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) =>
-      parseResponse(client.folders[':folderId'].$patch(args, clientOptions)),
-  }))
+export function createPatchFoldersFolderId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client.folders)[':folderId']['$patch']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPatchFoldersFolderIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/share
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return ['files', '/files/:fileId/share', args] as const
+  return ['files', 'GET', '/files/:fileId/share', args] as const
 }
 
 /**
@@ -913,10 +944,10 @@ export function createGetFilesFileIdShare(
 
 /**
  * Generates Svelte Query mutation key for POST /files/{fileId}/share
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdShareMutationKey() {
-  return ['POST', '/files/:fileId/share'] as const
+  return ['files', 'POST', '/files/:fileId/share'] as const
 }
 
 /**
@@ -935,35 +966,37 @@ export const getPostFilesFileIdShareMutationOptions = (clientOptions?: ClientReq
  *
  * ファイル共有
  */
-export function createPostFilesFileIdShare(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+export function createPostFilesFileIdShare(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
-    ) => parseResponse(client.files[':fileId'].share.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostFilesFileIdShareMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /files/{fileId}/share
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFilesFileIdShareMutationKey() {
-  return ['DELETE', '/files/:fileId/share'] as const
+  return ['files', 'DELETE', '/files/:fileId/share'] as const
 }
 
 /**
@@ -983,36 +1016,38 @@ export const getDeleteFilesFileIdShareMutationOptions = (clientOptions?: ClientR
  *
  * 共有解除
  */
-export function createDeleteFilesFileIdShare(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+export function createDeleteFilesFileIdShare(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
+            >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
-    ) => parseResponse(client.files[':fileId'].share.$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteFilesFileIdShareMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /files/{fileId}/share/link
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdShareLinkMutationKey() {
-  return ['POST', '/files/:fileId/share/link'] as const
+  return ['files', 'POST', '/files/:fileId/share/link'] as const
 }
 
 /**
@@ -1034,37 +1069,39 @@ export const getPostFilesFileIdShareLinkMutationOptions = (
  *
  * 共有リンク作成
  */
-export function createPostFilesFileIdShareLink(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+export function createPostFilesFileIdShareLink(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-    ) => parseResponse(client.files[':fileId'].share.link.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostFilesFileIdShareLinkMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/versions
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return ['files', '/files/:fileId/versions', args] as const
+  return ['files', 'GET', '/files/:fileId/versions', args] as const
 }
 
 /**
@@ -1119,10 +1156,10 @@ export function createGetFilesFileIdVersions(
 
 /**
  * Generates Svelte Query mutation key for POST /files/{fileId}/versions/{versionId}/restore
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
-  return ['POST', '/files/:fileId/versions/:versionId/restore'] as const
+  return ['files', 'POST', '/files/:fileId/versions/:versionId/restore'] as const
 }
 
 /**
@@ -1149,44 +1186,42 @@ export const getPostFilesFileIdVersionsVersionIdRestoreMutationOptions = (
  *
  * バージョン復元
  */
-export function createPostFilesFileIdVersionsVersionIdRestore(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+export function createPostFilesFileIdVersionsVersionIdRestore(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
       >,
-    ) =>
-      parseResponse(
-        client.files[':fileId'].versions[':versionId'].restore.$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostFilesFileIdVersionsVersionIdRestoreMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /trash
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['trash', '/trash', args] as const
+  return ['trash', 'GET', '/trash', args] as const
 }
 
 /**
@@ -1229,10 +1264,10 @@ export function createGetTrash(
 
 /**
  * Generates Svelte Query mutation key for DELETE /trash
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTrashMutationKey() {
-  return ['DELETE', '/trash'] as const
+  return ['trash', 'DELETE', '/trash'] as const
 }
 
 /**
@@ -1250,28 +1285,30 @@ export const getDeleteTrashMutationOptions = (clientOptions?: ClientRequestOptio
  *
  * ゴミ箱を空にする
  */
-export function createDeleteTrash(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>>
-    | undefined,
-    Error,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
-  }))
+export function createDeleteTrash(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>>
+      | undefined,
+      Error,
+      void
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteTrashMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /trash/{fileId}/restore
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTrashFileIdRestoreMutationKey() {
-  return ['POST', '/trash/:fileId/restore'] as const
+  return ['trash', 'POST', '/trash/:fileId/restore'] as const
 }
 
 /**
@@ -1291,35 +1328,37 @@ export const getPostTrashFileIdRestoreMutationOptions = (clientOptions?: ClientR
  *
  * ゴミ箱から復元
  */
-export function createPostTrashFileIdRestore(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+export function createPostTrashFileIdRestore(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
-    ) => parseResponse(client.trash[':fileId'].restore.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostTrashFileIdRestoreMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /storage/usage
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStorageUsageQueryKey() {
-  return ['storage', '/storage/usage'] as const
+  return ['storage', 'GET', '/storage/usage'] as const
 }
 
 /**

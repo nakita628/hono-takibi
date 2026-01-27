@@ -10,10 +10,10 @@ import { client } from '../clients/algolia'
 
 /**
  * Generates Svelte Query cache key for GET /{path}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return [':path', '/:path', args] as const
+  return [':path', 'GET', '/:path', args] as const
 }
 
 /**
@@ -60,10 +60,10 @@ export function createGetPath(
 
 /**
  * Generates Svelte Query mutation key for PUT /{path}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPathMutationKey() {
-  return ['PUT', '/:path'] as const
+  return [':path', 'PUT', '/:path'] as const
 }
 
 /**
@@ -84,30 +84,31 @@ export const getPutPathMutationOptions = (clientOptions?: ClientRequestOptions) 
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function createPutPath(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
-    >,
-    Error,
-    InferRequestType<(typeof client)[':path']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
-      parseResponse(client[':path'].$put(args, clientOptions)),
-  }))
+export function createPutPath(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
+      >,
+      Error,
+      InferRequestType<(typeof client)[':path']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutPathMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /{path}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPathMutationKey() {
-  return ['POST', '/:path'] as const
+  return [':path', 'POST', '/:path'] as const
 }
 
 /**
@@ -128,30 +129,31 @@ export const getPostPathMutationOptions = (clientOptions?: ClientRequestOptions)
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function createPostPath(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
-    >,
-    Error,
-    InferRequestType<(typeof client)[':path']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
-      parseResponse(client[':path'].$post(args, clientOptions)),
-  }))
+export function createPostPath(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
+      >,
+      Error,
+      InferRequestType<(typeof client)[':path']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostPathMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /{path}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePathMutationKey() {
-  return ['DELETE', '/:path'] as const
+  return [':path', 'DELETE', '/:path'] as const
 }
 
 /**
@@ -172,30 +174,31 @@ export const getDeletePathMutationOptions = (clientOptions?: ClientRequestOption
  *
  * This method lets you send requests to the Algolia REST API.
  */
-export function createDeletePath(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
-    >,
-    Error,
-    InferRequestType<(typeof client)[':path']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
-      parseResponse(client[':path'].$delete(args, clientOptions)),
-  }))
+export function createDeletePath(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
+      >,
+      Error,
+      InferRequestType<(typeof client)[':path']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeletePathMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/query
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameQueryMutationKey() {
-  return ['POST', '/1/indexes/:indexName/query'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/query'] as const
 }
 
 /**
@@ -222,35 +225,36 @@ export const getPost1IndexesIndexNameQueryMutationOptions = (
  * This method lets you retrieve up to 1,000 hits.
  * If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting.
  */
-export function createPost1IndexesIndexNameQuery(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
+export function createPost1IndexesIndexNameQuery(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameQueryMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/* /queries
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesQueriesMutationKey() {
-  return ['POST', '/1/indexes/*/queries'] as const
+  return ['1', 'POST', '/1/indexes/*/queries'] as const
 }
 
 /**
@@ -279,35 +283,37 @@ export const getPost1IndexesQueriesMutationOptions = (clientOptions?: ClientRequ
  *
  * Use the helper `searchForHits` or `searchForFacets` to get the results in a more convenient format, if you already know the return type you want.
  */
-export function createPost1IndexesQueries(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
+export function createPost1IndexesQueries(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
-    ) => parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1IndexesQueriesMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/facets/{facetName}/query
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey() {
-  return ['POST', '/1/indexes/:indexName/facets/:facetName/query'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/facets/:facetName/query'] as const
 }
 
 /**
@@ -340,46 +346,42 @@ export const getPost1IndexesIndexNameFacetsFacetNameQueryMutationOptions = (
  *   You can adjust this with the `sortFacetValueBy` parameter.
  * - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**.
  */
-export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+export function createPost1IndexesIndexNameFacetsFacetNameQuery(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameFacetsFacetNameQueryMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/browse
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameBrowseMutationKey() {
-  return ['POST', '/1/indexes/:indexName/browse'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/browse'] as const
 }
 
 /**
@@ -427,35 +429,36 @@ export const getPost1IndexesIndexNameBrowseMutationOptions = (
  *
  * If you send these parameters with your browse requests, they'll be ignored.
  */
-export function createPost1IndexesIndexNameBrowse(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>>
+export function createPost1IndexesIndexNameBrowse(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameBrowseMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameMutationKey() {
-  return ['POST', '/1/indexes/:indexName'] as const
+  return ['1', 'POST', '/1/indexes/:indexName'] as const
 }
 
 /**
@@ -487,35 +490,37 @@ export const getPost1IndexesIndexNameMutationOptions = (clientOptions?: ClientRe
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexName(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
+export function createPost1IndexesIndexName(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1IndexesIndexNameMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /1/indexes/{indexName}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete1IndexesIndexNameMutationKey() {
-  return ['DELETE', '/1/indexes/:indexName'] as const
+  return ['1', 'DELETE', '/1/indexes/:indexName'] as const
 }
 
 /**
@@ -545,37 +550,39 @@ export const getDelete1IndexesIndexNameMutationOptions = (
  * - If the index you want to delete is a replica index, you must first unlink it from its primary index before you can delete it.
  *   For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas).
  */
-export function createDelete1IndexesIndexName(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
+export function createDelete1IndexesIndexName(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDelete1IndexesIndexNameMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/{objectID}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['1', '/1/indexes/:indexName/:objectID', args] as const
+  return ['1', 'GET', '/1/indexes/:indexName/:objectID', args] as const
 }
 
 /**
@@ -634,10 +641,10 @@ export function createGet1IndexesIndexNameObjectID(
 
 /**
  * Generates Svelte Query mutation key for PUT /1/indexes/{indexName}/{objectID}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPut1IndexesIndexNameObjectIDMutationKey() {
-  return ['PUT', '/1/indexes/:indexName/:objectID'] as const
+  return ['1', 'PUT', '/1/indexes/:indexName/:objectID'] as const
 }
 
 /**
@@ -666,35 +673,36 @@ export const getPut1IndexesIndexNameObjectIDMutationOptions = (
  * To update _some_ attributes of an existing record, use the [`partial` operation](https://www.algolia.com/doc/rest-api/search/partial-update-object) instead.
  * To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  */
-export function createPut1IndexesIndexNameObjectID(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>>
+export function createPut1IndexesIndexNameObjectID(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
-    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPut1IndexesIndexNameObjectIDMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /1/indexes/{indexName}/{objectID}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete1IndexesIndexNameObjectIDMutationKey() {
-  return ['DELETE', '/1/indexes/:indexName/:objectID'] as const
+  return ['1', 'DELETE', '/1/indexes/:indexName/:objectID'] as const
 }
 
 /**
@@ -721,35 +729,38 @@ export const getDelete1IndexesIndexNameObjectIDMutationOptions = (
  * To delete more than one record, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  * To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by).
  */
-export function createDelete1IndexesIndexNameObjectID(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>>
+export function createDelete1IndexesIndexNameObjectID(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+            >
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
-    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete1IndexesIndexNameObjectIDMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/deleteByQuery
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameDeleteByQueryMutationKey() {
-  return ['POST', '/1/indexes/:indexName/deleteByQuery'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/deleteByQuery'] as const
 }
 
 /**
@@ -780,39 +791,38 @@ export const getPost1IndexesIndexNameDeleteByQueryMutationOptions = (
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexNameDeleteByQuery(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+export function createPost1IndexesIndexNameDeleteByQuery(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
       >,
-    ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameDeleteByQueryMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/clear
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameClearMutationKey() {
-  return ['POST', '/1/indexes/:indexName/clear'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/clear'] as const
 }
 
 /**
@@ -837,35 +847,36 @@ export const getPost1IndexesIndexNameClearMutationOptions = (
  * Deletes only the records from an index while keeping settings, synonyms, and rules.
  * This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexNameClear(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
+export function createPost1IndexesIndexNameClear(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameClearMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/{objectID}/partial
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameObjectIDPartialMutationKey() {
-  return ['POST', '/1/indexes/:indexName/:objectID/partial'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/:objectID/partial'] as const
 }
 
 /**
@@ -920,44 +931,42 @@ export const getPost1IndexesIndexNameObjectIDPartialMutationOptions = (
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexNameObjectIDPartial(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+export function createPost1IndexesIndexNameObjectIDPartial(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
       >,
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'][':objectID'].partial.$post(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameObjectIDPartialMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameBatchMutationKey() {
-  return ['POST', '/1/indexes/:indexName/batch'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/batch'] as const
 }
 
 /**
@@ -988,35 +997,36 @@ export const getPost1IndexesIndexNameBatchMutationOptions = (
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexNameBatch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
+export function createPost1IndexesIndexNameBatch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameBatchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/* /batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesBatchMutationKey() {
-  return ['POST', '/1/indexes/*/batch'] as const
+  return ['1', 'POST', '/1/indexes/*/batch'] as const
 }
 
 /**
@@ -1043,35 +1053,37 @@ export const getPost1IndexesBatchMutationOptions = (clientOptions?: ClientReques
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesBatch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
+export function createPost1IndexesBatch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
-    ) => parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1IndexesBatchMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/* /objects
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesObjectsMutationKey() {
-  return ['POST', '/1/indexes/*/objects'] as const
+  return ['1', 'POST', '/1/indexes/*/objects'] as const
 }
 
 /**
@@ -1095,37 +1107,39 @@ export const getPost1IndexesObjectsMutationOptions = (clientOptions?: ClientRequ
  *
  * Records are returned in the same order as the requests.
  */
-export function createPost1IndexesObjects(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
+export function createPost1IndexesObjects(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
-    ) => parseResponse(client['1'].indexes['*'].objects.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1IndexesObjectsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/settings
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['1', '/1/indexes/:indexName/settings', args] as const
+  return ['1', 'GET', '/1/indexes/:indexName/settings', args] as const
 }
 
 /**
@@ -1182,10 +1196,10 @@ export function createGet1IndexesIndexNameSettings(
 
 /**
  * Generates Svelte Query mutation key for PUT /1/indexes/{indexName}/settings
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPut1IndexesIndexNameSettingsMutationKey() {
-  return ['PUT', '/1/indexes/:indexName/settings'] as const
+  return ['1', 'PUT', '/1/indexes/:indexName/settings'] as const
 }
 
 /**
@@ -1214,39 +1228,40 @@ export const getPut1IndexesIndexNameSettingsMutationOptions = (
  *
  * For best performance, update the index settings before you add new records to your index.
  */
-export function createPut1IndexesIndexNameSettings(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>>
+export function createPut1IndexesIndexNameSettings(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPut1IndexesIndexNameSettingsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['1', '/1/indexes/:indexName/synonyms/:objectID', args] as const
+  return ['1', 'GET', '/1/indexes/:indexName/synonyms/:objectID', args] as const
 }
 
 /**
@@ -1311,10 +1326,10 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
 
 /**
  * Generates Svelte Query mutation key for PUT /1/indexes/{indexName}/synonyms/{objectID}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPut1IndexesIndexNameSynonymsObjectIDMutationKey() {
-  return ['PUT', '/1/indexes/:indexName/synonyms/:objectID'] as const
+  return ['1', 'PUT', '/1/indexes/:indexName/synonyms/:objectID'] as const
 }
 
 /**
@@ -1345,44 +1360,42 @@ export const getPut1IndexesIndexNameSynonymsObjectIDMutationOptions = (
  * Otherwise, the existing synonym is replaced.
  * To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms).
  */
-export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+export function createPut1IndexesIndexNameSynonymsObjectID(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
       >,
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPut1IndexesIndexNameSynonymsObjectIDMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /1/indexes/{indexName}/synonyms/{objectID}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete1IndexesIndexNameSynonymsObjectIDMutationKey() {
-  return ['DELETE', '/1/indexes/:indexName/synonyms/:objectID'] as const
+  return ['1', 'DELETE', '/1/indexes/:indexName/synonyms/:objectID'] as const
 }
 
 /**
@@ -1412,46 +1425,42 @@ export const getDelete1IndexesIndexNameSynonymsObjectIDMutationOptions = (
  * Deletes a synonym by its ID.
  * To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms).
  */
-export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+export function createDelete1IndexesIndexNameSynonymsObjectID(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<
-      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-    >
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
       >,
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete1IndexesIndexNameSynonymsObjectIDMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/synonyms/batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameSynonymsBatchMutationKey() {
-  return ['POST', '/1/indexes/:indexName/synonyms/batch'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/synonyms/batch'] as const
 }
 
 /**
@@ -1480,39 +1489,40 @@ export const getPost1IndexesIndexNameSynonymsBatchMutationOptions = (
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexNameSynonymsBatch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
+export function createPost1IndexesIndexNameSynonymsBatch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+              >
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
       >,
-    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameSynonymsBatchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/synonyms/clear
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameSynonymsClearMutationKey() {
-  return ['POST', '/1/indexes/:indexName/synonyms/clear'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/synonyms/clear'] as const
 }
 
 /**
@@ -1538,39 +1548,40 @@ export const getPost1IndexesIndexNameSynonymsClearMutationOptions = (
  *
  * Deletes all synonyms from the index.
  */
-export function createPost1IndexesIndexNameSynonymsClear(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
+export function createPost1IndexesIndexNameSynonymsClear(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+              >
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
       >,
-    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameSynonymsClearMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/synonyms/search
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameSynonymsSearchMutationKey() {
-  return ['POST', '/1/indexes/:indexName/synonyms/search'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/synonyms/search'] as const
 }
 
 /**
@@ -1596,40 +1607,40 @@ export const getPost1IndexesIndexNameSynonymsSearchMutationOptions = (
  *
  * Searches for synonyms in your index.
  */
-export function createPost1IndexesIndexNameSynonymsSearch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
+export function createPost1IndexesIndexNameSynonymsSearch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+              >
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
       >,
-    ) =>
-      parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameSynonymsSearchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/keys
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGet1KeysQueryKey() {
-  return ['1', '/1/keys'] as const
+  return ['1', 'GET', '/1/keys'] as const
 }
 
 /**
@@ -1675,10 +1686,10 @@ export function createGet1Keys(
 
 /**
  * Generates Svelte Query mutation key for POST /1/keys
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1KeysMutationKey() {
-  return ['POST', '/1/keys'] as const
+  return ['1', 'POST', '/1/keys'] as const
 }
 
 /**
@@ -1699,32 +1710,33 @@ export const getPost1KeysMutationOptions = (clientOptions?: ClientRequestOptions
  *
  * Creates a new API key with specific permissions and restrictions.
  */
-export function createPost1Keys(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['keys']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
-      parseResponse(client['1'].keys.$post(args, clientOptions)),
-  }))
+export function createPost1Keys(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['keys']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1KeysMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/keys/{key}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1KeysKeyQueryKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['1', '/1/keys/:key', args] as const
+  return ['1', 'GET', '/1/keys/:key', args] as const
 }
 
 /**
@@ -1780,10 +1792,10 @@ export function createGet1KeysKey(
 
 /**
  * Generates Svelte Query mutation key for PUT /1/keys/{key}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPut1KeysKeyMutationKey() {
-  return ['PUT', '/1/keys/:key'] as const
+  return ['1', 'PUT', '/1/keys/:key'] as const
 }
 
 /**
@@ -1806,32 +1818,33 @@ export const getPut1KeysKeyMutationOptions = (clientOptions?: ClientRequestOptio
  *
  * Any unspecified attribute resets that attribute to its default value.
  */
-export function createPut1KeysKey(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
-      parseResponse(client['1'].keys[':key'].$put(args, clientOptions)),
-  }))
+export function createPut1KeysKey(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPut1KeysKeyMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /1/keys/{key}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete1KeysKeyMutationKey() {
-  return ['DELETE', '/1/keys/:key'] as const
+  return ['1', 'DELETE', '/1/keys/:key'] as const
 }
 
 /**
@@ -1852,32 +1865,35 @@ export const getDelete1KeysKeyMutationOptions = (clientOptions?: ClientRequestOp
  *
  * Deletes the API key.
  */
-export function createDelete1KeysKey(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
-      parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
-  }))
+export function createDelete1KeysKey(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDelete1KeysKeyMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/keys/{key}/restore
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1KeysKeyRestoreMutationKey() {
-  return ['POST', '/1/keys/:key/restore'] as const
+  return ['1', 'POST', '/1/keys/:key/restore'] as const
 }
 
 /**
@@ -1904,39 +1920,41 @@ export const getPost1KeysKeyRestoreMutationOptions = (clientOptions?: ClientRequ
  * Algolia stores up to 1,000 API keys per application.
  * If you create more, the oldest API keys are deleted and can't be restored.
  */
-export function createPost1KeysKeyRestore(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
+export function createPost1KeysKeyRestore(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
-    ) => parseResponse(client['1'].keys[':key'].restore.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1KeysKeyRestoreMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['1', '/1/indexes/:indexName/rules/:objectID', args] as const
+  return ['1', 'GET', '/1/indexes/:indexName/rules/:objectID', args] as const
 }
 
 /**
@@ -2002,10 +2020,10 @@ export function createGet1IndexesIndexNameRulesObjectID(
 
 /**
  * Generates Svelte Query mutation key for PUT /1/indexes/{indexName}/rules/{objectID}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPut1IndexesIndexNameRulesObjectIDMutationKey() {
-  return ['PUT', '/1/indexes/:indexName/rules/:objectID'] as const
+  return ['1', 'PUT', '/1/indexes/:indexName/rules/:objectID'] as const
 }
 
 /**
@@ -2035,40 +2053,40 @@ export const getPut1IndexesIndexNameRulesObjectIDMutationOptions = (
  *
  * To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules).
  */
-export function createPut1IndexesIndexNameRulesObjectID(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
+export function createPut1IndexesIndexNameRulesObjectID(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+              >
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
       >,
-    ) =>
-      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPut1IndexesIndexNameRulesObjectIDMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /1/indexes/{indexName}/rules/{objectID}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete1IndexesIndexNameRulesObjectIDMutationKey() {
-  return ['DELETE', '/1/indexes/:indexName/rules/:objectID'] as const
+  return ['1', 'DELETE', '/1/indexes/:indexName/rules/:objectID'] as const
 }
 
 /**
@@ -2099,44 +2117,42 @@ export const getDelete1IndexesIndexNameRulesObjectIDMutationOptions = (
  * To find the object ID for rules,
  * use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules).
  */
-export function createDelete1IndexesIndexNameRulesObjectID(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<
-              (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+export function createDelete1IndexesIndexNameRulesObjectID(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+              >
             >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
       >,
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, clientOptions),
-      ),
-  }))
+      Error,
+      InferRequestType<
+        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+      >
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete1IndexesIndexNameRulesObjectIDMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/rules/batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameRulesBatchMutationKey() {
-  return ['POST', '/1/indexes/:indexName/rules/batch'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/rules/batch'] as const
 }
 
 /**
@@ -2167,39 +2183,38 @@ export const getPost1IndexesIndexNameRulesBatchMutationOptions = (
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexNameRulesBatch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+export function createPost1IndexesIndexNameRulesBatch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
       >,
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameRulesBatchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/rules/clear
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameRulesClearMutationKey() {
-  return ['POST', '/1/indexes/:indexName/rules/clear'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/rules/clear'] as const
 }
 
 /**
@@ -2225,39 +2240,38 @@ export const getPost1IndexesIndexNameRulesClearMutationOptions = (
  *
  * Deletes all rules from the index.
  */
-export function createPost1IndexesIndexNameRulesClear(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+export function createPost1IndexesIndexNameRulesClear(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
       >,
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameRulesClearMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/rules/search
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameRulesSearchMutationKey() {
-  return ['POST', '/1/indexes/:indexName/rules/search'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/rules/search'] as const
 }
 
 /**
@@ -2283,39 +2297,38 @@ export const getPost1IndexesIndexNameRulesSearchMutationOptions = (
  *
  * Searches for rules in your index.
  */
-export function createPost1IndexesIndexNameRulesSearch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+export function createPost1IndexesIndexNameRulesSearch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
       >,
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameRulesSearchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/dictionaries/{dictionaryName}/batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1DictionariesDictionaryNameBatchMutationKey() {
-  return ['POST', '/1/dictionaries/:dictionaryName/batch'] as const
+  return ['1', 'POST', '/1/dictionaries/:dictionaryName/batch'] as const
 }
 
 /**
@@ -2341,40 +2354,38 @@ export const getPost1DictionariesDictionaryNameBatchMutationOptions = (
  *
  * Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries.
  */
-export function createPost1DictionariesDictionaryNameBatch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+export function createPost1DictionariesDictionaryNameBatch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
       >,
-    ) =>
-      parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1DictionariesDictionaryNameBatchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/dictionaries/{dictionaryName}/search
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1DictionariesDictionaryNameSearchMutationKey() {
-  return ['POST', '/1/dictionaries/:dictionaryName/search'] as const
+  return ['1', 'POST', '/1/dictionaries/:dictionaryName/search'] as const
 }
 
 /**
@@ -2400,40 +2411,38 @@ export const getPost1DictionariesDictionaryNameSearchMutationOptions = (
  *
  * Searches for standard and custom dictionary entries.
  */
-export function createPost1DictionariesDictionaryNameSearch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+export function createPost1DictionariesDictionaryNameSearch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
       >,
-    ) =>
-      parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1DictionariesDictionaryNameSearchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/dictionaries/* /settings
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGet1DictionariesSettingsQueryKey() {
-  return ['1', '/1/dictionaries/*/settings'] as const
+  return ['1', 'GET', '/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -2485,10 +2494,10 @@ export function createGet1DictionariesSettings(
 
 /**
  * Generates Svelte Query mutation key for PUT /1/dictionaries/* /settings
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPut1DictionariesSettingsMutationKey() {
-  return ['PUT', '/1/dictionaries/*/settings'] as const
+  return ['1', 'PUT', '/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -2512,35 +2521,37 @@ export const getPut1DictionariesSettingsMutationOptions = (
  *
  * Turns standard stop word dictionary entries on or off for a given language.
  */
-export function createPut1DictionariesSettings(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
+export function createPut1DictionariesSettings(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
-    ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPut1DictionariesSettingsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/dictionaries/* /languages
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGet1DictionariesLanguagesQueryKey() {
-  return ['1', '/1/dictionaries/*/languages'] as const
+  return ['1', 'GET', '/1/dictionaries/*/languages'] as const
 }
 
 /**
@@ -2592,12 +2603,12 @@ export function createGet1DictionariesLanguages(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1ClustersMappingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['1', '/1/clusters/mapping', args] as const
+  return ['1', 'GET', '/1/clusters/mapping', args] as const
 }
 
 /**
@@ -2657,10 +2668,10 @@ export function createGet1ClustersMapping(
 
 /**
  * Generates Svelte Query mutation key for POST /1/clusters/mapping
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1ClustersMappingMutationKey() {
-  return ['POST', '/1/clusters/mapping'] as const
+  return ['1', 'POST', '/1/clusters/mapping'] as const
 }
 
 /**
@@ -2684,35 +2695,37 @@ export const getPost1ClustersMappingMutationOptions = (clientOptions?: ClientReq
  *
  * The time it takes to move a user is proportional to the amount of data linked to the user ID.
  */
-export function createPost1ClustersMapping(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
+export function createPost1ClustersMapping(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
-    ) => parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1ClustersMappingMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/clusters/mapping/batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1ClustersMappingBatchMutationKey() {
-  return ['POST', '/1/clusters/mapping/batch'] as const
+  return ['1', 'POST', '/1/clusters/mapping/batch'] as const
 }
 
 /**
@@ -2738,35 +2751,37 @@ export const getPost1ClustersMappingBatchMutationOptions = (
  *
  * **You can't move users with this operation**.
  */
-export function createPost1ClustersMappingBatch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
+export function createPost1ClustersMappingBatch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
-    ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPost1ClustersMappingBatchMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/top
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGet1ClustersMappingTopQueryKey() {
-  return ['1', '/1/clusters/mapping/top'] as const
+  return ['1', 'GET', '/1/clusters/mapping/top'] as const
 }
 
 /**
@@ -2821,12 +2836,12 @@ export function createGet1ClustersMappingTop(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/{userID}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1ClustersMappingUserIDQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['1', '/1/clusters/mapping/:userID', args] as const
+  return ['1', 'GET', '/1/clusters/mapping/:userID', args] as const
 }
 
 /**
@@ -2886,10 +2901,10 @@ export function createGet1ClustersMappingUserID(
 
 /**
  * Generates Svelte Query mutation key for DELETE /1/clusters/mapping/{userID}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete1ClustersMappingUserIDMutationKey() {
-  return ['DELETE', '/1/clusters/mapping/:userID'] as const
+  return ['1', 'DELETE', '/1/clusters/mapping/:userID'] as const
 }
 
 /**
@@ -2913,35 +2928,36 @@ export const getDelete1ClustersMappingUserIDMutationOptions = (
  *
  * Deletes a user ID and its associated data from the clusters.
  */
-export function createDelete1ClustersMappingUserID(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>>
+export function createDelete1ClustersMappingUserID(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
-    ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete1ClustersMappingUserIDMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGet1ClustersQueryKey() {
-  return ['1', '/1/clusters'] as const
+  return ['1', 'GET', '/1/clusters'] as const
 }
 
 /**
@@ -2989,10 +3005,10 @@ export function createGet1Clusters(
 
 /**
  * Generates Svelte Query mutation key for POST /1/clusters/mapping/search
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1ClustersMappingSearchMutationKey() {
-  return ['POST', '/1/clusters/mapping/search'] as const
+  return ['1', 'POST', '/1/clusters/mapping/search'] as const
 }
 
 /**
@@ -3019,37 +3035,38 @@ export const getPost1ClustersMappingSearchMutationOptions = (
  *
  * To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours).
  */
-export function createPost1ClustersMappingSearch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
+export function createPost1ClustersMappingSearch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
-    ) => parseResponse(client['1'].clusters.mapping.search.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1ClustersMappingSearchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/pending
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1ClustersMappingPendingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['1', '/1/clusters/mapping/pending', args] as const
+  return ['1', 'GET', '/1/clusters/mapping/pending', args] as const
 }
 
 /**
@@ -3106,10 +3123,10 @@ export function createGet1ClustersMappingPending(
 
 /**
  * Generates Svelte Query cache key for GET /1/security/sources
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGet1SecuritySourcesQueryKey() {
-  return ['1', '/1/security/sources'] as const
+  return ['1', 'GET', '/1/security/sources'] as const
 }
 
 /**
@@ -3159,10 +3176,10 @@ export function createGet1SecuritySources(
 
 /**
  * Generates Svelte Query mutation key for PUT /1/security/sources
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPut1SecuritySourcesMutationKey() {
-  return ['PUT', '/1/security/sources'] as const
+  return ['1', 'PUT', '/1/security/sources'] as const
 }
 
 /**
@@ -3183,35 +3200,37 @@ export const getPut1SecuritySourcesMutationOptions = (clientOptions?: ClientRequ
  *
  * Replaces the list of allowed sources.
  */
-export function createPut1SecuritySources(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
+export function createPut1SecuritySources(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
-    ) => parseResponse(client['1'].security.sources.$put(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['security']['sources']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPut1SecuritySourcesMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /1/security/sources/append
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1SecuritySourcesAppendMutationKey() {
-  return ['POST', '/1/security/sources/append'] as const
+  return ['1', 'POST', '/1/security/sources/append'] as const
 }
 
 /**
@@ -3235,35 +3254,36 @@ export const getPost1SecuritySourcesAppendMutationOptions = (
  *
  * Adds a source to the list of allowed sources.
  */
-export function createPost1SecuritySourcesAppend(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
+export function createPost1SecuritySourcesAppend(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
-    ) => parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1SecuritySourcesAppendMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /1/security/sources/{source}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete1SecuritySourcesSourceMutationKey() {
-  return ['DELETE', '/1/security/sources/:source'] as const
+  return ['1', 'DELETE', '/1/security/sources/:source'] as const
 }
 
 /**
@@ -3287,35 +3307,36 @@ export const getDelete1SecuritySourcesSourceMutationOptions = (
  *
  * Deletes a source from the list of allowed sources.
  */
-export function createDelete1SecuritySourcesSource(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>>
+export function createDelete1SecuritySourcesSource(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
-    ) => parseResponse(client['1'].security.sources[':source'].$delete(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDelete1SecuritySourcesSourceMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/logs
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['1', '/1/logs', args] as const
+  return ['1', 'GET', '/1/logs', args] as const
 }
 
 /**
@@ -3366,12 +3387,12 @@ export function createGet1Logs(
 
 /**
  * Generates Svelte Query cache key for GET /1/task/{taskID}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1TaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['1', '/1/task/:taskID', args] as const
+  return ['1', 'GET', '/1/task/:taskID', args] as const
 }
 
 /**
@@ -3423,12 +3444,12 @@ export function createGet1TaskTaskID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/task/{taskID}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['1', '/1/indexes/:indexName/task/:taskID', args] as const
+  return ['1', 'GET', '/1/indexes/:indexName/task/:taskID', args] as const
 }
 
 /**
@@ -3493,10 +3514,10 @@ export function createGet1IndexesIndexNameTaskTaskID(
 
 /**
  * Generates Svelte Query mutation key for POST /1/indexes/{indexName}/operation
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost1IndexesIndexNameOperationMutationKey() {
-  return ['POST', '/1/indexes/:indexName/operation'] as const
+  return ['1', 'POST', '/1/indexes/:indexName/operation'] as const
 }
 
 /**
@@ -3543,37 +3564,38 @@ export const getPost1IndexesIndexNameOperationMutationOptions = (
  *
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
-export function createPost1IndexesIndexNameOperation(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>>
+export function createPost1IndexesIndexNameOperation(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
-    ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPost1IndexesIndexNameOperationMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet1IndexesQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  return ['1', '/1/indexes', args] as const
+  return ['1', 'GET', '/1/indexes', args] as const
 }
 
 /**
@@ -3627,12 +3649,12 @@ export function createGet1Indexes(
 
 /**
  * Generates Svelte Query cache key for GET /waitForApiKey
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWaitForApiKeyQueryKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['waitForApiKey', '/waitForApiKey', args] as const
+  return ['waitForApiKey', 'GET', '/waitForApiKey', args] as const
 }
 
 /**
@@ -3685,10 +3707,10 @@ export function createGetWaitForApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /waitForTask
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['waitForTask', '/waitForTask', args] as const
+  return ['waitForTask', 'GET', '/waitForTask', args] as const
 }
 
 /**
@@ -3737,12 +3759,12 @@ export function createGetWaitForTask(
 
 /**
  * Generates Svelte Query cache key for GET /waitForAppTask
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWaitForAppTaskQueryKey(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  return ['waitForAppTask', '/waitForAppTask', args] as const
+  return ['waitForAppTask', 'GET', '/waitForAppTask', args] as const
 }
 
 /**
@@ -3795,12 +3817,12 @@ export function createGetWaitForAppTask(
 
 /**
  * Generates Svelte Query cache key for GET /browseObjects
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetBrowseObjectsQueryKey(
   args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['browseObjects', '/browseObjects', args] as const
+  return ['browseObjects', 'GET', '/browseObjects', args] as const
 }
 
 /**
@@ -3857,12 +3879,12 @@ export function createGetBrowseObjects(
 
 /**
  * Generates Svelte Query cache key for GET /generateSecuredApiKey
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['generateSecuredApiKey', '/generateSecuredApiKey', args] as const
+  return ['generateSecuredApiKey', 'GET', '/generateSecuredApiKey', args] as const
 }
 
 /**
@@ -3929,12 +3951,12 @@ export function createGetGenerateSecuredApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /accountCopyIndex
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAccountCopyIndexQueryKey(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['accountCopyIndex', '/accountCopyIndex', args] as const
+  return ['accountCopyIndex', 'GET', '/accountCopyIndex', args] as const
 }
 
 /**
@@ -3987,12 +4009,12 @@ export function createGetAccountCopyIndex(
 
 /**
  * Generates Svelte Query cache key for GET /replaceAllObjects
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetReplaceAllObjectsQueryKey(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['replaceAllObjects', '/replaceAllObjects', args] as const
+  return ['replaceAllObjects', 'GET', '/replaceAllObjects', args] as const
 }
 
 /**
@@ -4060,13 +4082,14 @@ export function createGetReplaceAllObjects(
 
 /**
  * Generates Svelte Query cache key for GET /replaceAllObjectsWithTransformation
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
   return [
     'replaceAllObjectsWithTransformation',
+    'GET',
     '/replaceAllObjectsWithTransformation',
     args,
   ] as const
@@ -4136,12 +4159,12 @@ export function createGetReplaceAllObjectsWithTransformation(
 
 /**
  * Generates Svelte Query cache key for GET /chunkedBatch
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChunkedBatchQueryKey(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['chunkedBatch', '/chunkedBatch', args] as const
+  return ['chunkedBatch', 'GET', '/chunkedBatch', args] as const
 }
 
 /**
@@ -4191,10 +4214,10 @@ export function createGetChunkedBatch(
 
 /**
  * Generates Svelte Query cache key for GET /saveObjects
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['saveObjects', '/saveObjects', args] as const
+  return ['saveObjects', 'GET', '/saveObjects', args] as const
 }
 
 /**
@@ -4241,12 +4264,12 @@ export function createGetSaveObjects(
 
 /**
  * Generates Svelte Query cache key for GET /saveObjectsWithTransformation
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['saveObjectsWithTransformation', '/saveObjectsWithTransformation', args] as const
+  return ['saveObjectsWithTransformation', 'GET', '/saveObjectsWithTransformation', args] as const
 }
 
 /**
@@ -4303,10 +4326,10 @@ export function createGetSaveObjectsWithTransformation(
 
 /**
  * Generates Svelte Query mutation key for POST /deleteObjects
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDeleteObjectsMutationKey() {
-  return ['POST', '/deleteObjects'] as const
+  return ['deleteObjects', 'POST', '/deleteObjects'] as const
 }
 
 /**
@@ -4327,30 +4350,33 @@ export const getPostDeleteObjectsMutationOptions = (clientOptions?: ClientReques
  *
  * Helper: Deletes every records for the given objectIDs. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objectIDs in it.
  */
-export function createPostDeleteObjects(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.deleteObjects.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
-      parseResponse(client.deleteObjects.$post(args, clientOptions)),
-  }))
+export function createPostDeleteObjects(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.deleteObjects.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostDeleteObjectsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /partialUpdateObjects
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPartialUpdateObjectsMutationKey() {
-  return ['POST', '/partialUpdateObjects'] as const
+  return ['partialUpdateObjects', 'POST', '/partialUpdateObjects'] as const
 }
 
 /**
@@ -4373,32 +4399,39 @@ export const getPostPartialUpdateObjectsMutationOptions = (
  *
  * Helper: Replaces object content of all the given objects according to their respective `objectID` field. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objects in it.
  */
-export function createPostPartialUpdateObjects(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.partialUpdateObjects.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
-      parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
-  }))
+export function createPostPartialUpdateObjects(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.partialUpdateObjects.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostPartialUpdateObjectsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /partialUpdateObjectsWithTransformation
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPartialUpdateObjectsWithTransformationMutationKey() {
-  return ['POST', '/partialUpdateObjectsWithTransformation'] as const
+  return [
+    'partialUpdateObjectsWithTransformation',
+    'POST',
+    '/partialUpdateObjectsWithTransformation',
+  ] as const
 }
 
 /**
@@ -4422,35 +4455,36 @@ export const getPostPartialUpdateObjectsWithTransformationMutationOptions = (
  *
  * Helper: Similar to the `partialUpdateObjects` method but requires a Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push) to be created first, in order to transform records before indexing them to Algolia. The `region` must have been passed to the client instantiation method.
  */
-export function createPostPartialUpdateObjectsWithTransformation(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
+export function createPostPartialUpdateObjectsWithTransformation(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
-    ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostPartialUpdateObjectsWithTransformationMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /indexExists
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['indexExists', '/indexExists', args] as const
+  return ['indexExists', 'GET', '/indexExists', args] as const
 }
 
 /**
@@ -4497,12 +4531,12 @@ export function createGetIndexExists(
 
 /**
  * Generates Svelte Query cache key for GET /setClientApiKey
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSetClientApiKeyQueryKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['setClientApiKey', '/setClientApiKey', args] as const
+  return ['setClientApiKey', 'GET', '/setClientApiKey', args] as const
 }
 
 /**

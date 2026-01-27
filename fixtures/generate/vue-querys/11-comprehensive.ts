@@ -8,12 +8,12 @@ import { client } from '../clients/11-comprehensive'
 
 /**
  * Generates Vue Query cache key for GET /products
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsQueryKey(
   args: MaybeRef<InferRequestType<typeof client.products.$get>>,
 ) {
-  return ['products', '/products', unref(args)] as const
+  return ['products', 'GET', '/products', unref(args)] as const
 }
 
 /**
@@ -63,10 +63,10 @@ export function useGetProducts(
 
 /**
  * Generates Vue Query mutation key for POST /products
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProductsMutationKey() {
-  return ['POST', '/products'] as const
+  return ['products', 'POST', '/products'] as const
 }
 
 /**
@@ -95,27 +95,24 @@ export function usePostProducts(options?: {
         Error,
         InferRequestType<typeof client.products.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
-      parseResponse(client.products.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostProductsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /products/{productId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsProductIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.products)[':productId']['$get']>>,
 ) {
-  return ['products', '/products/:productId', unref(args)] as const
+  return ['products', 'GET', '/products/:productId', unref(args)] as const
 }
 
 /**
@@ -173,10 +170,10 @@ export function useGetProductsProductId(
 
 /**
  * Generates Vue Query mutation key for PUT /products/{productId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutProductsProductIdMutationKey() {
-  return ['PUT', '/products/:productId'] as const
+  return ['products', 'PUT', '/products/:productId'] as const
 }
 
 /**
@@ -209,25 +206,23 @@ export function usePutProductsProductId(options?: {
         Error,
         InferRequestType<(typeof client.products)[':productId']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
-      parseResponse(client.products[':productId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutProductsProductIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /products/{productId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteProductsProductIdMutationKey() {
-  return ['DELETE', '/products/:productId'] as const
+  return ['products', 'DELETE', '/products/:productId'] as const
 }
 
 /**
@@ -263,25 +258,23 @@ export function useDeleteProductsProductId(options?: {
         Error,
         InferRequestType<(typeof client.products)[':productId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
-      parseResponse(client.products[':productId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteProductsProductIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /orders
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**
@@ -308,25 +301,22 @@ export function usePostOrders(options?: {
         Error,
         InferRequestType<typeof client.orders.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
-      parseResponse(client.orders.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostOrdersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /webhooks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksMutationKey() {
-  return ['POST', '/webhooks'] as const
+  return ['webhooks', 'POST', '/webhooks'] as const
 }
 
 /**
@@ -355,15 +345,12 @@ export function usePostWebhooks(options?: {
         Error,
         InferRequestType<typeof client.webhooks.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
-      parseResponse(client.webhooks.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostWebhooksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

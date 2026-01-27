@@ -10,12 +10,12 @@ import { client } from '../clients/41-auth-social-sso'
 
 /**
  * Generates TanStack Query cache key for GET /social/authorize/{provider}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSocialAuthorizeProviderQueryKey(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  return ['social', '/social/authorize/:provider', args] as const
+  return ['social', 'GET', '/social/authorize/:provider', args] as const
 }
 
 /**
@@ -70,12 +70,12 @@ export function useGetSocialAuthorizeProvider(
 
 /**
  * Generates TanStack Query cache key for GET /social/callback/{provider}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSocialCallbackProviderQueryKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  return ['social', '/social/callback/:provider', args] as const
+  return ['social', 'GET', '/social/callback/:provider', args] as const
 }
 
 /**
@@ -130,10 +130,10 @@ export function useGetSocialCallbackProvider(
 
 /**
  * Generates TanStack Query mutation key for POST /social/token
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSocialTokenMutationKey() {
-  return ['POST', '/social/token'] as const
+  return ['social', 'POST', '/social/token'] as const
 }
 
 /**
@@ -165,19 +165,17 @@ export function usePostSocialToken(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.social.token.$post>) =>
-      parseResponse(client.social.token.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSocialTokenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /social/token/native
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSocialTokenNativeMutationKey() {
-  return ['POST', '/social/token/native'] as const
+  return ['social', 'POST', '/social/token/native'] as const
 }
 
 /**
@@ -209,19 +207,17 @@ export function usePostSocialTokenNative(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.social.token.native.$post>) =>
-      parseResponse(client.social.token.native.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSocialTokenNativeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /providers
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProvidersQueryKey() {
-  return ['providers', '/providers'] as const
+  return ['providers', 'GET', '/providers'] as const
 }
 
 /**
@@ -259,10 +255,10 @@ export function useGetProviders(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /providers/admin
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProvidersAdminQueryKey() {
-  return ['providers', '/providers/admin'] as const
+  return ['providers', 'GET', '/providers/admin'] as const
 }
 
 /**
@@ -302,10 +298,10 @@ export function useGetProvidersAdmin(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /providers/admin
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProvidersAdminMutationKey() {
-  return ['POST', '/providers/admin'] as const
+  return ['providers', 'POST', '/providers/admin'] as const
 }
 
 /**
@@ -335,21 +331,19 @@ export function usePostProvidersAdmin(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.providers.admin.$post>) =>
-      parseResponse(client.providers.admin.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostProvidersAdminMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /providers/{providerId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProvidersProviderIdQueryKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  return ['providers', '/providers/:providerId', args] as const
+  return ['providers', 'GET', '/providers/:providerId', args] as const
 }
 
 /**
@@ -402,10 +396,10 @@ export function useGetProvidersProviderId(
 
 /**
  * Generates TanStack Query mutation key for PUT /providers/{providerId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutProvidersProviderIdMutationKey() {
-  return ['PUT', '/providers/:providerId'] as const
+  return ['providers', 'PUT', '/providers/:providerId'] as const
 }
 
 /**
@@ -437,19 +431,17 @@ export function usePutProvidersProviderId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.providers)[':providerId']['$put']>) =>
-      parseResponse(client.providers[':providerId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutProvidersProviderIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /providers/{providerId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteProvidersProviderIdMutationKey() {
-  return ['DELETE', '/providers/:providerId'] as const
+  return ['providers', 'DELETE', '/providers/:providerId'] as const
 }
 
 /**
@@ -486,20 +478,17 @@ export function useDeleteProvidersProviderId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.providers)[':providerId']['$delete']>,
-    ) => parseResponse(client.providers[':providerId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteProvidersProviderIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /providers/{providerId}/test
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProvidersProviderIdTestMutationKey() {
-  return ['POST', '/providers/:providerId/test'] as const
+  return ['providers', 'POST', '/providers/:providerId/test'] as const
 }
 
 /**
@@ -536,20 +525,17 @@ export function usePostProvidersProviderIdTest(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
-    ) => parseResponse(client.providers[':providerId'].test.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostProvidersProviderIdTestMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /account/linked
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAccountLinkedQueryKey() {
-  return ['account', '/account/linked'] as const
+  return ['account', 'GET', '/account/linked'] as const
 }
 
 /**
@@ -589,10 +575,10 @@ export function useGetAccountLinked(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /account/link/{provider}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAccountLinkProviderMutationKey() {
-  return ['POST', '/account/link/:provider'] as const
+  return ['account', 'POST', '/account/link/:provider'] as const
 }
 
 /**
@@ -630,20 +616,17 @@ export function usePostAccountLinkProvider(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.account.link)[':provider']['$post']>,
-    ) => parseResponse(client.account.link[':provider'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostAccountLinkProviderMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /account/link/{provider}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteAccountLinkProviderMutationKey() {
-  return ['DELETE', '/account/link/:provider'] as const
+  return ['account', 'DELETE', '/account/link/:provider'] as const
 }
 
 /**
@@ -681,20 +664,17 @@ export function useDeleteAccountLinkProvider(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
-    ) => parseResponse(client.account.link[':provider'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteAccountLinkProviderMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEnterpriseSsoQueryKey() {
-  return ['enterprise', '/enterprise/sso'] as const
+  return ['enterprise', 'GET', '/enterprise/sso'] as const
 }
 
 /**
@@ -734,10 +714,10 @@ export function useGetEnterpriseSso(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /enterprise/sso
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEnterpriseSsoMutationKey() {
-  return ['POST', '/enterprise/sso'] as const
+  return ['enterprise', 'POST', '/enterprise/sso'] as const
 }
 
 /**
@@ -767,21 +747,19 @@ export function usePostEnterpriseSso(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.enterprise.sso.$post>) =>
-      parseResponse(client.enterprise.sso.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostEnterpriseSsoMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  return ['enterprise', '/enterprise/sso/:configId', args] as const
+  return ['enterprise', 'GET', '/enterprise/sso/:configId', args] as const
 }
 
 /**
@@ -834,10 +812,10 @@ export function useGetEnterpriseSsoConfigId(
 
 /**
  * Generates TanStack Query mutation key for PUT /enterprise/sso/{configId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutEnterpriseSsoConfigIdMutationKey() {
-  return ['PUT', '/enterprise/sso/:configId'] as const
+  return ['enterprise', 'PUT', '/enterprise/sso/:configId'] as const
 }
 
 /**
@@ -873,20 +851,17 @@ export function usePutEnterpriseSsoConfigId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>,
-    ) => parseResponse(client.enterprise.sso[':configId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutEnterpriseSsoConfigIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /enterprise/sso/{configId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteEnterpriseSsoConfigIdMutationKey() {
-  return ['DELETE', '/enterprise/sso/:configId'] as const
+  return ['enterprise', 'DELETE', '/enterprise/sso/:configId'] as const
 }
 
 /**
@@ -924,22 +899,19 @@ export function useDeleteEnterpriseSsoConfigId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
-    ) => parseResponse(client.enterprise.sso[':configId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteEnterpriseSsoConfigIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso/domain-lookup
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEnterpriseSsoDomainLookupQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  return ['enterprise', '/enterprise/sso/domain-lookup', args] as const
+  return ['enterprise', 'GET', '/enterprise/sso/domain-lookup', args] as const
 }
 
 /**
@@ -992,12 +964,12 @@ export function useGetEnterpriseSsoDomainLookup(
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}/metadata
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  return ['enterprise', '/enterprise/sso/:configId/metadata', args] as const
+  return ['enterprise', 'GET', '/enterprise/sso/:configId/metadata', args] as const
 }
 
 /**

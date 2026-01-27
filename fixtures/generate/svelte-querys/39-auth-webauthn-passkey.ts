@@ -10,10 +10,10 @@ import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
  * Generates Svelte Query mutation key for POST /webauthn/register/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnRegisterOptionsMutationKey() {
-  return ['POST', '/webauthn/register/options'] as const
+  return ['webauthn', 'POST', '/webauthn/register/options'] as const
 }
 
 /**
@@ -36,32 +36,34 @@ export const getPostWebauthnRegisterOptionsMutationOptions = (
  *
  * パスキー登録のためのPublicKeyCredentialCreationOptionsを生成
  */
-export function createPostWebauthnRegisterOptions(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.options.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.webauthn.register.options.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
-      parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
-  }))
+export function createPostWebauthnRegisterOptions(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.options.$post>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.webauthn.register.options.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostWebauthnRegisterOptionsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /webauthn/register/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnRegisterVerifyMutationKey() {
-  return ['POST', '/webauthn/register/verify'] as const
+  return ['webauthn', 'POST', '/webauthn/register/verify'] as const
 }
 
 /**
@@ -84,32 +86,34 @@ export const getPostWebauthnRegisterVerifyMutationOptions = (
  *
  * クライアントから送信された認証情報を検証し、パスキーを登録
  */
-export function createPostWebauthnRegisterVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.webauthn.register.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
-      parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
-  }))
+export function createPostWebauthnRegisterVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.register.verify.$post>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.webauthn.register.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostWebauthnRegisterVerifyMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /webauthn/authenticate/options
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnAuthenticateOptionsMutationKey() {
-  return ['POST', '/webauthn/authenticate/options'] as const
+  return ['webauthn', 'POST', '/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -132,32 +136,36 @@ export const getPostWebauthnAuthenticateOptionsMutationOptions = (
  *
  * パスキー認証のためのPublicKeyCredentialRequestOptionsを生成
  */
-export function createPostWebauthnAuthenticateOptions(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.webauthn.authenticate.options.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
-      parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
-  }))
+export function createPostWebauthnAuthenticateOptions(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.webauthn.authenticate.options.$post>>
+          >
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.webauthn.authenticate.options.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostWebauthnAuthenticateOptionsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /webauthn/authenticate/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebauthnAuthenticateVerifyMutationKey() {
-  return ['POST', '/webauthn/authenticate/verify'] as const
+  return ['webauthn', 'POST', '/webauthn/authenticate/verify'] as const
 }
 
 /**
@@ -180,32 +188,36 @@ export const getPostWebauthnAuthenticateVerifyMutationOptions = (
  *
  * クライアントから送信された認証レスポンスを検証
  */
-export function createPostWebauthnAuthenticateVerify(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.webauthn.authenticate.verify.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
-      parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
-  }))
+export function createPostWebauthnAuthenticateVerify(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.webauthn.authenticate.verify.$post>>
+          >
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.webauthn.authenticate.verify.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostWebauthnAuthenticateVerifyMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /webauthn/credentials
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnCredentialsQueryKey() {
-  return ['webauthn', '/webauthn/credentials'] as const
+  return ['webauthn', 'GET', '/webauthn/credentials'] as const
 }
 
 /**
@@ -255,12 +267,12 @@ export function createGetWebauthnCredentials(
 
 /**
  * Generates Svelte Query cache key for GET /webauthn/credentials/{credentialId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return ['webauthn', '/webauthn/credentials/:credentialId', args] as const
+  return ['webauthn', 'GET', '/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
@@ -315,10 +327,10 @@ export function createGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates Svelte Query mutation key for DELETE /webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
-  return ['DELETE', '/webauthn/credentials/:credentialId'] as const
+  return ['webauthn', 'DELETE', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -342,36 +354,37 @@ export const getDeleteWebauthnCredentialsCredentialIdMutationOptions = (
  *
  * パスキーを削除（少なくとも1つは残す必要がある場合あり）
  */
-export function createDeleteWebauthnCredentialsCredentialId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>>
+export function createDeleteWebauthnCredentialsCredentialId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>>
+            >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteWebauthnCredentialsCredentialIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for PATCH /webauthn/credentials/{credentialId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
-  return ['PATCH', '/webauthn/credentials/:credentialId'] as const
+  return ['webauthn', 'PATCH', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -395,35 +408,36 @@ export const getPatchWebauthnCredentialsCredentialIdMutationOptions = (
  *
  * パスキーの名前などを更新
  */
-export function createPatchWebauthnCredentialsCredentialId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+export function createPatchWebauthnCredentialsCredentialId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPatchWebauthnCredentialsCredentialIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /webauthn/settings
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnSettingsQueryKey() {
-  return ['webauthn', '/webauthn/settings'] as const
+  return ['webauthn', 'GET', '/webauthn/settings'] as const
 }
 
 /**
@@ -469,10 +483,10 @@ export function createGetWebauthnSettings(
 
 /**
  * Generates Svelte Query cache key for GET /webauthn/settings/rp
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnSettingsRpQueryKey() {
-  return ['webauthn', '/webauthn/settings/rp'] as const
+  return ['webauthn', 'GET', '/webauthn/settings/rp'] as const
 }
 
 /**
@@ -518,10 +532,10 @@ export function createGetWebauthnSettingsRp(
 
 /**
  * Generates Svelte Query mutation key for PUT /webauthn/settings/rp
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutWebauthnSettingsRpMutationKey() {
-  return ['PUT', '/webauthn/settings/rp'] as const
+  return ['webauthn', 'PUT', '/webauthn/settings/rp'] as const
 }
 
 /**
@@ -540,30 +554,35 @@ export const getPutWebauthnSettingsRpMutationOptions = (clientOptions?: ClientRe
  *
  * リライングパーティ情報更新
  */
-export function createPutWebauthnSettingsRp(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.webauthn.settings.rp.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
-      parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
-  }))
+export function createPutWebauthnSettingsRp(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.webauthn.settings.rp.$put>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutWebauthnSettingsRpMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /webauthn/authenticators
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebauthnAuthenticatorsQueryKey() {
-  return ['webauthn', '/webauthn/authenticators'] as const
+  return ['webauthn', 'GET', '/webauthn/authenticators'] as const
 }
 
 /**

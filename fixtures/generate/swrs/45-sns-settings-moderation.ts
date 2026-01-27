@@ -8,10 +8,10 @@ import { client } from '../clients/45-sns-settings-moderation'
 
 /**
  * Generates SWR cache key for GET /settings/account
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSettingsAccountKey() {
-  return ['/settings/account'] as const
+  return ['settings', 'GET', '/settings/account'] as const
 }
 
 /**
@@ -39,10 +39,10 @@ export function useGetSettingsAccount(options?: {
 
 /**
  * Generates SWR mutation key for PUT /settings/account
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutSettingsAccountMutationKey() {
-  return ['PUT', '/settings/account'] as const
+  return ['settings', 'PUT', '/settings/account'] as const
 }
 
 /**
@@ -77,12 +77,12 @@ export function usePutSettingsAccount(options?: {
 
 /**
  * Generates SWR cache key for GET /settings/username/check
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSettingsUsernameCheckKey(
   args: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  return ['/settings/username/check', args] as const
+  return ['settings', 'GET', '/settings/username/check', args] as const
 }
 
 /**
@@ -113,10 +113,10 @@ export function useGetSettingsUsernameCheck(
 
 /**
  * Generates SWR cache key for GET /settings/privacy
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSettingsPrivacyKey() {
-  return ['/settings/privacy'] as const
+  return ['settings', 'GET', '/settings/privacy'] as const
 }
 
 /**
@@ -144,10 +144,10 @@ export function useGetSettingsPrivacy(options?: {
 
 /**
  * Generates SWR mutation key for PUT /settings/privacy
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutSettingsPrivacyMutationKey() {
-  return ['PUT', '/settings/privacy'] as const
+  return ['settings', 'PUT', '/settings/privacy'] as const
 }
 
 /**
@@ -182,10 +182,10 @@ export function usePutSettingsPrivacy(options?: {
 
 /**
  * Generates SWR cache key for GET /settings/content-preferences
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSettingsContentPreferencesKey() {
-  return ['/settings/content-preferences'] as const
+  return ['settings', 'GET', '/settings/content-preferences'] as const
 }
 
 /**
@@ -214,10 +214,10 @@ export function useGetSettingsContentPreferences(options?: {
 
 /**
  * Generates SWR mutation key for PUT /settings/content-preferences
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutSettingsContentPreferencesMutationKey() {
-  return ['PUT', '/settings/content-preferences'] as const
+  return ['settings', 'PUT', '/settings/content-preferences'] as const
 }
 
 /**
@@ -258,10 +258,10 @@ export function usePutSettingsContentPreferences(options?: {
 
 /**
  * Generates SWR cache key for GET /settings/muted-words
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSettingsMutedWordsKey() {
-  return ['/settings/muted-words'] as const
+  return ['settings', 'GET', '/settings/muted-words'] as const
 }
 
 /**
@@ -289,10 +289,10 @@ export function useGetSettingsMutedWords(options?: {
 
 /**
  * Generates SWR mutation key for POST /settings/muted-words
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSettingsMutedWordsMutationKey() {
-  return ['POST', '/settings/muted-words'] as const
+  return ['settings', 'POST', '/settings/muted-words'] as const
 }
 
 /**
@@ -331,10 +331,10 @@ export function usePostSettingsMutedWords(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /settings/muted-words/{wordId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSettingsMutedWordsWordIdMutationKey() {
-  return ['DELETE', '/settings/muted-words/:wordId'] as const
+  return ['settings', 'DELETE', '/settings/muted-words/:wordId'] as const
 }
 
 /**
@@ -378,10 +378,10 @@ export function useDeleteSettingsMutedWordsWordId(options?: {
 
 /**
  * Generates SWR cache key for GET /settings/sessions
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSettingsSessionsKey() {
-  return ['/settings/sessions'] as const
+  return ['settings', 'GET', '/settings/sessions'] as const
 }
 
 /**
@@ -409,10 +409,10 @@ export function useGetSettingsSessions(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /settings/sessions/{sessionId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSettingsSessionsSessionIdMutationKey() {
-  return ['DELETE', '/settings/sessions/:sessionId'] as const
+  return ['settings', 'DELETE', '/settings/sessions/:sessionId'] as const
 }
 
 /**
@@ -456,10 +456,10 @@ export function useDeleteSettingsSessionsSessionId(options?: {
 
 /**
  * Generates SWR cache key for GET /settings/connected-apps
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSettingsConnectedAppsKey() {
-  return ['/settings/connected-apps'] as const
+  return ['settings', 'GET', '/settings/connected-apps'] as const
 }
 
 /**
@@ -487,10 +487,10 @@ export function useGetSettingsConnectedApps(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /settings/connected-apps/{appId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSettingsConnectedAppsAppIdMutationKey() {
-  return ['DELETE', '/settings/connected-apps/:appId'] as const
+  return ['settings', 'DELETE', '/settings/connected-apps/:appId'] as const
 }
 
 /**
@@ -536,10 +536,10 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
 
 /**
  * Generates SWR mutation key for POST /settings/data-export
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSettingsDataExportMutationKey() {
-  return ['POST', '/settings/data-export'] as const
+  return ['settings', 'POST', '/settings/data-export'] as const
 }
 
 /**
@@ -575,12 +575,12 @@ export function usePostSettingsDataExport(options?: {
 
 /**
  * Generates SWR cache key for GET /settings/data-export/{requestId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSettingsDataExportRequestIdKey(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  return [`/settings/data-export/${args.param.requestId}`, args] as const
+  return ['settings', 'GET', '/settings/data-export/:requestId', args] as const
 }
 
 /**
@@ -612,10 +612,10 @@ export function useGetSettingsDataExportRequestId(
 
 /**
  * Generates SWR mutation key for POST /settings/deactivate
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSettingsDeactivateMutationKey() {
-  return ['POST', '/settings/deactivate'] as const
+  return ['settings', 'POST', '/settings/deactivate'] as const
 }
 
 /**
@@ -650,10 +650,10 @@ export function usePostSettingsDeactivate(options?: {
 
 /**
  * Generates SWR mutation key for POST /reports
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostReportsMutationKey() {
-  return ['POST', '/reports'] as const
+  return ['reports', 'POST', '/reports'] as const
 }
 
 /**
@@ -686,12 +686,12 @@ export function usePostReports(options?: {
 
 /**
  * Generates SWR cache key for GET /reports/{reportId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetReportsReportIdKey(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  return [`/reports/${args.param.reportId}`, args] as const
+  return ['reports', 'GET', '/reports/:reportId', args] as const
 }
 
 /**
@@ -722,12 +722,12 @@ export function useGetReportsReportId(
 
 /**
  * Generates SWR cache key for GET /moderation/queue
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetModerationQueueKey(
   args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return ['/moderation/queue', args] as const
+  return ['moderation', 'GET', '/moderation/queue', args] as const
 }
 
 /**
@@ -760,12 +760,12 @@ export function useGetModerationQueue(
 
 /**
  * Generates SWR cache key for GET /moderation/items/{itemId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetModerationItemsItemIdKey(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return [`/moderation/items/${args.param.itemId}`, args] as const
+  return ['moderation', 'GET', '/moderation/items/:itemId', args] as const
 }
 
 /**
@@ -796,10 +796,10 @@ export function useGetModerationItemsItemId(
 
 /**
  * Generates SWR mutation key for POST /moderation/items/{itemId}/action
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostModerationItemsItemIdActionMutationKey() {
-  return ['POST', '/moderation/items/:itemId/action'] as const
+  return ['moderation', 'POST', '/moderation/items/:itemId/action'] as const
 }
 
 /**
@@ -844,12 +844,12 @@ export function usePostModerationItemsItemIdAction(options?: {
 
 /**
  * Generates SWR cache key for GET /moderation/users/{userId}/history
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetModerationUsersUserIdHistoryKey(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  return [`/moderation/users/${args.param.userId}/history`, args] as const
+  return ['moderation', 'GET', '/moderation/users/:userId/history', args] as const
 }
 
 /**
@@ -881,10 +881,10 @@ export function useGetModerationUsersUserIdHistory(
 
 /**
  * Generates SWR mutation key for POST /moderation/users/{userId}/suspend
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostModerationUsersUserIdSuspendMutationKey() {
-  return ['POST', '/moderation/users/:userId/suspend'] as const
+  return ['moderation', 'POST', '/moderation/users/:userId/suspend'] as const
 }
 
 /**
@@ -929,10 +929,10 @@ export function usePostModerationUsersUserIdSuspend(options?: {
 
 /**
  * Generates SWR mutation key for POST /moderation/users/{userId}/unsuspend
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostModerationUsersUserIdUnsuspendMutationKey() {
-  return ['POST', '/moderation/users/:userId/unsuspend'] as const
+  return ['moderation', 'POST', '/moderation/users/:userId/unsuspend'] as const
 }
 
 /**
@@ -977,12 +977,12 @@ export function usePostModerationUsersUserIdUnsuspend(options?: {
 
 /**
  * Generates SWR cache key for GET /analytics/posts/{postId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAnalyticsPostsPostIdKey(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  return [`/analytics/posts/${args.param.postId}`, args] as const
+  return ['analytics', 'GET', '/analytics/posts/:postId', args] as const
 }
 
 /**
@@ -1013,12 +1013,12 @@ export function useGetAnalyticsPostsPostId(
 
 /**
  * Generates SWR cache key for GET /analytics/account
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAnalyticsAccountKey(
   args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return ['/analytics/account', args] as const
+  return ['analytics', 'GET', '/analytics/account', args] as const
 }
 
 /**
@@ -1049,12 +1049,12 @@ export function useGetAnalyticsAccount(
 
 /**
  * Generates SWR cache key for GET /analytics/followers
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAnalyticsFollowersKey(
   args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return ['/analytics/followers', args] as const
+  return ['analytics', 'GET', '/analytics/followers', args] as const
 }
 
 /**
@@ -1085,12 +1085,12 @@ export function useGetAnalyticsFollowers(
 
 /**
  * Generates SWR cache key for GET /analytics/top-posts
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAnalyticsTopPostsKey(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return ['/analytics/top-posts', args] as const
+  return ['analytics', 'GET', '/analytics/top-posts', args] as const
 }
 
 /**

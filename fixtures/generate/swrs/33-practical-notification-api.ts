@@ -8,10 +8,10 @@ import { client } from '../clients/33-practical-notification-api'
 
 /**
  * Generates SWR cache key for GET /notifications
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetNotificationsKey(args: InferRequestType<typeof client.notifications.$get>) {
-  return ['/notifications', args] as const
+  return ['notifications', 'GET', '/notifications', args] as const
 }
 
 /**
@@ -42,12 +42,12 @@ export function useGetNotifications(
 
 /**
  * Generates SWR cache key for GET /notifications/{notificationId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetNotificationsNotificationIdKey(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
-  return [`/notifications/${args.param.notificationId}`, args] as const
+  return ['notifications', 'GET', '/notifications/:notificationId', args] as const
 }
 
 /**
@@ -78,10 +78,10 @@ export function useGetNotificationsNotificationId(
 
 /**
  * Generates SWR mutation key for DELETE /notifications/{notificationId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteNotificationsNotificationIdMutationKey() {
-  return ['DELETE', '/notifications/:notificationId'] as const
+  return ['notifications', 'DELETE', '/notifications/:notificationId'] as const
 }
 
 /**
@@ -125,10 +125,10 @@ export function useDeleteNotificationsNotificationId(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications/{notificationId}/read
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNotificationsNotificationIdReadMutationKey() {
-  return ['POST', '/notifications/:notificationId/read'] as const
+  return ['notifications', 'POST', '/notifications/:notificationId/read'] as const
 }
 
 /**
@@ -173,10 +173,10 @@ export function usePostNotificationsNotificationIdRead(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications/read-all
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNotificationsReadAllMutationKey() {
-  return ['POST', '/notifications/read-all'] as const
+  return ['notifications', 'POST', '/notifications/read-all'] as const
 }
 
 /**
@@ -214,10 +214,10 @@ export function usePostNotificationsReadAll(options?: {
 
 /**
  * Generates SWR cache key for GET /notifications/unread-count
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNotificationsUnreadCountKey() {
-  return ['/notifications/unread-count'] as const
+  return ['notifications', 'GET', '/notifications/unread-count'] as const
 }
 
 /**
@@ -246,10 +246,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates SWR mutation key for POST /messages/send
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMessagesSendMutationKey() {
-  return ['POST', '/messages/send'] as const
+  return ['messages', 'POST', '/messages/send'] as const
 }
 
 /**
@@ -286,10 +286,10 @@ export function usePostMessagesSend(options?: {
 
 /**
  * Generates SWR mutation key for POST /messages/send-batch
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMessagesSendBatchMutationKey() {
-  return ['POST', '/messages/send-batch'] as const
+  return ['messages', 'POST', '/messages/send-batch'] as const
 }
 
 /**
@@ -328,12 +328,12 @@ export function usePostMessagesSendBatch(options?: {
 
 /**
  * Generates SWR cache key for GET /messages/{messageId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMessagesMessageIdKey(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
 ) {
-  return [`/messages/${args.param.messageId}`, args] as const
+  return ['messages', 'GET', '/messages/:messageId', args] as const
 }
 
 /**
@@ -364,10 +364,10 @@ export function useGetMessagesMessageId(
 
 /**
  * Generates SWR cache key for GET /templates
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTemplatesKey(args: InferRequestType<typeof client.templates.$get>) {
-  return ['/templates', args] as const
+  return ['templates', 'GET', '/templates', args] as const
 }
 
 /**
@@ -398,10 +398,10 @@ export function useGetTemplates(
 
 /**
  * Generates SWR mutation key for POST /templates
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTemplatesMutationKey() {
-  return ['POST', '/templates'] as const
+  return ['templates', 'POST', '/templates'] as const
 }
 
 /**
@@ -434,12 +434,12 @@ export function usePostTemplates(options?: {
 
 /**
  * Generates SWR cache key for GET /templates/{templateId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTemplatesTemplateIdKey(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
-  return [`/templates/${args.param.templateId}`, args] as const
+  return ['templates', 'GET', '/templates/:templateId', args] as const
 }
 
 /**
@@ -470,10 +470,10 @@ export function useGetTemplatesTemplateId(
 
 /**
  * Generates SWR mutation key for PUT /templates/{templateId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutTemplatesTemplateIdMutationKey() {
-  return ['PUT', '/templates/:templateId'] as const
+  return ['templates', 'PUT', '/templates/:templateId'] as const
 }
 
 /**
@@ -512,10 +512,10 @@ export function usePutTemplatesTemplateId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /templates/{templateId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTemplatesTemplateIdMutationKey() {
-  return ['DELETE', '/templates/:templateId'] as const
+  return ['templates', 'DELETE', '/templates/:templateId'] as const
 }
 
 /**
@@ -557,10 +557,10 @@ export function useDeleteTemplatesTemplateId(options?: {
 
 /**
  * Generates SWR mutation key for POST /templates/{templateId}/preview
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTemplatesTemplateIdPreviewMutationKey() {
-  return ['POST', '/templates/:templateId/preview'] as const
+  return ['templates', 'POST', '/templates/:templateId/preview'] as const
 }
 
 /**
@@ -603,10 +603,10 @@ export function usePostTemplatesTemplateIdPreview(options?: {
 
 /**
  * Generates SWR cache key for GET /channels/preferences
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetChannelsPreferencesKey() {
-  return ['/channels/preferences'] as const
+  return ['channels', 'GET', '/channels/preferences'] as const
 }
 
 /**
@@ -634,10 +634,10 @@ export function useGetChannelsPreferences(options?: {
 
 /**
  * Generates SWR mutation key for PUT /channels/preferences
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsPreferencesMutationKey() {
-  return ['PUT', '/channels/preferences'] as const
+  return ['channels', 'PUT', '/channels/preferences'] as const
 }
 
 /**
@@ -672,10 +672,10 @@ export function usePutChannelsPreferences(options?: {
 
 /**
  * Generates SWR cache key for GET /channels/devices
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetChannelsDevicesKey() {
-  return ['/channels/devices'] as const
+  return ['channels', 'GET', '/channels/devices'] as const
 }
 
 /**
@@ -703,10 +703,10 @@ export function useGetChannelsDevices(options?: {
 
 /**
  * Generates SWR mutation key for POST /channels/devices
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsDevicesMutationKey() {
-  return ['POST', '/channels/devices'] as const
+  return ['channels', 'POST', '/channels/devices'] as const
 }
 
 /**
@@ -741,10 +741,10 @@ export function usePostChannelsDevices(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/devices/{deviceId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsDevicesDeviceIdMutationKey() {
-  return ['DELETE', '/channels/devices/:deviceId'] as const
+  return ['channels', 'DELETE', '/channels/devices/:deviceId'] as const
 }
 
 /**
@@ -788,10 +788,10 @@ export function useDeleteChannelsDevicesDeviceId(options?: {
 
 /**
  * Generates SWR cache key for GET /webhooks
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWebhooksKey() {
-  return ['/webhooks'] as const
+  return ['webhooks', 'GET', '/webhooks'] as const
 }
 
 /**
@@ -819,10 +819,10 @@ export function useGetWebhooks(options?: {
 
 /**
  * Generates SWR mutation key for POST /webhooks
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksMutationKey() {
-  return ['POST', '/webhooks'] as const
+  return ['webhooks', 'POST', '/webhooks'] as const
 }
 
 /**
@@ -855,12 +855,12 @@ export function usePostWebhooks(options?: {
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhookId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebhooksWebhookIdKey(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
-  return [`/webhooks/${args.param.webhookId}`, args] as const
+  return ['webhooks', 'GET', '/webhooks/:webhookId', args] as const
 }
 
 /**
@@ -891,10 +891,10 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates SWR mutation key for PUT /webhooks/{webhookId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutWebhooksWebhookIdMutationKey() {
-  return ['PUT', '/webhooks/:webhookId'] as const
+  return ['webhooks', 'PUT', '/webhooks/:webhookId'] as const
 }
 
 /**
@@ -933,10 +933,10 @@ export function usePutWebhooksWebhookId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhookId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebhooksWebhookIdMutationKey() {
-  return ['DELETE', '/webhooks/:webhookId'] as const
+  return ['webhooks', 'DELETE', '/webhooks/:webhookId'] as const
 }
 
 /**
@@ -978,10 +978,10 @@ export function useDeleteWebhooksWebhookId(options?: {
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhookId}/test
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksWebhookIdTestMutationKey() {
-  return ['POST', '/webhooks/:webhookId/test'] as const
+  return ['webhooks', 'POST', '/webhooks/:webhookId/test'] as const
 }
 
 /**

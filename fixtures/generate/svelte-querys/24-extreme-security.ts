@@ -10,10 +10,10 @@ import { client } from '../clients/24-extreme-security'
 
 /**
  * Generates Svelte Query cache key for GET /public
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicQueryKey() {
-  return ['public', '/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
@@ -52,10 +52,10 @@ export function createGetPublic(
 
 /**
  * Generates Svelte Query cache key for GET /single-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSingleAuthQueryKey() {
-  return ['single-auth', '/single-auth'] as const
+  return ['single-auth', 'GET', '/single-auth'] as const
 }
 
 /**
@@ -101,10 +101,10 @@ export function createGetSingleAuth(
 
 /**
  * Generates Svelte Query cache key for GET /any-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAnyAuthQueryKey() {
-  return ['any-auth', '/any-auth'] as const
+  return ['any-auth', 'GET', '/any-auth'] as const
 }
 
 /**
@@ -148,10 +148,10 @@ export function createGetAnyAuth(
 
 /**
  * Generates Svelte Query cache key for GET /all-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAllAuthQueryKey() {
-  return ['all-auth', '/all-auth'] as const
+  return ['all-auth', 'GET', '/all-auth'] as const
 }
 
 /**
@@ -195,10 +195,10 @@ export function createGetAllAuth(
 
 /**
  * Generates Svelte Query cache key for GET /complex-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetComplexAuthQueryKey() {
-  return ['complex-auth', '/complex-auth'] as const
+  return ['complex-auth', 'GET', '/complex-auth'] as const
 }
 
 /**
@@ -244,10 +244,10 @@ export function createGetComplexAuth(
 
 /**
  * Generates Svelte Query cache key for GET /scoped-oauth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetScopedOauthQueryKey() {
-  return ['scoped-oauth', '/scoped-oauth'] as const
+  return ['scoped-oauth', 'GET', '/scoped-oauth'] as const
 }
 
 /**
@@ -293,10 +293,10 @@ export function createGetScopedOauth(
 
 /**
  * Generates Svelte Query cache key for GET /mixed-level-security
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMixedLevelSecurityQueryKey() {
-  return ['mixed-level-security', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'GET', '/mixed-level-security'] as const
 }
 
 /**
@@ -342,10 +342,10 @@ export function createGetMixedLevelSecurity(
 
 /**
  * Generates Svelte Query mutation key for PUT /mixed-level-security
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMixedLevelSecurityMutationKey() {
-  return ['PUT', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'PUT', '/mixed-level-security'] as const
 }
 
 /**
@@ -364,32 +364,35 @@ export const getPutMixedLevelSecurityMutationOptions = (clientOptions?: ClientRe
  *
  * Admin-only security
  */
-export function createPutMixedLevelSecurity(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>>
-      >
-    >,
-    Error,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
-  }))
+export function createPutMixedLevelSecurity(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>>
+        >
+      >,
+      Error,
+      void
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMixedLevelSecurityMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /mixed-level-security
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMixedLevelSecurityMutationKey() {
-  return ['POST', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'POST', '/mixed-level-security'] as const
 }
 
 /**
@@ -408,32 +411,37 @@ export const getPostMixedLevelSecurityMutationOptions = (clientOptions?: ClientR
  *
  * Different security for POST
  */
-export function createPostMixedLevelSecurity(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>>
-      >
-    >,
-    Error,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
-  }))
+export function createPostMixedLevelSecurity(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
+          >
+        >
+      >,
+      Error,
+      void
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMixedLevelSecurityMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /mixed-level-security
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMixedLevelSecurityMutationKey() {
-  return ['DELETE', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'DELETE', '/mixed-level-security'] as const
 }
 
 /**
@@ -454,35 +462,38 @@ export const getDeleteMixedLevelSecurityMutationOptions = (
  *
  * Super admin security
  */
-export function createDeleteMixedLevelSecurity(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+export function createDeleteMixedLevelSecurity(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
+            >
           >
         >
-      >
-    | undefined,
-    Error,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      void
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteMixedLevelSecurityMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /override-global
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOverrideGlobalQueryKey() {
-  return ['override-global', '/override-global'] as const
+  return ['override-global', 'GET', '/override-global'] as const
 }
 
 /**
@@ -528,10 +539,10 @@ export function createGetOverrideGlobal(
 
 /**
  * Generates Svelte Query cache key for GET /optional-enhanced
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOptionalEnhancedQueryKey() {
-  return ['optional-enhanced', '/optional-enhanced'] as const
+  return ['optional-enhanced', 'GET', '/optional-enhanced'] as const
 }
 
 /**
@@ -577,10 +588,10 @@ export function createGetOptionalEnhanced(
 
 /**
  * Generates Svelte Query cache key for GET /multi-tenant
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiTenantQueryKey() {
-  return ['multi-tenant', '/multi-tenant'] as const
+  return ['multi-tenant', 'GET', '/multi-tenant'] as const
 }
 
 /**

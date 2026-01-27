@@ -6,10 +6,10 @@ import { client } from '../clients/additional'
 
 /**
  * Generates TanStack Query cache key for GET /passthrough
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPassthroughQueryKey() {
-  return ['passthrough', '/passthrough'] as const
+  return ['passthrough', 'GET', '/passthrough'] as const
 }
 
 /**

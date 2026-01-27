@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-nullable'
 
 /**
  * Generates TanStack Query cache key for GET /nullable
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNullableQueryKey() {
-  return ['nullable', '/nullable'] as const
+  return ['nullable', 'GET', '/nullable'] as const
 }
 
 /**

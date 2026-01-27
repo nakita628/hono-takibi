@@ -8,10 +8,10 @@ import { client } from '../clients/24-extreme-security'
 
 /**
  * Generates Vue Query cache key for GET /public
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicQueryKey() {
-  return ['public', '/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
@@ -51,10 +51,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /single-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSingleAuthQueryKey() {
-  return ['single-auth', '/single-auth'] as const
+  return ['single-auth', 'GET', '/single-auth'] as const
 }
 
 /**
@@ -101,10 +101,10 @@ export function useGetSingleAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /any-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAnyAuthQueryKey() {
-  return ['any-auth', '/any-auth'] as const
+  return ['any-auth', 'GET', '/any-auth'] as const
 }
 
 /**
@@ -149,10 +149,10 @@ export function useGetAnyAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /all-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAllAuthQueryKey() {
-  return ['all-auth', '/all-auth'] as const
+  return ['all-auth', 'GET', '/all-auth'] as const
 }
 
 /**
@@ -197,10 +197,10 @@ export function useGetAllAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /complex-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetComplexAuthQueryKey() {
-  return ['complex-auth', '/complex-auth'] as const
+  return ['complex-auth', 'GET', '/complex-auth'] as const
 }
 
 /**
@@ -247,10 +247,10 @@ export function useGetComplexAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /scoped-oauth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetScopedOauthQueryKey() {
-  return ['scoped-oauth', '/scoped-oauth'] as const
+  return ['scoped-oauth', 'GET', '/scoped-oauth'] as const
 }
 
 /**
@@ -297,10 +297,10 @@ export function useGetScopedOauth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /mixed-level-security
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMixedLevelSecurityQueryKey() {
-  return ['mixed-level-security', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'GET', '/mixed-level-security'] as const
 }
 
 /**
@@ -349,10 +349,10 @@ export function useGetMixedLevelSecurity(options?: {
 
 /**
  * Generates Vue Query mutation key for PUT /mixed-level-security
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMixedLevelSecurityMutationKey() {
-  return ['PUT', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'PUT', '/mixed-level-security'] as const
 }
 
 /**
@@ -385,25 +385,23 @@ export function usePutMixedLevelSecurity(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMixedLevelSecurityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /mixed-level-security
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMixedLevelSecurityMutationKey() {
-  return ['POST', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'POST', '/mixed-level-security'] as const
 }
 
 /**
@@ -436,25 +434,23 @@ export function usePostMixedLevelSecurity(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMixedLevelSecurityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /mixed-level-security
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMixedLevelSecurityMutationKey() {
-  return ['DELETE', '/mixed-level-security'] as const
+  return ['mixed-level-security', 'DELETE', '/mixed-level-security'] as const
 }
 
 /**
@@ -490,25 +486,23 @@ export function useDeleteMixedLevelSecurity(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMixedLevelSecurityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /override-global
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOverrideGlobalQueryKey() {
-  return ['override-global', '/override-global'] as const
+  return ['override-global', 'GET', '/override-global'] as const
 }
 
 /**
@@ -555,10 +549,10 @@ export function useGetOverrideGlobal(options?: {
 
 /**
  * Generates Vue Query cache key for GET /optional-enhanced
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOptionalEnhancedQueryKey() {
-  return ['optional-enhanced', '/optional-enhanced'] as const
+  return ['optional-enhanced', 'GET', '/optional-enhanced'] as const
 }
 
 /**
@@ -605,10 +599,10 @@ export function useGetOptionalEnhanced(options?: {
 
 /**
  * Generates Vue Query cache key for GET /multi-tenant
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiTenantQueryKey() {
-  return ['multi-tenant', '/multi-tenant'] as const
+  return ['multi-tenant', 'GET', '/multi-tenant'] as const
 }
 
 /**

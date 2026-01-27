@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-array'
 
 /**
  * Generates Svelte Query cache key for GET /array
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetArrayQueryKey() {
-  return ['array', '/array'] as const
+  return ['array', 'GET', '/array'] as const
 }
 
 /**

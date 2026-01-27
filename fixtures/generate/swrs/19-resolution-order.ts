@@ -8,10 +8,10 @@ import { client } from '../clients/19-resolution-order'
 
 /**
  * Generates SWR cache key for GET /entities
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEntitiesKey() {
-  return ['/entities'] as const
+  return ['entities', 'GET', '/entities'] as const
 }
 
 /**
@@ -37,10 +37,10 @@ export function useGetEntities(options?: {
 
 /**
  * Generates SWR mutation key for POST /process
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProcessMutationKey() {
-  return ['POST', '/process'] as const
+  return ['process', 'POST', '/process'] as const
 }
 
 /**
@@ -71,10 +71,10 @@ export function usePostProcess(options?: {
 
 /**
  * Generates SWR cache key for GET /graph
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGraphKey() {
-  return ['/graph'] as const
+  return ['graph', 'GET', '/graph'] as const
 }
 
 /**
@@ -100,10 +100,10 @@ export function useGetGraph(options?: {
 
 /**
  * Generates SWR mutation key for POST /transform
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTransformMutationKey() {
-  return ['POST', '/transform'] as const
+  return ['transform', 'POST', '/transform'] as const
 }
 
 /**

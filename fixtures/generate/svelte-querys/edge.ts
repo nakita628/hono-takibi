@@ -10,10 +10,10 @@ import { client } from '../clients/edge'
 
 /**
  * Generates Svelte Query mutation key for POST /polymorphic
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPolymorphicMutationKey() {
-  return ['POST', '/polymorphic'] as const
+  return ['polymorphic', 'POST', '/polymorphic'] as const
 }
 
 /**
@@ -32,28 +32,33 @@ export const getPostPolymorphicMutationOptions = (clientOptions?: ClientRequestO
  *
  * Polymorphic object with discriminator
  */
-export function createPostPolymorphic(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.polymorphic.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.polymorphic.$post>) =>
-      parseResponse(client.polymorphic.$post(args, clientOptions)),
-  }))
+export function createPostPolymorphic(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.polymorphic.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostPolymorphicMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /search
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['search', '/search', args] as const
+  return ['search', 'GET', '/search', args] as const
 }
 
 /**
@@ -96,10 +101,10 @@ export function createGetSearch(
 
 /**
  * Generates Svelte Query mutation key for PUT /multi-step
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMultiStepMutationKey() {
-  return ['PUT', '/multi-step'] as const
+  return ['multi-step', 'PUT', '/multi-step'] as const
 }
 
 /**
@@ -118,21 +123,24 @@ export const getPutMultiStepMutationOptions = (clientOptions?: ClientRequestOpti
  *
  * Multi-step object definition using allOf
  */
-export function createPutMultiStep(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>>
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client)['multi-step']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['multi-step']['$put']>) =>
-      parseResponse(client['multi-step'].$put(args, clientOptions)),
-  }))
+export function createPutMultiStep(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>
+          >
+        >
+      | undefined,
+      Error,
+      InferRequestType<(typeof client)['multi-step']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutMultiStepMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

@@ -8,10 +8,10 @@ import { client } from '../clients/08-links'
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**
@@ -42,12 +42,12 @@ export function usePostOrders(options?: {
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return [`/orders/${args.param.orderId}`, args] as const
+  return ['orders', 'GET', '/orders/:orderId', args] as const
 }
 
 /**
@@ -76,10 +76,10 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR mutation key for DELETE /orders/{orderId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteOrdersOrderIdMutationKey() {
-  return ['DELETE', '/orders/:orderId'] as const
+  return ['orders', 'DELETE', '/orders/:orderId'] as const
 }
 
 /**
@@ -116,12 +116,12 @@ export function useDeleteOrdersOrderId(options?: {
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}/items
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdItemsKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  return [`/orders/${args.param.orderId}/items`, args] as const
+  return ['orders', 'GET', '/orders/:orderId/items', args] as const
 }
 
 /**
@@ -150,12 +150,12 @@ export function useGetOrdersOrderIdItems(
 
 /**
  * Generates SWR cache key for GET /customers/{customerId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCustomersCustomerIdKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return [`/customers/${args.param.customerId}`, args] as const
+  return ['customers', 'GET', '/customers/:customerId', args] as const
 }
 
 /**
@@ -184,12 +184,12 @@ export function useGetCustomersCustomerId(
 
 /**
  * Generates SWR cache key for GET /customers/{customerId}/orders
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCustomersCustomerIdOrdersKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return [`/customers/${args.param.customerId}/orders`, args] as const
+  return ['customers', 'GET', '/customers/:customerId/orders', args] as const
 }
 
 /**
@@ -218,12 +218,12 @@ export function useGetCustomersCustomerIdOrders(
 
 /**
  * Generates SWR cache key for GET /payments/{paymentId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPaymentsPaymentIdKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return [`/payments/${args.param.paymentId}`, args] as const
+  return ['payments', 'GET', '/payments/:paymentId', args] as const
 }
 
 /**

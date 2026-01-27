@@ -6,10 +6,10 @@ import { client } from '../clients/schema-reference'
 
 /**
  * Generates TanStack Query cache key for GET /example
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExampleQueryKey() {
-  return ['example', '/example'] as const
+  return ['example', 'GET', '/example'] as const
 }
 
 /**

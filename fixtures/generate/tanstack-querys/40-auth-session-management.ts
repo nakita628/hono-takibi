@@ -10,10 +10,10 @@ import { client } from '../clients/40-auth-session-management'
 
 /**
  * Generates TanStack Query cache key for GET /sessions
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['sessions', '/sessions', args] as const
+  return ['sessions', 'GET', '/sessions', args] as const
 }
 
 /**
@@ -56,10 +56,10 @@ export function useGetSessions(
 
 /**
  * Generates TanStack Query mutation key for POST /sessions
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsMutationKey() {
-  return ['POST', '/sessions'] as const
+  return ['sessions', 'POST', '/sessions'] as const
 }
 
 /**
@@ -89,19 +89,16 @@ export function usePostSessions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.sessions.$post>) =>
-      parseResponse(client.sessions.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostSessionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /sessions/current
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSessionsCurrentQueryKey() {
-  return ['sessions', '/sessions/current'] as const
+  return ['sessions', 'GET', '/sessions/current'] as const
 }
 
 /**
@@ -141,10 +138,10 @@ export function useGetSessionsCurrent(options?: {
 
 /**
  * Generates TanStack Query mutation key for DELETE /sessions/current
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSessionsCurrentMutationKey() {
-  return ['DELETE', '/sessions/current'] as const
+  return ['sessions', 'DELETE', '/sessions/current'] as const
 }
 
 /**
@@ -176,19 +173,17 @@ export function useDeleteSessionsCurrent(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSessionsCurrentMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /sessions/current/refresh
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsCurrentRefreshMutationKey() {
-  return ['POST', '/sessions/current/refresh'] as const
+  return ['sessions', 'POST', '/sessions/current/refresh'] as const
 }
 
 /**
@@ -224,19 +219,17 @@ export function usePostSessionsCurrentRefresh(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.sessions.current.refresh.$post>) =>
-      parseResponse(client.sessions.current.refresh.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsCurrentRefreshMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /sessions/current/extend
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsCurrentExtendMutationKey() {
-  return ['POST', '/sessions/current/extend'] as const
+  return ['sessions', 'POST', '/sessions/current/extend'] as const
 }
 
 /**
@@ -272,19 +265,17 @@ export function usePostSessionsCurrentExtend(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.sessions.current.extend.$post>) =>
-      parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsCurrentExtendMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /sessions/current/activity
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsCurrentActivityMutationKey() {
-  return ['POST', '/sessions/current/activity'] as const
+  return ['sessions', 'POST', '/sessions/current/activity'] as const
 }
 
 /**
@@ -320,21 +311,19 @@ export function usePostSessionsCurrentActivity(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () =>
-      parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsCurrentActivityMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /sessions/{sessionId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsSessionIdQueryKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return ['sessions', '/sessions/:sessionId', args] as const
+  return ['sessions', 'GET', '/sessions/:sessionId', args] as const
 }
 
 /**
@@ -385,10 +374,10 @@ export function useGetSessionsSessionId(
 
 /**
  * Generates TanStack Query mutation key for DELETE /sessions/{sessionId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSessionsSessionIdMutationKey() {
-  return ['DELETE', '/sessions/:sessionId'] as const
+  return ['sessions', 'DELETE', '/sessions/:sessionId'] as const
 }
 
 /**
@@ -427,19 +416,17 @@ export function useDeleteSessionsSessionId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
-      parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSessionsSessionIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /sessions/revoke-all
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsRevokeAllMutationKey() {
-  return ['POST', '/sessions/revoke-all'] as const
+  return ['sessions', 'POST', '/sessions/revoke-all'] as const
 }
 
 /**
@@ -473,19 +460,17 @@ export function usePostSessionsRevokeAll(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>) =>
-      parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsRevokeAllMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /sessions/validate
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsValidateMutationKey() {
-  return ['POST', '/sessions/validate'] as const
+  return ['sessions', 'POST', '/sessions/validate'] as const
 }
 
 /**
@@ -517,21 +502,19 @@ export function usePostSessionsValidate(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.sessions.validate.$post>) =>
-      parseResponse(client.sessions.validate.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsValidateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /sessions/history
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsHistoryQueryKey(
   args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['sessions', '/sessions/history', args] as const
+  return ['sessions', 'GET', '/sessions/history', args] as const
 }
 
 /**
@@ -580,12 +563,12 @@ export function useGetSessionsHistory(
 
 /**
  * Generates TanStack Query cache key for GET /sessions/security-events
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsSecurityEventsQueryKey(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['sessions', '/sessions/security-events', args] as const
+  return ['sessions', 'GET', '/sessions/security-events', args] as const
 }
 
 /**
@@ -640,10 +623,10 @@ export function useGetSessionsSecurityEvents(
 
 /**
  * Generates TanStack Query cache key for GET /sessions/policies
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSessionsPoliciesQueryKey() {
-  return ['sessions', '/sessions/policies'] as const
+  return ['sessions', 'GET', '/sessions/policies'] as const
 }
 
 /**
@@ -683,10 +666,10 @@ export function useGetSessionsPolicies(options?: {
 
 /**
  * Generates TanStack Query mutation key for PUT /sessions/policies
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutSessionsPoliciesMutationKey() {
-  return ['PUT', '/sessions/policies'] as const
+  return ['sessions', 'PUT', '/sessions/policies'] as const
 }
 
 /**
@@ -716,19 +699,17 @@ export function usePutSessionsPolicies(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.sessions.policies.$put>) =>
-      parseResponse(client.sessions.policies.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutSessionsPoliciesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /sessions/trusted-devices
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSessionsTrustedDevicesQueryKey() {
-  return ['sessions', '/sessions/trusted-devices'] as const
+  return ['sessions', 'GET', '/sessions/trusted-devices'] as const
 }
 
 /**
@@ -773,10 +754,10 @@ export function useGetSessionsTrustedDevices(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /sessions/trusted-devices
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSessionsTrustedDevicesMutationKey() {
-  return ['POST', '/sessions/trusted-devices'] as const
+  return ['sessions', 'POST', '/sessions/trusted-devices'] as const
 }
 
 /**
@@ -813,20 +794,17 @@ export function usePostSessionsTrustedDevices(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
-    ) => parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostSessionsTrustedDevicesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /sessions/trusted-devices/{deviceId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
-  return ['DELETE', '/sessions/trusted-devices/:deviceId'] as const
+  return ['sessions', 'DELETE', '/sessions/trusted-devices/:deviceId'] as const
 }
 
 /**
@@ -864,11 +842,7 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
-    ) =>
-      parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteSessionsTrustedDevicesDeviceIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

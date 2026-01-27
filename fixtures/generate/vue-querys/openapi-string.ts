@@ -8,10 +8,10 @@ import { client } from '../clients/openapi-string'
 
 /**
  * Generates Vue Query cache key for GET /string
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStringQueryKey() {
-  return ['string', '/string'] as const
+  return ['string', 'GET', '/string'] as const
 }
 
 /**

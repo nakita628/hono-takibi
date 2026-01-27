@@ -8,12 +8,12 @@ import { client } from '../clients/35-auth-oauth2-server'
 
 /**
  * Generates SWR cache key for GET /oauth/authorize
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOauthAuthorizeKey(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return ['/oauth/authorize', args] as const
+  return ['oauth', 'GET', '/oauth/authorize', args] as const
 }
 
 /**
@@ -47,10 +47,10 @@ export function useGetOauthAuthorize(
 
 /**
  * Generates SWR mutation key for POST /oauth/token
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthTokenMutationKey() {
-  return ['POST', '/oauth/token'] as const
+  return ['oauth', 'POST', '/oauth/token'] as const
 }
 
 /**
@@ -86,10 +86,10 @@ export function usePostOauthToken(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/revoke
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthRevokeMutationKey() {
-  return ['POST', '/oauth/revoke'] as const
+  return ['oauth', 'POST', '/oauth/revoke'] as const
 }
 
 /**
@@ -126,10 +126,10 @@ export function usePostOauthRevoke(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/introspect
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthIntrospectMutationKey() {
-  return ['POST', '/oauth/introspect'] as const
+  return ['oauth', 'POST', '/oauth/introspect'] as const
 }
 
 /**
@@ -166,10 +166,10 @@ export function usePostOauthIntrospect(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/device/code
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthDeviceCodeMutationKey() {
-  return ['POST', '/oauth/device/code'] as const
+  return ['oauth', 'POST', '/oauth/device/code'] as const
 }
 
 /**
@@ -206,10 +206,10 @@ export function usePostOauthDeviceCode(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth/userinfo
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthUserinfoKey() {
-  return ['/oauth/userinfo'] as const
+  return ['oauth', 'GET', '/oauth/userinfo'] as const
 }
 
 /**
@@ -239,10 +239,10 @@ export function useGetOauthUserinfo(options?: {
 
 /**
  * Generates SWR cache key for GET /.well-known/openid-configuration
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWellKnownOpenidConfigurationKey() {
-  return ['/.well-known/openid-configuration'] as const
+  return ['.well-known', 'GET', '/.well-known/openid-configuration'] as const
 }
 
 /**
@@ -273,10 +273,10 @@ export function useGetWellKnownOpenidConfiguration(options?: {
 
 /**
  * Generates SWR cache key for GET /.well-known/jwks.json
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWellKnownJwksJsonKey() {
-  return ['/.well-known/jwks.json'] as const
+  return ['.well-known', 'GET', '/.well-known/jwks.json'] as const
 }
 
 /**
@@ -306,10 +306,10 @@ export function useGetWellKnownJwksJson(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth/clients
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthClientsKey() {
-  return ['/oauth/clients'] as const
+  return ['oauth', 'GET', '/oauth/clients'] as const
 }
 
 /**
@@ -337,10 +337,10 @@ export function useGetOauthClients(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/clients
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthClientsMutationKey() {
-  return ['POST', '/oauth/clients'] as const
+  return ['oauth', 'POST', '/oauth/clients'] as const
 }
 
 /**
@@ -375,12 +375,12 @@ export function usePostOauthClients(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth/clients/{clientId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOauthClientsClientIdKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return [`/oauth/clients/${args.param.clientId}`, args] as const
+  return ['oauth', 'GET', '/oauth/clients/:clientId', args] as const
 }
 
 /**
@@ -411,10 +411,10 @@ export function useGetOauthClientsClientId(
 
 /**
  * Generates SWR mutation key for PUT /oauth/clients/{clientId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutOauthClientsClientIdMutationKey() {
-  return ['PUT', '/oauth/clients/:clientId'] as const
+  return ['oauth', 'PUT', '/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -455,10 +455,10 @@ export function usePutOauthClientsClientId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /oauth/clients/{clientId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteOauthClientsClientIdMutationKey() {
-  return ['DELETE', '/oauth/clients/:clientId'] as const
+  return ['oauth', 'DELETE', '/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -500,10 +500,10 @@ export function useDeleteOauthClientsClientId(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/clients/{clientId}/secret
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthClientsClientIdSecretMutationKey() {
-  return ['POST', '/oauth/clients/:clientId/secret'] as const
+  return ['oauth', 'POST', '/oauth/clients/:clientId/secret'] as const
 }
 
 /**
@@ -546,10 +546,10 @@ export function usePostOauthClientsClientIdSecret(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth/consents
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthConsentsKey() {
-  return ['/oauth/consents'] as const
+  return ['oauth', 'GET', '/oauth/consents'] as const
 }
 
 /**
@@ -579,10 +579,10 @@ export function useGetOauthConsents(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /oauth/consents/{clientId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteOauthConsentsClientIdMutationKey() {
-  return ['DELETE', '/oauth/consents/:clientId'] as const
+  return ['oauth', 'DELETE', '/oauth/consents/:clientId'] as const
 }
 
 /**

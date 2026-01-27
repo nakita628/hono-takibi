@@ -8,12 +8,12 @@ import { client } from '../clients/18-multiple-same-refs'
 
 /**
  * Generates Vue Query cache key for GET /documents
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDocumentsQueryKey(
   args: MaybeRef<InferRequestType<typeof client.documents.$get>>,
 ) {
-  return ['documents', '/documents', unref(args)] as const
+  return ['documents', 'GET', '/documents', unref(args)] as const
 }
 
 /**
@@ -59,10 +59,10 @@ export function useGetDocuments(
 
 /**
  * Generates Vue Query mutation key for POST /documents
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDocumentsMutationKey() {
-  return ['POST', '/documents'] as const
+  return ['documents', 'POST', '/documents'] as const
 }
 
 /**
@@ -89,27 +89,24 @@ export function usePostDocuments(options?: {
         Error,
         InferRequestType<typeof client.documents.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.documents.$post>) =>
-      parseResponse(client.documents.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostDocumentsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDocumentsDocumentIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.documents)[':documentId']['$get']>>,
 ) {
-  return ['documents', '/documents/:documentId', unref(args)] as const
+  return ['documents', 'GET', '/documents/:documentId', unref(args)] as const
 }
 
 /**
@@ -165,10 +162,10 @@ export function useGetDocumentsDocumentId(
 
 /**
  * Generates Vue Query mutation key for PUT /documents/{documentId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutDocumentsDocumentIdMutationKey() {
-  return ['PUT', '/documents/:documentId'] as const
+  return ['documents', 'PUT', '/documents/:documentId'] as const
 }
 
 /**
@@ -199,27 +196,25 @@ export function usePutDocumentsDocumentId(options?: {
         Error,
         InferRequestType<(typeof client.documents)[':documentId']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.documents)[':documentId']['$put']>) =>
-      parseResponse(client.documents[':documentId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutDocumentsDocumentIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}/versions
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>>,
 ) {
-  return ['documents', '/documents/:documentId/versions', unref(args)] as const
+  return ['documents', 'GET', '/documents/:documentId/versions', unref(args)] as const
 }
 
 /**
@@ -275,10 +270,10 @@ export function useGetDocumentsDocumentIdVersions(
 
 /**
  * Generates Vue Query mutation key for POST /documents/{documentId}/share
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDocumentsDocumentIdShareMutationKey() {
-  return ['POST', '/documents/:documentId/share'] as const
+  return ['documents', 'POST', '/documents/:documentId/share'] as const
 }
 
 /**
@@ -312,28 +307,25 @@ export function usePostDocumentsDocumentIdShare(options?: {
         Error,
         InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
-    ) => parseResponse(client.documents[':documentId'].share.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostDocumentsDocumentIdShareMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}/documents
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdDocumentsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.users)[':userId']['documents']['$get']>>,
 ) {
-  return ['users', '/users/:userId/documents', unref(args)] as const
+  return ['users', 'GET', '/users/:userId/documents', unref(args)] as const
 }
 
 /**
@@ -389,10 +381,10 @@ export function useGetUsersUserIdDocuments(
 
 /**
  * Generates Vue Query mutation key for POST /compare
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCompareMutationKey() {
-  return ['POST', '/compare'] as const
+  return ['compare', 'POST', '/compare'] as const
 }
 
 /**
@@ -417,25 +409,22 @@ export function usePostCompare(options?: {
         Error,
         InferRequestType<typeof client.compare.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.compare.$post>) =>
-      parseResponse(client.compare.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostCompareMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /templates
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTemplatesQueryKey() {
-  return ['templates', '/templates'] as const
+  return ['templates', 'GET', '/templates'] as const
 }
 
 /**
@@ -478,10 +467,10 @@ export function useGetTemplates(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /templates
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTemplatesMutationKey() {
-  return ['POST', '/templates'] as const
+  return ['templates', 'POST', '/templates'] as const
 }
 
 /**
@@ -508,25 +497,22 @@ export function usePostTemplates(options?: {
         Error,
         InferRequestType<typeof client.templates.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
-      parseResponse(client.templates.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostTemplatesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /workflows
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWorkflowsMutationKey() {
-  return ['POST', '/workflows'] as const
+  return ['workflows', 'POST', '/workflows'] as const
 }
 
 /**
@@ -553,15 +539,12 @@ export function usePostWorkflows(options?: {
         Error,
         InferRequestType<typeof client.workflows.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.workflows.$post>) =>
-      parseResponse(client.workflows.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostWorkflowsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

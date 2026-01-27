@@ -6,10 +6,10 @@ import { client } from '../clients/04-security-schemes'
 
 /**
  * Generates Svelte Query cache key for GET /public
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicQueryKey() {
-  return ['public', '/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
@@ -46,10 +46,10 @@ export function createGetPublic(
 
 /**
  * Generates Svelte Query cache key for GET /protected
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProtectedQueryKey() {
-  return ['protected', '/protected'] as const
+  return ['protected', 'GET', '/protected'] as const
 }
 
 /**
@@ -89,10 +89,10 @@ export function createGetProtected(
 
 /**
  * Generates Svelte Query cache key for GET /admin
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAdminQueryKey() {
-  return ['admin', '/admin'] as const
+  return ['admin', 'GET', '/admin'] as const
 }
 
 /**
@@ -129,10 +129,10 @@ export function createGetAdmin(
 
 /**
  * Generates Svelte Query cache key for GET /oauth-resource
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthResourceQueryKey() {
-  return ['oauth-resource', '/oauth-resource'] as const
+  return ['oauth-resource', 'GET', '/oauth-resource'] as const
 }
 
 /**
@@ -176,10 +176,10 @@ export function createGetOauthResource(
 
 /**
  * Generates Svelte Query cache key for GET /multi-auth
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiAuthQueryKey() {
-  return ['multi-auth', '/multi-auth'] as const
+  return ['multi-auth', 'GET', '/multi-auth'] as const
 }
 
 /**

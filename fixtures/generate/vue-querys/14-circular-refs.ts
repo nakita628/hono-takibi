@@ -8,10 +8,10 @@ import { client } from '../clients/14-circular-refs'
 
 /**
  * Generates Vue Query cache key for GET /trees
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTreesQueryKey() {
-  return ['trees', '/trees'] as const
+  return ['trees', 'GET', '/trees'] as const
 }
 
 /**
@@ -49,10 +49,10 @@ export function useGetTrees(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /trees
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTreesMutationKey() {
-  return ['POST', '/trees'] as const
+  return ['trees', 'POST', '/trees'] as const
 }
 
 /**
@@ -77,25 +77,22 @@ export function usePostTrees(options?: {
         Error,
         InferRequestType<typeof client.trees.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.trees.$post>) =>
-      parseResponse(client.trees.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostTreesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /graphs
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGraphsQueryKey() {
-  return ['graphs', '/graphs'] as const
+  return ['graphs', 'GET', '/graphs'] as const
 }
 
 /**
@@ -133,10 +130,10 @@ export function useGetGraphs(options?: {
 
 /**
  * Generates Vue Query cache key for GET /linked-lists
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetLinkedListsQueryKey() {
-  return ['linked-lists', '/linked-lists'] as const
+  return ['linked-lists', 'GET', '/linked-lists'] as const
 }
 
 /**
@@ -181,10 +178,10 @@ export function useGetLinkedLists(options?: {
 
 /**
  * Generates Vue Query cache key for GET /social-network
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSocialNetworkQueryKey() {
-  return ['social-network', '/social-network'] as const
+  return ['social-network', 'GET', '/social-network'] as const
 }
 
 /**
@@ -229,10 +226,10 @@ export function useGetSocialNetwork(options?: {
 
 /**
  * Generates Vue Query cache key for GET /file-system
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFileSystemQueryKey() {
-  return ['file-system', '/file-system'] as const
+  return ['file-system', 'GET', '/file-system'] as const
 }
 
 /**
@@ -277,10 +274,10 @@ export function useGetFileSystem(options?: {
 
 /**
  * Generates Vue Query cache key for GET /comments
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCommentsQueryKey() {
-  return ['comments', '/comments'] as const
+  return ['comments', 'GET', '/comments'] as const
 }
 
 /**
@@ -321,10 +318,10 @@ export function useGetComments(options?: {
 
 /**
  * Generates Vue Query cache key for GET /polymorphic
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPolymorphicQueryKey() {
-  return ['polymorphic', '/polymorphic'] as const
+  return ['polymorphic', 'GET', '/polymorphic'] as const
 }
 
 /**
@@ -367,10 +364,10 @@ export function useGetPolymorphic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /categories
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCategoriesQueryKey() {
-  return ['categories', '/categories'] as const
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**
@@ -413,10 +410,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates Vue Query cache key for GET /workflow
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWorkflowQueryKey() {
-  return ['workflow', '/workflow'] as const
+  return ['workflow', 'GET', '/workflow'] as const
 }
 
 /**

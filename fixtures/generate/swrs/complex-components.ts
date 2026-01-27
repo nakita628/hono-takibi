@@ -8,10 +8,10 @@ import { client } from '../clients/complex-components'
 
 /**
  * Generates SWR mutation key for POST /auth/token
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthTokenMutationKey() {
-  return ['POST', '/auth/token'] as const
+  return ['auth', 'POST', '/auth/token'] as const
 }
 
 /**
@@ -44,10 +44,10 @@ export function usePostAuthToken(options?: {
 
 /**
  * Generates SWR cache key for GET /users
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
+  return ['users', 'GET', '/users', args] as const
 }
 
 /**
@@ -78,10 +78,10 @@ export function useGetUsers(
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersMutationKey() {
-  return ['POST', '/users'] as const
+  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -114,12 +114,12 @@ export function usePostUsers(options?: {
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return [`/users/${args.param.userId}`, args] as const
+  return ['users', 'GET', '/users/:userId', args] as const
 }
 
 /**
@@ -150,10 +150,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR mutation key for PATCH /users/{userId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchUsersUserIdMutationKey() {
-  return ['PATCH', '/users/:userId'] as const
+  return ['users', 'PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -192,12 +192,12 @@ export function usePatchUsersUserId(options?: {
 
 /**
  * Generates SWR cache key for GET /companies/{companyId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCompaniesCompanyIdKey(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
 ) {
-  return [`/companies/${args.param.companyId}`, args] as const
+  return ['companies', 'GET', '/companies/:companyId', args] as const
 }
 
 /**
@@ -228,10 +228,10 @@ export function useGetCompaniesCompanyId(
 
 /**
  * Generates SWR cache key for GET /orders
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersKey(args: InferRequestType<typeof client.orders.$get>) {
-  return ['/orders', args] as const
+  return ['orders', 'GET', '/orders', args] as const
 }
 
 /**
@@ -262,10 +262,10 @@ export function useGetOrders(
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**
@@ -298,12 +298,12 @@ export function usePostOrders(options?: {
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrdersOrderIdKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return [`/orders/${args.param.orderId}`, args] as const
+  return ['orders', 'GET', '/orders/:orderId', args] as const
 }
 
 /**
@@ -334,12 +334,12 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR cache key for GET /files/{fileId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return [`/files/${args.param.fileId}`, args] as const
+  return ['files', 'GET', '/files/:fileId', args] as const
 }
 
 /**
@@ -370,10 +370,10 @@ export function useGetFilesFileId(
 
 /**
  * Generates SWR mutation key for POST /subscriptions
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSubscriptionsMutationKey() {
-  return ['POST', '/subscriptions'] as const
+  return ['subscriptions', 'POST', '/subscriptions'] as const
 }
 
 /**

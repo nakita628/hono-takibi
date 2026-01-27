@@ -8,10 +8,10 @@ import { client } from '../clients/hono-rest-example'
 
 /**
  * Generates SWR cache key for GET /
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetKey() {
-  return ['/'] as const
+  return ['', 'GET', '/'] as const
 }
 
 /**
@@ -41,10 +41,10 @@ export function useGet(options?: {
 
 /**
  * Generates SWR cache key for GET /posts
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
+  return ['posts', 'GET', '/posts', args] as const
 }
 
 /**
@@ -77,10 +77,10 @@ export function useGetPosts(
 
 /**
  * Generates SWR mutation key for POST /posts
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsMutationKey() {
-  return ['POST', '/posts'] as const
+  return ['posts', 'POST', '/posts'] as const
 }
 
 /**
@@ -115,10 +115,10 @@ export function usePostPosts(options?: {
 
 /**
  * Generates SWR mutation key for PUT /posts/{id}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPostsIdMutationKey() {
-  return ['PUT', '/posts/:id'] as const
+  return ['posts', 'PUT', '/posts/:id'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutPostsId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /posts/{id}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePostsIdMutationKey() {
-  return ['DELETE', '/posts/:id'] as const
+  return ['posts', 'DELETE', '/posts/:id'] as const
 }
 
 /**

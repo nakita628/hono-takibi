@@ -8,10 +8,10 @@ import { client } from '../clients/26-extreme-features'
 
 /**
  * Generates SWR cache key for GET /stream
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStreamKey() {
-  return ['/stream'] as const
+  return ['stream', 'GET', '/stream'] as const
 }
 
 /**
@@ -39,10 +39,10 @@ export function useGetStream(options?: {
 
 /**
  * Generates SWR mutation key for POST /graphql
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGraphqlMutationKey() {
-  return ['POST', '/graphql'] as const
+  return ['graphql', 'POST', '/graphql'] as const
 }
 
 /**
@@ -75,10 +75,10 @@ export function usePostGraphql(options?: {
 
 /**
  * Generates SWR mutation key for POST /grpc-gateway
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGrpcGatewayMutationKey() {
-  return ['POST', '/grpc-gateway'] as const
+  return ['grpc-gateway', 'POST', '/grpc-gateway'] as const
 }
 
 /**
@@ -117,10 +117,10 @@ export function usePostGrpcGateway(options?: {
 
 /**
  * Generates SWR cache key for GET /deprecated-endpoint
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeprecatedEndpointKey() {
-  return ['/deprecated-endpoint'] as const
+  return ['deprecated-endpoint', 'GET', '/deprecated-endpoint'] as const
 }
 
 /**

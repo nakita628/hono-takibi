@@ -8,7 +8,7 @@ import { client } from '../clients/23-extreme-parameters'
 
 /**
  * Generates Vue Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
   args: MaybeRef<
@@ -19,6 +19,7 @@ export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
 ) {
   return [
     'a',
+    'GET',
     '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10',
     unref(args),
   ] as const
@@ -84,12 +85,12 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 
 /**
  * Generates Vue Query cache key for GET /query-styles
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetQueryStylesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['query-styles']['$get']>>,
 ) {
-  return ['query-styles', '/query-styles', unref(args)] as const
+  return ['query-styles', 'GET', '/query-styles', unref(args)] as const
 }
 
 /**
@@ -140,14 +141,14 @@ export function useGetQueryStyles(
 
 /**
  * Generates Vue Query cache key for GET /path-styles/{simple}/{label}/{matrix}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPathStylesSimpleLabelMatrixQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>
   >,
 ) {
-  return ['path-styles', '/path-styles/:simple/:label/:matrix', unref(args)] as const
+  return ['path-styles', 'GET', '/path-styles/:simple/:label/:matrix', unref(args)] as const
 }
 
 /**
@@ -205,12 +206,12 @@ export function useGetPathStylesSimpleLabelMatrix(
 
 /**
  * Generates Vue Query cache key for GET /header-styles
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetHeaderStylesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['header-styles']['$get']>>,
 ) {
-  return ['header-styles', '/header-styles', unref(args)] as const
+  return ['header-styles', 'GET', '/header-styles', unref(args)] as const
 }
 
 /**
@@ -261,12 +262,12 @@ export function useGetHeaderStyles(
 
 /**
  * Generates Vue Query cache key for GET /cookie-styles
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCookieStylesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['cookie-styles']['$get']>>,
 ) {
-  return ['cookie-styles', '/cookie-styles', unref(args)] as const
+  return ['cookie-styles', 'GET', '/cookie-styles', unref(args)] as const
 }
 
 /**
@@ -317,12 +318,12 @@ export function useGetCookieStyles(
 
 /**
  * Generates Vue Query cache key for GET /many-query-params
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetManyQueryParamsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['many-query-params']['$get']>>,
 ) {
-  return ['many-query-params', '/many-query-params', unref(args)] as const
+  return ['many-query-params', 'GET', '/many-query-params', unref(args)] as const
 }
 
 /**
@@ -378,12 +379,12 @@ export function useGetManyQueryParams(
 
 /**
  * Generates Vue Query cache key for GET /parameter-content
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetParameterContentQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['parameter-content']['$get']>>,
 ) {
-  return ['parameter-content', '/parameter-content', unref(args)] as const
+  return ['parameter-content', 'GET', '/parameter-content', unref(args)] as const
 }
 
 /**
@@ -439,12 +440,12 @@ export function useGetParameterContent(
 
 /**
  * Generates Vue Query cache key for GET /deprecated-params
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDeprecatedParamsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['deprecated-params']['$get']>>,
 ) {
-  return ['deprecated-params', '/deprecated-params', unref(args)] as const
+  return ['deprecated-params', 'GET', '/deprecated-params', unref(args)] as const
 }
 
 /**
@@ -500,12 +501,12 @@ export function useGetDeprecatedParams(
 
 /**
  * Generates Vue Query cache key for GET /examples-params
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetExamplesParamsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['examples-params']['$get']>>,
 ) {
-  return ['examples-params', '/examples-params', unref(args)] as const
+  return ['examples-params', 'GET', '/examples-params', unref(args)] as const
 }
 
 /**

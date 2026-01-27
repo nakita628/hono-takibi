@@ -8,10 +8,10 @@ import { client } from '../clients/16-complex-composition'
 
 /**
  * Generates SWR mutation key for POST /messages
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMessagesMutationKey() {
-  return ['POST', '/messages'] as const
+  return ['messages', 'POST', '/messages'] as const
 }
 
 /**
@@ -42,10 +42,10 @@ export function usePostMessages(options?: {
 
 /**
  * Generates SWR mutation key for POST /events
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEventsMutationKey() {
-  return ['POST', '/events'] as const
+  return ['events', 'POST', '/events'] as const
 }
 
 /**
@@ -76,10 +76,10 @@ export function usePostEvents(options?: {
 
 /**
  * Generates SWR cache key for GET /configs
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetConfigsKey() {
-  return ['/configs'] as const
+  return ['configs', 'GET', '/configs'] as const
 }
 
 /**
@@ -105,10 +105,10 @@ export function useGetConfigs(options?: {
 
 /**
  * Generates SWR mutation key for PUT /configs
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutConfigsMutationKey() {
-  return ['PUT', '/configs'] as const
+  return ['configs', 'PUT', '/configs'] as const
 }
 
 /**
@@ -139,10 +139,10 @@ export function usePutConfigs(options?: {
 
 /**
  * Generates SWR mutation key for POST /resources
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostResourcesMutationKey() {
-  return ['POST', '/resources'] as const
+  return ['resources', 'POST', '/resources'] as const
 }
 
 /**
@@ -173,10 +173,10 @@ export function usePostResources(options?: {
 
 /**
  * Generates SWR mutation key for POST /validations
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostValidationsMutationKey() {
-  return ['POST', '/validations'] as const
+  return ['validations', 'POST', '/validations'] as const
 }
 
 /**

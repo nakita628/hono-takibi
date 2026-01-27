@@ -10,10 +10,10 @@ import { client } from '../clients/26-extreme-features'
 
 /**
  * Generates Svelte Query cache key for GET /stream
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStreamQueryKey() {
-  return ['stream', '/stream'] as const
+  return ['stream', 'GET', '/stream'] as const
 }
 
 /**
@@ -52,10 +52,10 @@ export function createGetStream(
 
 /**
  * Generates Svelte Query mutation key for POST /graphql
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGraphqlMutationKey() {
-  return ['POST', '/graphql'] as const
+  return ['graphql', 'POST', '/graphql'] as const
 }
 
 /**
@@ -74,28 +74,29 @@ export const getPostGraphqlMutationOptions = (clientOptions?: ClientRequestOptio
  *
  * GraphQL endpoint
  */
-export function createPostGraphql(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.graphql.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
-      parseResponse(client.graphql.$post(args, clientOptions)),
-  }))
+export function createPostGraphql(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graphql.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.graphql.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostGraphqlMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /grpc-gateway
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGrpcGatewayMutationKey() {
-  return ['POST', '/grpc-gateway'] as const
+  return ['grpc-gateway', 'POST', '/grpc-gateway'] as const
 }
 
 /**
@@ -114,32 +115,35 @@ export const getPostGrpcGatewayMutationOptions = (clientOptions?: ClientRequestO
  *
  * gRPC-Gateway endpoint
  */
-export function createPostGrpcGateway(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['grpc-gateway']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
-      parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
-  }))
+export function createPostGrpcGateway(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['grpc-gateway']['$post']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['grpc-gateway']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostGrpcGatewayMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /deprecated-endpoint
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeprecatedEndpointQueryKey() {
-  return ['deprecated-endpoint', '/deprecated-endpoint'] as const
+  return ['deprecated-endpoint', 'GET', '/deprecated-endpoint'] as const
 }
 
 /**

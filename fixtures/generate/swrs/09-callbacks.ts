@@ -7,10 +7,10 @@ import { client } from '../clients/09-callbacks'
 
 /**
  * Generates SWR mutation key for POST /webhooks
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksMutationKey() {
-  return ['POST', '/webhooks'] as const
+  return ['webhooks', 'POST', '/webhooks'] as const
 }
 
 /**
@@ -43,10 +43,10 @@ export function usePostWebhooks(options?: {
 
 /**
  * Generates SWR mutation key for POST /subscriptions
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSubscriptionsMutationKey() {
-  return ['POST', '/subscriptions'] as const
+  return ['subscriptions', 'POST', '/subscriptions'] as const
 }
 
 /**
@@ -81,10 +81,10 @@ export function usePostSubscriptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /jobs
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostJobsMutationKey() {
-  return ['POST', '/jobs'] as const
+  return ['jobs', 'POST', '/jobs'] as const
 }
 
 /**
@@ -117,10 +117,10 @@ export function usePostJobs(options?: {
 
 /**
  * Generates SWR mutation key for POST /integrations/{integrationId}/sync
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostIntegrationsIntegrationIdSyncMutationKey() {
-  return ['POST', '/integrations/:integrationId/sync'] as const
+  return ['integrations', 'POST', '/integrations/:integrationId/sync'] as const
 }
 
 /**

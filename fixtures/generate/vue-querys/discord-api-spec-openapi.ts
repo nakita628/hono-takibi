@@ -8,10 +8,10 @@ import { client } from '../clients/discord-api-spec-openapi'
 
 /**
  * Generates Vue Query cache key for GET /applications/@me
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetApplicationsMeQueryKey() {
-  return ['applications', '/applications/@me'] as const
+  return ['applications', 'GET', '/applications/@me'] as const
 }
 
 /**
@@ -56,10 +56,10 @@ export function useGetApplicationsMe(options?: {
 
 /**
  * Generates Vue Query mutation key for PATCH /applications/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchApplicationsMeMutationKey() {
-  return ['PATCH', '/applications/@me'] as const
+  return ['applications', 'PATCH', '/applications/@me'] as const
 }
 
 /**
@@ -88,27 +88,25 @@ export function usePatchApplicationsMe(options?: {
         Error,
         InferRequestType<(typeof client.applications)['@me']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.applications)['@me']['$patch']>) =>
-      parseResponse(client.applications['@me'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchApplicationsMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.applications)[':application_id']['$get']>>,
 ) {
-  return ['applications', '/applications/:application_id', unref(args)] as const
+  return ['applications', 'GET', '/applications/:application_id', unref(args)] as const
 }
 
 /**
@@ -164,10 +162,10 @@ export function useGetApplicationsApplicationId(
 
 /**
  * Generates Vue Query mutation key for PATCH /applications/{application_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchApplicationsApplicationIdMutationKey() {
-  return ['PATCH', '/applications/:application_id'] as const
+  return ['applications', 'PATCH', '/applications/:application_id'] as const
 }
 
 /**
@@ -201,23 +199,20 @@ export function usePatchApplicationsApplicationId(options?: {
         Error,
         InferRequestType<(typeof client.applications)[':application_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
-    ) => parseResponse(client.applications[':application_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchApplicationsApplicationIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
   args: MaybeRef<
@@ -228,6 +223,7 @@ export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryK
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/activity-instances/:instance_id',
     unref(args),
   ] as const
@@ -292,10 +288,10 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
 
 /**
  * Generates Vue Query mutation key for POST /applications/{application_id}/attachment
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApplicationsApplicationIdAttachmentMutationKey() {
-  return ['POST', '/applications/:application_id/attachment'] as const
+  return ['applications', 'POST', '/applications/:application_id/attachment'] as const
 }
 
 /**
@@ -331,33 +327,27 @@ export function usePostApplicationsApplicationIdAttachment(options?: {
         Error,
         InferRequestType<(typeof client.applications)[':application_id']['attachment']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['attachment']['$post']
-      >,
-    ) =>
-      parseResponse(client.applications[':application_id'].attachment.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApplicationsApplicationIdAttachmentMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/commands
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>
   >,
 ) {
-  return ['applications', '/applications/:application_id/commands', unref(args)] as const
+  return ['applications', 'GET', '/applications/:application_id/commands', unref(args)] as const
 }
 
 /**
@@ -415,10 +405,10 @@ export function useGetApplicationsApplicationIdCommands(
 
 /**
  * Generates Vue Query mutation key for PUT /applications/{application_id}/commands
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutApplicationsApplicationIdCommandsMutationKey() {
-  return ['PUT', '/applications/:application_id/commands'] as const
+  return ['applications', 'PUT', '/applications/:application_id/commands'] as const
 }
 
 /**
@@ -454,26 +444,23 @@ export function usePutApplicationsApplicationIdCommands(options?: {
         Error,
         InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>,
-    ) => parseResponse(client.applications[':application_id'].commands.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutApplicationsApplicationIdCommandsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /applications/{application_id}/commands
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApplicationsApplicationIdCommandsMutationKey() {
-  return ['POST', '/applications/:application_id/commands'] as const
+  return ['applications', 'POST', '/applications/:application_id/commands'] as const
 }
 
 /**
@@ -509,23 +496,20 @@ export function usePostApplicationsApplicationIdCommands(options?: {
         Error,
         InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>,
-    ) => parseResponse(client.applications[':application_id'].commands.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApplicationsApplicationIdCommandsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/commands/{command_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
   args: MaybeRef<
@@ -536,6 +520,7 @@ export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/commands/:command_id',
     unref(args),
   ] as const
@@ -600,10 +585,10 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
 
 /**
  * Generates Vue Query mutation key for DELETE /applications/{application_id}/commands/{command_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return ['DELETE', '/applications/:application_id/commands/:command_id'] as const
+  return ['applications', 'DELETE', '/applications/:application_id/commands/:command_id'] as const
 }
 
 /**
@@ -649,31 +634,23 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
           (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].commands[':command_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteApplicationsApplicationIdCommandsCommandIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /applications/{application_id}/commands/{command_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return ['PATCH', '/applications/:application_id/commands/:command_id'] as const
+  return ['applications', 'PATCH', '/applications/:application_id/commands/:command_id'] as const
 }
 
 /**
@@ -718,35 +695,27 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
           (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].commands[':command_id'].$patch(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchApplicationsApplicationIdCommandsCommandIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/emojis
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>
   >,
 ) {
-  return ['applications', '/applications/:application_id/emojis', unref(args)] as const
+  return ['applications', 'GET', '/applications/:application_id/emojis', unref(args)] as const
 }
 
 /**
@@ -804,10 +773,10 @@ export function useGetApplicationsApplicationIdEmojis(
 
 /**
  * Generates Vue Query mutation key for POST /applications/{application_id}/emojis
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApplicationsApplicationIdEmojisMutationKey() {
-  return ['POST', '/applications/:application_id/emojis'] as const
+  return ['applications', 'POST', '/applications/:application_id/emojis'] as const
 }
 
 /**
@@ -843,30 +812,32 @@ export function usePostApplicationsApplicationIdEmojis(options?: {
         Error,
         InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>,
-    ) => parseResponse(client.applications[':application_id'].emojis.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApplicationsApplicationIdEmojisMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']>
   >,
 ) {
-  return ['applications', '/applications/:application_id/emojis/:emoji_id', unref(args)] as const
+  return [
+    'applications',
+    'GET',
+    '/applications/:application_id/emojis/:emoji_id',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -928,10 +899,10 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
 
 /**
  * Generates Vue Query mutation key for DELETE /applications/{application_id}/emojis/{emoji_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return ['DELETE', '/applications/:application_id/emojis/:emoji_id'] as const
+  return ['applications', 'DELETE', '/applications/:application_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -977,31 +948,23 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
           (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].emojis[':emoji_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteApplicationsApplicationIdEmojisEmojiIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /applications/{application_id}/emojis/{emoji_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return ['PATCH', '/applications/:application_id/emojis/:emoji_id'] as const
+  return ['applications', 'PATCH', '/applications/:application_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -1046,35 +1009,27 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
           (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].emojis[':emoji_id'].$patch(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchApplicationsApplicationIdEmojisEmojiIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/entitlements
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>
   >,
 ) {
-  return ['applications', '/applications/:application_id/entitlements', unref(args)] as const
+  return ['applications', 'GET', '/applications/:application_id/entitlements', unref(args)] as const
 }
 
 /**
@@ -1132,10 +1087,10 @@ export function useGetApplicationsApplicationIdEntitlements(
 
 /**
  * Generates Vue Query mutation key for POST /applications/{application_id}/entitlements
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApplicationsApplicationIdEntitlementsMutationKey() {
-  return ['POST', '/applications/:application_id/entitlements'] as const
+  return ['applications', 'POST', '/applications/:application_id/entitlements'] as const
 }
 
 /**
@@ -1174,26 +1129,20 @@ export function usePostApplicationsApplicationIdEntitlements(options?: {
         Error,
         InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['entitlements']['$post']
-      >,
-    ) =>
-      parseResponse(client.applications[':application_id'].entitlements.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApplicationsApplicationIdEntitlementsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
   args: MaybeRef<
@@ -1204,6 +1153,7 @@ export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/entitlements/:entitlement_id',
     unref(args),
   ] as const
@@ -1268,10 +1218,14 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
 
 /**
  * Generates Vue Query mutation key for DELETE /applications/{application_id}/entitlements/{entitlement_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey() {
-  return ['DELETE', '/applications/:application_id/entitlements/:entitlement_id'] as const
+  return [
+    'applications',
+    'DELETE',
+    '/applications/:application_id/entitlements/:entitlement_id',
+  ] as const
 }
 
 /**
@@ -1320,34 +1274,27 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
           (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].entitlements[':entitlement_id'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /applications/{application_id}/entitlements/{entitlement_id}/consume
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey() {
-  return ['POST', '/applications/:application_id/entitlements/:entitlement_id/consume'] as const
+  return [
+    'applications',
+    'POST',
+    '/applications/:application_id/entitlements/:entitlement_id/consume',
+  ] as const
 }
 
 /**
@@ -1396,31 +1343,20 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
           (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].entitlements[':entitlement_id'].consume.$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
   args: MaybeRef<
@@ -1431,6 +1367,7 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/guilds/:guild_id/commands',
     unref(args),
   ] as const
@@ -1495,10 +1432,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
 
 /**
  * Generates Vue Query mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return ['PUT', '/applications/:application_id/guilds/:guild_id/commands'] as const
+  return ['applications', 'PUT', '/applications/:application_id/guilds/:guild_id/commands'] as const
 }
 
 /**
@@ -1543,34 +1480,27 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands.$put(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /applications/{application_id}/guilds/{guild_id}/commands
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return ['POST', '/applications/:application_id/guilds/:guild_id/commands'] as const
+  return [
+    'applications',
+    'POST',
+    '/applications/:application_id/guilds/:guild_id/commands',
+  ] as const
 }
 
 /**
@@ -1618,31 +1548,20 @@ export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: 
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands.$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
   args: MaybeRef<
@@ -1653,6 +1572,7 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQ
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/guilds/:guild_id/commands/permissions',
     unref(args),
   ] as const
@@ -1717,7 +1637,7 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
   args: MaybeRef<
@@ -1728,6 +1648,7 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQue
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/guilds/:guild_id/commands/:command_id',
     unref(args),
   ] as const
@@ -1792,10 +1713,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 
 /**
  * Generates Vue Query mutation key for DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return ['DELETE', '/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
+  return [
+    'applications',
+    'DELETE',
+    '/applications/:application_id/guilds/:guild_id/commands/:command_id',
+  ] as const
 }
 
 /**
@@ -1844,34 +1769,27 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return ['PATCH', '/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
+  return [
+    'applications',
+    'PATCH',
+    '/applications/:application_id/guilds/:guild_id/commands/:command_id',
+  ] as const
 }
 
 /**
@@ -1919,31 +1837,20 @@ export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$patch(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
   args: MaybeRef<
@@ -1954,6 +1861,7 @@ export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
     unref(args),
   ] as const
@@ -2022,10 +1930,11 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 
 /**
  * Generates Vue Query mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey() {
   return [
+    'applications',
     'PUT',
     '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
   ] as const
@@ -2075,30 +1984,22 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
           (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id'].guilds[':guild_id'].commands[
-          ':command_id'
-        ].permissions.$put(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/role-connections/metadata
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
   args: MaybeRef<
@@ -2109,6 +2010,7 @@ export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
 ) {
   return [
     'applications',
+    'GET',
     '/applications/:application_id/role-connections/metadata',
     unref(args),
   ] as const
@@ -2173,10 +2075,10 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
 
 /**
  * Generates Vue Query mutation key for PUT /applications/{application_id}/role-connections/metadata
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey() {
-  return ['PUT', '/applications/:application_id/role-connections/metadata'] as const
+  return ['applications', 'PUT', '/applications/:application_id/role-connections/metadata'] as const
 }
 
 /**
@@ -2221,36 +2123,25 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?:
           (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.applications[':application_id']['role-connections'].metadata.$put(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutApplicationsApplicationIdRoleConnectionsMetadataMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.channels)[':channel_id']['$get']>>,
 ) {
-  return ['channels', '/channels/:channel_id', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id', unref(args)] as const
 }
 
 /**
@@ -2306,10 +2197,10 @@ export function useGetChannelsChannelId(
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdMutationKey() {
-  return ['DELETE', '/channels/:channel_id'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id'] as const
 }
 
 /**
@@ -2342,26 +2233,23 @@ export function useDeleteChannelsChannelId(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>,
-    ) => parseResponse(client.channels[':channel_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /channels/{channel_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchChannelsChannelIdMutationKey() {
-  return ['PATCH', '/channels/:channel_id'] as const
+  return ['channels', 'PATCH', '/channels/:channel_id'] as const
 }
 
 /**
@@ -2392,25 +2280,23 @@ export function usePatchChannelsChannelId(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>) =>
-      parseResponse(client.channels[':channel_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchChannelsChannelIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/followers
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdFollowersMutationKey() {
-  return ['POST', '/channels/:channel_id/followers'] as const
+  return ['channels', 'POST', '/channels/:channel_id/followers'] as const
 }
 
 /**
@@ -2444,28 +2330,25 @@ export function usePostChannelsChannelIdFollowers(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
-    ) => parseResponse(client.channels[':channel_id'].followers.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdFollowersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/invites
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>>,
 ) {
-  return ['channels', '/channels/:channel_id/invites', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/invites', unref(args)] as const
 }
 
 /**
@@ -2521,10 +2404,10 @@ export function useGetChannelsChannelIdInvites(
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/invites
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdInvitesMutationKey() {
-  return ['POST', '/channels/:channel_id/invites'] as const
+  return ['channels', 'POST', '/channels/:channel_id/invites'] as const
 }
 
 /**
@@ -2559,28 +2442,25 @@ export function usePostChannelsChannelIdInvites(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
-    ) => parseResponse(client.channels[':channel_id'].invites.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdInvitesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>>,
 ) {
-  return ['channels', '/channels/:channel_id/messages', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/messages', unref(args)] as const
 }
 
 /**
@@ -2636,10 +2516,10 @@ export function useGetChannelsChannelIdMessages(
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/messages
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdMessagesMutationKey() {
-  return ['POST', '/channels/:channel_id/messages'] as const
+  return ['channels', 'POST', '/channels/:channel_id/messages'] as const
 }
 
 /**
@@ -2673,26 +2553,23 @@ export function usePostChannelsChannelIdMessages(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
-    ) => parseResponse(client.channels[':channel_id'].messages.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdMessagesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/messages/bulk-delete
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdMessagesBulkDeleteMutationKey() {
-  return ['POST', '/channels/:channel_id/messages/bulk-delete'] as const
+  return ['channels', 'POST', '/channels/:channel_id/messages/bulk-delete'] as const
 }
 
 /**
@@ -2738,35 +2615,27 @@ export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
           (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages['bulk-delete'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdMessagesBulkDeleteMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages/pins
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>
   >,
 ) {
-  return ['channels', '/channels/:channel_id/messages/pins', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/messages/pins', unref(args)] as const
 }
 
 /**
@@ -2824,10 +2693,10 @@ export function useGetChannelsChannelIdMessagesPins(
 
 /**
  * Generates Vue Query mutation key for PUT /channels/{channel_id}/messages/pins/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return ['PUT', '/channels/:channel_id/messages/pins/:message_id'] as const
+  return ['channels', 'PUT', '/channels/:channel_id/messages/pins/:message_id'] as const
 }
 
 /**
@@ -2873,31 +2742,23 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
           (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages.pins[':message_id'].$put(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutChannelsChannelIdMessagesPinsMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/messages/pins/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return ['DELETE', '/channels/:channel_id/messages/pins/:message_id'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/messages/pins/:message_id'] as const
 }
 
 /**
@@ -2943,35 +2804,27 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
           (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages.pins[':message_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdMessagesPinsMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.channels)[':channel_id']['messages'][':message_id']['$get']>
   >,
 ) {
-  return ['channels', '/channels/:channel_id/messages/:message_id', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/messages/:message_id', unref(args)] as const
 }
 
 /**
@@ -3033,10 +2886,10 @@ export function useGetChannelsChannelIdMessagesMessageId(
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdMutationKey() {
-  return ['DELETE', '/channels/:channel_id/messages/:message_id'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/messages/:message_id'] as const
 }
 
 /**
@@ -3082,31 +2935,23 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
           (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdMessagesMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /channels/{channel_id}/messages/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchChannelsChannelIdMessagesMessageIdMutationKey() {
-  return ['PATCH', '/channels/:channel_id/messages/:message_id'] as const
+  return ['channels', 'PATCH', '/channels/:channel_id/messages/:message_id'] as const
 }
 
 /**
@@ -3151,31 +2996,23 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
           (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].$patch(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchChannelsChannelIdMessagesMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/messages/{message_id}/crosspost
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey() {
-  return ['POST', '/channels/:channel_id/messages/:message_id/crosspost'] as const
+  return ['channels', 'POST', '/channels/:channel_id/messages/:message_id/crosspost'] as const
 }
 
 /**
@@ -3220,31 +3057,23 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
           (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].crosspost.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdMessagesMessageIdCrosspostMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey() {
-  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/messages/:message_id/reactions'] as const
 }
 
 /**
@@ -3290,31 +3119,20 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
           (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].reactions.$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
   args: MaybeRef<
@@ -3325,6 +3143,7 @@ export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryK
 ) {
   return [
     'channels',
+    'GET',
     '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
     unref(args),
   ] as const
@@ -3389,10 +3208,14 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey() {
-  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name'] as const
+  return [
+    'channels',
+    'DELETE',
+    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name',
+  ] as const
 }
 
 /**
@@ -3441,34 +3264,27 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
           (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return ['PUT', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
+  return [
+    'channels',
+    'PUT',
+    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me',
+  ] as const
 }
 
 /**
@@ -3517,34 +3333,27 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
           (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$put(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
+  return [
+    'channels',
+    'DELETE',
+    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me',
+  ] as const
 }
 
 /**
@@ -3592,33 +3401,24 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
           (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
-          '@me'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey() {
   return [
+    'channels',
     'DELETE',
     '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/:user_id',
   ] as const
@@ -3669,33 +3469,25 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
           (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
-          ':user_id'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/messages/{message_id}/threads
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey() {
-  return ['POST', '/channels/:channel_id/messages/:message_id/threads'] as const
+  return ['channels', 'POST', '/channels/:channel_id/messages/:message_id/threads'] as const
 }
 
 /**
@@ -3740,31 +3532,23 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
           (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].messages[':message_id'].threads.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdMessagesMessageIdThreadsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /channels/{channel_id}/permissions/{overwrite_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return ['PUT', '/channels/:channel_id/permissions/:overwrite_id'] as const
+  return ['channels', 'PUT', '/channels/:channel_id/permissions/:overwrite_id'] as const
 }
 
 /**
@@ -3810,31 +3594,23 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
           (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].permissions[':overwrite_id'].$put(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutChannelsChannelIdPermissionsOverwriteIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/permissions/{overwrite_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return ['DELETE', '/channels/:channel_id/permissions/:overwrite_id'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/permissions/:overwrite_id'] as const
 }
 
 /**
@@ -3880,33 +3656,25 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
           (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].permissions[':overwrite_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdPermissionsOverwriteIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/pins
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdPinsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>>,
 ) {
-  return ['channels', '/channels/:channel_id/pins', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/pins', unref(args)] as const
 }
 
 /**
@@ -3962,10 +3730,10 @@ export function useGetChannelsChannelIdPins(
 
 /**
  * Generates Vue Query mutation key for PUT /channels/{channel_id}/pins/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsChannelIdPinsMessageIdMutationKey() {
-  return ['PUT', '/channels/:channel_id/pins/:message_id'] as const
+  return ['channels', 'PUT', '/channels/:channel_id/pins/:message_id'] as const
 }
 
 /**
@@ -4002,29 +3770,23 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['pins'][':message_id']['$put']
-      >,
-    ) =>
-      parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutChannelsChannelIdPinsMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/pins/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdPinsMessageIdMutationKey() {
-  return ['DELETE', '/channels/:channel_id/pins/:message_id'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/pins/:message_id'] as const
 }
 
 /**
@@ -4066,28 +3828,20 @@ export function useDeleteChannelsChannelIdPinsMessageId(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].pins[':message_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdPinsMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
   args: MaybeRef<
@@ -4098,6 +3852,7 @@ export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
 ) {
   return [
     'channels',
+    'GET',
     '/channels/:channel_id/polls/:message_id/answers/:answer_id',
     unref(args),
   ] as const
@@ -4162,10 +3917,10 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/polls/{message_id}/expire
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdPollsMessageIdExpireMutationKey() {
-  return ['POST', '/channels/:channel_id/polls/:message_id/expire'] as const
+  return ['channels', 'POST', '/channels/:channel_id/polls/:message_id/expire'] as const
 }
 
 /**
@@ -4210,31 +3965,23 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
           (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].polls[':message_id'].expire.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdPollsMessageIdExpireMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /channels/{channel_id}/recipients/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsChannelIdRecipientsUserIdMutationKey() {
-  return ['PUT', '/channels/:channel_id/recipients/:user_id'] as const
+  return ['channels', 'PUT', '/channels/:channel_id/recipients/:user_id'] as const
 }
 
 /**
@@ -4276,31 +4023,23 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].recipients[':user_id'].$put(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutChannelsChannelIdRecipientsUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/recipients/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdRecipientsUserIdMutationKey() {
-  return ['DELETE', '/channels/:channel_id/recipients/:user_id'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/recipients/:user_id'] as const
 }
 
 /**
@@ -4346,31 +4085,23 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
           (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id'].recipients[':user_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdRecipientsUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/send-soundboard-sound
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdSendSoundboardSoundMutationKey() {
-  return ['POST', '/channels/:channel_id/send-soundboard-sound'] as const
+  return ['channels', 'POST', '/channels/:channel_id/send-soundboard-sound'] as const
 }
 
 /**
@@ -4414,35 +4145,27 @@ export function usePostChannelsChannelIdSendSoundboardSound(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id']['send-soundboard-sound'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdSendSoundboardSoundMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>
   >,
 ) {
-  return ['channels', '/channels/:channel_id/thread-members', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/thread-members', unref(args)] as const
 }
 
 /**
@@ -4500,10 +4223,10 @@ export function useGetChannelsChannelIdThreadMembers(
 
 /**
  * Generates Vue Query mutation key for PUT /channels/{channel_id}/thread-members/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsChannelIdThreadMembersMeMutationKey() {
-  return ['PUT', '/channels/:channel_id/thread-members/@me'] as const
+  return ['channels', 'PUT', '/channels/:channel_id/thread-members/@me'] as const
 }
 
 /**
@@ -4547,31 +4270,23 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['@me']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id']['thread-members']['@me'].$put(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutChannelsChannelIdThreadMembersMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/thread-members/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdThreadMembersMeMutationKey() {
-  return ['DELETE', '/channels/:channel_id/thread-members/@me'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/thread-members/@me'] as const
 }
 
 /**
@@ -4617,35 +4332,27 @@ export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
           (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id']['thread-members']['@me'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdThreadMembersMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']>
   >,
 ) {
-  return ['channels', '/channels/:channel_id/thread-members/:user_id', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/thread-members/:user_id', unref(args)] as const
 }
 
 /**
@@ -4707,10 +4414,10 @@ export function useGetChannelsChannelIdThreadMembersUserId(
 
 /**
  * Generates Vue Query mutation key for PUT /channels/{channel_id}/thread-members/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return ['PUT', '/channels/:channel_id/thread-members/:user_id'] as const
+  return ['channels', 'PUT', '/channels/:channel_id/thread-members/:user_id'] as const
 }
 
 /**
@@ -4756,31 +4463,23 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
           (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id']['thread-members'][':user_id'].$put(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutChannelsChannelIdThreadMembersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /channels/{channel_id}/thread-members/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return ['DELETE', '/channels/:channel_id/thread-members/:user_id'] as const
+  return ['channels', 'DELETE', '/channels/:channel_id/thread-members/:user_id'] as const
 }
 
 /**
@@ -4826,31 +4525,23 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
           (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.channels[':channel_id']['thread-members'][':user_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteChannelsChannelIdThreadMembersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/threads
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdThreadsMutationKey() {
-  return ['POST', '/channels/:channel_id/threads'] as const
+  return ['channels', 'POST', '/channels/:channel_id/threads'] as const
 }
 
 /**
@@ -4884,23 +4575,20 @@ export function usePostChannelsChannelIdThreads(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
-    ) => parseResponse(client.channels[':channel_id'].threads.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdThreadsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/private
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
   args: MaybeRef<
@@ -4909,7 +4597,7 @@ export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
     >
   >,
 ) {
-  return ['channels', '/channels/:channel_id/threads/archived/private', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/threads/archived/private', unref(args)] as const
 }
 
 /**
@@ -4971,7 +4659,7 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/public
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
   args: MaybeRef<
@@ -4980,7 +4668,7 @@ export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
     >
   >,
 ) {
-  return ['channels', '/channels/:channel_id/threads/archived/public', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/threads/archived/public', unref(args)] as const
 }
 
 /**
@@ -5042,14 +4730,14 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/threads/search
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>
   >,
 ) {
-  return ['channels', '/channels/:channel_id/threads/search', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/threads/search', unref(args)] as const
 }
 
 /**
@@ -5107,10 +4795,10 @@ export function useGetChannelsChannelIdThreadsSearch(
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/typing
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdTypingMutationKey() {
-  return ['POST', '/channels/:channel_id/typing'] as const
+  return ['channels', 'POST', '/channels/:channel_id/typing'] as const
 }
 
 /**
@@ -5145,23 +4833,20 @@ export function usePostChannelsChannelIdTyping(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
-    ) => parseResponse(client.channels[':channel_id'].typing.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdTypingMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
   args: MaybeRef<
@@ -5172,6 +4857,7 @@ export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
 ) {
   return [
     'channels',
+    'GET',
     '/channels/:channel_id/users/@me/threads/archived/private',
     unref(args),
   ] as const
@@ -5236,12 +4922,12 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/webhooks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>>,
 ) {
-  return ['channels', '/channels/:channel_id/webhooks', unref(args)] as const
+  return ['channels', 'GET', '/channels/:channel_id/webhooks', unref(args)] as const
 }
 
 /**
@@ -5297,10 +4983,10 @@ export function useGetChannelsChannelIdWebhooks(
 
 /**
  * Generates Vue Query mutation key for POST /channels/{channel_id}/webhooks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostChannelsChannelIdWebhooksMutationKey() {
-  return ['POST', '/channels/:channel_id/webhooks'] as const
+  return ['channels', 'POST', '/channels/:channel_id/webhooks'] as const
 }
 
 /**
@@ -5334,26 +5020,23 @@ export function usePostChannelsChannelIdWebhooks(options?: {
         Error,
         InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
-    ) => parseResponse(client.channels[':channel_id'].webhooks.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostChannelsChannelIdWebhooksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /gateway
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGatewayQueryKey() {
-  return ['gateway', '/gateway'] as const
+  return ['gateway', 'GET', '/gateway'] as const
 }
 
 /**
@@ -5394,10 +5077,10 @@ export function useGetGateway(options?: {
 
 /**
  * Generates Vue Query cache key for GET /gateway/bot
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGatewayBotQueryKey() {
-  return ['gateway', '/gateway/bot'] as const
+  return ['gateway', 'GET', '/gateway/bot'] as const
 }
 
 /**
@@ -5440,12 +5123,12 @@ export function useGetGatewayBot(options?: {
 
 /**
  * Generates Vue Query cache key for GET /guilds/templates/{code}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsTemplatesCodeQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds.templates)[':code']['$get']>>,
 ) {
-  return ['guilds', '/guilds/templates/:code', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/templates/:code', unref(args)] as const
 }
 
 /**
@@ -5501,12 +5184,12 @@ export function useGetGuildsTemplatesCode(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id', unref(args)] as const
 }
 
 /**
@@ -5557,10 +5240,10 @@ export function useGetGuildsGuildId(
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id'] as const
 }
 
 /**
@@ -5589,27 +5272,25 @@ export function usePatchGuildsGuildId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) =>
-      parseResponse(client.guilds[':guild_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/audit-logs
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/audit-logs', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/audit-logs', unref(args)] as const
 }
 
 /**
@@ -5665,14 +5346,14 @@ export function useGetGuildsGuildIdAuditLogs(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/auto-moderation/rules', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/auto-moderation/rules', unref(args)] as const
 }
 
 /**
@@ -5732,10 +5413,10 @@ export function useGetGuildsGuildIdAutoModerationRules(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/auto-moderation/rules
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdAutoModerationRulesMutationKey() {
-  return ['POST', '/guilds/:guild_id/auto-moderation/rules'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/auto-moderation/rules'] as const
 }
 
 /**
@@ -5774,26 +5455,20 @@ export function usePostGuildsGuildIdAutoModerationRules(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
-      >,
-    ) =>
-      parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdAutoModerationRulesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
   args: MaybeRef<
@@ -5802,7 +5477,7 @@ export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
     >
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/auto-moderation/rules/:rule_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/auto-moderation/rules/:rule_id', unref(args)] as const
 }
 
 /**
@@ -5864,10 +5539,10 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
 }
 
 /**
@@ -5913,34 +5588,23 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
           (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
 }
 
 /**
@@ -5985,33 +5649,25 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
           (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/bans
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdBansQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/bans', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/bans', unref(args)] as const
 }
 
 /**
@@ -6067,12 +5723,12 @@ export function useGetGuildsGuildIdBans(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/bans/{user_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/bans/:user_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/bans/:user_id', unref(args)] as const
 }
 
 /**
@@ -6128,10 +5784,10 @@ export function useGetGuildsGuildIdBansUserId(
 
 /**
  * Generates Vue Query mutation key for PUT /guilds/{guild_id}/bans/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutGuildsGuildIdBansUserIdMutationKey() {
-  return ['PUT', '/guilds/:guild_id/bans/:user_id'] as const
+  return ['guilds', 'PUT', '/guilds/:guild_id/bans/:user_id'] as const
 }
 
 /**
@@ -6166,26 +5822,23 @@ export function usePutGuildsGuildIdBansUserId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
-    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutGuildsGuildIdBansUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/bans/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdBansUserIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/bans/:user_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/bans/:user_id'] as const
 }
 
 /**
@@ -6222,26 +5875,23 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>,
-    ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdBansUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/bulk-ban
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdBulkBanMutationKey() {
-  return ['POST', '/guilds/:guild_id/bulk-ban'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/bulk-ban'] as const
 }
 
 /**
@@ -6275,28 +5925,25 @@ export function usePostGuildsGuildIdBulkBan(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdBulkBanMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/channels
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/channels', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/channels', unref(args)] as const
 }
 
 /**
@@ -6352,10 +5999,10 @@ export function useGetGuildsGuildIdChannels(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/channels
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdChannelsMutationKey() {
-  return ['POST', '/guilds/:guild_id/channels'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/channels'] as const
 }
 
 /**
@@ -6389,26 +6036,23 @@ export function usePostGuildsGuildIdChannels(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdChannelsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/channels
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdChannelsMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/channels'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/channels'] as const
 }
 
 /**
@@ -6443,28 +6087,25 @@ export function usePatchGuildsGuildIdChannels(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].channels.$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdChannelsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/emojis', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/emojis', unref(args)] as const
 }
 
 /**
@@ -6520,10 +6161,10 @@ export function useGetGuildsGuildIdEmojis(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/emojis
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdEmojisMutationKey() {
-  return ['POST', '/guilds/:guild_id/emojis'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/emojis'] as const
 }
 
 /**
@@ -6557,30 +6198,27 @@ export function usePostGuildsGuildIdEmojis(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id'].emojis.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdEmojisMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/emojis/:emoji_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/emojis/:emoji_id', unref(args)] as const
 }
 
 /**
@@ -6638,10 +6276,10 @@ export function useGetGuildsGuildIdEmojisEmojiId(
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/emojis/{emoji_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/emojis/:emoji_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -6678,26 +6316,23 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>,
-    ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdEmojisEmojiIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/emojis/{emoji_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/emojis/:emoji_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -6733,28 +6368,25 @@ export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdEmojisEmojiIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/integrations
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/integrations', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/integrations', unref(args)] as const
 }
 
 /**
@@ -6810,10 +6442,10 @@ export function useGetGuildsGuildIdIntegrations(
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/integrations/{integration_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/integrations/:integration_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/integrations/:integration_id'] as const
 }
 
 /**
@@ -6859,33 +6491,25 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
           (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id'].integrations[':integration_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/invites
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/invites', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/invites', unref(args)] as const
 }
 
 /**
@@ -6941,12 +6565,12 @@ export function useGetGuildsGuildIdInvites(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/members
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdMembersQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/members', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/members', unref(args)] as const
 }
 
 /**
@@ -7002,10 +6626,10 @@ export function useGetGuildsGuildIdMembers(
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/members/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdMembersMeMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/members/@me'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/members/@me'] as const
 }
 
 /**
@@ -7039,30 +6663,27 @@ export function usePatchGuildsGuildIdMembersMe(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdMembersMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/members/search
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/members/search', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/members/search', unref(args)] as const
 }
 
 /**
@@ -7120,14 +6741,14 @@ export function useGetGuildsGuildIdMembersSearch(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/members/{user_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/members/:user_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/members/:user_id', unref(args)] as const
 }
 
 /**
@@ -7185,10 +6806,10 @@ export function useGetGuildsGuildIdMembersUserId(
 
 /**
  * Generates Vue Query mutation key for PUT /guilds/{guild_id}/members/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutGuildsGuildIdMembersUserIdMutationKey() {
-  return ['PUT', '/guilds/:guild_id/members/:user_id'] as const
+  return ['guilds', 'PUT', '/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -7225,26 +6846,23 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>,
-    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutGuildsGuildIdMembersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/members/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdMembersUserIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/members/:user_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -7281,26 +6899,23 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>,
-    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdMembersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/members/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdMembersUserIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/members/:user_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -7337,26 +6952,23 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdMembersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return ['PUT', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
+  return ['guilds', 'PUT', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
 }
 
 /**
@@ -7402,31 +7014,23 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
           (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
 }
 
 /**
@@ -7472,38 +7076,27 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
           (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/new-member-welcome
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/new-member-welcome', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/new-member-welcome', unref(args)] as const
 }
 
 /**
@@ -7561,12 +7154,12 @@ export function useGetGuildsGuildIdNewMemberWelcome(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/onboarding
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/onboarding', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/onboarding', unref(args)] as const
 }
 
 /**
@@ -7622,10 +7215,10 @@ export function useGetGuildsGuildIdOnboarding(
 
 /**
  * Generates Vue Query mutation key for PUT /guilds/{guild_id}/onboarding
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutGuildsGuildIdOnboardingMutationKey() {
-  return ['PUT', '/guilds/:guild_id/onboarding'] as const
+  return ['guilds', 'PUT', '/guilds/:guild_id/onboarding'] as const
 }
 
 /**
@@ -7659,28 +7252,25 @@ export function usePutGuildsGuildIdOnboarding(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
-    ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutGuildsGuildIdOnboardingMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/preview
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/preview', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/preview', unref(args)] as const
 }
 
 /**
@@ -7736,12 +7326,12 @@ export function useGetGuildsGuildIdPreview(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/prune
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdPruneQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/prune', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/prune', unref(args)] as const
 }
 
 /**
@@ -7797,10 +7387,10 @@ export function useGetGuildsGuildIdPrune(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/prune
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdPruneMutationKey() {
-  return ['POST', '/guilds/:guild_id/prune'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/prune'] as const
 }
 
 /**
@@ -7832,28 +7422,25 @@ export function usePostGuildsGuildIdPrune(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id'].prune.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdPruneMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/regions
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/regions', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/regions', unref(args)] as const
 }
 
 /**
@@ -7909,12 +7496,12 @@ export function useGetGuildsGuildIdRegions(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/roles
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdRolesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/roles', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/roles', unref(args)] as const
 }
 
 /**
@@ -7970,10 +7557,10 @@ export function useGetGuildsGuildIdRoles(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/roles
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdRolesMutationKey() {
-  return ['POST', '/guilds/:guild_id/roles'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/roles'] as const
 }
 
 /**
@@ -8005,26 +7592,23 @@ export function usePostGuildsGuildIdRoles(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdRolesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/roles
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdRolesMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/roles'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/roles'] as const
 }
 
 /**
@@ -8058,30 +7642,27 @@ export function usePatchGuildsGuildIdRoles(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].roles.$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdRolesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/roles/{role_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/roles/:role_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/roles/:role_id', unref(args)] as const
 }
 
 /**
@@ -8139,10 +7720,10 @@ export function useGetGuildsGuildIdRolesRoleId(
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/roles/{role_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdRolesRoleIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/roles/:role_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/roles/:role_id'] as const
 }
 
 /**
@@ -8179,26 +7760,23 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>,
-    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdRolesRoleIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/roles/{role_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdRolesRoleIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/roles/:role_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/roles/:role_id'] as const
 }
 
 /**
@@ -8234,28 +7812,25 @@ export function usePatchGuildsGuildIdRolesRoleId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdRolesRoleIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/scheduled-events', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/scheduled-events', unref(args)] as const
 }
 
 /**
@@ -8311,10 +7886,10 @@ export function useGetGuildsGuildIdScheduledEvents(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/scheduled-events
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdScheduledEventsMutationKey() {
-  return ['POST', '/guilds/:guild_id/scheduled-events'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/scheduled-events'] as const
 }
 
 /**
@@ -8348,23 +7923,20 @@ export function usePostGuildsGuildIdScheduledEvents(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdScheduledEventsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
   args: MaybeRef<
@@ -8375,6 +7947,7 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
 ) {
   return [
     'guilds',
+    'GET',
     '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
     unref(args),
   ] as const
@@ -8439,10 +8012,14 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
+  return [
+    'guilds',
+    'DELETE',
+    '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
+  ] as const
 }
 
 /**
@@ -8491,34 +8068,27 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
           (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
+  return [
+    'guilds',
+    'PATCH',
+    '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id',
+  ] as const
 }
 
 /**
@@ -8566,31 +8136,20 @@ export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(option
           (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$patch(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
   args: MaybeRef<
@@ -8601,6 +8160,7 @@ export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQuer
 ) {
   return [
     'guilds',
+    'GET',
     '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users',
     unref(args),
   ] as const
@@ -8665,14 +8225,14 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/soundboard-sounds', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/soundboard-sounds', unref(args)] as const
 }
 
 /**
@@ -8730,10 +8290,10 @@ export function useGetGuildsGuildIdSoundboardSounds(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/soundboard-sounds
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdSoundboardSoundsMutationKey() {
-  return ['POST', '/guilds/:guild_id/soundboard-sounds'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/soundboard-sounds'] as const
 }
 
 /**
@@ -8767,30 +8327,27 @@ export function usePostGuildsGuildIdSoundboardSounds(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdSoundboardSoundsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/soundboard-sounds/:sound_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/soundboard-sounds/:sound_id', unref(args)] as const
 }
 
 /**
@@ -8852,10 +8409,10 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
 }
 
 /**
@@ -8901,31 +8458,23 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
           (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
 }
 
 /**
@@ -8970,33 +8519,25 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
           (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdStickersQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/stickers', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/stickers', unref(args)] as const
 }
 
 /**
@@ -9052,10 +8593,10 @@ export function useGetGuildsGuildIdStickers(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/stickers
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdStickersMutationKey() {
-  return ['POST', '/guilds/:guild_id/stickers'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/stickers'] as const
 }
 
 /**
@@ -9089,30 +8630,27 @@ export function usePostGuildsGuildIdStickers(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id'].stickers.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdStickersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/stickers/:sticker_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/stickers/:sticker_id', unref(args)] as const
 }
 
 /**
@@ -9170,10 +8708,10 @@ export function useGetGuildsGuildIdStickersStickerId(
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/stickers/{sticker_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdStickersStickerIdMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/stickers/:sticker_id'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/stickers/:sticker_id'] as const
 }
 
 /**
@@ -9215,31 +8753,23 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id'].stickers[':sticker_id'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdStickersStickerIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/stickers/{sticker_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdStickersStickerIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/stickers/:sticker_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/stickers/:sticker_id'] as const
 }
 
 /**
@@ -9278,31 +8808,25 @@ export function usePatchGuildsGuildIdStickersStickerId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
-      >,
-    ) =>
-      parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdStickersStickerIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/templates
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/templates', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/templates', unref(args)] as const
 }
 
 /**
@@ -9358,10 +8882,10 @@ export function useGetGuildsGuildIdTemplates(
 
 /**
  * Generates Vue Query mutation key for POST /guilds/{guild_id}/templates
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostGuildsGuildIdTemplatesMutationKey() {
-  return ['POST', '/guilds/:guild_id/templates'] as const
+  return ['guilds', 'POST', '/guilds/:guild_id/templates'] as const
 }
 
 /**
@@ -9395,26 +8919,23 @@ export function usePostGuildsGuildIdTemplates(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
-    ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostGuildsGuildIdTemplatesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /guilds/{guild_id}/templates/{code}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutGuildsGuildIdTemplatesCodeMutationKey() {
-  return ['PUT', '/guilds/:guild_id/templates/:code'] as const
+  return ['guilds', 'PUT', '/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -9448,26 +8969,23 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
-    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutGuildsGuildIdTemplatesCodeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /guilds/{guild_id}/templates/{code}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteGuildsGuildIdTemplatesCodeMutationKey() {
-  return ['DELETE', '/guilds/:guild_id/templates/:code'] as const
+  return ['guilds', 'DELETE', '/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -9503,26 +9021,23 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
-    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteGuildsGuildIdTemplatesCodeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/templates/{code}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdTemplatesCodeMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/templates/:code'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -9558,30 +9073,27 @@ export function usePatchGuildsGuildIdTemplatesCode(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdTemplatesCodeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/threads/active
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/threads/active', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/threads/active', unref(args)] as const
 }
 
 /**
@@ -9639,12 +9151,12 @@ export function useGetGuildsGuildIdThreadsActive(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/vanity-url
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/vanity-url', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/vanity-url', unref(args)] as const
 }
 
 /**
@@ -9700,14 +9212,14 @@ export function useGetGuildsGuildIdVanityUrl(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/@me
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/voice-states/@me', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/voice-states/@me', unref(args)] as const
 }
 
 /**
@@ -9765,10 +9277,10 @@ export function useGetGuildsGuildIdVoiceStatesMe(
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/voice-states/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdVoiceStatesMeMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/voice-states/@me'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/voice-states/@me'] as const
 }
 
 /**
@@ -9805,31 +9317,27 @@ export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>,
-    ) =>
-      parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdVoiceStatesMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>
   >,
 ) {
-  return ['guilds', '/guilds/:guild_id/voice-states/:user_id', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/voice-states/:user_id', unref(args)] as const
 }
 
 /**
@@ -9889,10 +9397,10 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/voice-states/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdVoiceStatesUserIdMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/voice-states/:user_id'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/voice-states/:user_id'] as const
 }
 
 /**
@@ -9936,33 +9444,25 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.guilds[':guild_id']['voice-states'][':user_id'].$patch(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdVoiceStatesUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/webhooks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/webhooks', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/webhooks', unref(args)] as const
 }
 
 /**
@@ -10018,12 +9518,12 @@ export function useGetGuildsGuildIdWebhooks(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/welcome-screen
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/welcome-screen', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/welcome-screen', unref(args)] as const
 }
 
 /**
@@ -10079,10 +9579,10 @@ export function useGetGuildsGuildIdWelcomeScreen(
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/welcome-screen
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdWelcomeScreenMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/welcome-screen'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/welcome-screen'] as const
 }
 
 /**
@@ -10116,28 +9616,25 @@ export function usePatchGuildsGuildIdWelcomeScreen(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdWelcomeScreenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/widget
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/widget', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/widget', unref(args)] as const
 }
 
 /**
@@ -10193,10 +9690,10 @@ export function useGetGuildsGuildIdWidget(
 
 /**
  * Generates Vue Query mutation key for PATCH /guilds/{guild_id}/widget
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchGuildsGuildIdWidgetMutationKey() {
-  return ['PATCH', '/guilds/:guild_id/widget'] as const
+  return ['guilds', 'PATCH', '/guilds/:guild_id/widget'] as const
 }
 
 /**
@@ -10230,28 +9727,25 @@ export function usePatchGuildsGuildIdWidget(options?: {
         Error,
         InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
-    ) => parseResponse(client.guilds[':guild_id'].widget.$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchGuildsGuildIdWidgetMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/widget.json', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/widget.json', unref(args)] as const
 }
 
 /**
@@ -10307,12 +9801,12 @@ export function useGetGuildsGuildIdWidgetJson(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.png
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>>,
 ) {
-  return ['guilds', '/guilds/:guild_id/widget.png', unref(args)] as const
+  return ['guilds', 'GET', '/guilds/:guild_id/widget.png', unref(args)] as const
 }
 
 /**
@@ -10368,10 +9862,14 @@ export function useGetGuildsGuildIdWidgetPng(
 
 /**
  * Generates Vue Query mutation key for POST /interactions/{interaction_id}/{interaction_token}/callback
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey() {
-  return ['POST', '/interactions/:interaction_id/:interaction_token/callback'] as const
+  return [
+    'interactions',
+    'POST',
+    '/interactions/:interaction_id/:interaction_token/callback',
+  ] as const
 }
 
 /**
@@ -10420,36 +9918,25 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
           (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.interactions[':interaction_id'][':interaction_token'].callback.$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostInteractionsInteractionIdInteractionTokenCallbackMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /invites/{code}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetInvitesCodeQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.invites)[':code']['$get']>>,
 ) {
-  return ['invites', '/invites/:code', unref(args)] as const
+  return ['invites', 'GET', '/invites/:code', unref(args)] as const
 }
 
 /**
@@ -10500,10 +9987,10 @@ export function useGetInvitesCode(
 
 /**
  * Generates Vue Query mutation key for DELETE /invites/{code}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteInvitesCodeMutationKey() {
-  return ['DELETE', '/invites/:code'] as const
+  return ['invites', 'DELETE', '/invites/:code'] as const
 }
 
 /**
@@ -10532,25 +10019,23 @@ export function useDeleteInvitesCode(options?: {
         Error,
         InferRequestType<(typeof client.invites)[':code']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.invites)[':code']['$delete']>) =>
-      parseResponse(client.invites[':code'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteInvitesCodeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /lobbies
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutLobbiesMutationKey() {
-  return ['PUT', '/lobbies'] as const
+  return ['lobbies', 'PUT', '/lobbies'] as const
 }
 
 /**
@@ -10575,25 +10060,22 @@ export function usePutLobbies(options?: {
         Error,
         InferRequestType<typeof client.lobbies.$put>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.lobbies.$put>) =>
-      parseResponse(client.lobbies.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutLobbiesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /lobbies
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostLobbiesMutationKey() {
-  return ['POST', '/lobbies'] as const
+  return ['lobbies', 'POST', '/lobbies'] as const
 }
 
 /**
@@ -10618,27 +10100,24 @@ export function usePostLobbies(options?: {
         Error,
         InferRequestType<typeof client.lobbies.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.lobbies.$post>) =>
-      parseResponse(client.lobbies.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostLobbiesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /lobbies/{lobby_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetLobbiesLobbyIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>>,
 ) {
-  return ['lobbies', '/lobbies/:lobby_id', unref(args)] as const
+  return ['lobbies', 'GET', '/lobbies/:lobby_id', unref(args)] as const
 }
 
 /**
@@ -10694,10 +10173,10 @@ export function useGetLobbiesLobbyId(
 
 /**
  * Generates Vue Query mutation key for PATCH /lobbies/{lobby_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchLobbiesLobbyIdMutationKey() {
-  return ['PATCH', '/lobbies/:lobby_id'] as const
+  return ['lobbies', 'PATCH', '/lobbies/:lobby_id'] as const
 }
 
 /**
@@ -10728,25 +10207,23 @@ export function usePatchLobbiesLobbyId(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) =>
-      parseResponse(client.lobbies[':lobby_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchLobbiesLobbyIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /lobbies/{lobby_id}/channel-linking
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchLobbiesLobbyIdChannelLinkingMutationKey() {
-  return ['PATCH', '/lobbies/:lobby_id/channel-linking'] as const
+  return ['lobbies', 'PATCH', '/lobbies/:lobby_id/channel-linking'] as const
 }
 
 /**
@@ -10780,26 +10257,23 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
-    ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchLobbiesLobbyIdChannelLinkingMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /lobbies/{lobby_id}/members/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteLobbiesLobbyIdMembersMeMutationKey() {
-  return ['DELETE', '/lobbies/:lobby_id/members/@me'] as const
+  return ['lobbies', 'DELETE', '/lobbies/:lobby_id/members/@me'] as const
 }
 
 /**
@@ -10836,26 +10310,23 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>,
-    ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteLobbiesLobbyIdMembersMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /lobbies/{lobby_id}/members/@me/invites
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostLobbiesLobbyIdMembersMeInvitesMutationKey() {
-  return ['POST', '/lobbies/:lobby_id/members/@me/invites'] as const
+  return ['lobbies', 'POST', '/lobbies/:lobby_id/members/@me/invites'] as const
 }
 
 /**
@@ -10895,29 +10366,23 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
-      >,
-    ) =>
-      parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostLobbiesLobbyIdMembersMeInvitesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /lobbies/{lobby_id}/members/bulk
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostLobbiesLobbyIdMembersBulkMutationKey() {
-  return ['POST', '/lobbies/:lobby_id/members/bulk'] as const
+  return ['lobbies', 'POST', '/lobbies/:lobby_id/members/bulk'] as const
 }
 
 /**
@@ -10951,26 +10416,23 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
-    ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostLobbiesLobbyIdMembersBulkMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /lobbies/{lobby_id}/members/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutLobbiesLobbyIdMembersUserIdMutationKey() {
-  return ['PUT', '/lobbies/:lobby_id/members/:user_id'] as const
+  return ['lobbies', 'PUT', '/lobbies/:lobby_id/members/:user_id'] as const
 }
 
 /**
@@ -11006,26 +10468,23 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
-    ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutLobbiesLobbyIdMembersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /lobbies/{lobby_id}/members/{user_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteLobbiesLobbyIdMembersUserIdMutationKey() {
-  return ['DELETE', '/lobbies/:lobby_id/members/:user_id'] as const
+  return ['lobbies', 'DELETE', '/lobbies/:lobby_id/members/:user_id'] as const
 }
 
 /**
@@ -11062,29 +10521,23 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']
-      >,
-    ) =>
-      parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteLobbiesLobbyIdMembersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /lobbies/{lobby_id}/members/{user_id}/invites
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey() {
-  return ['POST', '/lobbies/:lobby_id/members/:user_id/invites'] as const
+  return ['lobbies', 'POST', '/lobbies/:lobby_id/members/:user_id/invites'] as const
 }
 
 /**
@@ -11129,33 +10582,25 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
           (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.lobbies[':lobby_id'].members[':user_id'].invites.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostLobbiesLobbyIdMembersUserIdInvitesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /lobbies/{lobby_id}/messages
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>>,
 ) {
-  return ['lobbies', '/lobbies/:lobby_id/messages', unref(args)] as const
+  return ['lobbies', 'GET', '/lobbies/:lobby_id/messages', unref(args)] as const
 }
 
 /**
@@ -11211,10 +10656,10 @@ export function useGetLobbiesLobbyIdMessages(
 
 /**
  * Generates Vue Query mutation key for POST /lobbies/{lobby_id}/messages
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostLobbiesLobbyIdMessagesMutationKey() {
-  return ['POST', '/lobbies/:lobby_id/messages'] as const
+  return ['lobbies', 'POST', '/lobbies/:lobby_id/messages'] as const
 }
 
 /**
@@ -11248,26 +10693,23 @@ export function usePostLobbiesLobbyIdMessages(options?: {
         Error,
         InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
-    ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostLobbiesLobbyIdMessagesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /oauth2/@me
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauth2MeQueryKey() {
-  return ['oauth2', '/oauth2/@me'] as const
+  return ['oauth2', 'GET', '/oauth2/@me'] as const
 }
 
 /**
@@ -11312,10 +10754,10 @@ export function useGetOauth2Me(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth2/applications/@me
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauth2ApplicationsMeQueryKey() {
-  return ['oauth2', '/oauth2/applications/@me'] as const
+  return ['oauth2', 'GET', '/oauth2/applications/@me'] as const
 }
 
 /**
@@ -11363,10 +10805,10 @@ export function useGetOauth2ApplicationsMe(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth2/keys
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauth2KeysQueryKey() {
-  return ['oauth2', '/oauth2/keys'] as const
+  return ['oauth2', 'GET', '/oauth2/keys'] as const
 }
 
 /**
@@ -11409,10 +10851,10 @@ export function useGetOauth2Keys(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth2/userinfo
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauth2UserinfoQueryKey() {
-  return ['oauth2', '/oauth2/userinfo'] as const
+  return ['oauth2', 'GET', '/oauth2/userinfo'] as const
 }
 
 /**
@@ -11455,10 +10897,10 @@ export function useGetOauth2Userinfo(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /partner-sdk/provisional-accounts/unmerge
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeMutationKey() {
-  return ['POST', '/partner-sdk/provisional-accounts/unmerge'] as const
+  return ['partner-sdk', 'POST', '/partner-sdk/provisional-accounts/unmerge'] as const
 }
 
 /**
@@ -11500,31 +10942,23 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
         Error,
         InferRequestType<(typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['partner-sdk']['provisional-accounts'].unmerge.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPartnerSdkProvisionalAccountsUnmergeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /partner-sdk/provisional-accounts/unmerge/bot
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey() {
-  return ['POST', '/partner-sdk/provisional-accounts/unmerge/bot'] as const
+  return ['partner-sdk', 'POST', '/partner-sdk/provisional-accounts/unmerge/bot'] as const
 }
 
 /**
@@ -11570,31 +11004,23 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
           (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPartnerSdkProvisionalAccountsUnmergeBotMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /partner-sdk/token
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPartnerSdkTokenMutationKey() {
-  return ['POST', '/partner-sdk/token'] as const
+  return ['partner-sdk', 'POST', '/partner-sdk/token'] as const
 }
 
 /**
@@ -11625,25 +11051,23 @@ export function usePostPartnerSdkToken(options?: {
         Error,
         InferRequestType<(typeof client)['partner-sdk']['token']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>) =>
-      parseResponse(client['partner-sdk'].token.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPartnerSdkTokenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /partner-sdk/token/bot
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPartnerSdkTokenBotMutationKey() {
-  return ['POST', '/partner-sdk/token/bot'] as const
+  return ['partner-sdk', 'POST', '/partner-sdk/token/bot'] as const
 }
 
 /**
@@ -11675,26 +11099,23 @@ export function usePostPartnerSdkTokenBot(options?: {
         Error,
         InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
-    ) => parseResponse(client['partner-sdk'].token.bot.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPartnerSdkTokenBotMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /soundboard-default-sounds
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSoundboardDefaultSoundsQueryKey() {
-  return ['soundboard-default-sounds', '/soundboard-default-sounds'] as const
+  return ['soundboard-default-sounds', 'GET', '/soundboard-default-sounds'] as const
 }
 
 /**
@@ -11744,10 +11165,10 @@ export function useGetSoundboardDefaultSounds(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /stage-instances
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostStageInstancesMutationKey() {
-  return ['POST', '/stage-instances'] as const
+  return ['stage-instances', 'POST', '/stage-instances'] as const
 }
 
 /**
@@ -11776,27 +11197,25 @@ export function usePostStageInstances(options?: {
         Error,
         InferRequestType<(typeof client)['stage-instances']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['stage-instances']['$post']>) =>
-      parseResponse(client['stage-instances'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostStageInstancesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /stage-instances/{channel_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetStageInstancesChannelIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>>,
 ) {
-  return ['stage-instances', '/stage-instances/:channel_id', unref(args)] as const
+  return ['stage-instances', 'GET', '/stage-instances/:channel_id', unref(args)] as const
 }
 
 /**
@@ -11852,10 +11271,10 @@ export function useGetStageInstancesChannelId(
 
 /**
  * Generates Vue Query mutation key for DELETE /stage-instances/{channel_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteStageInstancesChannelIdMutationKey() {
-  return ['DELETE', '/stage-instances/:channel_id'] as const
+  return ['stage-instances', 'DELETE', '/stage-instances/:channel_id'] as const
 }
 
 /**
@@ -11890,26 +11309,23 @@ export function useDeleteStageInstancesChannelId(options?: {
         Error,
         InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
-    ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteStageInstancesChannelIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /stage-instances/{channel_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchStageInstancesChannelIdMutationKey() {
-  return ['PATCH', '/stage-instances/:channel_id'] as const
+  return ['stage-instances', 'PATCH', '/stage-instances/:channel_id'] as const
 }
 
 /**
@@ -11943,26 +11359,23 @@ export function usePatchStageInstancesChannelId(options?: {
         Error,
         InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
-    ) => parseResponse(client['stage-instances'][':channel_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchStageInstancesChannelIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /sticker-packs
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStickerPacksQueryKey() {
-  return ['sticker-packs', '/sticker-packs'] as const
+  return ['sticker-packs', 'GET', '/sticker-packs'] as const
 }
 
 /**
@@ -12007,12 +11420,12 @@ export function useGetStickerPacks(options?: {
 
 /**
  * Generates Vue Query cache key for GET /sticker-packs/{pack_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetStickerPacksPackIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>>,
 ) {
-  return ['sticker-packs', '/sticker-packs/:pack_id', unref(args)] as const
+  return ['sticker-packs', 'GET', '/sticker-packs/:pack_id', unref(args)] as const
 }
 
 /**
@@ -12068,12 +11481,12 @@ export function useGetStickerPacksPackId(
 
 /**
  * Generates Vue Query cache key for GET /stickers/{sticker_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetStickersStickerIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>>,
 ) {
-  return ['stickers', '/stickers/:sticker_id', unref(args)] as const
+  return ['stickers', 'GET', '/stickers/:sticker_id', unref(args)] as const
 }
 
 /**
@@ -12129,10 +11542,10 @@ export function useGetStickersStickerId(
 
 /**
  * Generates Vue Query cache key for GET /users/@me
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUsersMeQueryKey() {
-  return ['users', '/users/@me'] as const
+  return ['users', 'GET', '/users/@me'] as const
 }
 
 /**
@@ -12177,10 +11590,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates Vue Query mutation key for PATCH /users/@me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchUsersMeMutationKey() {
-  return ['PATCH', '/users/@me'] as const
+  return ['users', 'PATCH', '/users/@me'] as const
 }
 
 /**
@@ -12209,22 +11622,19 @@ export function usePatchUsersMe(options?: {
         Error,
         InferRequestType<(typeof client.users)['@me']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['$patch']>) =>
-      parseResponse(client.users['@me'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPatchUsersMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/entitlements
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
   args: MaybeRef<
@@ -12233,7 +11643,12 @@ export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
     >
   >,
 ) {
-  return ['users', '/users/@me/applications/:application_id/entitlements', unref(args)] as const
+  return [
+    'users',
+    'GET',
+    '/users/@me/applications/:application_id/entitlements',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -12295,7 +11710,7 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
 
 /**
  * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/role-connection
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
   args: MaybeRef<
@@ -12304,7 +11719,12 @@ export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
     >
   >,
 ) {
-  return ['users', '/users/@me/applications/:application_id/role-connection', unref(args)] as const
+  return [
+    'users',
+    'GET',
+    '/users/@me/applications/:application_id/role-connection',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -12366,10 +11786,10 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
 
 /**
  * Generates Vue Query mutation key for PUT /users/@me/applications/{application_id}/role-connection
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return ['PUT', '/users/@me/applications/:application_id/role-connection'] as const
+  return ['users', 'PUT', '/users/@me/applications/:application_id/role-connection'] as const
 }
 
 /**
@@ -12417,34 +11837,23 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
           (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
-      >,
-    ) =>
-      parseResponse(
-        client.users['@me'].applications[':application_id']['role-connection'].$put(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutUsersMeApplicationsApplicationIdRoleConnectionMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /users/@me/applications/{application_id}/role-connection
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return ['DELETE', '/users/@me/applications/:application_id/role-connection'] as const
+  return ['users', 'DELETE', '/users/@me/applications/:application_id/role-connection'] as const
 }
 
 /**
@@ -12493,34 +11902,23 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
           (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.users['@me'].applications[':application_id']['role-connection'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /users/@me/channels
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersMeChannelsMutationKey() {
-  return ['POST', '/users/@me/channels'] as const
+  return ['users', 'POST', '/users/@me/channels'] as const
 }
 
 /**
@@ -12551,25 +11949,23 @@ export function usePostUsersMeChannels(options?: {
         Error,
         InferRequestType<(typeof client.users)['@me']['channels']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['channels']['$post']>) =>
-      parseResponse(client.users['@me'].channels.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostUsersMeChannelsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/@me/connections
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUsersMeConnectionsQueryKey() {
-  return ['users', '/users/@me/connections'] as const
+  return ['users', 'GET', '/users/@me/connections'] as const
 }
 
 /**
@@ -12616,12 +12012,12 @@ export function useGetUsersMeConnections(options?: {
 
 /**
  * Generates Vue Query cache key for GET /users/@me/guilds
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersMeGuildsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.users)['@me']['guilds']['$get']>>,
 ) {
-  return ['users', '/users/@me/guilds', unref(args)] as const
+  return ['users', 'GET', '/users/@me/guilds', unref(args)] as const
 }
 
 /**
@@ -12674,10 +12070,10 @@ export function useGetUsersMeGuilds(
 
 /**
  * Generates Vue Query mutation key for DELETE /users/@me/guilds/{guild_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUsersMeGuildsGuildIdMutationKey() {
-  return ['DELETE', '/users/@me/guilds/:guild_id'] as const
+  return ['users', 'DELETE', '/users/@me/guilds/:guild_id'] as const
 }
 
 /**
@@ -12712,30 +12108,27 @@ export function useDeleteUsersMeGuildsGuildId(options?: {
         Error,
         InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
-    ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteUsersMeGuildsGuildIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/@me/guilds/{guild_id}/member
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>
   >,
 ) {
-  return ['users', '/users/@me/guilds/:guild_id/member', unref(args)] as const
+  return ['users', 'GET', '/users/@me/guilds/:guild_id/member', unref(args)] as const
 }
 
 /**
@@ -12793,12 +12186,12 @@ export function useGetUsersMeGuildsGuildIdMember(
 
 /**
  * Generates Vue Query cache key for GET /users/{user_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.users)[':user_id']['$get']>>,
 ) {
-  return ['users', '/users/:user_id', unref(args)] as const
+  return ['users', 'GET', '/users/:user_id', unref(args)] as const
 }
 
 /**
@@ -12849,10 +12242,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates Vue Query cache key for GET /voice/regions
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetVoiceRegionsQueryKey() {
-  return ['voice', '/voice/regions'] as const
+  return ['voice', 'GET', '/voice/regions'] as const
 }
 
 /**
@@ -12895,12 +12288,12 @@ export function useGetVoiceRegions(options?: {
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>>,
 ) {
-  return ['webhooks', '/webhooks/:webhook_id', unref(args)] as const
+  return ['webhooks', 'GET', '/webhooks/:webhook_id', unref(args)] as const
 }
 
 /**
@@ -12956,10 +12349,10 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates Vue Query mutation key for DELETE /webhooks/{webhook_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebhooksWebhookIdMutationKey() {
-  return ['DELETE', '/webhooks/:webhook_id'] as const
+  return ['webhooks', 'DELETE', '/webhooks/:webhook_id'] as const
 }
 
 /**
@@ -12993,26 +12386,23 @@ export function useDeleteWebhooksWebhookId(options?: {
         Error,
         InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>,
-    ) => parseResponse(client.webhooks[':webhook_id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteWebhooksWebhookIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /webhooks/{webhook_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchWebhooksWebhookIdMutationKey() {
-  return ['PATCH', '/webhooks/:webhook_id'] as const
+  return ['webhooks', 'PATCH', '/webhooks/:webhook_id'] as const
 }
 
 /**
@@ -13043,29 +12433,27 @@ export function usePatchWebhooksWebhookId(options?: {
         Error,
         InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>) =>
-      parseResponse(client.webhooks[':webhook_id'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchWebhooksWebhookIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>
   >,
 ) {
-  return ['webhooks', '/webhooks/:webhook_id/:webhook_token', unref(args)] as const
+  return ['webhooks', 'GET', '/webhooks/:webhook_id/:webhook_token', unref(args)] as const
 }
 
 /**
@@ -13123,10 +12511,10 @@ export function useGetWebhooksWebhookIdWebhookToken(
 
 /**
  * Generates Vue Query mutation key for POST /webhooks/{webhook_id}/{webhook_token}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksWebhookIdWebhookTokenMutationKey() {
-  return ['POST', '/webhooks/:webhook_id/:webhook_token'] as const
+  return ['webhooks', 'POST', '/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -13163,26 +12551,23 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
         Error,
         InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>,
-    ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebhooksWebhookIdWebhookTokenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMutationKey() {
-  return ['DELETE', '/webhooks/:webhook_id/:webhook_token'] as const
+  return ['webhooks', 'DELETE', '/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -13219,27 +12604,23 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
         Error,
         InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>,
-    ) =>
-      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteWebhooksWebhookIdWebhookTokenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMutationKey() {
-  return ['PATCH', '/webhooks/:webhook_id/:webhook_token'] as const
+  return ['webhooks', 'PATCH', '/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -13275,27 +12656,23 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
         Error,
         InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
-    ) =>
-      parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchWebhooksWebhookIdWebhookTokenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /webhooks/{webhook_id}/{webhook_token}/github
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksWebhookIdWebhookTokenGithubMutationKey() {
-  return ['POST', '/webhooks/:webhook_id/:webhook_token/github'] as const
+  return ['webhooks', 'POST', '/webhooks/:webhook_id/:webhook_token/github'] as const
 }
 
 /**
@@ -13341,28 +12718,20 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].github.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebhooksWebhookIdWebhookTokenGithubMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
   args: MaybeRef<
@@ -13373,6 +12742,7 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
 ) {
   return [
     'webhooks',
+    'GET',
     '/webhooks/:webhook_id/:webhook_token/messages/@original',
     unref(args),
   ] as const
@@ -13437,10 +12807,10 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 
 /**
  * Generates Vue Query mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return ['DELETE', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
+  return ['webhooks', 'DELETE', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
 }
 
 /**
@@ -13489,34 +12859,23 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return ['PATCH', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
+  return ['webhooks', 'PATCH', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
 }
 
 /**
@@ -13564,31 +12923,20 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: 
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$patch(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
   args: MaybeRef<
@@ -13599,6 +12947,7 @@ export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
 ) {
   return [
     'webhooks',
+    'GET',
     '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
     unref(args),
   ] as const
@@ -13663,10 +13012,14 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 
 /**
  * Generates Vue Query mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return ['DELETE', '/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
+  return [
+    'webhooks',
+    'DELETE',
+    '/webhooks/:webhook_id/:webhook_token/messages/:message_id',
+  ] as const
 }
 
 /**
@@ -13715,34 +13068,23 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return ['PATCH', '/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
+  return ['webhooks', 'PATCH', '/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
 }
 
 /**
@@ -13790,34 +13132,23 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
-      >,
-    ) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$patch(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /webhooks/{webhook_id}/{webhook_token}/slack
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksWebhookIdWebhookTokenSlackMutationKey() {
-  return ['POST', '/webhooks/:webhook_id/:webhook_token/slack'] as const
+  return ['webhooks', 'POST', '/webhooks/:webhook_id/:webhook_token/slack'] as const
 }
 
 /**
@@ -13862,21 +13193,13 @@ export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
           (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.webhooks[':webhook_id'][':webhook_token'].slack.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostWebhooksWebhookIdWebhookTokenSlackMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

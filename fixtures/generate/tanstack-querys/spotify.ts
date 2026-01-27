@@ -10,10 +10,10 @@ import { client } from '../clients/spotify'
 
 /**
  * Generates TanStack Query cache key for GET /albums
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
-  return ['albums', '/albums', args] as const
+  return ['albums', 'GET', '/albums', args] as const
 }
 
 /**
@@ -56,12 +56,12 @@ export function useGetAlbums(
 
 /**
  * Generates TanStack Query cache key for GET /albums/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  return ['albums', '/albums/:id', args] as const
+  return ['albums', 'GET', '/albums/:id', args] as const
 }
 
 /**
@@ -109,12 +109,12 @@ export function useGetAlbumsId(
 
 /**
  * Generates TanStack Query cache key for GET /albums/{id}/tracks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAlbumsIdTracksQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['albums', '/albums/:id/tracks', args] as const
+  return ['albums', 'GET', '/albums/:id/tracks', args] as const
 }
 
 /**
@@ -168,10 +168,10 @@ export function useGetAlbumsIdTracks(
 
 /**
  * Generates TanStack Query cache key for GET /artists
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
-  return ['artists', '/artists', args] as const
+  return ['artists', 'GET', '/artists', args] as const
 }
 
 /**
@@ -214,12 +214,12 @@ export function useGetArtists(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetArtistsIdQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  return ['artists', '/artists/:id', args] as const
+  return ['artists', 'GET', '/artists/:id', args] as const
 }
 
 /**
@@ -269,12 +269,12 @@ export function useGetArtistsId(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}/albums
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['artists', '/artists/:id/albums', args] as const
+  return ['artists', 'GET', '/artists/:id/albums', args] as const
 }
 
 /**
@@ -329,12 +329,12 @@ export function useGetArtistsIdAlbums(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}/related-artists
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['artists', '/artists/:id/related-artists', args] as const
+  return ['artists', 'GET', '/artists/:id/related-artists', args] as const
 }
 
 /**
@@ -389,12 +389,12 @@ export function useGetArtistsIdRelatedArtists(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}/top-tracks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['artists', '/artists/:id/top-tracks', args] as const
+  return ['artists', 'GET', '/artists/:id/top-tracks', args] as const
 }
 
 /**
@@ -449,12 +449,12 @@ export function useGetArtistsIdTopTracks(
 
 /**
  * Generates TanStack Query cache key for GET /audio-analysis/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAudioAnalysisIdQueryKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['audio-analysis', '/audio-analysis/:id', args] as const
+  return ['audio-analysis', 'GET', '/audio-analysis/:id', args] as const
 }
 
 /**
@@ -509,12 +509,12 @@ export function useGetAudioAnalysisId(
 
 /**
  * Generates TanStack Query cache key for GET /audio-features
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAudioFeaturesQueryKey(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['audio-features', '/audio-features', args] as const
+  return ['audio-features', 'GET', '/audio-features', args] as const
 }
 
 /**
@@ -564,12 +564,12 @@ export function useGetAudioFeatures(
 
 /**
  * Generates TanStack Query cache key for GET /audio-features/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAudioFeaturesIdQueryKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['audio-features', '/audio-features/:id', args] as const
+  return ['audio-features', 'GET', '/audio-features/:id', args] as const
 }
 
 /**
@@ -625,10 +625,10 @@ export function useGetAudioFeaturesId(
 
 /**
  * Generates TanStack Query cache key for GET /audiobooks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['audiobooks', '/audiobooks', args] as const
+  return ['audiobooks', 'GET', '/audiobooks', args] as const
 }
 
 /**
@@ -672,12 +672,12 @@ export function useGetAudiobooks(
 
 /**
  * Generates TanStack Query cache key for GET /audiobooks/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAudiobooksIdQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return ['audiobooks', '/audiobooks/:id', args] as const
+  return ['audiobooks', 'GET', '/audiobooks/:id', args] as const
 }
 
 /**
@@ -728,12 +728,12 @@ export function useGetAudiobooksId(
 
 /**
  * Generates TanStack Query cache key for GET /audiobooks/{id}/chapters
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAudiobooksIdChaptersQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['audiobooks', '/audiobooks/:id/chapters', args] as const
+  return ['audiobooks', 'GET', '/audiobooks/:id/chapters', args] as const
 }
 
 /**
@@ -789,12 +789,12 @@ export function useGetAudiobooksIdChapters(
 
 /**
  * Generates TanStack Query cache key for GET /browse/categories
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetBrowseCategoriesQueryKey(
   args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['browse', '/browse/categories', args] as const
+  return ['browse', 'GET', '/browse/categories', args] as const
 }
 
 /**
@@ -845,12 +845,12 @@ export function useGetBrowseCategories(
 
 /**
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['browse', '/browse/categories/:category_id', args] as const
+  return ['browse', 'GET', '/browse/categories/:category_id', args] as const
 }
 
 /**
@@ -905,12 +905,12 @@ export function useGetBrowseCategoriesCategoryId(
 
 /**
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}/playlists
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['browse', '/browse/categories/:category_id/playlists', args] as const
+  return ['browse', 'GET', '/browse/categories/:category_id/playlists', args] as const
 }
 
 /**
@@ -965,12 +965,12 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
 
 /**
  * Generates TanStack Query cache key for GET /browse/featured-playlists
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['browse', '/browse/featured-playlists', args] as const
+  return ['browse', 'GET', '/browse/featured-playlists', args] as const
 }
 
 /**
@@ -1025,12 +1025,12 @@ export function useGetBrowseFeaturedPlaylists(
 
 /**
  * Generates TanStack Query cache key for GET /browse/new-releases
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetBrowseNewReleasesQueryKey(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['browse', '/browse/new-releases', args] as const
+  return ['browse', 'GET', '/browse/new-releases', args] as const
 }
 
 /**
@@ -1083,10 +1083,10 @@ export function useGetBrowseNewReleases(
 
 /**
  * Generates TanStack Query cache key for GET /chapters
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
-  return ['chapters', '/chapters', args] as const
+  return ['chapters', 'GET', '/chapters', args] as const
 }
 
 /**
@@ -1130,12 +1130,12 @@ export function useGetChapters(
 
 /**
  * Generates TanStack Query cache key for GET /chapters/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetChaptersIdQueryKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return ['chapters', '/chapters/:id', args] as const
+  return ['chapters', 'GET', '/chapters/:id', args] as const
 }
 
 /**
@@ -1186,10 +1186,10 @@ export function useGetChaptersId(
 
 /**
  * Generates TanStack Query cache key for GET /episodes
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
-  return ['episodes', '/episodes', args] as const
+  return ['episodes', 'GET', '/episodes', args] as const
 }
 
 /**
@@ -1232,12 +1232,12 @@ export function useGetEpisodes(
 
 /**
  * Generates TanStack Query cache key for GET /episodes/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEpisodesIdQueryKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return ['episodes', '/episodes/:id', args] as const
+  return ['episodes', 'GET', '/episodes/:id', args] as const
 }
 
 /**
@@ -1288,10 +1288,10 @@ export function useGetEpisodesId(
 
 /**
  * Generates TanStack Query cache key for GET /markets
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMarketsQueryKey() {
-  return ['markets', '/markets'] as const
+  return ['markets', 'GET', '/markets'] as const
 }
 
 /**
@@ -1331,10 +1331,10 @@ export function useGetMarkets(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /me
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMeQueryKey() {
-  return ['me', '/me'] as const
+  return ['me', 'GET', '/me'] as const
 }
 
 /**
@@ -1372,10 +1372,10 @@ export function useGetMe(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /me/albums
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  return ['me', '/me/albums', args] as const
+  return ['me', 'GET', '/me/albums', args] as const
 }
 
 /**
@@ -1418,10 +1418,10 @@ export function useGetMeAlbums(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/albums
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMeAlbumsMutationKey() {
-  return ['PUT', '/me/albums'] as const
+  return ['me', 'PUT', '/me/albums'] as const
 }
 
 /**
@@ -1451,19 +1451,16 @@ export function usePutMeAlbums(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
-      parseResponse(client.me.albums.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutMeAlbumsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /me/albums
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMeAlbumsMutationKey() {
-  return ['DELETE', '/me/albums'] as const
+  return ['me', 'DELETE', '/me/albums'] as const
 }
 
 /**
@@ -1493,21 +1490,19 @@ export function useDeleteMeAlbums(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
-      parseResponse(client.me.albums.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMeAlbumsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/albums/contains
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeAlbumsContainsQueryKey(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return ['me', '/me/albums/contains', args] as const
+  return ['me', 'GET', '/me/albums/contains', args] as const
 }
 
 /**
@@ -1558,12 +1553,12 @@ export function useGetMeAlbumsContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/audiobooks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeAudiobooksQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['me', '/me/audiobooks', args] as const
+  return ['me', 'GET', '/me/audiobooks', args] as const
 }
 
 /**
@@ -1611,10 +1606,10 @@ export function useGetMeAudiobooks(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/audiobooks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMeAudiobooksMutationKey() {
-  return ['PUT', '/me/audiobooks'] as const
+  return ['me', 'PUT', '/me/audiobooks'] as const
 }
 
 /**
@@ -1646,19 +1641,17 @@ export function usePutMeAudiobooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
-      parseResponse(client.me.audiobooks.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMeAudiobooksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /me/audiobooks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMeAudiobooksMutationKey() {
-  return ['DELETE', '/me/audiobooks'] as const
+  return ['me', 'DELETE', '/me/audiobooks'] as const
 }
 
 /**
@@ -1690,21 +1683,19 @@ export function useDeleteMeAudiobooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
-      parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMeAudiobooksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/audiobooks/contains
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeAudiobooksContainsQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return ['me', '/me/audiobooks/contains', args] as const
+  return ['me', 'GET', '/me/audiobooks/contains', args] as const
 }
 
 /**
@@ -1757,10 +1748,10 @@ export function useGetMeAudiobooksContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/episodes
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['me', '/me/episodes', args] as const
+  return ['me', 'GET', '/me/episodes', args] as const
 }
 
 /**
@@ -1806,10 +1797,10 @@ export function useGetMeEpisodes(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/episodes
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMeEpisodesMutationKey() {
-  return ['PUT', '/me/episodes'] as const
+  return ['me', 'PUT', '/me/episodes'] as const
 }
 
 /**
@@ -1840,19 +1831,16 @@ export function usePutMeEpisodes(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
-      parseResponse(client.me.episodes.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutMeEpisodesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /me/episodes
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMeEpisodesMutationKey() {
-  return ['DELETE', '/me/episodes'] as const
+  return ['me', 'DELETE', '/me/episodes'] as const
 }
 
 /**
@@ -1885,21 +1873,19 @@ export function useDeleteMeEpisodes(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
-      parseResponse(client.me.episodes.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMeEpisodesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/episodes/contains
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeEpisodesContainsQueryKey(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return ['me', '/me/episodes/contains', args] as const
+  return ['me', 'GET', '/me/episodes/contains', args] as const
 }
 
 /**
@@ -1953,10 +1939,10 @@ export function useGetMeEpisodesContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/following
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
-  return ['me', '/me/following', args] as const
+  return ['me', 'GET', '/me/following', args] as const
 }
 
 /**
@@ -2004,10 +1990,10 @@ export function useGetMeFollowing(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/following
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMeFollowingMutationKey() {
-  return ['PUT', '/me/following'] as const
+  return ['me', 'PUT', '/me/following'] as const
 }
 
 /**
@@ -2040,19 +2026,17 @@ export function usePutMeFollowing(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
-      parseResponse(client.me.following.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMeFollowingMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /me/following
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMeFollowingMutationKey() {
-  return ['DELETE', '/me/following'] as const
+  return ['me', 'DELETE', '/me/following'] as const
 }
 
 /**
@@ -2084,21 +2068,19 @@ export function useDeleteMeFollowing(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
-      parseResponse(client.me.following.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMeFollowingMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/following/contains
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeFollowingContainsQueryKey(
   args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return ['me', '/me/following/contains', args] as const
+  return ['me', 'GET', '/me/following/contains', args] as const
 }
 
 /**
@@ -2151,10 +2133,10 @@ export function useGetMeFollowingContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/player
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
-  return ['me', '/me/player', args] as const
+  return ['me', 'GET', '/me/player', args] as const
 }
 
 /**
@@ -2197,10 +2179,10 @@ export function useGetMePlayer(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/player
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMePlayerMutationKey() {
-  return ['PUT', '/me/player'] as const
+  return ['me', 'PUT', '/me/player'] as const
 }
 
 /**
@@ -2231,21 +2213,18 @@ export function usePutMePlayer(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
-      parseResponse(client.me.player.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutMePlayerMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/player/currently-playing
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return ['me', '/me/player/currently-playing', args] as const
+  return ['me', 'GET', '/me/player/currently-playing', args] as const
 }
 
 /**
@@ -2300,10 +2279,10 @@ export function useGetMePlayerCurrentlyPlaying(
 
 /**
  * Generates TanStack Query cache key for GET /me/player/devices
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMePlayerDevicesQueryKey() {
-  return ['me', '/me/player/devices'] as const
+  return ['me', 'GET', '/me/player/devices'] as const
 }
 
 /**
@@ -2345,10 +2324,10 @@ export function useGetMePlayerDevices(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /me/player/next
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMePlayerNextMutationKey() {
-  return ['POST', '/me/player/next'] as const
+  return ['me', 'POST', '/me/player/next'] as const
 }
 
 /**
@@ -2381,19 +2360,17 @@ export function usePostMePlayerNext(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
-      parseResponse(client.me.player.next.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMePlayerNextMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PUT /me/player/pause
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMePlayerPauseMutationKey() {
-  return ['PUT', '/me/player/pause'] as const
+  return ['me', 'PUT', '/me/player/pause'] as const
 }
 
 /**
@@ -2426,19 +2403,17 @@ export function usePutMePlayerPause(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
-      parseResponse(client.me.player.pause.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMePlayerPauseMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PUT /me/player/play
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMePlayerPlayMutationKey() {
-  return ['PUT', '/me/player/play'] as const
+  return ['me', 'PUT', '/me/player/play'] as const
 }
 
 /**
@@ -2471,19 +2446,17 @@ export function usePutMePlayerPlay(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
-      parseResponse(client.me.player.play.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMePlayerPlayMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /me/player/previous
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMePlayerPreviousMutationKey() {
-  return ['POST', '/me/player/previous'] as const
+  return ['me', 'POST', '/me/player/previous'] as const
 }
 
 /**
@@ -2518,19 +2491,17 @@ export function usePostMePlayerPrevious(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
-      parseResponse(client.me.player.previous.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMePlayerPreviousMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/player/queue
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMePlayerQueueQueryKey() {
-  return ['me', '/me/player/queue'] as const
+  return ['me', 'GET', '/me/player/queue'] as const
 }
 
 /**
@@ -2572,10 +2543,10 @@ export function useGetMePlayerQueue(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /me/player/queue
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMePlayerQueueMutationKey() {
-  return ['POST', '/me/player/queue'] as const
+  return ['me', 'POST', '/me/player/queue'] as const
 }
 
 /**
@@ -2608,21 +2579,19 @@ export function usePostMePlayerQueue(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
-      parseResponse(client.me.player.queue.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMePlayerQueueMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/player/recently-played
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return ['me', '/me/player/recently-played', args] as const
+  return ['me', 'GET', '/me/player/recently-played', args] as const
 }
 
 /**
@@ -2678,10 +2647,10 @@ export function useGetMePlayerRecentlyPlayed(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/player/repeat
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMePlayerRepeatMutationKey() {
-  return ['PUT', '/me/player/repeat'] as const
+  return ['me', 'PUT', '/me/player/repeat'] as const
 }
 
 /**
@@ -2715,19 +2684,17 @@ export function usePutMePlayerRepeat(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
-      parseResponse(client.me.player.repeat.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMePlayerRepeatMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PUT /me/player/seek
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMePlayerSeekMutationKey() {
-  return ['PUT', '/me/player/seek'] as const
+  return ['me', 'PUT', '/me/player/seek'] as const
 }
 
 /**
@@ -2760,19 +2727,17 @@ export function usePutMePlayerSeek(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
-      parseResponse(client.me.player.seek.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMePlayerSeekMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PUT /me/player/shuffle
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMePlayerShuffleMutationKey() {
-  return ['PUT', '/me/player/shuffle'] as const
+  return ['me', 'PUT', '/me/player/shuffle'] as const
 }
 
 /**
@@ -2805,19 +2770,17 @@ export function usePutMePlayerShuffle(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
-      parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMePlayerShuffleMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PUT /me/player/volume
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMePlayerVolumeMutationKey() {
-  return ['PUT', '/me/player/volume'] as const
+  return ['me', 'PUT', '/me/player/volume'] as const
 }
 
 /**
@@ -2850,19 +2813,17 @@ export function usePutMePlayerVolume(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
-      parseResponse(client.me.player.volume.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutMePlayerVolumeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/playlists
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  return ['me', '/me/playlists', args] as const
+  return ['me', 'GET', '/me/playlists', args] as const
 }
 
 /**
@@ -2911,10 +2872,10 @@ export function useGetMePlaylists(
 
 /**
  * Generates TanStack Query cache key for GET /me/shows
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  return ['me', '/me/shows', args] as const
+  return ['me', 'GET', '/me/shows', args] as const
 }
 
 /**
@@ -2957,10 +2918,10 @@ export function useGetMeShows(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/shows
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMeShowsMutationKey() {
-  return ['PUT', '/me/shows'] as const
+  return ['me', 'PUT', '/me/shows'] as const
 }
 
 /**
@@ -2990,19 +2951,16 @@ export function usePutMeShows(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
-      parseResponse(client.me.shows.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutMeShowsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /me/shows
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMeShowsMutationKey() {
-  return ['DELETE', '/me/shows'] as const
+  return ['me', 'DELETE', '/me/shows'] as const
 }
 
 /**
@@ -3032,21 +2990,18 @@ export function useDeleteMeShows(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
-      parseResponse(client.me.shows.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getDeleteMeShowsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/shows/contains
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeShowsContainsQueryKey(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return ['me', '/me/shows/contains', args] as const
+  return ['me', 'GET', '/me/shows/contains', args] as const
 }
 
 /**
@@ -3097,12 +3052,12 @@ export function useGetMeShowsContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/top/{type}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeTopTypeQueryKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['me', '/me/top/:type', args] as const
+  return ['me', 'GET', '/me/top/:type', args] as const
 }
 
 /**
@@ -3152,10 +3107,10 @@ export function useGetMeTopType(
 
 /**
  * Generates TanStack Query cache key for GET /me/tracks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['me', '/me/tracks', args] as const
+  return ['me', 'GET', '/me/tracks', args] as const
 }
 
 /**
@@ -3198,10 +3153,10 @@ export function useGetMeTracks(
 
 /**
  * Generates TanStack Query mutation key for PUT /me/tracks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMeTracksMutationKey() {
-  return ['PUT', '/me/tracks'] as const
+  return ['me', 'PUT', '/me/tracks'] as const
 }
 
 /**
@@ -3231,19 +3186,16 @@ export function usePutMeTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
-      parseResponse(client.me.tracks.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutMeTracksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /me/tracks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMeTracksMutationKey() {
-  return ['DELETE', '/me/tracks'] as const
+  return ['me', 'DELETE', '/me/tracks'] as const
 }
 
 /**
@@ -3273,21 +3225,19 @@ export function useDeleteMeTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
-      parseResponse(client.me.tracks.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteMeTracksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /me/tracks/contains
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMeTracksContainsQueryKey(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return ['me', '/me/tracks/contains', args] as const
+  return ['me', 'GET', '/me/tracks/contains', args] as const
 }
 
 /**
@@ -3338,12 +3288,12 @@ export function useGetMeTracksContains(
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['playlists', '/playlists/:playlist_id', args] as const
+  return ['playlists', 'GET', '/playlists/:playlist_id', args] as const
 }
 
 /**
@@ -3398,10 +3348,10 @@ export function useGetPlaylistsPlaylistId(
 
 /**
  * Generates TanStack Query mutation key for PUT /playlists/{playlist_id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPlaylistsPlaylistIdMutationKey() {
-  return ['PUT', '/playlists/:playlist_id'] as const
+  return ['playlists', 'PUT', '/playlists/:playlist_id'] as const
 }
 
 /**
@@ -3436,19 +3386,17 @@ export function usePutPlaylistsPlaylistId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
-      parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutPlaylistsPlaylistIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PUT /playlists/{playlist_id}/followers
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPlaylistsPlaylistIdFollowersMutationKey() {
-  return ['PUT', '/playlists/:playlist_id/followers'] as const
+  return ['playlists', 'PUT', '/playlists/:playlist_id/followers'] as const
 }
 
 /**
@@ -3487,20 +3435,17 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
-    ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutPlaylistsPlaylistIdFollowersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /playlists/{playlist_id}/followers
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePlaylistsPlaylistIdFollowersMutationKey() {
-  return ['DELETE', '/playlists/:playlist_id/followers'] as const
+  return ['playlists', 'DELETE', '/playlists/:playlist_id/followers'] as const
 }
 
 /**
@@ -3539,24 +3484,21 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
-    ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeletePlaylistsPlaylistIdFollowersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/followers/contains
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return ['playlists', '/playlists/:playlist_id/followers/contains', args] as const
+  return ['playlists', 'GET', '/playlists/:playlist_id/followers/contains', args] as const
 }
 
 /**
@@ -3615,12 +3557,12 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/images
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['playlists', '/playlists/:playlist_id/images', args] as const
+  return ['playlists', 'GET', '/playlists/:playlist_id/images', args] as const
 }
 
 /**
@@ -3675,10 +3617,10 @@ export function useGetPlaylistsPlaylistIdImages(
 
 /**
  * Generates TanStack Query mutation key for PUT /playlists/{playlist_id}/images
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPlaylistsPlaylistIdImagesMutationKey() {
-  return ['PUT', '/playlists/:playlist_id/images'] as const
+  return ['playlists', 'PUT', '/playlists/:playlist_id/images'] as const
 }
 
 /**
@@ -3717,22 +3659,19 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
-    ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutPlaylistsPlaylistIdImagesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/tracks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return ['playlists', '/playlists/:playlist_id/tracks', args] as const
+  return ['playlists', 'GET', '/playlists/:playlist_id/tracks', args] as const
 }
 
 /**
@@ -3787,10 +3726,10 @@ export function useGetPlaylistsPlaylistIdTracks(
 
 /**
  * Generates TanStack Query mutation key for PUT /playlists/{playlist_id}/tracks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPlaylistsPlaylistIdTracksMutationKey() {
-  return ['PUT', '/playlists/:playlist_id/tracks'] as const
+  return ['playlists', 'PUT', '/playlists/:playlist_id/tracks'] as const
 }
 
 /**
@@ -3835,20 +3774,17 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
-    ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutPlaylistsPlaylistIdTracksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /playlists/{playlist_id}/tracks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPlaylistsPlaylistIdTracksMutationKey() {
-  return ['POST', '/playlists/:playlist_id/tracks'] as const
+  return ['playlists', 'POST', '/playlists/:playlist_id/tracks'] as const
 }
 
 /**
@@ -3887,20 +3823,17 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
-    ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPlaylistsPlaylistIdTracksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /playlists/{playlist_id}/tracks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePlaylistsPlaylistIdTracksMutationKey() {
-  return ['DELETE', '/playlists/:playlist_id/tracks'] as const
+  return ['playlists', 'DELETE', '/playlists/:playlist_id/tracks'] as const
 }
 
 /**
@@ -3939,22 +3872,19 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
-    ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeletePlaylistsPlaylistIdTracksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /recommendations
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetRecommendationsQueryKey(
   args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return ['recommendations', '/recommendations', args] as const
+  return ['recommendations', 'GET', '/recommendations', args] as const
 }
 
 /**
@@ -4007,10 +3937,10 @@ export function useGetRecommendations(
 
 /**
  * Generates TanStack Query cache key for GET /recommendations/available-genre-seeds
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
-  return ['recommendations', '/recommendations/available-genre-seeds'] as const
+  return ['recommendations', 'GET', '/recommendations/available-genre-seeds'] as const
 }
 
 /**
@@ -4059,10 +3989,10 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /search
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['search', '/search', args] as const
+  return ['search', 'GET', '/search', args] as const
 }
 
 /**
@@ -4107,10 +4037,10 @@ export function useGetSearch(
 
 /**
  * Generates TanStack Query cache key for GET /shows
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
-  return ['shows', '/shows', args] as const
+  return ['shows', 'GET', '/shows', args] as const
 }
 
 /**
@@ -4153,12 +4083,12 @@ export function useGetShows(
 
 /**
  * Generates TanStack Query cache key for GET /shows/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetShowsIdQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  return ['shows', '/shows/:id', args] as const
+  return ['shows', 'GET', '/shows/:id', args] as const
 }
 
 /**
@@ -4207,12 +4137,12 @@ export function useGetShowsId(
 
 /**
  * Generates TanStack Query cache key for GET /shows/{id}/episodes
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetShowsIdEpisodesQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['shows', '/shows/:id/episodes', args] as const
+  return ['shows', 'GET', '/shows/:id/episodes', args] as const
 }
 
 /**
@@ -4267,10 +4197,10 @@ export function useGetShowsIdEpisodes(
 
 /**
  * Generates TanStack Query cache key for GET /tracks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
-  return ['tracks', '/tracks', args] as const
+  return ['tracks', 'GET', '/tracks', args] as const
 }
 
 /**
@@ -4313,12 +4243,12 @@ export function useGetTracks(
 
 /**
  * Generates TanStack Query cache key for GET /tracks/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTracksIdQueryKey(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  return ['tracks', '/tracks/:id', args] as const
+  return ['tracks', 'GET', '/tracks/:id', args] as const
 }
 
 /**
@@ -4367,12 +4297,12 @@ export function useGetTracksId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{user_id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['users', '/users/:user_id', args] as const
+  return ['users', 'GET', '/users/:user_id', args] as const
 }
 
 /**
@@ -4422,12 +4352,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{user_id}/playlists
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['users', '/users/:user_id/playlists', args] as const
+  return ['users', 'GET', '/users/:user_id/playlists', args] as const
 }
 
 /**
@@ -4482,10 +4412,10 @@ export function useGetUsersUserIdPlaylists(
 
 /**
  * Generates TanStack Query mutation key for POST /users/{user_id}/playlists
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersUserIdPlaylistsMutationKey() {
-  return ['POST', '/users/:user_id/playlists'] as const
+  return ['users', 'POST', '/users/:user_id/playlists'] as const
 }
 
 /**
@@ -4525,10 +4455,7 @@ export function usePostUsersUserIdPlaylists(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
-    ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostUsersUserIdPlaylistsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

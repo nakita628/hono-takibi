@@ -8,10 +8,10 @@ import { client } from '../clients/29-practical-user-api'
 
 /**
  * Generates Vue Query mutation key for POST /auth/register
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthRegisterMutationKey() {
-  return ['POST', '/auth/register'] as const
+  return ['auth', 'POST', '/auth/register'] as const
 }
 
 /**
@@ -42,25 +42,23 @@ export function usePostAuthRegister(options?: {
         Error,
         InferRequestType<typeof client.auth.register.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.auth.register.$post>) =>
-      parseResponse(client.auth.register.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostAuthRegisterMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /auth/login
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthLoginMutationKey() {
-  return ['POST', '/auth/login'] as const
+  return ['auth', 'POST', '/auth/login'] as const
 }
 
 /**
@@ -91,25 +89,22 @@ export function usePostAuthLogin(options?: {
         Error,
         InferRequestType<typeof client.auth.login.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.auth.login.$post>) =>
-      parseResponse(client.auth.login.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostAuthLoginMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /auth/refresh
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthRefreshMutationKey() {
-  return ['POST', '/auth/refresh'] as const
+  return ['auth', 'POST', '/auth/refresh'] as const
 }
 
 /**
@@ -140,25 +135,23 @@ export function usePostAuthRefresh(options?: {
         Error,
         InferRequestType<typeof client.auth.refresh.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.auth.refresh.$post>) =>
-      parseResponse(client.auth.refresh.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostAuthRefreshMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /auth/logout
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthLogoutMutationKey() {
-  return ['POST', '/auth/logout'] as const
+  return ['auth', 'POST', '/auth/logout'] as const
 }
 
 /**
@@ -187,24 +180,23 @@ export function usePostAuthLogout(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.auth.logout.$post(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostAuthLogoutMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /auth/password/forgot
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthPasswordForgotMutationKey() {
-  return ['POST', '/auth/password/forgot'] as const
+  return ['auth', 'POST', '/auth/password/forgot'] as const
 }
 
 /**
@@ -237,25 +229,23 @@ export function usePostAuthPasswordForgot(options?: {
         Error,
         InferRequestType<typeof client.auth.password.forgot.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.auth.password.forgot.$post>) =>
-      parseResponse(client.auth.password.forgot.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostAuthPasswordForgotMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /auth/password/reset
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAuthPasswordResetMutationKey() {
-  return ['POST', '/auth/password/reset'] as const
+  return ['auth', 'POST', '/auth/password/reset'] as const
 }
 
 /**
@@ -286,25 +276,23 @@ export function usePostAuthPasswordReset(options?: {
         Error,
         InferRequestType<typeof client.auth.password.reset.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.auth.password.reset.$post>) =>
-      parseResponse(client.auth.password.reset.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostAuthPasswordResetMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersQueryKey(args: MaybeRef<InferRequestType<typeof client.users.$get>>) {
-  return ['users', '/users', unref(args)] as const
+  return ['users', 'GET', '/users', unref(args)] as const
 }
 
 /**
@@ -352,12 +340,12 @@ export function useGetUsers(
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.users)[':userId']['$get']>>,
 ) {
-  return ['users', '/users/:userId', unref(args)] as const
+  return ['users', 'GET', '/users/:userId', unref(args)] as const
 }
 
 /**
@@ -410,10 +398,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates Vue Query mutation key for DELETE /users/{userId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUsersUserIdMutationKey() {
-  return ['DELETE', '/users/:userId'] as const
+  return ['users', 'DELETE', '/users/:userId'] as const
 }
 
 /**
@@ -445,25 +433,23 @@ export function useDeleteUsersUserId(options?: {
         Error,
         InferRequestType<(typeof client.users)[':userId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
-      parseResponse(client.users[':userId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteUsersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /users/{userId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchUsersUserIdMutationKey() {
-  return ['PATCH', '/users/:userId'] as const
+  return ['users', 'PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -494,25 +480,23 @@ export function usePatchUsersUserId(options?: {
         Error,
         InferRequestType<(typeof client.users)[':userId']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
-      parseResponse(client.users[':userId'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchUsersUserIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/me
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUsersMeQueryKey() {
-  return ['users', '/users/me'] as const
+  return ['users', 'GET', '/users/me'] as const
 }
 
 /**
@@ -555,10 +539,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates Vue Query mutation key for PATCH /users/me
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchUsersMeMutationKey() {
-  return ['PATCH', '/users/me'] as const
+  return ['users', 'PATCH', '/users/me'] as const
 }
 
 /**
@@ -587,25 +571,22 @@ export function usePatchUsersMe(options?: {
         Error,
         InferRequestType<typeof client.users.me.$patch>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.users.me.$patch>) =>
-      parseResponse(client.users.me.$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPatchUsersMeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /users/me/password
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUsersMePasswordMutationKey() {
-  return ['PUT', '/users/me/password'] as const
+  return ['users', 'PUT', '/users/me/password'] as const
 }
 
 /**
@@ -636,25 +617,23 @@ export function usePutUsersMePassword(options?: {
         Error,
         InferRequestType<typeof client.users.me.password.$put>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.users.me.password.$put>) =>
-      parseResponse(client.users.me.password.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutUsersMePasswordMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PUT /users/me/avatar
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUsersMeAvatarMutationKey() {
-  return ['PUT', '/users/me/avatar'] as const
+  return ['users', 'PUT', '/users/me/avatar'] as const
 }
 
 /**
@@ -683,25 +662,23 @@ export function usePutUsersMeAvatar(options?: {
         Error,
         InferRequestType<typeof client.users.me.avatar.$put>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.users.me.avatar.$put>) =>
-      parseResponse(client.users.me.avatar.$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutUsersMeAvatarMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /users/me/avatar
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUsersMeAvatarMutationKey() {
-  return ['DELETE', '/users/me/avatar'] as const
+  return ['users', 'DELETE', '/users/me/avatar'] as const
 }
 
 /**
@@ -732,14 +709,13 @@ export function useDeleteUsersMeAvatar(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.users.me.avatar.$delete(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteUsersMeAvatarMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

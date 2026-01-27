@@ -6,10 +6,10 @@ import { client } from '../clients/fizz-buzz'
 
 /**
  * Generates TanStack Query cache key for GET /fizzbuzz
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['fizzbuzz', '/fizzbuzz', args] as const
+  return ['fizzbuzz', 'GET', '/fizzbuzz', args] as const
 }
 
 /**

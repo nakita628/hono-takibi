@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-literal'
 
 /**
  * Generates SWR cache key for GET /primitive
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPrimitiveKey() {
-  return ['/primitive'] as const
+  return ['primitive', 'GET', '/primitive'] as const
 }
 
 /**

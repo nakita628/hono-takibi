@@ -8,12 +8,12 @@ import { client } from '../clients/38-auth-apikey-management'
 
 /**
  * Generates Vue Query cache key for GET /api-keys
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['api-keys']['$get']>>,
 ) {
-  return ['api-keys', '/api-keys', unref(args)] as const
+  return ['api-keys', 'GET', '/api-keys', unref(args)] as const
 }
 
 /**
@@ -63,10 +63,10 @@ export function useGetApiKeys(
 
 /**
  * Generates Vue Query mutation key for POST /api-keys
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysMutationKey() {
-  return ['POST', '/api-keys'] as const
+  return ['api-keys', 'POST', '/api-keys'] as const
 }
 
 /**
@@ -97,27 +97,24 @@ export function usePostApiKeys(options?: {
         Error,
         InferRequestType<(typeof client)['api-keys']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
-      parseResponse(client['api-keys'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostApiKeysMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /api-keys/{keyId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>>,
 ) {
-  return ['api-keys', '/api-keys/:keyId', unref(args)] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId', unref(args)] as const
 }
 
 /**
@@ -172,10 +169,10 @@ export function useGetApiKeysKeyId(
 
 /**
  * Generates Vue Query mutation key for DELETE /api-keys/{keyId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteApiKeysKeyIdMutationKey() {
-  return ['DELETE', '/api-keys/:keyId'] as const
+  return ['api-keys', 'DELETE', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -209,25 +206,23 @@ export function useDeleteApiKeysKeyId(options?: {
         Error,
         InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>) =>
-      parseResponse(client['api-keys'][':keyId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteApiKeysKeyIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /api-keys/{keyId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchApiKeysKeyIdMutationKey() {
-  return ['PATCH', '/api-keys/:keyId'] as const
+  return ['api-keys', 'PATCH', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -260,25 +255,23 @@ export function usePatchApiKeysKeyId(options?: {
         Error,
         InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
-      parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchApiKeysKeyIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /api-keys/{keyId}/revoke
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysKeyIdRevokeMutationKey() {
-  return ['POST', '/api-keys/:keyId/revoke'] as const
+  return ['api-keys', 'POST', '/api-keys/:keyId/revoke'] as const
 }
 
 /**
@@ -312,26 +305,23 @@ export function usePostApiKeysKeyIdRevoke(options?: {
         Error,
         InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-    ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApiKeysKeyIdRevokeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /api-keys/{keyId}/rotate
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysKeyIdRotateMutationKey() {
-  return ['POST', '/api-keys/:keyId/rotate'] as const
+  return ['api-keys', 'POST', '/api-keys/:keyId/rotate'] as const
 }
 
 /**
@@ -365,28 +355,25 @@ export function usePostApiKeysKeyIdRotate(options?: {
         Error,
         InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-    ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApiKeysKeyIdRotateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /api-keys/{keyId}/usage
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>>,
 ) {
-  return ['api-keys', '/api-keys/:keyId/usage', unref(args)] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId/usage', unref(args)] as const
 }
 
 /**
@@ -444,14 +431,14 @@ export function useGetApiKeysKeyIdUsage(
 
 /**
  * Generates Vue Query cache key for GET /api-keys/{keyId}/rate-limit/current
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
   >,
 ) {
-  return ['api-keys', '/api-keys/:keyId/rate-limit/current', unref(args)] as const
+  return ['api-keys', 'GET', '/api-keys/:keyId/rate-limit/current', unref(args)] as const
 }
 
 /**
@@ -511,10 +498,10 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 
 /**
  * Generates Vue Query mutation key for POST /api-keys/verify
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostApiKeysVerifyMutationKey() {
-  return ['POST', '/api-keys/verify'] as const
+  return ['api-keys', 'POST', '/api-keys/verify'] as const
 }
 
 /**
@@ -547,25 +534,23 @@ export function usePostApiKeysVerify(options?: {
         Error,
         InferRequestType<(typeof client)['api-keys']['verify']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
-      parseResponse(client['api-keys'].verify.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostApiKeysVerifyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /scopes
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetScopesQueryKey() {
-  return ['scopes', '/scopes'] as const
+  return ['scopes', 'GET', '/scopes'] as const
 }
 
 /**

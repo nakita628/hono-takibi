@@ -6,10 +6,10 @@ import { client } from '../clients/self'
 
 /**
  * Generates SWR cache key for GET /categories
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCategoriesKey() {
-  return ['/categories'] as const
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**

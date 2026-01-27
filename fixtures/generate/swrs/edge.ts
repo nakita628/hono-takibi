@@ -8,10 +8,10 @@ import { client } from '../clients/edge'
 
 /**
  * Generates SWR mutation key for POST /polymorphic
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPolymorphicMutationKey() {
-  return ['POST', '/polymorphic'] as const
+  return ['polymorphic', 'POST', '/polymorphic'] as const
 }
 
 /**
@@ -44,10 +44,10 @@ export function usePostPolymorphic(options?: {
 
 /**
  * Generates SWR cache key for GET /search
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['/search', args] as const
+  return ['search', 'GET', '/search', args] as const
 }
 
 /**
@@ -78,10 +78,10 @@ export function useGetSearch(
 
 /**
  * Generates SWR mutation key for PUT /multi-step
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMultiStepMutationKey() {
-  return ['PUT', '/multi-step'] as const
+  return ['multi-step', 'PUT', '/multi-step'] as const
 }
 
 /**

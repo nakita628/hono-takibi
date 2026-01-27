@@ -8,10 +8,10 @@ import { client } from '../clients/complex-schema-reference'
 
 /**
  * Generates Vue Query cache key for GET /test
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTestQueryKey() {
-  return ['test', '/test'] as const
+  return ['test', 'GET', '/test'] as const
 }
 
 /**

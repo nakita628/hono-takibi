@@ -7,10 +7,10 @@ import { client } from '../clients/not-schema'
 
 /**
  * Generates SWR mutation key for POST /validate
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostValidateMutationKey() {
-  return ['POST', '/validate'] as const
+  return ['validate', 'POST', '/validate'] as const
 }
 
 /**

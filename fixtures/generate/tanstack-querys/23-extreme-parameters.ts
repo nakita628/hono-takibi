@@ -6,14 +6,19 @@ import { client } from '../clients/23-extreme-parameters'
 
 /**
  * Generates TanStack Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
   args: InferRequestType<
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
 ) {
-  return ['a', '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10', args] as const
+  return [
+    'a',
+    'GET',
+    '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10',
+    args,
+  ] as const
 }
 
 /**
@@ -71,12 +76,12 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 
 /**
  * Generates TanStack Query cache key for GET /query-styles
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetQueryStylesQueryKey(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  return ['query-styles', '/query-styles', args] as const
+  return ['query-styles', 'GET', '/query-styles', args] as const
 }
 
 /**
@@ -122,12 +127,12 @@ export function useGetQueryStyles(
 
 /**
  * Generates TanStack Query cache key for GET /path-styles/{simple}/{label}/{matrix}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPathStylesSimpleLabelMatrixQueryKey(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  return ['path-styles', '/path-styles/:simple/:label/:matrix', args] as const
+  return ['path-styles', 'GET', '/path-styles/:simple/:label/:matrix', args] as const
 }
 
 /**
@@ -180,12 +185,12 @@ export function useGetPathStylesSimpleLabelMatrix(
 
 /**
  * Generates TanStack Query cache key for GET /header-styles
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetHeaderStylesQueryKey(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  return ['header-styles', '/header-styles', args] as const
+  return ['header-styles', 'GET', '/header-styles', args] as const
 }
 
 /**
@@ -231,12 +236,12 @@ export function useGetHeaderStyles(
 
 /**
  * Generates TanStack Query cache key for GET /cookie-styles
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCookieStylesQueryKey(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  return ['cookie-styles', '/cookie-styles', args] as const
+  return ['cookie-styles', 'GET', '/cookie-styles', args] as const
 }
 
 /**
@@ -282,12 +287,12 @@ export function useGetCookieStyles(
 
 /**
  * Generates TanStack Query cache key for GET /many-query-params
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetManyQueryParamsQueryKey(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  return ['many-query-params', '/many-query-params', args] as const
+  return ['many-query-params', 'GET', '/many-query-params', args] as const
 }
 
 /**
@@ -336,12 +341,12 @@ export function useGetManyQueryParams(
 
 /**
  * Generates TanStack Query cache key for GET /parameter-content
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetParameterContentQueryKey(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  return ['parameter-content', '/parameter-content', args] as const
+  return ['parameter-content', 'GET', '/parameter-content', args] as const
 }
 
 /**
@@ -390,12 +395,12 @@ export function useGetParameterContent(
 
 /**
  * Generates TanStack Query cache key for GET /deprecated-params
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDeprecatedParamsQueryKey(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  return ['deprecated-params', '/deprecated-params', args] as const
+  return ['deprecated-params', 'GET', '/deprecated-params', args] as const
 }
 
 /**
@@ -444,12 +449,12 @@ export function useGetDeprecatedParams(
 
 /**
  * Generates TanStack Query cache key for GET /examples-params
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetExamplesParamsQueryKey(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  return ['examples-params', '/examples-params', args] as const
+  return ['examples-params', 'GET', '/examples-params', args] as const
 }
 
 /**

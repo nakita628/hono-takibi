@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-literal'
 
 /**
  * Generates Svelte Query cache key for GET /primitive
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPrimitiveQueryKey() {
-  return ['primitive', '/primitive'] as const
+  return ['primitive', 'GET', '/primitive'] as const
 }
 
 /**

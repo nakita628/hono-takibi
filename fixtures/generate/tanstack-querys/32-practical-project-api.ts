@@ -10,10 +10,10 @@ import { client } from '../clients/32-practical-project-api'
 
 /**
  * Generates TanStack Query cache key for GET /projects
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['projects', '/projects', args] as const
+  return ['projects', 'GET', '/projects', args] as const
 }
 
 /**
@@ -54,10 +54,10 @@ export function useGetProjects(
 
 /**
  * Generates TanStack Query mutation key for POST /projects
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsMutationKey() {
-  return ['POST', '/projects'] as const
+  return ['projects', 'POST', '/projects'] as const
 }
 
 /**
@@ -85,21 +85,18 @@ export function usePostProjects(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.projects.$post>) =>
-      parseResponse(client.projects.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostProjectsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return ['projects', '/projects/:projectId', args] as const
+  return ['projects', 'GET', '/projects/:projectId', args] as const
 }
 
 /**
@@ -150,10 +147,10 @@ export function useGetProjectsProjectId(
 
 /**
  * Generates TanStack Query mutation key for PUT /projects/{projectId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutProjectsProjectIdMutationKey() {
-  return ['PUT', '/projects/:projectId'] as const
+  return ['projects', 'PUT', '/projects/:projectId'] as const
 }
 
 /**
@@ -185,19 +182,17 @@ export function usePutProjectsProjectId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$put']>) =>
-      parseResponse(client.projects[':projectId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutProjectsProjectIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /projects/{projectId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteProjectsProjectIdMutationKey() {
-  return ['DELETE', '/projects/:projectId'] as const
+  return ['projects', 'DELETE', '/projects/:projectId'] as const
 }
 
 /**
@@ -234,21 +229,19 @@ export function useDeleteProjectsProjectId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$delete']>) =>
-      parseResponse(client.projects[':projectId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteProjectsProjectIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}/members
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdMembersQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return ['projects', '/projects/:projectId/members', args] as const
+  return ['projects', 'GET', '/projects/:projectId/members', args] as const
 }
 
 /**
@@ -301,10 +294,10 @@ export function useGetProjectsProjectIdMembers(
 
 /**
  * Generates TanStack Query mutation key for POST /projects/{projectId}/members
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsProjectIdMembersMutationKey() {
-  return ['POST', '/projects/:projectId/members'] as const
+  return ['projects', 'POST', '/projects/:projectId/members'] as const
 }
 
 /**
@@ -341,22 +334,19 @@ export function usePostProjectsProjectIdMembers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
-    ) => parseResponse(client.projects[':projectId'].members.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostProjectsProjectIdMembersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}/tasks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdTasksQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return ['projects', '/projects/:projectId/tasks', args] as const
+  return ['projects', 'GET', '/projects/:projectId/tasks', args] as const
 }
 
 /**
@@ -409,10 +399,10 @@ export function useGetProjectsProjectIdTasks(
 
 /**
  * Generates TanStack Query mutation key for POST /projects/{projectId}/tasks
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsProjectIdTasksMutationKey() {
-  return ['POST', '/projects/:projectId/tasks'] as const
+  return ['projects', 'POST', '/projects/:projectId/tasks'] as const
 }
 
 /**
@@ -449,22 +439,19 @@ export function usePostProjectsProjectIdTasks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
-    ) => parseResponse(client.projects[':projectId'].tasks.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostProjectsProjectIdTasksMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /tasks/{taskId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTasksTaskIdQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return ['tasks', '/tasks/:taskId', args] as const
+  return ['tasks', 'GET', '/tasks/:taskId', args] as const
 }
 
 /**
@@ -512,10 +499,10 @@ export function useGetTasksTaskId(
 
 /**
  * Generates TanStack Query mutation key for PUT /tasks/{taskId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutTasksTaskIdMutationKey() {
-  return ['PUT', '/tasks/:taskId'] as const
+  return ['tasks', 'PUT', '/tasks/:taskId'] as const
 }
 
 /**
@@ -547,19 +534,17 @@ export function usePutTasksTaskId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$put']>) =>
-      parseResponse(client.tasks[':taskId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutTasksTaskIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /tasks/{taskId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTasksTaskIdMutationKey() {
-  return ['DELETE', '/tasks/:taskId'] as const
+  return ['tasks', 'DELETE', '/tasks/:taskId'] as const
 }
 
 /**
@@ -592,19 +577,17 @@ export function useDeleteTasksTaskId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>) =>
-      parseResponse(client.tasks[':taskId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteTasksTaskIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PATCH /tasks/{taskId}/status
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchTasksTaskIdStatusMutationKey() {
-  return ['PATCH', '/tasks/:taskId/status'] as const
+  return ['tasks', 'PATCH', '/tasks/:taskId/status'] as const
 }
 
 /**
@@ -639,22 +622,19 @@ export function usePatchTasksTaskIdStatus(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
-    ) => parseResponse(client.tasks[':taskId'].status.$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchTasksTaskIdStatusMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /tasks/{taskId}/comments
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTasksTaskIdCommentsQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return ['tasks', '/tasks/:taskId/comments', args] as const
+  return ['tasks', 'GET', '/tasks/:taskId/comments', args] as const
 }
 
 /**
@@ -707,10 +687,10 @@ export function useGetTasksTaskIdComments(
 
 /**
  * Generates TanStack Query mutation key for POST /tasks/{taskId}/comments
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTasksTaskIdCommentsMutationKey() {
-  return ['POST', '/tasks/:taskId/comments'] as const
+  return ['tasks', 'POST', '/tasks/:taskId/comments'] as const
 }
 
 /**
@@ -747,22 +727,19 @@ export function usePostTasksTaskIdComments(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
-    ) => parseResponse(client.tasks[':taskId'].comments.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostTasksTaskIdCommentsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /tasks/{taskId}/time-entries
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return ['tasks', '/tasks/:taskId/time-entries', args] as const
+  return ['tasks', 'GET', '/tasks/:taskId/time-entries', args] as const
 }
 
 /**
@@ -815,10 +792,10 @@ export function useGetTasksTaskIdTimeEntries(
 
 /**
  * Generates TanStack Query mutation key for POST /tasks/{taskId}/time-entries
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTasksTaskIdTimeEntriesMutationKey() {
-  return ['POST', '/tasks/:taskId/time-entries'] as const
+  return ['tasks', 'POST', '/tasks/:taskId/time-entries'] as const
 }
 
 /**
@@ -855,22 +832,19 @@ export function usePostTasksTaskIdTimeEntries(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
-    ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostTasksTaskIdTimeEntriesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}/milestones
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return ['projects', '/projects/:projectId/milestones', args] as const
+  return ['projects', 'GET', '/projects/:projectId/milestones', args] as const
 }
 
 /**
@@ -923,10 +897,10 @@ export function useGetProjectsProjectIdMilestones(
 
 /**
  * Generates TanStack Query mutation key for POST /projects/{projectId}/milestones
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProjectsProjectIdMilestonesMutationKey() {
-  return ['POST', '/projects/:projectId/milestones'] as const
+  return ['projects', 'POST', '/projects/:projectId/milestones'] as const
 }
 
 /**
@@ -963,20 +937,17 @@ export function usePostProjectsProjectIdMilestones(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
-    ) => parseResponse(client.projects[':projectId'].milestones.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostProjectsProjectIdMilestonesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /teams
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTeamsQueryKey() {
-  return ['teams', '/teams'] as const
+  return ['teams', 'GET', '/teams'] as const
 }
 
 /**
@@ -1011,10 +982,10 @@ export function useGetTeams(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /teams
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTeamsMutationKey() {
-  return ['POST', '/teams'] as const
+  return ['teams', 'POST', '/teams'] as const
 }
 
 /**
@@ -1042,9 +1013,6 @@ export function usePostTeams(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.teams.$post>) =>
-      parseResponse(client.teams.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostTeamsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

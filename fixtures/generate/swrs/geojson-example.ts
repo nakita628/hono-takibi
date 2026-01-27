@@ -6,10 +6,10 @@ import { client } from '../clients/geojson-example'
 
 /**
  * Generates SWR cache key for GET /
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetKey() {
-  return ['/'] as const
+  return ['', 'GET', '/'] as const
 }
 
 /**
@@ -39,10 +39,10 @@ export function useGet(options?: {
 
 /**
  * Generates SWR cache key for GET /projects
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', args] as const
+  return ['projects', 'GET', '/projects', args] as const
 }
 
 /**

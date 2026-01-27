@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-number'
 
 /**
  * Generates TanStack Query cache key for GET /number
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNumberQueryKey() {
-  return ['number', '/number'] as const
+  return ['number', 'GET', '/number'] as const
 }
 
 /**

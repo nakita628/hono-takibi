@@ -10,12 +10,12 @@ import { client } from '../clients/35-auth-oauth2-server'
 
 /**
  * Generates TanStack Query cache key for GET /oauth/authorize
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOauthAuthorizeQueryKey(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return ['oauth', '/oauth/authorize', args] as const
+  return ['oauth', 'GET', '/oauth/authorize', args] as const
 }
 
 /**
@@ -67,10 +67,10 @@ export function useGetOauthAuthorize(
 
 /**
  * Generates TanStack Query mutation key for POST /oauth/token
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthTokenMutationKey() {
-  return ['POST', '/oauth/token'] as const
+  return ['oauth', 'POST', '/oauth/token'] as const
 }
 
 /**
@@ -101,19 +101,17 @@ export function usePostOauthToken(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
-      parseResponse(client.oauth.token.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthTokenMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /oauth/revoke
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthRevokeMutationKey() {
-  return ['POST', '/oauth/revoke'] as const
+  return ['oauth', 'POST', '/oauth/revoke'] as const
 }
 
 /**
@@ -145,19 +143,17 @@ export function usePostOauthRevoke(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
-      parseResponse(client.oauth.revoke.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthRevokeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /oauth/introspect
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthIntrospectMutationKey() {
-  return ['POST', '/oauth/introspect'] as const
+  return ['oauth', 'POST', '/oauth/introspect'] as const
 }
 
 /**
@@ -189,19 +185,17 @@ export function usePostOauthIntrospect(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
-      parseResponse(client.oauth.introspect.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthIntrospectMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /oauth/device/code
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthDeviceCodeMutationKey() {
-  return ['POST', '/oauth/device/code'] as const
+  return ['oauth', 'POST', '/oauth/device/code'] as const
 }
 
 /**
@@ -233,19 +227,17 @@ export function usePostOauthDeviceCode(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
-      parseResponse(client.oauth.device.code.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthDeviceCodeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /oauth/userinfo
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthUserinfoQueryKey() {
-  return ['oauth', '/oauth/userinfo'] as const
+  return ['oauth', 'GET', '/oauth/userinfo'] as const
 }
 
 /**
@@ -287,10 +279,10 @@ export function useGetOauthUserinfo(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /.well-known/openid-configuration
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWellKnownOpenidConfigurationQueryKey() {
-  return ['.well-known', '/.well-known/openid-configuration'] as const
+  return ['.well-known', 'GET', '/.well-known/openid-configuration'] as const
 }
 
 /**
@@ -339,10 +331,10 @@ export function useGetWellKnownOpenidConfiguration(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /.well-known/jwks.json
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWellKnownJwksJsonQueryKey() {
-  return ['.well-known', '/.well-known/jwks.json'] as const
+  return ['.well-known', 'GET', '/.well-known/jwks.json'] as const
 }
 
 /**
@@ -388,10 +380,10 @@ export function useGetWellKnownJwksJson(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /oauth/clients
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthClientsQueryKey() {
-  return ['oauth', '/oauth/clients'] as const
+  return ['oauth', 'GET', '/oauth/clients'] as const
 }
 
 /**
@@ -431,10 +423,10 @@ export function useGetOauthClients(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /oauth/clients
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthClientsMutationKey() {
-  return ['POST', '/oauth/clients'] as const
+  return ['oauth', 'POST', '/oauth/clients'] as const
 }
 
 /**
@@ -464,21 +456,19 @@ export function usePostOauthClients(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
-      parseResponse(client.oauth.clients.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthClientsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /oauth/clients/{clientId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return ['oauth', '/oauth/clients/:clientId', args] as const
+  return ['oauth', 'GET', '/oauth/clients/:clientId', args] as const
 }
 
 /**
@@ -531,10 +521,10 @@ export function useGetOauthClientsClientId(
 
 /**
  * Generates TanStack Query mutation key for PUT /oauth/clients/{clientId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutOauthClientsClientIdMutationKey() {
-  return ['PUT', '/oauth/clients/:clientId'] as const
+  return ['oauth', 'PUT', '/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -570,20 +560,17 @@ export function usePutOauthClientsClientId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>,
-    ) => parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPutOauthClientsClientIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /oauth/clients/{clientId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteOauthClientsClientIdMutationKey() {
-  return ['DELETE', '/oauth/clients/:clientId'] as const
+  return ['oauth', 'DELETE', '/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -621,20 +608,17 @@ export function useDeleteOauthClientsClientId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
-    ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteOauthClientsClientIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /oauth/clients/{clientId}/secret
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOauthClientsClientIdSecretMutationKey() {
-  return ['POST', '/oauth/clients/:clientId/secret'] as const
+  return ['oauth', 'POST', '/oauth/clients/:clientId/secret'] as const
 }
 
 /**
@@ -671,20 +655,17 @@ export function usePostOauthClientsClientIdSecret(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
-    ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOauthClientsClientIdSecretMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /oauth/consents
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOauthConsentsQueryKey() {
-  return ['oauth', '/oauth/consents'] as const
+  return ['oauth', 'GET', '/oauth/consents'] as const
 }
 
 /**
@@ -726,10 +707,10 @@ export function useGetOauthConsents(options?: {
 
 /**
  * Generates TanStack Query mutation key for DELETE /oauth/consents/{clientId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteOauthConsentsClientIdMutationKey() {
-  return ['DELETE', '/oauth/consents/:clientId'] as const
+  return ['oauth', 'DELETE', '/oauth/consents/:clientId'] as const
 }
 
 /**
@@ -769,10 +750,7 @@ export function useDeleteOauthConsentsClientId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
-    ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteOauthConsentsClientIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

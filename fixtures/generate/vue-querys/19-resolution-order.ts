@@ -8,10 +8,10 @@ import { client } from '../clients/19-resolution-order'
 
 /**
  * Generates Vue Query cache key for GET /entities
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEntitiesQueryKey() {
-  return ['entities', '/entities'] as const
+  return ['entities', 'GET', '/entities'] as const
 }
 
 /**
@@ -52,10 +52,10 @@ export function useGetEntities(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /process
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProcessMutationKey() {
-  return ['POST', '/process'] as const
+  return ['process', 'POST', '/process'] as const
 }
 
 /**
@@ -80,25 +80,22 @@ export function usePostProcess(options?: {
         Error,
         InferRequestType<typeof client.process.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
-      parseResponse(client.process.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostProcessMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /graph
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGraphQueryKey() {
-  return ['graph', '/graph'] as const
+  return ['graph', 'GET', '/graph'] as const
 }
 
 /**
@@ -136,10 +133,10 @@ export function useGetGraph(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /transform
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTransformMutationKey() {
-  return ['POST', '/transform'] as const
+  return ['transform', 'POST', '/transform'] as const
 }
 
 /**
@@ -166,15 +163,12 @@ export function usePostTransform(options?: {
         Error,
         InferRequestType<typeof client.transform.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
-      parseResponse(client.transform.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostTransformMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

@@ -7,10 +7,10 @@ import { client } from '../clients/10-complex-schemas'
 
 /**
  * Generates SWR mutation key for POST /events
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEventsMutationKey() {
-  return ['POST', '/events'] as const
+  return ['events', 'POST', '/events'] as const
 }
 
 /**
@@ -41,10 +41,10 @@ export function usePostEvents(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNotificationsMutationKey() {
-  return ['POST', '/notifications'] as const
+  return ['notifications', 'POST', '/notifications'] as const
 }
 
 /**
@@ -77,10 +77,10 @@ export function usePostNotifications(options?: {
 
 /**
  * Generates SWR mutation key for POST /shapes
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostShapesMutationKey() {
-  return ['POST', '/shapes'] as const
+  return ['shapes', 'POST', '/shapes'] as const
 }
 
 /**
@@ -111,10 +111,10 @@ export function usePostShapes(options?: {
 
 /**
  * Generates SWR mutation key for POST /documents
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDocumentsMutationKey() {
-  return ['POST', '/documents'] as const
+  return ['documents', 'POST', '/documents'] as const
 }
 
 /**
@@ -145,10 +145,10 @@ export function usePostDocuments(options?: {
 
 /**
  * Generates SWR mutation key for POST /mixed
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMixedMutationKey() {
-  return ['POST', '/mixed'] as const
+  return ['mixed', 'POST', '/mixed'] as const
 }
 
 /**

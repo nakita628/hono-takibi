@@ -10,7 +10,7 @@ import { client } from '../clients/13-deep-nested-refs'
 
 /**
  * Generates TanStack Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<
@@ -19,6 +19,7 @@ export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQuery
 ) {
   return [
     'organizations',
+    'GET',
     '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
     args,
   ] as const
@@ -78,10 +79,14 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates TanStack Query mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
-  return ['POST', '/organizations/:orgId/departments/:deptId/teams/:teamId/members'] as const
+  return [
+    'organizations',
+    'POST',
+    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
+  ] as const
 }
 
 /**
@@ -130,28 +135,17 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /reports/organization-summary
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetReportsOrganizationSummaryQueryKey() {
-  return ['reports', '/reports/organization-summary'] as const
+  return ['reports', 'GET', '/reports/organization-summary'] as const
 }
 
 /**

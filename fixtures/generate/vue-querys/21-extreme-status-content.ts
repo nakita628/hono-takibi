@@ -8,10 +8,10 @@ import { client } from '../clients/21-extreme-status-content'
 
 /**
  * Generates Vue Query cache key for GET /extreme-responses
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExtremeResponsesQueryKey() {
-  return ['extreme-responses', '/extreme-responses'] as const
+  return ['extreme-responses', 'GET', '/extreme-responses'] as const
 }
 
 /**
@@ -56,10 +56,10 @@ export function useGetExtremeResponses(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /multipart-variations
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMultipartVariationsMutationKey() {
-  return ['POST', '/multipart-variations'] as const
+  return ['multipart-variations', 'POST', '/multipart-variations'] as const
 }
 
 /**
@@ -92,25 +92,23 @@ export function usePostMultipartVariations(options?: {
         Error,
         InferRequestType<(typeof client)['multipart-variations']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['multipart-variations']['$post']>) =>
-      parseResponse(client['multipart-variations'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMultipartVariationsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /charset-variations
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCharsetVariationsMutationKey() {
-  return ['POST', '/charset-variations'] as const
+  return ['charset-variations', 'POST', '/charset-variations'] as const
 }
 
 /**
@@ -141,15 +139,13 @@ export function usePostCharsetVariations(options?: {
         Error,
         InferRequestType<(typeof client)['charset-variations']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['charset-variations']['$post']>) =>
-      parseResponse(client['charset-variations'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostCharsetVariationsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

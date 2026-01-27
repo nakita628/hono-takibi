@@ -7,10 +7,10 @@ import { client } from '../clients/25-pathological-schemas'
 
 /**
  * Generates SWR mutation key for POST /pathological
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPathologicalMutationKey() {
-  return ['POST', '/pathological'] as const
+  return ['pathological', 'POST', '/pathological'] as const
 }
 
 /**

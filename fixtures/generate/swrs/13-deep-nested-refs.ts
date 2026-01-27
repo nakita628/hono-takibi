@@ -8,7 +8,7 @@ import { client } from '../clients/13-deep-nested-refs'
 
 /**
  * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
   args: InferRequestType<
@@ -16,7 +16,9 @@ export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
   >,
 ) {
   return [
-    `/organizations/${args.param.orgId}/departments/${args.param.deptId}/teams/${args.param.teamId}/members`,
+    'organizations',
+    'GET',
+    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
     args,
   ] as const
 }
@@ -57,10 +59,14 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates SWR mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
-  return ['POST', '/organizations/:orgId/departments/:deptId/teams/:teamId/members'] as const
+  return [
+    'organizations',
+    'POST',
+    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
+  ] as const
 }
 
 /**
@@ -118,10 +124,10 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
 
 /**
  * Generates SWR cache key for GET /reports/organization-summary
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetReportsOrganizationSummaryKey() {
-  return ['/reports/organization-summary'] as const
+  return ['reports', 'GET', '/reports/organization-summary'] as const
 }
 
 /**

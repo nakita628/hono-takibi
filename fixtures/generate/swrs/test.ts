@@ -6,10 +6,10 @@ import { client } from '../clients/test'
 
 /**
  * Generates SWR cache key for GET /hono
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHonoKey() {
-  return ['/hono'] as const
+  return ['hono', 'GET', '/hono'] as const
 }
 
 /**
@@ -39,10 +39,10 @@ export function useGetHono(options?: {
 
 /**
  * Generates SWR cache key for GET /hono-x
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHonoXKey() {
-  return ['/hono-x'] as const
+  return ['hono-x', 'GET', '/hono-x'] as const
 }
 
 /**
@@ -72,10 +72,10 @@ export function useGetHonoX(options?: {
 
 /**
  * Generates SWR cache key for GET /zod-openapi-hono
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetZodOpenapiHonoKey() {
-  return ['/zod-openapi-hono'] as const
+  return ['zod-openapi-hono', 'GET', '/zod-openapi-hono'] as const
 }
 
 /**

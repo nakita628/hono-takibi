@@ -8,10 +8,10 @@ import { client } from '../clients/edge'
 
 /**
  * Generates Vue Query mutation key for POST /polymorphic
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPolymorphicMutationKey() {
-  return ['POST', '/polymorphic'] as const
+  return ['polymorphic', 'POST', '/polymorphic'] as const
 }
 
 /**
@@ -40,25 +40,23 @@ export function usePostPolymorphic(options?: {
         Error,
         InferRequestType<typeof client.polymorphic.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.polymorphic.$post>) =>
-      parseResponse(client.polymorphic.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPolymorphicMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /search
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchQueryKey(args: MaybeRef<InferRequestType<typeof client.search.$get>>) {
-  return ['search', '/search', unref(args)] as const
+  return ['search', 'GET', '/search', unref(args)] as const
 }
 
 /**
@@ -104,10 +102,10 @@ export function useGetSearch(
 
 /**
  * Generates Vue Query mutation key for PUT /multi-step
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMultiStepMutationKey() {
-  return ['PUT', '/multi-step'] as const
+  return ['multi-step', 'PUT', '/multi-step'] as const
 }
 
 /**
@@ -139,15 +137,12 @@ export function usePutMultiStep(options?: {
         Error,
         InferRequestType<(typeof client)['multi-step']['$put']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['multi-step']['$put']>) =>
-      parseResponse(client['multi-step'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutMultiStepMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

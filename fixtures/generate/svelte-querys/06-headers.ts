@@ -10,10 +10,10 @@ import { client } from '../clients/06-headers'
 
 /**
  * Generates Svelte Query cache key for GET /resources
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
-  return ['resources', '/resources', args] as const
+  return ['resources', 'GET', '/resources', args] as const
 }
 
 /**
@@ -54,12 +54,12 @@ export function createGetResources(
 
 /**
  * Generates Svelte Query cache key for GET /resources/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['resources', '/resources/:id', args] as const
+  return ['resources', 'GET', '/resources/:id', args] as const
 }
 
 /**
@@ -107,10 +107,10 @@ export function createGetResourcesId(
 
 /**
  * Generates Svelte Query mutation key for PUT /resources/{id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutResourcesIdMutationKey() {
-  return ['PUT', '/resources/:id'] as const
+  return ['resources', 'PUT', '/resources/:id'] as const
 }
 
 /**
@@ -127,34 +127,37 @@ export const getPutResourcesIdMutationOptions = (clientOptions?: ClientRequestOp
 /**
  * PUT /resources/{id}
  */
-export function createPutResourcesId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.resources)[':id']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
-      parseResponse(client.resources[':id'].$put(args, clientOptions)),
-  }))
+export function createPutResourcesId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client.resources)[':id']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutResourcesIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /download/{id}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return ['download', '/download/:id', args] as const
+  return ['download', 'GET', '/download/:id', args] as const
 }
 
 /**

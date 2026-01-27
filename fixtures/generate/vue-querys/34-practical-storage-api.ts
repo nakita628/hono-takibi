@@ -8,10 +8,10 @@ import { client } from '../clients/34-practical-storage-api'
 
 /**
  * Generates Vue Query cache key for GET /files
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesQueryKey(args: MaybeRef<InferRequestType<typeof client.files.$get>>) {
-  return ['files', '/files', unref(args)] as const
+  return ['files', 'GET', '/files', unref(args)] as const
 }
 
 /**
@@ -57,10 +57,10 @@ export function useGetFiles(
 
 /**
  * Generates Vue Query mutation key for POST /files/upload
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMutationKey() {
-  return ['POST', '/files/upload'] as const
+  return ['files', 'POST', '/files/upload'] as const
 }
 
 /**
@@ -89,25 +89,23 @@ export function usePostFilesUpload(options?: {
         Error,
         InferRequestType<typeof client.files.upload.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.files.upload.$post>) =>
-      parseResponse(client.files.upload.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesUploadMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /files/upload/multipart/init
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartInitMutationKey() {
-  return ['POST', '/files/upload/multipart/init'] as const
+  return ['files', 'POST', '/files/upload/multipart/init'] as const
 }
 
 /**
@@ -144,25 +142,23 @@ export function usePostFilesUploadMultipartInit(options?: {
         Error,
         InferRequestType<typeof client.files.upload.multipart.init.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.files.upload.multipart.init.$post>) =>
-      parseResponse(client.files.upload.multipart.init.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesUploadMultipartInitMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /files/upload/multipart/{uploadId}/part
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
-  return ['POST', '/files/upload/multipart/:uploadId/part'] as const
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/part'] as const
 }
 
 /**
@@ -200,26 +196,23 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
         Error,
         InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
-    ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesUploadMultipartUploadIdPartMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /files/upload/multipart/{uploadId}/complete
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
-  return ['POST', '/files/upload/multipart/:uploadId/complete'] as const
+  return ['files', 'POST', '/files/upload/multipart/:uploadId/complete'] as const
 }
 
 /**
@@ -260,31 +253,25 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
         Error,
         InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
-      >,
-    ) =>
-      parseResponse(client.files.upload.multipart[':uploadId'].complete.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesUploadMultipartUploadIdCompleteMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['$get']>>,
 ) {
-  return ['files', '/files/:fileId', unref(args)] as const
+  return ['files', 'GET', '/files/:fileId', unref(args)] as const
 }
 
 /**
@@ -337,10 +324,10 @@ export function useGetFilesFileId(
 
 /**
  * Generates Vue Query mutation key for DELETE /files/{fileId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFilesFileIdMutationKey() {
-  return ['DELETE', '/files/:fileId'] as const
+  return ['files', 'DELETE', '/files/:fileId'] as const
 }
 
 /**
@@ -372,25 +359,23 @@ export function useDeleteFilesFileId(options?: {
         Error,
         InferRequestType<(typeof client.files)[':fileId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$delete']>) =>
-      parseResponse(client.files[':fileId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteFilesFileIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /files/{fileId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchFilesFileIdMutationKey() {
-  return ['PATCH', '/files/:fileId'] as const
+  return ['files', 'PATCH', '/files/:fileId'] as const
 }
 
 /**
@@ -421,27 +406,25 @@ export function usePatchFilesFileId(options?: {
         Error,
         InferRequestType<(typeof client.files)[':fileId']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$patch']>) =>
-      parseResponse(client.files[':fileId'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchFilesFileIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/download
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['download']['$get']>>,
 ) {
-  return ['files', '/files/:fileId/download', unref(args)] as const
+  return ['files', 'GET', '/files/:fileId/download', unref(args)] as const
 }
 
 /**
@@ -499,12 +482,12 @@ export function useGetFilesFileIdDownload(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/download-url
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>>,
 ) {
-  return ['files', '/files/:fileId/download-url', unref(args)] as const
+  return ['files', 'GET', '/files/:fileId/download-url', unref(args)] as const
 }
 
 /**
@@ -562,10 +545,10 @@ export function useGetFilesFileIdDownloadUrl(
 
 /**
  * Generates Vue Query mutation key for POST /files/{fileId}/copy
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdCopyMutationKey() {
-  return ['POST', '/files/:fileId/copy'] as const
+  return ['files', 'POST', '/files/:fileId/copy'] as const
 }
 
 /**
@@ -598,25 +581,23 @@ export function usePostFilesFileIdCopy(options?: {
         Error,
         InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>) =>
-      parseResponse(client.files[':fileId'].copy.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesFileIdCopyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /files/{fileId}/move
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdMoveMutationKey() {
-  return ['POST', '/files/:fileId/move'] as const
+  return ['files', 'POST', '/files/:fileId/move'] as const
 }
 
 /**
@@ -649,27 +630,25 @@ export function usePostFilesFileIdMove(options?: {
         Error,
         InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>) =>
-      parseResponse(client.files[':fileId'].move.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesFileIdMoveMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/thumbnail
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>>,
 ) {
-  return ['files', '/files/:fileId/thumbnail', unref(args)] as const
+  return ['files', 'GET', '/files/:fileId/thumbnail', unref(args)] as const
 }
 
 /**
@@ -727,10 +706,10 @@ export function useGetFilesFileIdThumbnail(
 
 /**
  * Generates Vue Query mutation key for POST /folders
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFoldersMutationKey() {
-  return ['POST', '/folders'] as const
+  return ['folders', 'POST', '/folders'] as const
 }
 
 /**
@@ -757,27 +736,24 @@ export function usePostFolders(options?: {
         Error,
         InferRequestType<typeof client.folders.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.folders.$post>) =>
-      parseResponse(client.folders.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostFoldersMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /folders/{folderId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFoldersFolderIdQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.folders)[':folderId']['$get']>>,
 ) {
-  return ['folders', '/folders/:folderId', unref(args)] as const
+  return ['folders', 'GET', '/folders/:folderId', unref(args)] as const
 }
 
 /**
@@ -835,10 +811,10 @@ export function useGetFoldersFolderId(
 
 /**
  * Generates Vue Query mutation key for DELETE /folders/{folderId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFoldersFolderIdMutationKey() {
-  return ['DELETE', '/folders/:folderId'] as const
+  return ['folders', 'DELETE', '/folders/:folderId'] as const
 }
 
 /**
@@ -872,25 +848,23 @@ export function useDeleteFoldersFolderId(options?: {
         Error,
         InferRequestType<(typeof client.folders)[':folderId']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>) =>
-      parseResponse(client.folders[':folderId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteFoldersFolderIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /folders/{folderId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchFoldersFolderIdMutationKey() {
-  return ['PATCH', '/folders/:folderId'] as const
+  return ['folders', 'PATCH', '/folders/:folderId'] as const
 }
 
 /**
@@ -923,27 +897,25 @@ export function usePatchFoldersFolderId(options?: {
         Error,
         InferRequestType<(typeof client.folders)[':folderId']['$patch']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) =>
-      parseResponse(client.folders[':folderId'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchFoldersFolderIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/share
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdShareQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['share']['$get']>>,
 ) {
-  return ['files', '/files/:fileId/share', unref(args)] as const
+  return ['files', 'GET', '/files/:fileId/share', unref(args)] as const
 }
 
 /**
@@ -1001,10 +973,10 @@ export function useGetFilesFileIdShare(
 
 /**
  * Generates Vue Query mutation key for POST /files/{fileId}/share
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdShareMutationKey() {
-  return ['POST', '/files/:fileId/share'] as const
+  return ['files', 'POST', '/files/:fileId/share'] as const
 }
 
 /**
@@ -1037,26 +1009,23 @@ export function usePostFilesFileIdShare(options?: {
         Error,
         InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
-    ) => parseResponse(client.files[':fileId'].share.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesFileIdShareMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /files/{fileId}/share
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteFilesFileIdShareMutationKey() {
-  return ['DELETE', '/files/:fileId/share'] as const
+  return ['files', 'DELETE', '/files/:fileId/share'] as const
 }
 
 /**
@@ -1091,26 +1060,23 @@ export function useDeleteFilesFileIdShare(options?: {
         Error,
         InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
-    ) => parseResponse(client.files[':fileId'].share.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteFilesFileIdShareMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /files/{fileId}/share/link
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdShareLinkMutationKey() {
-  return ['POST', '/files/:fileId/share/link'] as const
+  return ['files', 'POST', '/files/:fileId/share/link'] as const
 }
 
 /**
@@ -1146,28 +1112,25 @@ export function usePostFilesFileIdShareLink(options?: {
         Error,
         InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-    ) => parseResponse(client.files[':fileId'].share.link.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesFileIdShareLinkMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/versions
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>>,
 ) {
-  return ['files', '/files/:fileId/versions', unref(args)] as const
+  return ['files', 'GET', '/files/:fileId/versions', unref(args)] as const
 }
 
 /**
@@ -1225,10 +1188,10 @@ export function useGetFilesFileIdVersions(
 
 /**
  * Generates Vue Query mutation key for POST /files/{fileId}/versions/{versionId}/restore
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
-  return ['POST', '/files/:fileId/versions/:versionId/restore'] as const
+  return ['files', 'POST', '/files/:fileId/versions/:versionId/restore'] as const
 }
 
 /**
@@ -1275,31 +1238,23 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
           (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client.files[':fileId'].versions[':versionId'].restore.$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostFilesFileIdVersionsVersionIdRestoreMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /trash
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTrashQueryKey(args: MaybeRef<InferRequestType<typeof client.trash.$get>>) {
-  return ['trash', '/trash', unref(args)] as const
+  return ['trash', 'GET', '/trash', unref(args)] as const
 }
 
 /**
@@ -1345,10 +1300,10 @@ export function useGetTrash(
 
 /**
  * Generates Vue Query mutation key for DELETE /trash
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTrashMutationKey() {
-  return ['DELETE', '/trash'] as const
+  return ['trash', 'DELETE', '/trash'] as const
 }
 
 /**
@@ -1377,24 +1332,22 @@ export function useDeleteTrash(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getDeleteTrashMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /trash/{fileId}/restore
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTrashFileIdRestoreMutationKey() {
-  return ['POST', '/trash/:fileId/restore'] as const
+  return ['trash', 'POST', '/trash/:fileId/restore'] as const
 }
 
 /**
@@ -1428,26 +1381,23 @@ export function usePostTrashFileIdRestore(options?: {
         Error,
         InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
-    ) => parseResponse(client.trash[':fileId'].restore.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostTrashFileIdRestoreMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /storage/usage
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStorageUsageQueryKey() {
-  return ['storage', '/storage/usage'] as const
+  return ['storage', 'GET', '/storage/usage'] as const
 }
 
 /**

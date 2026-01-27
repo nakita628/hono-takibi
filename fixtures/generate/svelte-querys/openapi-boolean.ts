@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-boolean'
 
 /**
  * Generates Svelte Query cache key for GET /boolean
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetBooleanQueryKey() {
-  return ['boolean', '/boolean'] as const
+  return ['boolean', 'GET', '/boolean'] as const
 }
 
 /**

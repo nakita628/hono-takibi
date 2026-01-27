@@ -8,10 +8,10 @@ import { client } from '../clients/self'
 
 /**
  * Generates Vue Query cache key for GET /categories
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCategoriesQueryKey() {
-  return ['categories', '/categories'] as const
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**

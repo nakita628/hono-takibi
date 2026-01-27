@@ -8,10 +8,10 @@ import { client } from '../clients/complex-openapi'
 
 /**
  * Generates SWR cache key for GET /users
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUsersKey() {
-  return ['/users'] as const
+  return ['users', 'GET', '/users'] as const
 }
 
 /**
@@ -39,10 +39,10 @@ export function useGetUsers(options?: {
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersMutationKey() {
-  return ['POST', '/users'] as const
+  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -75,12 +75,12 @@ export function usePostUsers(options?: {
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return [`/users/${args.param.userId}`, args] as const
+  return ['users', 'GET', '/users/:userId', args] as const
 }
 
 /**
@@ -111,10 +111,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR mutation key for PUT /users/{userId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUsersUserIdMutationKey() {
-  return ['PUT', '/users/:userId'] as const
+  return ['users', 'PUT', '/users/:userId'] as const
 }
 
 /**
@@ -153,10 +153,10 @@ export function usePutUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/{userId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUsersUserIdMutationKey() {
-  return ['DELETE', '/users/:userId'] as const
+  return ['users', 'DELETE', '/users/:userId'] as const
 }
 
 /**
@@ -196,10 +196,10 @@ export function useDeleteUsersUserId(options?: {
 
 /**
  * Generates SWR cache key for GET /orders
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetOrdersKey() {
-  return ['/orders'] as const
+  return ['orders', 'GET', '/orders'] as const
 }
 
 /**
@@ -227,10 +227,10 @@ export function useGetOrders(options?: {
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**

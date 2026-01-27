@@ -10,10 +10,10 @@ import { client } from '../clients/07-examples'
 
 /**
  * Generates Svelte Query cache key for GET /products
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProductsQueryKey() {
-  return ['products', '/products'] as const
+  return ['products', 'GET', '/products'] as const
 }
 
 /**
@@ -53,10 +53,10 @@ export function createGetProducts(
 
 /**
  * Generates Svelte Query mutation key for POST /products
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProductsMutationKey() {
-  return ['POST', '/products'] as const
+  return ['products', 'POST', '/products'] as const
 }
 
 /**
@@ -73,30 +73,31 @@ export const getPostProductsMutationOptions = (clientOptions?: ClientRequestOpti
 /**
  * POST /products
  */
-export function createPostProducts(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.products.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
-      parseResponse(client.products.$post(args, clientOptions)),
-  }))
+export function createPostProducts(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.products.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostProductsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /products/{productId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['products', '/products/:productId', args] as const
+  return ['products', 'GET', '/products/:productId', args] as const
 }
 
 /**

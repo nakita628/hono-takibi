@@ -8,10 +8,10 @@ import { client } from '../clients/31-practical-blog-api'
 
 /**
  * Generates SWR cache key for GET /posts
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
+  return ['posts', 'GET', '/posts', args] as const
 }
 
 /**
@@ -42,10 +42,10 @@ export function useGetPosts(
 
 /**
  * Generates SWR mutation key for POST /posts
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsMutationKey() {
-  return ['POST', '/posts'] as const
+  return ['posts', 'POST', '/posts'] as const
 }
 
 /**
@@ -78,12 +78,12 @@ export function usePostPosts(options?: {
 
 /**
  * Generates SWR cache key for GET /posts/{postId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return [`/posts/${args.param.postId}`, args] as const
+  return ['posts', 'GET', '/posts/:postId', args] as const
 }
 
 /**
@@ -114,10 +114,10 @@ export function useGetPostsPostId(
 
 /**
  * Generates SWR mutation key for PUT /posts/{postId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPostsPostIdMutationKey() {
-  return ['PUT', '/posts/:postId'] as const
+  return ['posts', 'PUT', '/posts/:postId'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutPostsPostId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /posts/{postId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePostsPostIdMutationKey() {
-  return ['DELETE', '/posts/:postId'] as const
+  return ['posts', 'DELETE', '/posts/:postId'] as const
 }
 
 /**
@@ -199,12 +199,12 @@ export function useDeletePostsPostId(options?: {
 
 /**
  * Generates SWR cache key for GET /posts/slug/{slug}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsSlugSlugKey(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
 ) {
-  return [`/posts/slug/${args.param.slug}`, args] as const
+  return ['posts', 'GET', '/posts/slug/:slug', args] as const
 }
 
 /**
@@ -235,10 +235,10 @@ export function useGetPostsSlugSlug(
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/publish
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdPublishMutationKey() {
-  return ['POST', '/posts/:postId/publish'] as const
+  return ['posts', 'POST', '/posts/:postId/publish'] as const
 }
 
 /**
@@ -279,10 +279,10 @@ export function usePostPostsPostIdPublish(options?: {
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/unpublish
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdUnpublishMutationKey() {
-  return ['POST', '/posts/:postId/unpublish'] as const
+  return ['posts', 'POST', '/posts/:postId/unpublish'] as const
 }
 
 /**
@@ -323,12 +323,12 @@ export function usePostPostsPostIdUnpublish(options?: {
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/comments
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdCommentsKey(
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
 ) {
-  return [`/posts/${args.param.postId}/comments`, args] as const
+  return ['posts', 'GET', '/posts/:postId/comments', args] as const
 }
 
 /**
@@ -359,10 +359,10 @@ export function useGetPostsPostIdComments(
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/comments
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdCommentsMutationKey() {
-  return ['POST', '/posts/:postId/comments'] as const
+  return ['posts', 'POST', '/posts/:postId/comments'] as const
 }
 
 /**
@@ -403,10 +403,10 @@ export function usePostPostsPostIdComments(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /comments/{commentId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteCommentsCommentIdMutationKey() {
-  return ['DELETE', '/comments/:commentId'] as const
+  return ['comments', 'DELETE', '/comments/:commentId'] as const
 }
 
 /**
@@ -448,10 +448,10 @@ export function useDeleteCommentsCommentId(options?: {
 
 /**
  * Generates SWR mutation key for POST /comments/{commentId}/approve
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCommentsCommentIdApproveMutationKey() {
-  return ['POST', '/comments/:commentId/approve'] as const
+  return ['comments', 'POST', '/comments/:commentId/approve'] as const
 }
 
 /**
@@ -494,10 +494,10 @@ export function usePostCommentsCommentIdApprove(options?: {
 
 /**
  * Generates SWR cache key for GET /categories
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCategoriesKey() {
-  return ['/categories'] as const
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**
@@ -525,10 +525,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR mutation key for POST /categories
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCategoriesMutationKey() {
-  return ['POST', '/categories'] as const
+  return ['categories', 'POST', '/categories'] as const
 }
 
 /**
@@ -561,12 +561,12 @@ export function usePostCategories(options?: {
 
 /**
  * Generates SWR cache key for GET /categories/{categoryId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCategoriesCategoryIdKey(
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
 ) {
-  return [`/categories/${args.param.categoryId}`, args] as const
+  return ['categories', 'GET', '/categories/:categoryId', args] as const
 }
 
 /**
@@ -597,10 +597,10 @@ export function useGetCategoriesCategoryId(
 
 /**
  * Generates SWR mutation key for PUT /categories/{categoryId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutCategoriesCategoryIdMutationKey() {
-  return ['PUT', '/categories/:categoryId'] as const
+  return ['categories', 'PUT', '/categories/:categoryId'] as const
 }
 
 /**
@@ -639,10 +639,10 @@ export function usePutCategoriesCategoryId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /categories/{categoryId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteCategoriesCategoryIdMutationKey() {
-  return ['DELETE', '/categories/:categoryId'] as const
+  return ['categories', 'DELETE', '/categories/:categoryId'] as const
 }
 
 /**
@@ -684,10 +684,10 @@ export function useDeleteCategoriesCategoryId(options?: {
 
 /**
  * Generates SWR cache key for GET /tags
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTagsKey(args: InferRequestType<typeof client.tags.$get>) {
-  return ['/tags', args] as const
+  return ['tags', 'GET', '/tags', args] as const
 }
 
 /**
@@ -718,10 +718,10 @@ export function useGetTags(
 
 /**
  * Generates SWR mutation key for POST /tags
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTagsMutationKey() {
-  return ['POST', '/tags'] as const
+  return ['tags', 'POST', '/tags'] as const
 }
 
 /**
@@ -754,10 +754,10 @@ export function usePostTags(options?: {
 
 /**
  * Generates SWR cache key for GET /media
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMediaKey(args: InferRequestType<typeof client.media.$get>) {
-  return ['/media', args] as const
+  return ['media', 'GET', '/media', args] as const
 }
 
 /**
@@ -788,10 +788,10 @@ export function useGetMedia(
 
 /**
  * Generates SWR mutation key for POST /media
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMediaMutationKey() {
-  return ['POST', '/media'] as const
+  return ['media', 'POST', '/media'] as const
 }
 
 /**
@@ -824,12 +824,12 @@ export function usePostMedia(options?: {
 
 /**
  * Generates SWR cache key for GET /media/{mediaId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMediaMediaIdKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return [`/media/${args.param.mediaId}`, args] as const
+  return ['media', 'GET', '/media/:mediaId', args] as const
 }
 
 /**
@@ -860,10 +860,10 @@ export function useGetMediaMediaId(
 
 /**
  * Generates SWR mutation key for PUT /media/{mediaId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutMediaMediaIdMutationKey() {
-  return ['PUT', '/media/:mediaId'] as const
+  return ['media', 'PUT', '/media/:mediaId'] as const
 }
 
 /**
@@ -902,10 +902,10 @@ export function usePutMediaMediaId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /media/{mediaId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteMediaMediaIdMutationKey() {
-  return ['DELETE', '/media/:mediaId'] as const
+  return ['media', 'DELETE', '/media/:mediaId'] as const
 }
 
 /**
@@ -945,10 +945,10 @@ export function useDeleteMediaMediaId(options?: {
 
 /**
  * Generates SWR cache key for GET /authors
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAuthorsKey() {
-  return ['/authors'] as const
+  return ['authors', 'GET', '/authors'] as const
 }
 
 /**
@@ -976,12 +976,12 @@ export function useGetAuthors(options?: {
 
 /**
  * Generates SWR cache key for GET /authors/{authorId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAuthorsAuthorIdKey(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
 ) {
-  return [`/authors/${args.param.authorId}`, args] as const
+  return ['authors', 'GET', '/authors/:authorId', args] as const
 }
 
 /**

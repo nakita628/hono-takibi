@@ -6,10 +6,10 @@ import { client } from '../clients/test'
 
 /**
  * Generates TanStack Query cache key for GET /hono
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHonoQueryKey() {
-  return ['hono', '/hono'] as const
+  return ['hono', 'GET', '/hono'] as const
 }
 
 /**
@@ -46,10 +46,10 @@ export function useGetHono(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /hono-x
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHonoXQueryKey() {
-  return ['hono-x', '/hono-x'] as const
+  return ['hono-x', 'GET', '/hono-x'] as const
 }
 
 /**
@@ -91,10 +91,10 @@ export function useGetHonoX(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /zod-openapi-hono
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetZodOpenapiHonoQueryKey() {
-  return ['zod-openapi-hono', '/zod-openapi-hono'] as const
+  return ['zod-openapi-hono', 'GET', '/zod-openapi-hono'] as const
 }
 
 /**

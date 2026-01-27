@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-string'
 
 /**
  * Generates SWR cache key for GET /string
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStringKey() {
-  return ['/string'] as const
+  return ['string', 'GET', '/string'] as const
 }
 
 /**

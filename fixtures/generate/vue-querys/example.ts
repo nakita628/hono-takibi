@@ -8,10 +8,10 @@ import { client } from '../clients/example'
 
 /**
  * Generates Vue Query cache key for GET /sample
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSampleQueryKey() {
-  return ['sample', '/sample'] as const
+  return ['sample', 'GET', '/sample'] as const
 }
 
 /**

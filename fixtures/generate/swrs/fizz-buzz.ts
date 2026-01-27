@@ -6,10 +6,10 @@ import { client } from '../clients/fizz-buzz'
 
 /**
  * Generates SWR cache key for GET /fizzbuzz
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', args] as const
+  return ['fizzbuzz', 'GET', '/fizzbuzz', args] as const
 }
 
 /**

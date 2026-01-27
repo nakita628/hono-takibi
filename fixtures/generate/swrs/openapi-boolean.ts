@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-boolean'
 
 /**
  * Generates SWR cache key for GET /boolean
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetBooleanKey() {
-  return ['/boolean'] as const
+  return ['boolean', 'GET', '/boolean'] as const
 }
 
 /**

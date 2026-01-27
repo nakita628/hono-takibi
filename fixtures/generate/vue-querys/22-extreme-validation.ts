@@ -6,10 +6,10 @@ import { client } from '../clients/22-extreme-validation'
 
 /**
  * Generates Vue Query mutation key for POST /validate
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostValidateMutationKey() {
-  return ['POST', '/validate'] as const
+  return ['validate', 'POST', '/validate'] as const
 }
 
 /**
@@ -36,15 +36,12 @@ export function usePostValidate(options?: {
         Error,
         InferRequestType<typeof client.validate.$post>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.validate.$post>) =>
-      parseResponse(client.validate.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostValidateMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

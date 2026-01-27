@@ -10,10 +10,10 @@ import { client } from '../clients/hono-rest-example'
 
 /**
  * Generates TanStack Query cache key for GET /
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetQueryKey() {
-  return ['', '/'] as const
+  return ['', 'GET', '/'] as const
 }
 
 /**
@@ -50,10 +50,10 @@ export function useGet(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /posts
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', '/posts', args] as const
+  return ['posts', 'GET', '/posts', args] as const
 }
 
 /**
@@ -96,10 +96,10 @@ export function useGetPosts(
 
 /**
  * Generates TanStack Query mutation key for POST /posts
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsMutationKey() {
-  return ['POST', '/posts'] as const
+  return ['posts', 'POST', '/posts'] as const
 }
 
 /**
@@ -129,19 +129,16 @@ export function usePostPosts(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
-      parseResponse(client.posts.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostPostsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for PUT /posts/{id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPostsIdMutationKey() {
-  return ['PUT', '/posts/:id'] as const
+  return ['posts', 'PUT', '/posts/:id'] as const
 }
 
 /**
@@ -174,19 +171,16 @@ export function usePutPostsId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
-      parseResponse(client.posts[':id'].$put(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutPostsIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /posts/{id}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePostsIdMutationKey() {
-  return ['DELETE', '/posts/:id'] as const
+  return ['posts', 'DELETE', '/posts/:id'] as const
 }
 
 /**
@@ -221,9 +215,6 @@ export function useDeletePostsId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
-      parseResponse(client.posts[':id'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getDeletePostsIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

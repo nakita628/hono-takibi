@@ -10,12 +10,12 @@ import { client } from '../clients/44-sns-notifications-dm-search'
 
 /**
  * Generates Svelte Query cache key for GET /notifications
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetNotificationsQueryKey(
   args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return ['notifications', '/notifications', args] as const
+  return ['notifications', 'GET', '/notifications', args] as const
 }
 
 /**
@@ -66,10 +66,10 @@ export function createGetNotifications(
 
 /**
  * Generates Svelte Query cache key for GET /notifications/unread-count
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNotificationsUnreadCountQueryKey() {
-  return ['notifications', '/notifications/unread-count'] as const
+  return ['notifications', 'GET', '/notifications/unread-count'] as const
 }
 
 /**
@@ -121,10 +121,10 @@ export function createGetNotificationsUnreadCount(
 
 /**
  * Generates Svelte Query mutation key for POST /notifications/mark-read
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNotificationsMarkReadMutationKey() {
-  return ['POST', '/notifications/mark-read'] as const
+  return ['notifications', 'POST', '/notifications/mark-read'] as const
 }
 
 /**
@@ -145,35 +145,37 @@ export const getPostNotificationsMarkReadMutationOptions = (
  *
  * 通知を既読にする
  */
-export function createPostNotificationsMarkRead(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.notifications)['mark-read']['$post']>>
+export function createPostNotificationsMarkRead(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.notifications)['mark-read']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.notifications)['mark-read']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
-    ) => parseResponse(client.notifications['mark-read'].$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.notifications)['mark-read']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostNotificationsMarkReadMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /notifications/settings
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNotificationsSettingsQueryKey() {
-  return ['notifications', '/notifications/settings'] as const
+  return ['notifications', 'GET', '/notifications/settings'] as const
 }
 
 /**
@@ -221,10 +223,10 @@ export function createGetNotificationsSettings(
 
 /**
  * Generates Svelte Query mutation key for PUT /notifications/settings
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutNotificationsSettingsMutationKey() {
-  return ['PUT', '/notifications/settings'] as const
+  return ['notifications', 'PUT', '/notifications/settings'] as const
 }
 
 /**
@@ -245,34 +247,37 @@ export const getPutNotificationsSettingsMutationOptions = (
  *
  * 通知設定更新
  */
-export function createPutNotificationsSettings(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$put>>>
-      >
-    >,
-    Error,
-    InferRequestType<typeof client.notifications.settings.$put>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.notifications.settings.$put>) =>
-      parseResponse(client.notifications.settings.$put(args, clientOptions)),
-  }))
+export function createPutNotificationsSettings(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$put>>>
+        >
+      >,
+      Error,
+      InferRequestType<typeof client.notifications.settings.$put>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutNotificationsSettingsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /dm/conversations
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDmConversationsQueryKey(
   args: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  return ['dm', '/dm/conversations', args] as const
+  return ['dm', 'GET', '/dm/conversations', args] as const
 }
 
 /**
@@ -323,10 +328,10 @@ export function createGetDmConversations(
 
 /**
  * Generates Svelte Query mutation key for POST /dm/conversations
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsMutationKey() {
-  return ['POST', '/dm/conversations'] as const
+  return ['dm', 'POST', '/dm/conversations'] as const
 }
 
 /**
@@ -345,32 +350,35 @@ export const getPostDmConversationsMutationOptions = (clientOptions?: ClientRequ
  *
  * 会話作成
  */
-export function createPostDmConversations(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$post>>>>
-    >,
-    Error,
-    InferRequestType<typeof client.dm.conversations.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.dm.conversations.$post>) =>
-      parseResponse(client.dm.conversations.$post(args, clientOptions)),
-  }))
+export function createPostDmConversations(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$post>>>>
+      >,
+      Error,
+      InferRequestType<typeof client.dm.conversations.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostDmConversationsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDmConversationsConversationIdQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  return ['dm', '/dm/conversations/:conversationId', args] as const
+  return ['dm', 'GET', '/dm/conversations/:conversationId', args] as const
 }
 
 /**
@@ -425,10 +433,10 @@ export function createGetDmConversationsConversationId(
 
 /**
  * Generates Svelte Query mutation key for DELETE /dm/conversations/{conversationId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteDmConversationsConversationIdMutationKey() {
-  return ['DELETE', '/dm/conversations/:conversationId'] as const
+  return ['dm', 'DELETE', '/dm/conversations/:conversationId'] as const
 }
 
 /**
@@ -450,38 +458,39 @@ export const getDeleteDmConversationsConversationIdMutationOptions = (
  *
  * 会話を退出
  */
-export function createDeleteDmConversationsConversationId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['$delete']>>
+export function createDeleteDmConversationsConversationId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['$delete']>>
+            >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
-    ) => parseResponse(client.dm.conversations[':conversationId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteDmConversationsConversationIdMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /dm/conversations/{conversationId}/messages
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDmConversationsConversationIdMessagesQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  return ['dm', '/dm/conversations/:conversationId/messages', args] as const
+  return ['dm', 'GET', '/dm/conversations/:conversationId/messages', args] as const
 }
 
 /**
@@ -536,10 +545,10 @@ export function createGetDmConversationsConversationIdMessages(
 
 /**
  * Generates Svelte Query mutation key for POST /dm/conversations/{conversationId}/messages
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsConversationIdMessagesMutationKey() {
-  return ['POST', '/dm/conversations/:conversationId/messages'] as const
+  return ['dm', 'POST', '/dm/conversations/:conversationId/messages'] as const
 }
 
 /**
@@ -564,40 +573,38 @@ export const getPostDmConversationsConversationIdMessagesMutationOptions = (
  *
  * メッセージ送信
  */
-export function createPostDmConversationsConversationIdMessages(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
+export function createPostDmConversationsConversationIdMessages(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
       >,
-    ) =>
-      parseResponse(client.dm.conversations[':conversationId'].messages.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostDmConversationsConversationIdMessagesMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /dm/conversations/{conversationId}/read
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsConversationIdReadMutationKey() {
-  return ['POST', '/dm/conversations/:conversationId/read'] as const
+  return ['dm', 'POST', '/dm/conversations/:conversationId/read'] as const
 }
 
 /**
@@ -619,35 +626,38 @@ export const getPostDmConversationsConversationIdReadMutationOptions = (
  *
  * 会話を既読にする
  */
-export function createPostDmConversationsConversationIdRead(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>>
+export function createPostDmConversationsConversationIdRead(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
+            >
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>,
-    ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostDmConversationsConversationIdReadMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /dm/conversations/{conversationId}/typing
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsConversationIdTypingMutationKey() {
-  return ['POST', '/dm/conversations/:conversationId/typing'] as const
+  return ['dm', 'POST', '/dm/conversations/:conversationId/typing'] as const
 }
 
 /**
@@ -669,40 +679,38 @@ export const getPostDmConversationsConversationIdTypingMutationOptions = (
  *
  * 入力中インジケーター送信
  */
-export function createPostDmConversationsConversationIdTyping(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<
-            ReturnType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
+export function createPostDmConversationsConversationIdTyping(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
+            >
           >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
       >,
-    ) =>
-      parseResponse(client.dm.conversations[':conversationId'].typing.$post(args, clientOptions)),
-  }))
+      Error,
+      InferRequestType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostDmConversationsConversationIdTypingMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /dm/messages/{messageId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteDmMessagesMessageIdMutationKey() {
-  return ['DELETE', '/dm/messages/:messageId'] as const
+  return ['dm', 'DELETE', '/dm/messages/:messageId'] as const
 }
 
 /**
@@ -724,36 +732,38 @@ export const getDeleteDmMessagesMessageIdMutationOptions = (
  *
  * メッセージ削除
  */
-export function createDeleteDmMessagesMessageId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['$delete']>>
+export function createDeleteDmMessagesMessageId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['$delete']>>
+            >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
-    ) => parseResponse(client.dm.messages[':messageId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteDmMessagesMessageIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /dm/messages/{messageId}/reactions
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmMessagesMessageIdReactionsMutationKey() {
-  return ['POST', '/dm/messages/:messageId/reactions'] as const
+  return ['dm', 'POST', '/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -775,35 +785,36 @@ export const getPostDmMessagesMessageIdReactionsMutationOptions = (
  *
  * メッセージにリアクション追加
  */
-export function createPostDmMessagesMessageIdReactions(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>>
+export function createPostDmMessagesMessageIdReactions(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
-    ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostDmMessagesMessageIdReactionsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /dm/messages/{messageId}/reactions
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteDmMessagesMessageIdReactionsMutationKey() {
-  return ['DELETE', '/dm/messages/:messageId/reactions'] as const
+  return ['dm', 'DELETE', '/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -825,35 +836,36 @@ export const getDeleteDmMessagesMessageIdReactionsMutationOptions = (
  *
  * メッセージのリアクション削除
  */
-export function createDeleteDmMessagesMessageIdReactions(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>>
+export function createDeleteDmMessagesMessageIdReactions(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
-    ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getDeleteDmMessagesMessageIdReactionsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /dm/unread-count
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDmUnreadCountQueryKey() {
-  return ['dm', '/dm/unread-count'] as const
+  return ['dm', 'GET', '/dm/unread-count'] as const
 }
 
 /**
@@ -899,10 +911,10 @@ export function createGetDmUnreadCount(
 
 /**
  * Generates Svelte Query cache key for GET /search/posts
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return ['search', '/search/posts', args] as const
+  return ['search', 'GET', '/search/posts', args] as const
 }
 
 /**
@@ -950,10 +962,10 @@ export function createGetSearchPosts(
 
 /**
  * Generates Svelte Query cache key for GET /search/users
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return ['search', '/search/users', args] as const
+  return ['search', 'GET', '/search/users', args] as const
 }
 
 /**
@@ -1001,12 +1013,12 @@ export function createGetSearchUsers(
 
 /**
  * Generates Svelte Query cache key for GET /search/hashtags
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchHashtagsQueryKey(
   args: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  return ['search', '/search/hashtags', args] as const
+  return ['search', 'GET', '/search/hashtags', args] as const
 }
 
 /**
@@ -1057,10 +1069,10 @@ export function createGetSearchHashtags(
 
 /**
  * Generates Svelte Query cache key for GET /search/recent
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSearchRecentQueryKey() {
-  return ['search', '/search/recent'] as const
+  return ['search', 'GET', '/search/recent'] as const
 }
 
 /**
@@ -1104,10 +1116,10 @@ export function createGetSearchRecent(
 
 /**
  * Generates Svelte Query mutation key for DELETE /search/recent
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSearchRecentMutationKey() {
-  return ['DELETE', '/search/recent'] as const
+  return ['search', 'DELETE', '/search/recent'] as const
 }
 
 /**
@@ -1125,30 +1137,34 @@ export const getDeleteSearchRecentMutationOptions = (clientOptions?: ClientReque
  *
  * 検索履歴クリア
  */
-export function createDeleteSearchRecent(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$delete>>>>
-      >
-    | undefined,
-    Error,
-    void
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
-  }))
+export function createDeleteSearchRecent(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$delete>>>>
+        >
+      | undefined,
+      Error,
+      void
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteSearchRecentMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /trends
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends.$get>) {
-  return ['trends', '/trends', args] as const
+  return ['trends', 'GET', '/trends', args] as const
 }
 
 /**
@@ -1191,10 +1207,10 @@ export function createGetTrends(
 
 /**
  * Generates Svelte Query cache key for GET /trends/locations
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTrendsLocationsQueryKey() {
-  return ['trends', '/trends/locations'] as const
+  return ['trends', 'GET', '/trends/locations'] as const
 }
 
 /**
@@ -1238,12 +1254,12 @@ export function createGetTrendsLocations(
 
 /**
  * Generates Svelte Query cache key for GET /suggestions/users
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSuggestionsUsersQueryKey(
   args: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  return ['suggestions', '/suggestions/users', args] as const
+  return ['suggestions', 'GET', '/suggestions/users', args] as const
 }
 
 /**
@@ -1294,10 +1310,10 @@ export function createGetSuggestionsUsers(
 
 /**
  * Generates Svelte Query mutation key for POST /suggestions/users/{userId}/hide
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSuggestionsUsersUserIdHideMutationKey() {
-  return ['POST', '/suggestions/users/:userId/hide'] as const
+  return ['suggestions', 'POST', '/suggestions/users/:userId/hide'] as const
 }
 
 /**
@@ -1319,35 +1335,36 @@ export const getPostSuggestionsUsersUserIdHideMutationOptions = (
  *
  * おすすめユーザーを非表示
  */
-export function createPostSuggestionsUsersUserIdHide(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.suggestions.users)[':userId']['hide']['$post']>>
+export function createPostSuggestionsUsersUserIdHide(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.suggestions.users)[':userId']['hide']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
-    ) => parseResponse(client.suggestions.users[':userId'].hide.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostSuggestionsUsersUserIdHideMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /suggestions/topics
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSuggestionsTopicsQueryKey() {
-  return ['suggestions', '/suggestions/topics'] as const
+  return ['suggestions', 'GET', '/suggestions/topics'] as const
 }
 
 /**
@@ -1391,10 +1408,10 @@ export function createGetSuggestionsTopics(
 
 /**
  * Generates Svelte Query mutation key for POST /topics/{topicId}/follow
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTopicsTopicIdFollowMutationKey() {
-  return ['POST', '/topics/:topicId/follow'] as const
+  return ['topics', 'POST', '/topics/:topicId/follow'] as const
 }
 
 /**
@@ -1416,35 +1433,37 @@ export const getPostTopicsTopicIdFollowMutationOptions = (
  *
  * トピックをフォロー
  */
-export function createPostTopicsTopicIdFollow(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$post']>>
+export function createPostTopicsTopicIdFollow(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
-    ) => parseResponse(client.topics[':topicId'].follow.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostTopicsTopicIdFollowMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /topics/{topicId}/follow
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTopicsTopicIdFollowMutationKey() {
-  return ['DELETE', '/topics/:topicId/follow'] as const
+  return ['topics', 'DELETE', '/topics/:topicId/follow'] as const
 }
 
 /**
@@ -1466,25 +1485,27 @@ export const getDeleteTopicsTopicIdFollowMutationOptions = (
  *
  * トピックのフォロー解除
  */
-export function createDeleteTopicsTopicIdFollow(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$delete']>>
+export function createDeleteTopicsTopicIdFollow(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$delete']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
-    ) => parseResponse(client.topics[':topicId'].follow.$delete(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteTopicsTopicIdFollowMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

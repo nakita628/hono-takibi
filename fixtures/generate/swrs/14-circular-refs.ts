@@ -8,10 +8,10 @@ import { client } from '../clients/14-circular-refs'
 
 /**
  * Generates SWR cache key for GET /trees
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTreesKey() {
-  return ['/trees'] as const
+  return ['trees', 'GET', '/trees'] as const
 }
 
 /**
@@ -37,10 +37,10 @@ export function useGetTrees(options?: {
 
 /**
  * Generates SWR mutation key for POST /trees
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTreesMutationKey() {
-  return ['POST', '/trees'] as const
+  return ['trees', 'POST', '/trees'] as const
 }
 
 /**
@@ -71,10 +71,10 @@ export function usePostTrees(options?: {
 
 /**
  * Generates SWR cache key for GET /graphs
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetGraphsKey() {
-  return ['/graphs'] as const
+  return ['graphs', 'GET', '/graphs'] as const
 }
 
 /**
@@ -100,10 +100,10 @@ export function useGetGraphs(options?: {
 
 /**
  * Generates SWR cache key for GET /linked-lists
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetLinkedListsKey() {
-  return ['/linked-lists'] as const
+  return ['linked-lists', 'GET', '/linked-lists'] as const
 }
 
 /**
@@ -129,10 +129,10 @@ export function useGetLinkedLists(options?: {
 
 /**
  * Generates SWR cache key for GET /social-network
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSocialNetworkKey() {
-  return ['/social-network'] as const
+  return ['social-network', 'GET', '/social-network'] as const
 }
 
 /**
@@ -158,10 +158,10 @@ export function useGetSocialNetwork(options?: {
 
 /**
  * Generates SWR cache key for GET /file-system
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFileSystemKey() {
-  return ['/file-system'] as const
+  return ['file-system', 'GET', '/file-system'] as const
 }
 
 /**
@@ -187,10 +187,10 @@ export function useGetFileSystem(options?: {
 
 /**
  * Generates SWR cache key for GET /comments
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCommentsKey() {
-  return ['/comments'] as const
+  return ['comments', 'GET', '/comments'] as const
 }
 
 /**
@@ -216,10 +216,10 @@ export function useGetComments(options?: {
 
 /**
  * Generates SWR cache key for GET /polymorphic
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPolymorphicKey() {
-  return ['/polymorphic'] as const
+  return ['polymorphic', 'GET', '/polymorphic'] as const
 }
 
 /**
@@ -245,10 +245,10 @@ export function useGetPolymorphic(options?: {
 
 /**
  * Generates SWR cache key for GET /categories
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCategoriesKey() {
-  return ['/categories'] as const
+  return ['categories', 'GET', '/categories'] as const
 }
 
 /**
@@ -274,10 +274,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR cache key for GET /workflow
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWorkflowKey() {
-  return ['/workflow'] as const
+  return ['workflow', 'GET', '/workflow'] as const
 }
 
 /**

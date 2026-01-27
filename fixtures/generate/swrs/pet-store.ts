@@ -8,10 +8,10 @@ import { client } from '../clients/pet-store'
 
 /**
  * Generates SWR mutation key for PUT /pet
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutPetMutationKey() {
-  return ['PUT', '/pet'] as const
+  return ['pet', 'PUT', '/pet'] as const
 }
 
 /**
@@ -46,10 +46,10 @@ export function usePutPet(options?: {
 
 /**
  * Generates SWR mutation key for POST /pet
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPetMutationKey() {
-  return ['POST', '/pet'] as const
+  return ['pet', 'POST', '/pet'] as const
 }
 
 /**
@@ -84,12 +84,12 @@ export function usePostPet(options?: {
 
 /**
  * Generates SWR cache key for GET /pet/findByStatus
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPetFindByStatusKey(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  return ['/pet/findByStatus', args] as const
+  return ['pet', 'GET', '/pet/findByStatus', args] as const
 }
 
 /**
@@ -122,10 +122,10 @@ export function useGetPetFindByStatus(
 
 /**
  * Generates SWR cache key for GET /pet/findByTags
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPetFindByTagsKey(args: InferRequestType<typeof client.pet.findByTags.$get>) {
-  return ['/pet/findByTags', args] as const
+  return ['pet', 'GET', '/pet/findByTags', args] as const
 }
 
 /**
@@ -158,10 +158,10 @@ export function useGetPetFindByTags(
 
 /**
  * Generates SWR cache key for GET /pet/{petId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPetPetIdKey(args: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
-  return [`/pet/${args.param.petId}`, args] as const
+  return ['pet', 'GET', '/pet/:petId', args] as const
 }
 
 /**
@@ -194,10 +194,10 @@ export function useGetPetPetId(
 
 /**
  * Generates SWR mutation key for POST /pet/{petId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPetPetIdMutationKey() {
-  return ['POST', '/pet/:petId'] as const
+  return ['pet', 'POST', '/pet/:petId'] as const
 }
 
 /**
@@ -232,10 +232,10 @@ export function usePostPetPetId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /pet/{petId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePetPetIdMutationKey() {
-  return ['DELETE', '/pet/:petId'] as const
+  return ['pet', 'DELETE', '/pet/:petId'] as const
 }
 
 /**
@@ -276,10 +276,10 @@ export function useDeletePetPetId(options?: {
 
 /**
  * Generates SWR mutation key for POST /pet/{petId}/uploadImage
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPetPetIdUploadImageMutationKey() {
-  return ['POST', '/pet/:petId/uploadImage'] as const
+  return ['pet', 'POST', '/pet/:petId/uploadImage'] as const
 }
 
 /**
@@ -320,10 +320,10 @@ export function usePostPetPetIdUploadImage(options?: {
 
 /**
  * Generates SWR cache key for GET /store/inventory
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStoreInventoryKey() {
-  return ['/store/inventory'] as const
+  return ['store', 'GET', '/store/inventory'] as const
 }
 
 /**
@@ -353,10 +353,10 @@ export function useGetStoreInventory(options?: {
 
 /**
  * Generates SWR mutation key for POST /store/order
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostStoreOrderMutationKey() {
-  return ['POST', '/store/order'] as const
+  return ['store', 'POST', '/store/order'] as const
 }
 
 /**
@@ -391,12 +391,12 @@ export function usePostStoreOrder(options?: {
 
 /**
  * Generates SWR cache key for GET /store/order/{orderId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetStoreOrderOrderIdKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  return [`/store/order/${args.param.orderId}`, args] as const
+  return ['store', 'GET', '/store/order/:orderId', args] as const
 }
 
 /**
@@ -429,10 +429,10 @@ export function useGetStoreOrderOrderId(
 
 /**
  * Generates SWR mutation key for DELETE /store/order/{orderId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteStoreOrderOrderIdMutationKey() {
-  return ['DELETE', '/store/order/:orderId'] as const
+  return ['store', 'DELETE', '/store/order/:orderId'] as const
 }
 
 /**
@@ -475,10 +475,10 @@ export function useDeleteStoreOrderOrderId(options?: {
 
 /**
  * Generates SWR mutation key for POST /user
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUserMutationKey() {
-  return ['POST', '/user'] as const
+  return ['user', 'POST', '/user'] as const
 }
 
 /**
@@ -513,10 +513,10 @@ export function usePostUser(options?: {
 
 /**
  * Generates SWR mutation key for POST /user/createWithList
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUserCreateWithListMutationKey() {
-  return ['POST', '/user/createWithList'] as const
+  return ['user', 'POST', '/user/createWithList'] as const
 }
 
 /**
@@ -553,10 +553,10 @@ export function usePostUserCreateWithList(options?: {
 
 /**
  * Generates SWR cache key for GET /user/login
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUserLoginKey(args: InferRequestType<typeof client.user.login.$get>) {
-  return ['/user/login', args] as const
+  return ['user', 'GET', '/user/login', args] as const
 }
 
 /**
@@ -587,10 +587,10 @@ export function useGetUserLogin(
 
 /**
  * Generates SWR cache key for GET /user/logout
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetUserLogoutKey() {
-  return ['/user/logout'] as const
+  return ['user', 'GET', '/user/logout'] as const
 }
 
 /**
@@ -618,12 +618,12 @@ export function useGetUserLogout(options?: {
 
 /**
  * Generates SWR cache key for GET /user/{username}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUserUsernameKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  return [`/user/${args.param.username}`, args] as const
+  return ['user', 'GET', '/user/:username', args] as const
 }
 
 /**
@@ -654,10 +654,10 @@ export function useGetUserUsername(
 
 /**
  * Generates SWR mutation key for PUT /user/{username}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutUserUsernameMutationKey() {
-  return ['PUT', '/user/:username'] as const
+  return ['user', 'PUT', '/user/:username'] as const
 }
 
 /**
@@ -698,10 +698,10 @@ export function usePutUserUsername(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /user/{username}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteUserUsernameMutationKey() {
-  return ['DELETE', '/user/:username'] as const
+  return ['user', 'DELETE', '/user/:username'] as const
 }
 
 /**

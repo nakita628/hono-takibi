@@ -10,10 +10,10 @@ import { client } from '../clients/03-parameters-responses'
 
 /**
  * Generates TanStack Query cache key for GET /items
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  return ['items', '/items', args] as const
+  return ['items', 'GET', '/items', args] as const
 }
 
 /**
@@ -52,12 +52,12 @@ export function useGetItems(
 
 /**
  * Generates TanStack Query cache key for GET /items/{itemId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['items', '/items/:itemId', args] as const
+  return ['items', 'GET', '/items/:itemId', args] as const
 }
 
 /**
@@ -103,10 +103,10 @@ export function useGetItemsItemId(
 
 /**
  * Generates TanStack Query mutation key for DELETE /items/{itemId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteItemsItemIdMutationKey() {
-  return ['DELETE', '/items/:itemId'] as const
+  return ['items', 'DELETE', '/items/:itemId'] as const
 }
 
 /**
@@ -137,9 +137,7 @@ export function useDeleteItemsItemId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
-      parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteItemsItemIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

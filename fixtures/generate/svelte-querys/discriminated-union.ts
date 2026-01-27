@@ -6,10 +6,10 @@ import { client } from '../clients/discriminated-union'
 
 /**
  * Generates Svelte Query mutation key for POST /messages
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMessagesMutationKey() {
-  return ['POST', '/messages'] as const
+  return ['messages', 'POST', '/messages'] as const
 }
 
 /**
@@ -26,18 +26,19 @@ export const getPostMessagesMutationOptions = (clientOptions?: ClientRequestOpti
 /**
  * POST /messages
  */
-export function createPostMessages(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.messages.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
-      parseResponse(client.messages.$post(args, clientOptions)),
-  }))
+export function createPostMessages(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.messages.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostMessagesMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

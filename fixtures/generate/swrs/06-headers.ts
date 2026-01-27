@@ -8,10 +8,10 @@ import { client } from '../clients/06-headers'
 
 /**
  * Generates SWR cache key for GET /resources
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetResourcesKey(args: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', args] as const
+  return ['resources', 'GET', '/resources', args] as const
 }
 
 /**
@@ -40,12 +40,12 @@ export function useGetResources(
 
 /**
  * Generates SWR cache key for GET /resources/{id}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetResourcesIdKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return [`/resources/${args.param.id}`, args] as const
+  return ['resources', 'GET', '/resources/:id', args] as const
 }
 
 /**
@@ -74,10 +74,10 @@ export function useGetResourcesId(
 
 /**
  * Generates SWR mutation key for PUT /resources/{id}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutResourcesIdMutationKey() {
-  return ['PUT', '/resources/:id'] as const
+  return ['resources', 'PUT', '/resources/:id'] as const
 }
 
 /**
@@ -114,12 +114,12 @@ export function usePutResourcesId(options?: {
 
 /**
  * Generates SWR cache key for GET /download/{id}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDownloadIdKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return [`/download/${args.param.id}`, args] as const
+  return ['download', 'GET', '/download/:id', args] as const
 }
 
 /**

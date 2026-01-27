@@ -8,10 +8,10 @@ import { client } from '../clients/21-extreme-status-content'
 
 /**
  * Generates SWR cache key for GET /extreme-responses
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExtremeResponsesKey() {
-  return ['/extreme-responses'] as const
+  return ['extreme-responses', 'GET', '/extreme-responses'] as const
 }
 
 /**
@@ -37,10 +37,10 @@ export function useGetExtremeResponses(options?: {
 
 /**
  * Generates SWR mutation key for POST /multipart-variations
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMultipartVariationsMutationKey() {
-  return ['POST', '/multipart-variations'] as const
+  return ['multipart-variations', 'POST', '/multipart-variations'] as const
 }
 
 /**
@@ -77,10 +77,10 @@ export function usePostMultipartVariations(options?: {
 
 /**
  * Generates SWR mutation key for POST /charset-variations
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCharsetVariationsMutationKey() {
-  return ['POST', '/charset-variations'] as const
+  return ['charset-variations', 'POST', '/charset-variations'] as const
 }
 
 /**

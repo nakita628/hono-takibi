@@ -8,10 +8,10 @@ import { client } from '../clients/44-sns-notifications-dm-search'
 
 /**
  * Generates SWR cache key for GET /notifications
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetNotificationsKey(args: InferRequestType<typeof client.notifications.$get>) {
-  return ['/notifications', args] as const
+  return ['notifications', 'GET', '/notifications', args] as const
 }
 
 /**
@@ -42,10 +42,10 @@ export function useGetNotifications(
 
 /**
  * Generates SWR cache key for GET /notifications/unread-count
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNotificationsUnreadCountKey() {
-  return ['/notifications/unread-count'] as const
+  return ['notifications', 'GET', '/notifications/unread-count'] as const
 }
 
 /**
@@ -74,10 +74,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications/mark-read
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNotificationsMarkReadMutationKey() {
-  return ['POST', '/notifications/mark-read'] as const
+  return ['notifications', 'POST', '/notifications/mark-read'] as const
 }
 
 /**
@@ -118,10 +118,10 @@ export function usePostNotificationsMarkRead(options?: {
 
 /**
  * Generates SWR cache key for GET /notifications/settings
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNotificationsSettingsKey() {
-  return ['/notifications/settings'] as const
+  return ['notifications', 'GET', '/notifications/settings'] as const
 }
 
 /**
@@ -149,10 +149,10 @@ export function useGetNotificationsSettings(options?: {
 
 /**
  * Generates SWR mutation key for PUT /notifications/settings
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutNotificationsSettingsMutationKey() {
-  return ['PUT', '/notifications/settings'] as const
+  return ['notifications', 'PUT', '/notifications/settings'] as const
 }
 
 /**
@@ -191,12 +191,12 @@ export function usePutNotificationsSettings(options?: {
 
 /**
  * Generates SWR cache key for GET /dm/conversations
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDmConversationsKey(
   args: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  return ['/dm/conversations', args] as const
+  return ['dm', 'GET', '/dm/conversations', args] as const
 }
 
 /**
@@ -227,10 +227,10 @@ export function useGetDmConversations(
 
 /**
  * Generates SWR mutation key for POST /dm/conversations
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsMutationKey() {
-  return ['POST', '/dm/conversations'] as const
+  return ['dm', 'POST', '/dm/conversations'] as const
 }
 
 /**
@@ -265,12 +265,12 @@ export function usePostDmConversations(options?: {
 
 /**
  * Generates SWR cache key for GET /dm/conversations/{conversationId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDmConversationsConversationIdKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  return [`/dm/conversations/${args.param.conversationId}`, args] as const
+  return ['dm', 'GET', '/dm/conversations/:conversationId', args] as const
 }
 
 /**
@@ -302,10 +302,10 @@ export function useGetDmConversationsConversationId(
 
 /**
  * Generates SWR mutation key for DELETE /dm/conversations/{conversationId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteDmConversationsConversationIdMutationKey() {
-  return ['DELETE', '/dm/conversations/:conversationId'] as const
+  return ['dm', 'DELETE', '/dm/conversations/:conversationId'] as const
 }
 
 /**
@@ -351,12 +351,12 @@ export function useDeleteDmConversationsConversationId(options?: {
 
 /**
  * Generates SWR cache key for GET /dm/conversations/{conversationId}/messages
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDmConversationsConversationIdMessagesKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  return [`/dm/conversations/${args.param.conversationId}/messages`, args] as const
+  return ['dm', 'GET', '/dm/conversations/:conversationId/messages', args] as const
 }
 
 /**
@@ -391,10 +391,10 @@ export function useGetDmConversationsConversationIdMessages(
 
 /**
  * Generates SWR mutation key for POST /dm/conversations/{conversationId}/messages
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsConversationIdMessagesMutationKey() {
-  return ['POST', '/dm/conversations/:conversationId/messages'] as const
+  return ['dm', 'POST', '/dm/conversations/:conversationId/messages'] as const
 }
 
 /**
@@ -446,10 +446,10 @@ export function usePostDmConversationsConversationIdMessages(options?: {
 
 /**
  * Generates SWR mutation key for POST /dm/conversations/{conversationId}/read
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsConversationIdReadMutationKey() {
-  return ['POST', '/dm/conversations/:conversationId/read'] as const
+  return ['dm', 'POST', '/dm/conversations/:conversationId/read'] as const
 }
 
 /**
@@ -496,10 +496,10 @@ export function usePostDmConversationsConversationIdRead(options?: {
 
 /**
  * Generates SWR mutation key for POST /dm/conversations/{conversationId}/typing
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmConversationsConversationIdTypingMutationKey() {
-  return ['POST', '/dm/conversations/:conversationId/typing'] as const
+  return ['dm', 'POST', '/dm/conversations/:conversationId/typing'] as const
 }
 
 /**
@@ -549,10 +549,10 @@ export function usePostDmConversationsConversationIdTyping(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /dm/messages/{messageId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteDmMessagesMessageIdMutationKey() {
-  return ['DELETE', '/dm/messages/:messageId'] as const
+  return ['dm', 'DELETE', '/dm/messages/:messageId'] as const
 }
 
 /**
@@ -594,10 +594,10 @@ export function useDeleteDmMessagesMessageId(options?: {
 
 /**
  * Generates SWR mutation key for POST /dm/messages/{messageId}/reactions
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostDmMessagesMessageIdReactionsMutationKey() {
-  return ['POST', '/dm/messages/:messageId/reactions'] as const
+  return ['dm', 'POST', '/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -642,10 +642,10 @@ export function usePostDmMessagesMessageIdReactions(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /dm/messages/{messageId}/reactions
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteDmMessagesMessageIdReactionsMutationKey() {
-  return ['DELETE', '/dm/messages/:messageId/reactions'] as const
+  return ['dm', 'DELETE', '/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -690,10 +690,10 @@ export function useDeleteDmMessagesMessageIdReactions(options?: {
 
 /**
  * Generates SWR cache key for GET /dm/unread-count
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDmUnreadCountKey() {
-  return ['/dm/unread-count'] as const
+  return ['dm', 'GET', '/dm/unread-count'] as const
 }
 
 /**
@@ -721,10 +721,10 @@ export function useGetDmUnreadCount(options?: {
 
 /**
  * Generates SWR cache key for GET /search/posts
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchPostsKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return ['/search/posts', args] as const
+  return ['search', 'GET', '/search/posts', args] as const
 }
 
 /**
@@ -755,10 +755,10 @@ export function useGetSearchPosts(
 
 /**
  * Generates SWR cache key for GET /search/users
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchUsersKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return ['/search/users', args] as const
+  return ['search', 'GET', '/search/users', args] as const
 }
 
 /**
@@ -789,12 +789,12 @@ export function useGetSearchUsers(
 
 /**
  * Generates SWR cache key for GET /search/hashtags
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSearchHashtagsKey(
   args: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  return ['/search/hashtags', args] as const
+  return ['search', 'GET', '/search/hashtags', args] as const
 }
 
 /**
@@ -825,10 +825,10 @@ export function useGetSearchHashtags(
 
 /**
  * Generates SWR cache key for GET /search/recent
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSearchRecentKey() {
-  return ['/search/recent'] as const
+  return ['search', 'GET', '/search/recent'] as const
 }
 
 /**
@@ -856,10 +856,10 @@ export function useGetSearchRecent(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /search/recent
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSearchRecentMutationKey() {
-  return ['DELETE', '/search/recent'] as const
+  return ['search', 'DELETE', '/search/recent'] as const
 }
 
 /**
@@ -894,10 +894,10 @@ export function useDeleteSearchRecent(options?: {
 
 /**
  * Generates SWR cache key for GET /trends
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTrendsKey(args: InferRequestType<typeof client.trends.$get>) {
-  return ['/trends', args] as const
+  return ['trends', 'GET', '/trends', args] as const
 }
 
 /**
@@ -928,10 +928,10 @@ export function useGetTrends(
 
 /**
  * Generates SWR cache key for GET /trends/locations
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTrendsLocationsKey() {
-  return ['/trends/locations'] as const
+  return ['trends', 'GET', '/trends/locations'] as const
 }
 
 /**
@@ -959,12 +959,12 @@ export function useGetTrendsLocations(options?: {
 
 /**
  * Generates SWR cache key for GET /suggestions/users
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSuggestionsUsersKey(
   args: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  return ['/suggestions/users', args] as const
+  return ['suggestions', 'GET', '/suggestions/users', args] as const
 }
 
 /**
@@ -995,10 +995,10 @@ export function useGetSuggestionsUsers(
 
 /**
  * Generates SWR mutation key for POST /suggestions/users/{userId}/hide
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSuggestionsUsersUserIdHideMutationKey() {
-  return ['POST', '/suggestions/users/:userId/hide'] as const
+  return ['suggestions', 'POST', '/suggestions/users/:userId/hide'] as const
 }
 
 /**
@@ -1041,10 +1041,10 @@ export function usePostSuggestionsUsersUserIdHide(options?: {
 
 /**
  * Generates SWR cache key for GET /suggestions/topics
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSuggestionsTopicsKey() {
-  return ['/suggestions/topics'] as const
+  return ['suggestions', 'GET', '/suggestions/topics'] as const
 }
 
 /**
@@ -1072,10 +1072,10 @@ export function useGetSuggestionsTopics(options?: {
 
 /**
  * Generates SWR mutation key for POST /topics/{topicId}/follow
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostTopicsTopicIdFollowMutationKey() {
-  return ['POST', '/topics/:topicId/follow'] as const
+  return ['topics', 'POST', '/topics/:topicId/follow'] as const
 }
 
 /**
@@ -1116,10 +1116,10 @@ export function usePostTopicsTopicIdFollow(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /topics/{topicId}/follow
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteTopicsTopicIdFollowMutationKey() {
-  return ['DELETE', '/topics/:topicId/follow'] as const
+  return ['topics', 'DELETE', '/topics/:topicId/follow'] as const
 }
 
 /**

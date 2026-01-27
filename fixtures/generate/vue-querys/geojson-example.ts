@@ -8,10 +8,10 @@ import { client } from '../clients/geojson-example'
 
 /**
  * Generates Vue Query cache key for GET /
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetQueryKey() {
-  return ['', '/'] as const
+  return ['', 'GET', '/'] as const
 }
 
 /**
@@ -53,12 +53,12 @@ export function useGet(options?: {
 
 /**
  * Generates Vue Query cache key for GET /projects
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProjectsQueryKey(
   args: MaybeRef<InferRequestType<typeof client.projects.$get>>,
 ) {
-  return ['projects', '/projects', unref(args)] as const
+  return ['projects', 'GET', '/projects', unref(args)] as const
 }
 
 /**

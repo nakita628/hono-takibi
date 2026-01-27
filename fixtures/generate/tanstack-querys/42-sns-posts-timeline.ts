@@ -10,10 +10,10 @@ import { client } from '../clients/42-sns-posts-timeline'
 
 /**
  * Generates TanStack Query cache key for GET /posts
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['posts', '/posts', args] as const
+  return ['posts', 'GET', '/posts', args] as const
 }
 
 /**
@@ -56,10 +56,10 @@ export function useGetPosts(
 
 /**
  * Generates TanStack Query mutation key for POST /posts
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsMutationKey() {
-  return ['POST', '/posts'] as const
+  return ['posts', 'POST', '/posts'] as const
 }
 
 /**
@@ -87,21 +87,18 @@ export function usePostPosts(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
-      parseResponse(client.posts.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostPostsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['posts', '/posts/:postId', args] as const
+  return ['posts', 'GET', '/posts/:postId', args] as const
 }
 
 /**
@@ -149,10 +146,10 @@ export function useGetPostsPostId(
 
 /**
  * Generates TanStack Query mutation key for DELETE /posts/{postId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePostsPostIdMutationKey() {
-  return ['DELETE', '/posts/:postId'] as const
+  return ['posts', 'DELETE', '/posts/:postId'] as const
 }
 
 /**
@@ -185,21 +182,19 @@ export function useDeletePostsPostId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['$delete']>) =>
-      parseResponse(client.posts[':postId'].$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeletePostsPostIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/thread
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdThreadQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  return ['posts', '/posts/:postId/thread', args] as const
+  return ['posts', 'GET', '/posts/:postId/thread', args] as const
 }
 
 /**
@@ -254,12 +249,12 @@ export function useGetPostsPostIdThread(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/context
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdContextQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  return ['posts', '/posts/:postId/context', args] as const
+  return ['posts', 'GET', '/posts/:postId/context', args] as const
 }
 
 /**
@@ -314,12 +309,12 @@ export function useGetPostsPostIdContext(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/home
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTimelineHomeQueryKey(
   args: InferRequestType<typeof client.timeline.home.$get>,
 ) {
-  return ['timeline', '/timeline/home', args] as const
+  return ['timeline', 'GET', '/timeline/home', args] as const
 }
 
 /**
@@ -367,12 +362,12 @@ export function useGetTimelineHome(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/for-you
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTimelineForYouQueryKey(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  return ['timeline', '/timeline/for-you', args] as const
+  return ['timeline', 'GET', '/timeline/for-you', args] as const
 }
 
 /**
@@ -425,12 +420,12 @@ export function useGetTimelineForYou(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/user/{userId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTimelineUserUserIdQueryKey(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  return ['timeline', '/timeline/user/:userId', args] as const
+  return ['timeline', 'GET', '/timeline/user/:userId', args] as const
 }
 
 /**
@@ -483,12 +478,12 @@ export function useGetTimelineUserUserId(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/hashtag/{hashtag}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetTimelineHashtagHashtagQueryKey(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  return ['timeline', '/timeline/hashtag/:hashtag', args] as const
+  return ['timeline', 'GET', '/timeline/hashtag/:hashtag', args] as const
 }
 
 /**
@@ -541,10 +536,10 @@ export function useGetTimelineHashtagHashtag(
 
 /**
  * Generates TanStack Query mutation key for POST /posts/{postId}/like
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdLikeMutationKey() {
-  return ['POST', '/posts/:postId/like'] as const
+  return ['posts', 'POST', '/posts/:postId/like'] as const
 }
 
 /**
@@ -576,19 +571,17 @@ export function usePostPostsPostIdLike(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>) =>
-      parseResponse(client.posts[':postId'].like.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPostsPostIdLikeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /posts/{postId}/like
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePostsPostIdLikeMutationKey() {
-  return ['DELETE', '/posts/:postId/like'] as const
+  return ['posts', 'DELETE', '/posts/:postId/like'] as const
 }
 
 /**
@@ -622,20 +615,17 @@ export function useDeletePostsPostIdLike(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>,
-    ) => parseResponse(client.posts[':postId'].like.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeletePostsPostIdLikeMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /posts/{postId}/repost
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdRepostMutationKey() {
-  return ['POST', '/posts/:postId/repost'] as const
+  return ['posts', 'POST', '/posts/:postId/repost'] as const
 }
 
 /**
@@ -669,20 +659,17 @@ export function usePostPostsPostIdRepost(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>,
-    ) => parseResponse(client.posts[':postId'].repost.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPostsPostIdRepostMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /posts/{postId}/repost
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePostsPostIdRepostMutationKey() {
-  return ['DELETE', '/posts/:postId/repost'] as const
+  return ['posts', 'DELETE', '/posts/:postId/repost'] as const
 }
 
 /**
@@ -719,20 +706,17 @@ export function useDeletePostsPostIdRepost(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
-    ) => parseResponse(client.posts[':postId'].repost.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeletePostsPostIdRepostMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /posts/{postId}/quote
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdQuoteMutationKey() {
-  return ['POST', '/posts/:postId/quote'] as const
+  return ['posts', 'POST', '/posts/:postId/quote'] as const
 }
 
 /**
@@ -766,20 +750,17 @@ export function usePostPostsPostIdQuote(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>,
-    ) => parseResponse(client.posts[':postId'].quote.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPostsPostIdQuoteMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /posts/{postId}/bookmark
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdBookmarkMutationKey() {
-  return ['POST', '/posts/:postId/bookmark'] as const
+  return ['posts', 'POST', '/posts/:postId/bookmark'] as const
 }
 
 /**
@@ -816,20 +797,17 @@ export function usePostPostsPostIdBookmark(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
-    ) => parseResponse(client.posts[':postId'].bookmark.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPostsPostIdBookmarkMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for DELETE /posts/{postId}/bookmark
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeletePostsPostIdBookmarkMutationKey() {
-  return ['DELETE', '/posts/:postId/bookmark'] as const
+  return ['posts', 'DELETE', '/posts/:postId/bookmark'] as const
 }
 
 /**
@@ -866,20 +844,17 @@ export function useDeletePostsPostIdBookmark(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
-    ) => parseResponse(client.posts[':postId'].bookmark.$delete(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeletePostsPostIdBookmarkMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /bookmarks
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  return ['bookmarks', '/bookmarks', args] as const
+  return ['bookmarks', 'GET', '/bookmarks', args] as const
 }
 
 /**
@@ -920,12 +895,12 @@ export function useGetBookmarks(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/likes
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdLikesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  return ['posts', '/posts/:postId/likes', args] as const
+  return ['posts', 'GET', '/posts/:postId/likes', args] as const
 }
 
 /**
@@ -978,12 +953,12 @@ export function useGetPostsPostIdLikes(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/reposts
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdRepostsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  return ['posts', '/posts/:postId/reposts', args] as const
+  return ['posts', 'GET', '/posts/:postId/reposts', args] as const
 }
 
 /**
@@ -1036,12 +1011,12 @@ export function useGetPostsPostIdReposts(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/quotes
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdQuotesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  return ['posts', '/posts/:postId/quotes', args] as const
+  return ['posts', 'GET', '/posts/:postId/quotes', args] as const
 }
 
 /**
@@ -1094,12 +1069,12 @@ export function useGetPostsPostIdQuotes(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/replies
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPostsPostIdRepliesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  return ['posts', '/posts/:postId/replies', args] as const
+  return ['posts', 'GET', '/posts/:postId/replies', args] as const
 }
 
 /**
@@ -1152,10 +1127,10 @@ export function useGetPostsPostIdReplies(
 
 /**
  * Generates TanStack Query mutation key for POST /posts/{postId}/replies
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostPostsPostIdRepliesMutationKey() {
-  return ['POST', '/posts/:postId/replies'] as const
+  return ['posts', 'POST', '/posts/:postId/replies'] as const
 }
 
 /**
@@ -1190,20 +1165,17 @@ export function usePostPostsPostIdReplies(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
-    ) => parseResponse(client.posts[':postId'].replies.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostPostsPostIdRepliesMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query mutation key for POST /media/upload
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMediaUploadMutationKey() {
-  return ['POST', '/media/upload'] as const
+  return ['media', 'POST', '/media/upload'] as const
 }
 
 /**
@@ -1233,21 +1205,19 @@ export function usePostMediaUpload(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.media.upload.$post>) =>
-      parseResponse(client.media.upload.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMediaUploadMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /media/{mediaId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['media', '/media/:mediaId', args] as const
+  return ['media', 'GET', '/media/:mediaId', args] as const
 }
 
 /**
@@ -1295,10 +1265,10 @@ export function useGetMediaMediaId(
 
 /**
  * Generates TanStack Query mutation key for PATCH /media/{mediaId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchMediaMediaIdMutationKey() {
-  return ['PATCH', '/media/:mediaId'] as const
+  return ['media', 'PATCH', '/media/:mediaId'] as const
 }
 
 /**
@@ -1330,9 +1300,7 @@ export function usePatchMediaMediaId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.media)[':mediaId']['$patch']>) =>
-      parseResponse(client.media[':mediaId'].$patch(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchMediaMediaIdMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

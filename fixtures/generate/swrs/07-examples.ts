@@ -8,10 +8,10 @@ import { client } from '../clients/07-examples'
 
 /**
  * Generates SWR cache key for GET /products
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProductsKey() {
-  return ['/products'] as const
+  return ['products', 'GET', '/products'] as const
 }
 
 /**
@@ -37,10 +37,10 @@ export function useGetProducts(options?: {
 
 /**
  * Generates SWR mutation key for POST /products
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProductsMutationKey() {
-  return ['POST', '/products'] as const
+  return ['products', 'POST', '/products'] as const
 }
 
 /**
@@ -71,12 +71,12 @@ export function usePostProducts(options?: {
 
 /**
  * Generates SWR cache key for GET /products/{productId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsProductIdKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return [`/products/${args.param.productId}`, args] as const
+  return ['products', 'GET', '/products/:productId', args] as const
 }
 
 /**

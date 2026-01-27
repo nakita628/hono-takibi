@@ -8,10 +8,10 @@ import { client } from '../clients/36-auth-saml-idp'
 
 /**
  * Generates SWR cache key for GET /saml/sso
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSamlSsoKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return ['/saml/sso', args] as const
+  return ['saml', 'GET', '/saml/sso', args] as const
 }
 
 /**
@@ -44,10 +44,10 @@ export function useGetSamlSso(
 
 /**
  * Generates SWR mutation key for POST /saml/sso
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSamlSsoMutationKey() {
-  return ['POST', '/saml/sso'] as const
+  return ['saml', 'POST', '/saml/sso'] as const
 }
 
 /**
@@ -82,10 +82,10 @@ export function usePostSamlSso(options?: {
 
 /**
  * Generates SWR cache key for GET /saml/slo
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSamlSloKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return ['/saml/slo', args] as const
+  return ['saml', 'GET', '/saml/slo', args] as const
 }
 
 /**
@@ -118,10 +118,10 @@ export function useGetSamlSlo(
 
 /**
  * Generates SWR mutation key for POST /saml/slo
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSamlSloMutationKey() {
-  return ['POST', '/saml/slo'] as const
+  return ['saml', 'POST', '/saml/slo'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePostSamlSlo(options?: {
 
 /**
  * Generates SWR mutation key for POST /saml/acs
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSamlAcsMutationKey() {
-  return ['POST', '/saml/acs'] as const
+  return ['saml', 'POST', '/saml/acs'] as const
 }
 
 /**
@@ -194,10 +194,10 @@ export function usePostSamlAcs(options?: {
 
 /**
  * Generates SWR cache key for GET /saml/metadata
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSamlMetadataKey() {
-  return ['/saml/metadata'] as const
+  return ['saml', 'GET', '/saml/metadata'] as const
 }
 
 /**
@@ -227,12 +227,12 @@ export function useGetSamlMetadata(options?: {
 
 /**
  * Generates SWR cache key for GET /service-providers
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetServiceProvidersKey(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  return ['/service-providers', args] as const
+  return ['service-providers', 'GET', '/service-providers', args] as const
 }
 
 /**
@@ -263,10 +263,10 @@ export function useGetServiceProviders(
 
 /**
  * Generates SWR mutation key for POST /service-providers
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostServiceProvidersMutationKey() {
-  return ['POST', '/service-providers'] as const
+  return ['service-providers', 'POST', '/service-providers'] as const
 }
 
 /**
@@ -305,12 +305,12 @@ export function usePostServiceProviders(options?: {
 
 /**
  * Generates SWR cache key for GET /service-providers/{spId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetServiceProvidersSpIdKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  return [`/service-providers/${args.param.spId}`, args] as const
+  return ['service-providers', 'GET', '/service-providers/:spId', args] as const
 }
 
 /**
@@ -341,10 +341,10 @@ export function useGetServiceProvidersSpId(
 
 /**
  * Generates SWR mutation key for PUT /service-providers/{spId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutServiceProvidersSpIdMutationKey() {
-  return ['PUT', '/service-providers/:spId'] as const
+  return ['service-providers', 'PUT', '/service-providers/:spId'] as const
 }
 
 /**
@@ -385,10 +385,10 @@ export function usePutServiceProvidersSpId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /service-providers/{spId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteServiceProvidersSpIdMutationKey() {
-  return ['DELETE', '/service-providers/:spId'] as const
+  return ['service-providers', 'DELETE', '/service-providers/:spId'] as const
 }
 
 /**
@@ -432,12 +432,12 @@ export function useDeleteServiceProvidersSpId(options?: {
 
 /**
  * Generates SWR cache key for GET /service-providers/{spId}/metadata
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetServiceProvidersSpIdMetadataKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  return [`/service-providers/${args.param.spId}/metadata`, args] as const
+  return ['service-providers', 'GET', '/service-providers/:spId/metadata', args] as const
 }
 
 /**
@@ -469,10 +469,10 @@ export function useGetServiceProvidersSpIdMetadata(
 
 /**
  * Generates SWR mutation key for PUT /service-providers/{spId}/metadata
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutServiceProvidersSpIdMetadataMutationKey() {
-  return ['PUT', '/service-providers/:spId/metadata'] as const
+  return ['service-providers', 'PUT', '/service-providers/:spId/metadata'] as const
 }
 
 /**
@@ -517,12 +517,12 @@ export function usePutServiceProvidersSpIdMetadata(options?: {
 
 /**
  * Generates SWR cache key for GET /service-providers/{spId}/attributes
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetServiceProvidersSpIdAttributesKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  return [`/service-providers/${args.param.spId}/attributes`, args] as const
+  return ['service-providers', 'GET', '/service-providers/:spId/attributes', args] as const
 }
 
 /**
@@ -554,10 +554,10 @@ export function useGetServiceProvidersSpIdAttributes(
 
 /**
  * Generates SWR mutation key for PUT /service-providers/{spId}/attributes
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutServiceProvidersSpIdAttributesMutationKey() {
-  return ['PUT', '/service-providers/:spId/attributes'] as const
+  return ['service-providers', 'PUT', '/service-providers/:spId/attributes'] as const
 }
 
 /**
@@ -602,10 +602,10 @@ export function usePutServiceProvidersSpIdAttributes(options?: {
 
 /**
  * Generates SWR cache key for GET /attributes
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAttributesKey() {
-  return ['/attributes'] as const
+  return ['attributes', 'GET', '/attributes'] as const
 }
 
 /**
@@ -633,10 +633,10 @@ export function useGetAttributes(options?: {
 
 /**
  * Generates SWR cache key for GET /certificates
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCertificatesKey() {
-  return ['/certificates'] as const
+  return ['certificates', 'GET', '/certificates'] as const
 }
 
 /**
@@ -664,10 +664,10 @@ export function useGetCertificates(options?: {
 
 /**
  * Generates SWR mutation key for POST /certificates
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCertificatesMutationKey() {
-  return ['POST', '/certificates'] as const
+  return ['certificates', 'POST', '/certificates'] as const
 }
 
 /**
@@ -702,10 +702,10 @@ export function usePostCertificates(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /certificates/{certId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteCertificatesCertIdMutationKey() {
-  return ['DELETE', '/certificates/:certId'] as const
+  return ['certificates', 'DELETE', '/certificates/:certId'] as const
 }
 
 /**
@@ -747,10 +747,10 @@ export function useDeleteCertificatesCertId(options?: {
 
 /**
  * Generates SWR mutation key for POST /certificates/{certId}/activate
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostCertificatesCertIdActivateMutationKey() {
-  return ['POST', '/certificates/:certId/activate'] as const
+  return ['certificates', 'POST', '/certificates/:certId/activate'] as const
 }
 
 /**
@@ -793,10 +793,10 @@ export function usePostCertificatesCertIdActivate(options?: {
 
 /**
  * Generates SWR cache key for GET /sessions
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+  return ['sessions', 'GET', '/sessions', args] as const
 }
 
 /**
@@ -827,10 +827,10 @@ export function useGetSessions(
 
 /**
  * Generates SWR mutation key for DELETE /sessions/{sessionId}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteSessionsSessionIdMutationKey() {
-  return ['DELETE', '/sessions/:sessionId'] as const
+  return ['sessions', 'DELETE', '/sessions/:sessionId'] as const
 }
 
 /**
@@ -872,10 +872,10 @@ export function useDeleteSessionsSessionId(options?: {
 
 /**
  * Generates SWR cache key for GET /audit-logs
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAuditLogsKey(args: InferRequestType<(typeof client)['audit-logs']['$get']>) {
-  return ['/audit-logs', args] as const
+  return ['audit-logs', 'GET', '/audit-logs', args] as const
 }
 
 /**

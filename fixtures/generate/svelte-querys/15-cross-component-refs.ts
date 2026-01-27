@@ -10,10 +10,10 @@ import { client } from '../clients/15-cross-component-refs'
 
 /**
  * Generates Svelte Query cache key for GET /entities
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
-  return ['entities', '/entities', args] as const
+  return ['entities', 'GET', '/entities', args] as const
 }
 
 /**
@@ -54,10 +54,10 @@ export function createGetEntities(
 
 /**
  * Generates Svelte Query mutation key for POST /entities
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEntitiesMutationKey() {
-  return ['POST', '/entities'] as const
+  return ['entities', 'POST', '/entities'] as const
 }
 
 /**
@@ -74,30 +74,31 @@ export const getPostEntitiesMutationOptions = (clientOptions?: ClientRequestOpti
 /**
  * POST /entities
  */
-export function createPostEntities(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.entities.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.entities.$post>) =>
-      parseResponse(client.entities.$post(args, clientOptions)),
-  }))
+export function createPostEntities(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.entities.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostEntitiesMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /entities/{entityId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return ['entities', '/entities/:entityId', args] as const
+  return ['entities', 'GET', '/entities/:entityId', args] as const
 }
 
 /**
@@ -148,10 +149,10 @@ export function createGetEntitiesEntityId(
 
 /**
  * Generates Svelte Query mutation key for PUT /entities/{entityId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutEntitiesEntityIdMutationKey() {
-  return ['PUT', '/entities/:entityId'] as const
+  return ['entities', 'PUT', '/entities/:entityId'] as const
 }
 
 /**
@@ -168,32 +169,35 @@ export const getPutEntitiesEntityIdMutationOptions = (clientOptions?: ClientRequ
 /**
  * PUT /entities/{entityId}
  */
-export function createPutEntitiesEntityId(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['$put']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$put']>) =>
-      parseResponse(client.entities[':entityId'].$put(args, clientOptions)),
-  }))
+export function createPutEntitiesEntityId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client.entities)[':entityId']['$put']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPutEntitiesEntityIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for DELETE /entities/{entityId}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteEntitiesEntityIdMutationKey() {
-  return ['DELETE', '/entities/:entityId'] as const
+  return ['entities', 'DELETE', '/entities/:entityId'] as const
 }
 
 /**
@@ -210,37 +214,40 @@ export const getDeleteEntitiesEntityIdMutationOptions = (clientOptions?: ClientR
 /**
  * DELETE /entities/{entityId}
  */
-export function createDeleteEntitiesEntityId(options?: {
-  mutation?: CreateMutationOptions<
-    | Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.entities)[':entityId']['$delete']>>
+export function createDeleteEntitiesEntityId(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      | Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.entities)[':entityId']['$delete']>>
+            >
           >
         >
-      >
-    | undefined,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['$delete']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$delete']>) =>
-      parseResponse(client.entities[':entityId'].$delete(args, clientOptions)),
-  }))
+      | undefined,
+      Error,
+      InferRequestType<(typeof client.entities)[':entityId']['$delete']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getDeleteEntitiesEntityIdMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /entities/{entityId}/relationships
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return ['entities', '/entities/:entityId/relationships', args] as const
+  return ['entities', 'GET', '/entities/:entityId/relationships', args] as const
 }
 
 /**
@@ -293,10 +300,10 @@ export function createGetEntitiesEntityIdRelationships(
 
 /**
  * Generates Svelte Query mutation key for POST /entities/{entityId}/relationships
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEntitiesEntityIdRelationshipsMutationKey() {
-  return ['POST', '/entities/:entityId/relationships'] as const
+  return ['entities', 'POST', '/entities/:entityId/relationships'] as const
 }
 
 /**
@@ -316,35 +323,36 @@ export const getPostEntitiesEntityIdRelationshipsMutationOptions = (
 /**
  * POST /entities/{entityId}/relationships
  */
-export function createPostEntitiesEntityIdRelationships(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
+export function createPostEntitiesEntityIdRelationships(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
+          >
         >
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
-    ) => parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
-  }))
+      >,
+      Error,
+      InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } =
+      getPostEntitiesEntityIdRelationshipsMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /batch
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostBatchMutationKey() {
-  return ['POST', '/batch'] as const
+  return ['batch', 'POST', '/batch'] as const
 }
 
 /**
@@ -361,18 +369,19 @@ export const getPostBatchMutationOptions = (clientOptions?: ClientRequestOptions
 /**
  * POST /batch
  */
-export function createPostBatch(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.batch.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.batch.$post>) =>
-      parseResponse(client.batch.$post(args, clientOptions)),
-  }))
+export function createPostBatch(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.batch.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostBatchMutationOptions(opts?.client)
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

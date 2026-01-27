@@ -10,10 +10,10 @@ import { client } from '../clients/07-examples'
 
 /**
  * Generates TanStack Query cache key for GET /products
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProductsQueryKey() {
-  return ['products', '/products'] as const
+  return ['products', 'GET', '/products'] as const
 }
 
 /**
@@ -49,10 +49,10 @@ export function useGetProducts(options?: {
 
 /**
  * Generates TanStack Query mutation key for POST /products
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostProductsMutationKey() {
-  return ['POST', '/products'] as const
+  return ['products', 'POST', '/products'] as const
 }
 
 /**
@@ -78,21 +78,18 @@ export function usePostProducts(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
-      parseResponse(client.products.$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostProductsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates TanStack Query cache key for GET /products/{productId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['products', '/products/:productId', args] as const
+  return ['products', 'GET', '/products/:productId', args] as const
 }
 
 /**

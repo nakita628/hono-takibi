@@ -79,14 +79,15 @@ const toMutationKeyGetterName = (method: string, pathStr: string): string => {
 }
 
 /**
- * Generates SWR key getter function code using Orval-style structured keys.
+ * Generates SWR key getter function code using structured keys.
  *
- * Pattern follows Orval's conventions:
- * - [resolvedPath] for path params only
- * - [resolvedPath, query] for path + query params
- * - ['/path', query] for query params only
+ * Pattern: ['prefix', 'GET', '/path', args?]
+ * - prefix: First path segment for prefix filtering (e.g., 'pet')
+ * - method: HTTP method for method filtering (e.g., 'GET')
+ * - path: Full path for uniqueness (e.g., '/pet/findByStatus')
+ * - args: Request arguments when present
  *
- * This enables filter-based invalidation: mutate((key) => key[0].startsWith('/items'), ...)
+ * This enables consistent filtering with mutation keys.
  *
  * @see https://swr.vercel.app/docs/arguments
  */
@@ -101,26 +102,22 @@ const makeKeyGetterCode = (
   const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
   const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
 
-  // Check if path has params (e.g., /pet/:petId)
-  const hasPathParams = /:([^/]+)/.test(honoPath)
+  // Extract prefix (first path segment without leading slash)
+  const prefix = honoPath.replace(/^\//, '').split('/')[0]
 
-  // Build resolved path template literal: /pet/:petId -> `/pet/${args.param.petId}`
-  const resolvedPathTemplate = honoPath.replace(/:([^/]+)/g, '${args.param.$1}')
-
-  // Use structured key: [resolvedPath, args]
+  // Use structured key: ['prefix', 'GET', '/path', args?]
   if (hasArgs) {
-    const pathExpr = hasPathParams ? `\`${resolvedPathTemplate}\`` : `'${honoPath}'`
     return `/**
  * Generates SWR cache key for GET ${safeCommentPath}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
-export function ${keyGetterName}(args:${inferRequestType}){return[${pathExpr},args]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){return['${prefix}','GET','${honoPath}',args]as const}`
   }
   return `/**
  * Generates SWR cache key for GET ${safeCommentPathNoParam}
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
-export function ${keyGetterName}(){return['${honoPath}']as const}`
+export function ${keyGetterName}(){return['${prefix}','GET','${honoPath}']as const}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -209,14 +206,17 @@ export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client
     // Safe comment path for JSDoc
     const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
 
-    // SWR mutation key: [method, templatePath] to avoid collisions
-    // e.g., PUT /pet and POST /pet get different keys: ['PUT', '/pet'] vs ['POST', '/pet']
+    // SWR mutation key: [prefix, method, templatePath] to match Query key structure
+    // - prefix: First path segment for prefix-based filtering (e.g., 'pet')
+    // - method: HTTP method to avoid collisions (e.g., 'PUT', 'POST')
+    // - path: Full path template (e.g., '/pet/:petId')
     // Path params are NOT resolved since args are passed via trigger's { arg }
+    const prefix = honoPath.replace(/^\//, '').split('/')[0]
     const mutationKeyGetterCode = `/**
  * Generates SWR mutation key for ${methodUpper} ${safeCommentPath}
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function ${mutationKeyGetterName}(){return['${methodUpper}','${honoPath}']as const}`
+export function ${mutationKeyGetterName}(){return['${prefix}','${methodUpper}','${honoPath}']as const}`
 
     if (hasArgs) {
       const clientCall = `${clientPath}.$${method}(arg,clientOptions)`

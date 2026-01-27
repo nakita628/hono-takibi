@@ -6,7 +6,7 @@ import { client } from '../clients/23-extreme-parameters'
 
 /**
  * Generates SWR cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(
   args: InferRequestType<
@@ -14,7 +14,9 @@ export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(
   >,
 ) {
   return [
-    `/a/${args.param.p1}/b/${args.param.p2}/c/${args.param.p3}/d/${args.param.p4}/e/${args.param.p5}/f/${args.param.p6}/g/${args.param.p7}/h/${args.param.p8}/i/${args.param.p9}/j/${args.param.p10}`,
+    'a',
+    'GET',
+    '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10',
     args,
   ] as const
 }
@@ -52,12 +54,12 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 
 /**
  * Generates SWR cache key for GET /query-styles
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetQueryStylesKey(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  return ['/query-styles', args] as const
+  return ['query-styles', 'GET', '/query-styles', args] as const
 }
 
 /**
@@ -86,15 +88,12 @@ export function useGetQueryStyles(
 
 /**
  * Generates SWR cache key for GET /path-styles/{simple}/{label}/{matrix}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetPathStylesSimpleLabelMatrixKey(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  return [
-    `/path-styles/${args.param.simple}/${args.param.label}/${args.param.matrix}`,
-    args,
-  ] as const
+  return ['path-styles', 'GET', '/path-styles/:simple/:label/:matrix', args] as const
 }
 
 /**
@@ -126,12 +125,12 @@ export function useGetPathStylesSimpleLabelMatrix(
 
 /**
  * Generates SWR cache key for GET /header-styles
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetHeaderStylesKey(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  return ['/header-styles', args] as const
+  return ['header-styles', 'GET', '/header-styles', args] as const
 }
 
 /**
@@ -160,12 +159,12 @@ export function useGetHeaderStyles(
 
 /**
  * Generates SWR cache key for GET /cookie-styles
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetCookieStylesKey(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  return ['/cookie-styles', args] as const
+  return ['cookie-styles', 'GET', '/cookie-styles', args] as const
 }
 
 /**
@@ -194,12 +193,12 @@ export function useGetCookieStyles(
 
 /**
  * Generates SWR cache key for GET /many-query-params
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetManyQueryParamsKey(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  return ['/many-query-params', args] as const
+  return ['many-query-params', 'GET', '/many-query-params', args] as const
 }
 
 /**
@@ -228,12 +227,12 @@ export function useGetManyQueryParams(
 
 /**
  * Generates SWR cache key for GET /parameter-content
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetParameterContentKey(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  return ['/parameter-content', args] as const
+  return ['parameter-content', 'GET', '/parameter-content', args] as const
 }
 
 /**
@@ -262,12 +261,12 @@ export function useGetParameterContent(
 
 /**
  * Generates SWR cache key for GET /deprecated-params
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetDeprecatedParamsKey(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  return ['/deprecated-params', args] as const
+  return ['deprecated-params', 'GET', '/deprecated-params', args] as const
 }
 
 /**
@@ -296,12 +295,12 @@ export function useGetDeprecatedParams(
 
 /**
  * Generates SWR cache key for GET /examples-params
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetExamplesParamsKey(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  return ['/examples-params', args] as const
+  return ['examples-params', 'GET', '/examples-params', args] as const
 }
 
 /**

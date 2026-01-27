@@ -8,12 +8,12 @@ import { client } from '../clients/twilio_api_v2010'
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsJsonQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>>,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts.json', unref(args)] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts.json', unref(args)] as const
 }
 
 /**
@@ -73,10 +73,10 @@ export function useGet20100401AccountsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts.json'] as const
 }
 
 /**
@@ -114,28 +114,25 @@ export function usePost20100401AccountsJson(options?: {
         Error,
         InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
-    ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsSidJsonQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>>,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:Sid.json', unref(args)] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:Sid.json', unref(args)] as const
 }
 
 /**
@@ -195,10 +192,10 @@ export function useGet20100401AccountsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:Sid.json'] as const
 }
 
 /**
@@ -236,23 +233,20 @@ export function usePost20100401AccountsSidJson(options?: {
         Error,
         InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
-    ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
   args: MaybeRef<
@@ -261,7 +255,12 @@ export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Addresses.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Addresses.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -323,10 +322,10 @@ export function useGet20100401AccountsAccountSidAddressesJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidAddressesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
 }
 
 /**
@@ -371,28 +370,20 @@ export function usePost20100401AccountsAccountSidAddressesJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidAddressesJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
   args: MaybeRef<
@@ -403,6 +394,7 @@ export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json',
     unref(args),
   ] as const
@@ -467,10 +459,10 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -518,34 +510,23 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidAddressesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -594,31 +575,20 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidAddressesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
   args: MaybeRef<
@@ -627,7 +597,12 @@ export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Applications.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Applications.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -693,10 +668,10 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidApplicationsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
 }
 
 /**
@@ -745,31 +720,20 @@ export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidApplicationsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
   args: MaybeRef<
@@ -780,6 +744,7 @@ export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
     unref(args),
   ] as const
@@ -848,10 +813,10 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
 }
 
 /**
@@ -903,34 +868,27 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidApplicationsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json',
+  ] as const
 }
 
 /**
@@ -983,31 +941,20 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?:
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidApplicationsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
   args: MaybeRef<
@@ -1018,6 +965,7 @@ export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
     unref(args),
   ] as const
@@ -1088,7 +1036,7 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
   args: MaybeRef<
@@ -1099,6 +1047,7 @@ export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json',
     unref(args),
   ] as const
@@ -1167,7 +1116,7 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
   args: MaybeRef<
@@ -1178,6 +1127,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json',
     unref(args),
   ] as const
@@ -1242,7 +1192,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
   args: MaybeRef<
@@ -1253,6 +1203,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json',
     unref(args),
   ] as const
@@ -1320,7 +1271,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
   args: MaybeRef<
@@ -1331,6 +1282,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
     unref(args),
   ] as const
@@ -1399,7 +1351,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
   args: MaybeRef<
@@ -1410,6 +1362,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
     unref(args),
   ] as const
@@ -1480,7 +1433,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
   args: MaybeRef<
@@ -1491,6 +1444,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
     unref(args),
   ] as const
@@ -1559,7 +1513,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
   args: MaybeRef<
@@ -1570,6 +1524,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
     unref(args),
   ] as const
@@ -1638,7 +1593,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
   args: MaybeRef<
@@ -1649,6 +1604,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
     unref(args),
   ] as const
@@ -1717,7 +1673,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
   args: MaybeRef<
@@ -1728,6 +1684,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
     unref(args),
   ] as const
@@ -1796,7 +1753,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
   args: MaybeRef<
@@ -1807,6 +1764,7 @@ export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
     unref(args),
   ] as const
@@ -1875,7 +1833,7 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
   args: MaybeRef<
@@ -1884,7 +1842,12 @@ export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Balance.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Balance.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -1950,14 +1913,14 @@ export function useGet20100401AccountsAccountSidBalanceJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']>
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Calls.json', unref(args)] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Calls.json', unref(args)] as const
 }
 
 /**
@@ -2023,10 +1986,10 @@ export function useGet20100401AccountsAccountSidCallsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
 }
 
 /**
@@ -2075,28 +2038,20 @@ export function usePost20100401AccountsAccountSidCallsJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
   args: MaybeRef<
@@ -2105,7 +2060,12 @@ export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -2171,10 +2131,10 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -2223,31 +2183,23 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -2297,31 +2249,20 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidCallsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
   args: MaybeRef<
@@ -2332,6 +2273,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json',
     unref(args),
   ] as const
@@ -2400,7 +2342,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
   args: MaybeRef<
@@ -2411,6 +2353,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json',
     unref(args),
   ] as const
@@ -2477,7 +2420,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
   args: MaybeRef<
@@ -2488,6 +2431,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQue
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json',
     unref(args),
   ] as const
@@ -2552,7 +2496,7 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
   args: MaybeRef<
@@ -2563,6 +2507,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryK
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
     unref(args),
   ] as const
@@ -2631,10 +2576,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json',
+  ] as const
 }
 
 /**
@@ -2686,31 +2635,20 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(opti
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
   args: MaybeRef<
@@ -2721,6 +2659,7 @@ export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQue
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
     unref(args),
   ] as const
@@ -2789,10 +2728,14 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2844,33 +2787,27 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
-          ':Sid.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json',
+  ] as const
 }
 
 /**
@@ -2922,30 +2859,20 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
   args: MaybeRef<
@@ -2956,6 +2883,7 @@ export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json',
     unref(args),
   ] as const
@@ -3024,10 +2952,10 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
 }
 
 /**
@@ -3075,31 +3003,20 @@ export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidConferencesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
   args: MaybeRef<
@@ -3108,7 +3025,12 @@ export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Conferences.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Conferences.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -3174,7 +3096,7 @@ export function useGet20100401AccountsAccountSidConferencesJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
   args: MaybeRef<
@@ -3185,6 +3107,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
     unref(args),
   ] as const
@@ -3255,7 +3178,7 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
   args: MaybeRef<
@@ -3266,6 +3189,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
     unref(args),
   ] as const
@@ -3338,10 +3262,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
@@ -3395,33 +3320,26 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
@@ -3476,30 +3394,22 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
   args: MaybeRef<
@@ -3510,6 +3420,7 @@ export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json',
     unref(args),
   ] as const
@@ -3578,10 +3489,10 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -3633,34 +3544,23 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidConnectAppsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -3713,31 +3613,20 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: 
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
   args: MaybeRef<
@@ -3746,7 +3635,12 @@ export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/ConnectApps.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/ConnectApps.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -3812,7 +3706,7 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
   args: MaybeRef<
@@ -3823,6 +3717,7 @@ export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
     unref(args),
   ] as const
@@ -3891,7 +3786,7 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
   args: MaybeRef<
@@ -3902,6 +3797,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQuery
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
     unref(args),
   ] as const
@@ -3970,10 +3866,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -4025,34 +3925,27 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -4105,31 +3998,20 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(o
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
   args: MaybeRef<
@@ -4140,6 +4022,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
     unref(args),
   ] as const
@@ -4208,10 +4091,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json',
+  ] as const
 }
 
 /**
@@ -4263,31 +4150,20 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(option
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
   args: MaybeRef<
@@ -4298,6 +4174,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
     unref(args),
   ] as const
@@ -4375,10 +4252,11 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
   ] as const
@@ -4433,30 +4311,22 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-          ':ResourceSid'
-        ].AssignedAddOns[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
   args: MaybeRef<
@@ -4467,6 +4337,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
     unref(args),
   ] as const
@@ -4541,10 +4412,11 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
   ] as const
@@ -4598,30 +4470,22 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSid
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-          'AssignedAddOns.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
   args: MaybeRef<
@@ -4632,6 +4496,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
     unref(args),
   ] as const
@@ -4709,7 +4574,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
   args: MaybeRef<
@@ -4720,6 +4585,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
     unref(args),
   ] as const
@@ -4797,7 +4663,7 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
   args: MaybeRef<
@@ -4808,6 +4674,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQue
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
     unref(args),
   ] as const
@@ -4872,10 +4739,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json',
+  ] as const
 }
 
 /**
@@ -4923,31 +4794,20 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(o
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
   args: MaybeRef<
@@ -4958,6 +4818,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQu
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
     unref(args),
   ] as const
@@ -5022,10 +4883,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json',
+  ] as const
 }
 
 /**
@@ -5073,31 +4938,20 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
   args: MaybeRef<
@@ -5108,6 +4962,7 @@ export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
     unref(args),
   ] as const
@@ -5175,10 +5030,14 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json',
+  ] as const
 }
 
 /**
@@ -5226,31 +5085,20 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJso
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
   args: MaybeRef<
@@ -5259,7 +5107,12 @@ export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -5321,10 +5174,10 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -5369,31 +5222,23 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidKeysSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -5439,35 +5284,27 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidKeysSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
   args: MaybeRef<
     InferRequestType<(typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']>
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Keys.json', unref(args)] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Keys.json', unref(args)] as const
 }
 
 /**
@@ -5529,10 +5366,10 @@ export function useGet20100401AccountsAccountSidKeysJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidKeysJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
 }
 
 /**
@@ -5577,28 +5414,20 @@ export function usePost20100401AccountsAccountSidKeysJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidKeysJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
   args: MaybeRef<
@@ -5609,6 +5438,7 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQu
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
     unref(args),
   ] as const
@@ -5677,10 +5507,11 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
   ] as const
@@ -5735,30 +5566,20 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
   args: MaybeRef<
@@ -5769,6 +5590,7 @@ export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQuery
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json',
     unref(args),
   ] as const
@@ -5837,7 +5659,7 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
   args: MaybeRef<
@@ -5848,6 +5670,7 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
     unref(args),
   ] as const
@@ -5918,10 +5741,11 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
   ] as const
@@ -5975,30 +5799,20 @@ export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJso
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
-          ':CallSid.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
   args: MaybeRef<
@@ -6009,6 +5823,7 @@ export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json',
     unref(args),
   ] as const
@@ -6077,7 +5892,7 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
   args: MaybeRef<
@@ -6086,7 +5901,12 @@ export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Messages.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Messages.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -6152,10 +5972,10 @@ export function useGet20100401AccountsAccountSidMessagesJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
 }
 
 /**
@@ -6204,28 +6024,20 @@ export function usePost20100401AccountsAccountSidMessagesJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidMessagesJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
   args: MaybeRef<
@@ -6234,7 +6046,12 @@ export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -6300,10 +6117,10 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -6352,34 +6169,23 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidMessagesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -6432,34 +6238,27 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidMessagesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json',
+  ] as const
 }
 
 /**
@@ -6511,31 +6310,20 @@ export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Feedback.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
   args: MaybeRef<
@@ -6544,7 +6332,12 @@ export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SigningKeys.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -6606,10 +6399,10 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSigningKeysJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
 }
 
 /**
@@ -6658,28 +6451,20 @@ export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSigningKeysJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
   args: MaybeRef<
@@ -6690,6 +6475,7 @@ export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json',
     unref(args),
   ] as const
@@ -6758,7 +6544,7 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
   args: MaybeRef<
@@ -6767,7 +6553,12 @@ export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Notifications.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Notifications.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -6833,7 +6624,7 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
   args: MaybeRef<
@@ -6844,6 +6635,7 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
     unref(args),
   ] as const
@@ -6912,10 +6704,14 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+  ] as const
 }
 
 /**
@@ -6967,34 +6763,27 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json',
+  ] as const
 }
 
 /**
@@ -7047,31 +6836,20 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(opti
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
   args: MaybeRef<
@@ -7082,6 +6860,7 @@ export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json',
     unref(args),
   ] as const
@@ -7150,10 +6929,10 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
 }
 
 /**
@@ -7201,31 +6980,20 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?:
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
   args: MaybeRef<
@@ -7236,6 +7004,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
     unref(args),
   ] as const
@@ -7308,10 +7077,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
@@ -7365,33 +7135,26 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
@@ -7446,30 +7209,22 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-          ':CallSid.json'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
   args: MaybeRef<
@@ -7480,6 +7235,7 @@ export function getGet20100401AccountsAccountSidConferencesConferenceSidParticip
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
     unref(args),
   ] as const
@@ -7552,10 +7308,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
   ] as const
@@ -7605,33 +7362,29 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-          'Participants.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json',
+  ] as const
 }
 
 /**
@@ -7683,34 +7436,27 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json',
+  ] as const
 }
 
 /**
@@ -7762,31 +7508,20 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(opt
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
   args: MaybeRef<
@@ -7795,7 +7530,12 @@ export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -7861,10 +7601,10 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -7913,31 +7653,23 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidQueuesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -7987,31 +7719,20 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidQueuesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
   args: MaybeRef<
@@ -8020,7 +7741,7 @@ export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Queues.json', unref(args)] as const
+  return ['2010-04-01', 'GET', '/2010-04-01/Accounts/:AccountSid/Queues.json', unref(args)] as const
 }
 
 /**
@@ -8086,10 +7807,10 @@ export function useGet20100401AccountsAccountSidQueuesJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidQueuesJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
 }
 
 /**
@@ -8138,31 +7859,27 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidQueuesJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json',
+  ] as const
 }
 
 /**
@@ -8214,34 +7931,24 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Transcriptions.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json',
   ] as const
@@ -8295,30 +8002,20 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJs
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[
-          ':Sid.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
   args: MaybeRef<
@@ -8329,6 +8026,7 @@ export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json',
     unref(args),
   ] as const
@@ -8397,10 +8095,10 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
 }
 
 /**
@@ -8453,31 +8151,20 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidRecordingsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
   args: MaybeRef<
@@ -8486,7 +8173,12 @@ export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Recordings.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Recordings.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -8552,7 +8244,7 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
   args: MaybeRef<
@@ -8563,6 +8255,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
     unref(args),
   ] as const
@@ -8635,10 +8328,11 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
   ] as const
@@ -8693,30 +8387,22 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
   args: MaybeRef<
@@ -8727,6 +8413,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
     unref(args),
   ] as const
@@ -8797,7 +8484,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
   args: MaybeRef<
@@ -8808,6 +8495,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
     unref(args),
   ] as const
@@ -8885,10 +8573,11 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
   ] as const
@@ -8943,30 +8632,22 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-          ':AddOnResultSid'
-        ].Payloads[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
   args: MaybeRef<
@@ -8977,6 +8658,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
     unref(args),
   ] as const
@@ -9054,7 +8736,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
   args: MaybeRef<
@@ -9065,6 +8747,7 @@ export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
     unref(args),
   ] as const
@@ -9142,7 +8825,7 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
   args: MaybeRef<
@@ -9153,6 +8836,7 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
     unref(args),
   ] as const
@@ -9221,10 +8905,11 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
   ] as const
@@ -9275,30 +8960,22 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-          ':Sid.json'
-        ].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
   args: MaybeRef<
@@ -9309,6 +8986,7 @@ export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
     unref(args),
   ] as const
@@ -9377,7 +9055,7 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
   args: MaybeRef<
@@ -9388,6 +9066,7 @@ export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
     unref(args),
   ] as const
@@ -9456,10 +9135,14 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json',
+  ] as const
 }
 
 /**
@@ -9511,31 +9194,20 @@ export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: 
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
   args: MaybeRef<
@@ -9546,6 +9218,7 @@ export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json',
     unref(args),
   ] as const
@@ -9614,7 +9287,7 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
   args: MaybeRef<
@@ -9625,6 +9298,7 @@ export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json',
     unref(args),
   ] as const
@@ -9689,10 +9363,10 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -9740,34 +9414,23 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSigningKeysSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -9816,31 +9479,20 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: 
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
   args: MaybeRef<
@@ -9851,6 +9503,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
     unref(args),
   ] as const
@@ -9925,10 +9578,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
   ] as const
@@ -9982,30 +9636,22 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCre
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'CredentialListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
   args: MaybeRef<
@@ -10016,6 +9662,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
     unref(args),
   ] as const
@@ -10093,10 +9740,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
   ] as const
@@ -10151,30 +9799,22 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
   args: MaybeRef<
@@ -10185,6 +9825,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
     unref(args),
   ] as const
@@ -10259,10 +9900,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
   ] as const
@@ -10316,30 +9958,22 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpA
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-          'IpAccessControlListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
   args: MaybeRef<
@@ -10350,6 +9984,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
     unref(args),
   ] as const
@@ -10427,10 +10062,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
   ] as const
@@ -10485,30 +10121,22 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
   args: MaybeRef<
@@ -10519,6 +10147,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
     unref(args),
   ] as const
@@ -10593,10 +10222,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
   ] as const
@@ -10650,30 +10280,22 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistra
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-          'CredentialListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
   args: MaybeRef<
@@ -10684,6 +10306,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
     unref(args),
   ] as const
@@ -10761,10 +10384,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
   ] as const
@@ -10819,30 +10443,22 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
   args: MaybeRef<
@@ -10853,6 +10469,7 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
     unref(args),
   ] as const
@@ -10927,10 +10544,11 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
   ] as const
@@ -10984,30 +10602,22 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-          'Credentials.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
   args: MaybeRef<
@@ -11018,6 +10628,7 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
     unref(args),
   ] as const
@@ -11095,10 +10706,11 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
@@ -11152,33 +10764,26 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
@@ -11233,30 +10838,22 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-          ':CredentialListSid'
-        ].Credentials[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
   args: MaybeRef<
@@ -11267,6 +10864,7 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
     unref(args),
   ] as const
@@ -11335,10 +10933,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json',
+  ] as const
 }
 
 /**
@@ -11390,31 +10992,20 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
   args: MaybeRef<
@@ -11425,6 +11016,7 @@ export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
     unref(args),
   ] as const
@@ -11493,10 +11085,14 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -11548,34 +11144,27 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -11628,31 +11217,20 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(opt
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
   args: MaybeRef<
@@ -11663,6 +11241,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
     unref(args),
   ] as const
@@ -11735,10 +11314,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
   ] as const
@@ -11792,30 +11372,22 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialLi
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'CredentialListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
   args: MaybeRef<
@@ -11826,6 +11398,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
     unref(args),
   ] as const
@@ -11903,10 +11476,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
   ] as const
@@ -11961,30 +11535,22 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
   args: MaybeRef<
@@ -11993,7 +11559,12 @@ export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -12059,10 +11630,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
 }
 
 /**
@@ -12111,28 +11682,20 @@ export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPDomainsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
   args: MaybeRef<
@@ -12143,6 +11706,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json',
     unref(args),
   ] as const
@@ -12211,10 +11775,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -12266,34 +11830,23 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['2010-04-01', 'DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -12346,31 +11899,20 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
   args: MaybeRef<
@@ -12381,6 +11923,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQuery
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
     unref(args),
   ] as const
@@ -12449,10 +11992,14 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json',
+  ] as const
 }
 
 /**
@@ -12504,31 +12051,20 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(opt
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
   args: MaybeRef<
@@ -12539,6 +12075,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQu
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
     unref(args),
   ] as const
@@ -12607,10 +12144,14 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -12662,34 +12203,27 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json',
+  ] as const
 }
 
 /**
@@ -12742,31 +12276,20 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
   args: MaybeRef<
@@ -12777,6 +12300,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
     unref(args),
   ] as const
@@ -12854,10 +12378,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
   ] as const
@@ -12912,30 +12437,22 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-          ':DomainSid'
-        ].IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
   args: MaybeRef<
@@ -12946,6 +12463,7 @@ export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
     unref(args),
   ] as const
@@ -13020,10 +12538,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
   ] as const
@@ -13077,30 +12596,22 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCont
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-          'IpAccessControlListMappings.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
   args: MaybeRef<
@@ -13111,6 +12622,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
     unref(args),
   ] as const
@@ -13188,10 +12700,11 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
   ] as const
@@ -13245,30 +12758,22 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ]['IpAddresses.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
   args: MaybeRef<
@@ -13279,6 +12784,7 @@ export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
     unref(args),
   ] as const
@@ -13356,10 +12862,11 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
@@ -13413,33 +12920,26 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
@@ -13494,33 +12994,29 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-          ':IpAccessControlListSid'
-        ].IpAddresses[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json',
+  ] as const
 }
 
 /**
@@ -13572,34 +13068,27 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json',
+  ] as const
 }
 
 /**
@@ -13651,34 +13140,27 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json',
+  ] as const
 }
 
 /**
@@ -13730,34 +13212,27 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json',
+  ] as const
 }
 
 /**
@@ -13809,34 +13284,23 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidTokensJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
 }
 
 /**
@@ -13885,28 +13349,20 @@ export function usePost20100401AccountsAccountSidTokensJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidTokensJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
   args: MaybeRef<
@@ -13917,6 +13373,7 @@ export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
     unref(args),
   ] as const
@@ -13985,10 +13442,14 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json',
+  ] as const
 }
 
 /**
@@ -14041,31 +13502,20 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
   args: MaybeRef<
@@ -14076,6 +13526,7 @@ export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Transcriptions.json',
     unref(args),
   ] as const
@@ -14144,7 +13595,7 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
   args: MaybeRef<
@@ -14153,7 +13604,12 @@ export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
     >
   >,
 ) {
-  return ['2010-04-01', '/2010-04-01/Accounts/:AccountSid/Usage/Records.json', unref(args)] as const
+  return [
+    '2010-04-01',
+    'GET',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Records.json',
+    unref(args),
+  ] as const
 }
 
 /**
@@ -14219,7 +13675,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
   args: MaybeRef<
@@ -14230,6 +13686,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json',
     unref(args),
   ] as const
@@ -14294,7 +13751,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
   args: MaybeRef<
@@ -14305,6 +13762,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json',
     unref(args),
   ] as const
@@ -14369,7 +13827,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
   args: MaybeRef<
@@ -14380,6 +13838,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json',
     unref(args),
   ] as const
@@ -14444,7 +13903,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
   args: MaybeRef<
@@ -14455,6 +13914,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json',
     unref(args),
   ] as const
@@ -14519,7 +13979,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
   args: MaybeRef<
@@ -14530,6 +13990,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json',
     unref(args),
   ] as const
@@ -14594,7 +14055,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
   args: MaybeRef<
@@ -14605,6 +14066,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json',
     unref(args),
   ] as const
@@ -14669,7 +14131,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
   args: MaybeRef<
@@ -14680,6 +14142,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json',
     unref(args),
   ] as const
@@ -14744,7 +14207,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
   args: MaybeRef<
@@ -14755,6 +14218,7 @@ export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKe
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json',
     unref(args),
   ] as const
@@ -14819,7 +14283,7 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
   args: MaybeRef<
@@ -14830,6 +14294,7 @@ export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
     unref(args),
   ] as const
@@ -14898,10 +14363,14 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -14953,34 +14422,27 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return [
+    '2010-04-01',
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json',
+  ] as const
 }
 
 /**
@@ -15029,31 +14491,20 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$delete(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
   args: MaybeRef<
@@ -15064,6 +14515,7 @@ export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
 ) {
   return [
     '2010-04-01',
+    'GET',
     '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json',
     unref(args),
   ] as const
@@ -15132,10 +14584,10 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey() {
-  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
+  return ['2010-04-01', 'POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
 }
 
 /**
@@ -15187,34 +14639,24 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$post(
-          args,
-          clientOptions,
-        ),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidUsageTriggersJsonMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json',
   ] as const
@@ -15268,33 +14710,26 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
-          'UserDefinedMessages.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey() {
   return [
+    '2010-04-01',
     'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions.json',
   ] as const
@@ -15348,33 +14783,26 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
-          'UserDefinedMessageSubscriptions.json'
-        ].$post(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey() {
   return [
+    '2010-04-01',
     'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions/:Sid.json',
   ] as const
@@ -15429,23 +14857,15 @@ export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessag
           (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
         >
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (
-      args: InferRequestType<
-        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
-      >,
-    ) =>
-      parseResponse(
-        client['2010-04-01'].Accounts[':AccountSid'].Calls[
-          ':CallSid'
-        ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(args, clientOptions),
-      ),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationOptions(
+      clientOptions,
+    )
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }

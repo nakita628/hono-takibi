@@ -10,10 +10,10 @@ import { client } from '../clients/27-extreme-encoding'
 
 /**
  * Generates Svelte Query mutation key for POST /encoding-test
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEncodingTestMutationKey() {
-  return ['POST', '/encoding-test'] as const
+  return ['encoding-test', 'POST', '/encoding-test'] as const
 }
 
 /**
@@ -30,34 +30,37 @@ export const getPostEncodingTestMutationOptions = (clientOptions?: ClientRequest
 /**
  * POST /encoding-test
  */
-export function createPostEncodingTest(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['encoding-test']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['encoding-test']['$post']>) =>
-      parseResponse(client['encoding-test'].$post(args, clientOptions)),
-  }))
+export function createPostEncodingTest(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['encoding-test']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostEncodingTestMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /content-negotiation
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetContentNegotiationQueryKey(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['content-negotiation', '/content-negotiation', args] as const
+  return ['content-negotiation', 'GET', '/content-negotiation', args] as const
 }
 
 /**
@@ -108,10 +111,10 @@ export function createGetContentNegotiation(
 
 /**
  * Generates Svelte Query mutation key for POST /binary-variations
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostBinaryVariationsMutationKey() {
-  return ['POST', '/binary-variations'] as const
+  return ['binary-variations', 'POST', '/binary-variations'] as const
 }
 
 /**
@@ -128,32 +131,35 @@ export const getPostBinaryVariationsMutationOptions = (clientOptions?: ClientReq
 /**
  * POST /binary-variations
  */
-export function createPostBinaryVariations(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['binary-variations']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['binary-variations']['$post']>) =>
-      parseResponse(client['binary-variations'].$post(args, clientOptions)),
-  }))
+export function createPostBinaryVariations(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['binary-variations']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostBinaryVariationsMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /streaming
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStreamingQueryKey() {
-  return ['streaming', '/streaming'] as const
+  return ['streaming', 'GET', '/streaming'] as const
 }
 
 /**
@@ -193,10 +199,10 @@ export function createGetStreaming(
 
 /**
  * Generates Svelte Query mutation key for POST /streaming
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostStreamingMutationKey() {
-  return ['POST', '/streaming'] as const
+  return ['streaming', 'POST', '/streaming'] as const
 }
 
 /**
@@ -213,28 +219,31 @@ export const getPostStreamingMutationOptions = (clientOptions?: ClientRequestOpt
 /**
  * POST /streaming
  */
-export function createPostStreaming(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>>,
-    Error,
-    InferRequestType<typeof client.streaming.$post>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<typeof client.streaming.$post>) =>
-      parseResponse(client.streaming.$post(args, clientOptions)),
-  }))
+export function createPostStreaming(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>>,
+      Error,
+      InferRequestType<typeof client.streaming.$post>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostStreamingMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query mutation key for POST /url-encoded-complex
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUrlEncodedComplexMutationKey() {
-  return ['POST', '/url-encoded-complex'] as const
+  return ['url-encoded-complex', 'POST', '/url-encoded-complex'] as const
 }
 
 /**
@@ -251,32 +260,35 @@ export const getPostUrlEncodedComplexMutationOptions = (clientOptions?: ClientRe
 /**
  * POST /url-encoded-complex
  */
-export function createPostUrlEncodedComplex(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['url-encoded-complex']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['url-encoded-complex']['$post']>) =>
-      parseResponse(client['url-encoded-complex'].$post(args, clientOptions)),
-  }))
+export function createPostUrlEncodedComplex(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['url-encoded-complex']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostUrlEncodedComplexMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }
 
 /**
  * Generates Svelte Query cache key for GET /response-encoding
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetResponseEncodingQueryKey() {
-  return ['response-encoding', '/response-encoding'] as const
+  return ['response-encoding', 'GET', '/response-encoding'] as const
 }
 
 /**
@@ -320,10 +332,10 @@ export function createGetResponseEncoding(
 
 /**
  * Generates Svelte Query mutation key for POST /schema-encoding
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSchemaEncodingMutationKey() {
-  return ['POST', '/schema-encoding'] as const
+  return ['schema-encoding', 'POST', '/schema-encoding'] as const
 }
 
 /**
@@ -340,22 +352,25 @@ export const getPostSchemaEncodingMutationOptions = (clientOptions?: ClientReque
 /**
  * POST /schema-encoding
  */
-export function createPostSchemaEncoding(options?: {
-  mutation?: CreateMutationOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
-      >
-    >,
-    Error,
-    InferRequestType<(typeof client)['schema-encoding']['$post']>
-  >
-  client?: ClientRequestOptions
-}) {
-  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return createMutation(() => ({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['schema-encoding']['$post']>) =>
-      parseResponse(client['schema-encoding'].$post(args, clientOptions)),
-  }))
+export function createPostSchemaEncoding(
+  options?: () => {
+    mutation?: CreateMutationOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
+        >
+      >,
+      Error,
+      InferRequestType<(typeof client)['schema-encoding']['$post']>
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createMutation(() => {
+    const opts = options?.()
+    const { mutationKey, mutationFn, ...baseOptions } = getPostSchemaEncodingMutationOptions(
+      opts?.client,
+    )
+    return { ...baseOptions, ...opts?.mutation, mutationKey, mutationFn }
+  })
 }

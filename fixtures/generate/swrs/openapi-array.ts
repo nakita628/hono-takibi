@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-array'
 
 /**
  * Generates SWR cache key for GET /array
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetArrayKey() {
-  return ['/array'] as const
+  return ['array', 'GET', '/array'] as const
 }
 
 /**

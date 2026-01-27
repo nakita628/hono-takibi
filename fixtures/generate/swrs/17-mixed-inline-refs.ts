@@ -8,10 +8,10 @@ import { client } from '../clients/17-mixed-inline-refs'
 
 /**
  * Generates SWR cache key for GET /users
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
+  return ['users', 'GET', '/users', args] as const
 }
 
 /**
@@ -40,10 +40,10 @@ export function useGetUsers(
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUsersMutationKey() {
-  return ['POST', '/users'] as const
+  return ['users', 'POST', '/users'] as const
 }
 
 /**
@@ -74,12 +74,12 @@ export function usePostUsers(options?: {
 
 /**
  * Generates SWR cache key for GET /users/{userId}
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return [`/users/${args.param.userId}`, args] as const
+  return ['users', 'GET', '/users/:userId', args] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostOrdersMutationKey() {
-  return ['POST', '/orders'] as const
+  return ['orders', 'POST', '/orders'] as const
 }
 
 /**
@@ -142,12 +142,12 @@ export function usePostOrders(options?: {
 
 /**
  * Generates SWR cache key for GET /products/{productId}/variants
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetProductsProductIdVariantsKey(
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
-  return [`/products/${args.param.productId}/variants`, args] as const
+  return ['products', 'GET', '/products/:productId/variants', args] as const
 }
 
 /**
@@ -176,10 +176,10 @@ export function useGetProductsProductIdVariants(
 
 /**
  * Generates SWR mutation key for POST /reports/generate
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostReportsGenerateMutationKey() {
-  return ['POST', '/reports/generate'] as const
+  return ['reports', 'POST', '/reports/generate'] as const
 }
 
 /**
@@ -212,10 +212,10 @@ export function usePostReportsGenerate(options?: {
 
 /**
  * Generates SWR mutation key for POST /webhooks/test
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostWebhooksTestMutationKey() {
-  return ['POST', '/webhooks/test'] as const
+  return ['webhooks', 'POST', '/webhooks/test'] as const
 }
 
 /**

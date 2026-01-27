@@ -8,10 +8,10 @@ import { client } from '../clients/27-extreme-encoding'
 
 /**
  * Generates SWR mutation key for POST /encoding-test
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEncodingTestMutationKey() {
-  return ['POST', '/encoding-test'] as const
+  return ['encoding-test', 'POST', '/encoding-test'] as const
 }
 
 /**
@@ -48,12 +48,12 @@ export function usePostEncodingTest(options?: {
 
 /**
  * Generates SWR cache key for GET /content-negotiation
- * Returns structured key [resolvedPath, args] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetContentNegotiationKey(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['/content-negotiation', args] as const
+  return ['content-negotiation', 'GET', '/content-negotiation', args] as const
 }
 
 /**
@@ -82,10 +82,10 @@ export function useGetContentNegotiation(
 
 /**
  * Generates SWR mutation key for POST /binary-variations
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostBinaryVariationsMutationKey() {
-  return ['POST', '/binary-variations'] as const
+  return ['binary-variations', 'POST', '/binary-variations'] as const
 }
 
 /**
@@ -122,10 +122,10 @@ export function usePostBinaryVariations(options?: {
 
 /**
  * Generates SWR cache key for GET /streaming
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStreamingKey() {
-  return ['/streaming'] as const
+  return ['streaming', 'GET', '/streaming'] as const
 }
 
 /**
@@ -151,10 +151,10 @@ export function useGetStreaming(options?: {
 
 /**
  * Generates SWR mutation key for POST /streaming
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostStreamingMutationKey() {
-  return ['POST', '/streaming'] as const
+  return ['streaming', 'POST', '/streaming'] as const
 }
 
 /**
@@ -185,10 +185,10 @@ export function usePostStreaming(options?: {
 
 /**
  * Generates SWR mutation key for POST /url-encoded-complex
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostUrlEncodedComplexMutationKey() {
-  return ['POST', '/url-encoded-complex'] as const
+  return ['url-encoded-complex', 'POST', '/url-encoded-complex'] as const
 }
 
 /**
@@ -225,10 +225,10 @@ export function usePostUrlEncodedComplex(options?: {
 
 /**
  * Generates SWR cache key for GET /response-encoding
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetResponseEncodingKey() {
-  return ['/response-encoding'] as const
+  return ['response-encoding', 'GET', '/response-encoding'] as const
 }
 
 /**
@@ -254,10 +254,10 @@ export function useGetResponseEncoding(options?: {
 
 /**
  * Generates SWR mutation key for POST /schema-encoding
- * Returns key [method, path] to avoid collisions between different methods on same path
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostSchemaEncodingMutationKey() {
-  return ['POST', '/schema-encoding'] as const
+  return ['schema-encoding', 'POST', '/schema-encoding'] as const
 }
 
 /**

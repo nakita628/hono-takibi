@@ -8,10 +8,10 @@ import { client } from '../clients/28-reserved-words'
 
 /**
  * Generates Vue Query cache key for GET /class
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetClassQueryKey() {
-  return ['class', '/class'] as const
+  return ['class', 'GET', '/class'] as const
 }
 
 /**
@@ -49,10 +49,10 @@ export function useGetClass(options?: {
 
 /**
  * Generates Vue Query cache key for GET /interface
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetInterfaceQueryKey() {
-  return ['interface', '/interface'] as const
+  return ['interface', 'GET', '/interface'] as const
 }
 
 /**
@@ -95,10 +95,10 @@ export function useGetInterface(options?: {
 
 /**
  * Generates Vue Query cache key for GET /type
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTypeQueryKey() {
-  return ['type', '/type'] as const
+  return ['type', 'GET', '/type'] as const
 }
 
 /**
@@ -136,10 +136,10 @@ export function useGetType(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /function
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostFunctionMutationKey() {
-  return ['POST', '/function'] as const
+  return ['function', 'POST', '/function'] as const
 }
 
 /**
@@ -165,24 +165,22 @@ export function usePostFunction(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostFunctionMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /return
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetReturnQueryKey() {
-  return ['return', '/return'] as const
+  return ['return', 'GET', '/return'] as const
 }
 
 /**
@@ -220,10 +218,10 @@ export function useGetReturn(options?: {
 
 /**
  * Generates Vue Query cache key for GET /import
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetImportQueryKey() {
-  return ['import', '/import'] as const
+  return ['import', 'GET', '/import'] as const
 }
 
 /**
@@ -261,10 +259,10 @@ export function useGetImport(options?: {
 
 /**
  * Generates Vue Query cache key for GET /export
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExportQueryKey() {
-  return ['export', '/export'] as const
+  return ['export', 'GET', '/export'] as const
 }
 
 /**
@@ -302,10 +300,10 @@ export function useGetExport(options?: {
 
 /**
  * Generates Vue Query cache key for GET /default
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDefaultQueryKey() {
-  return ['default', '/default'] as const
+  return ['default', 'GET', '/default'] as const
 }
 
 /**
@@ -346,10 +344,10 @@ export function useGetDefault(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /new
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNewMutationKey() {
-  return ['POST', '/new'] as const
+  return ['new', 'POST', '/new'] as const
 }
 
 /**
@@ -373,24 +371,22 @@ export function usePostNew(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostNewMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /delete
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteDeleteMutationKey() {
-  return ['DELETE', '/delete'] as const
+  return ['delete', 'DELETE', '/delete'] as const
 }
 
 /**
@@ -416,24 +412,22 @@ export function useDeleteDelete(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getDeleteDeleteMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /void
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetVoidQueryKey() {
-  return ['void', '/void'] as const
+  return ['void', 'GET', '/void'] as const
 }
 
 /**
@@ -471,10 +465,10 @@ export function useGetVoid(options?: {
 
 /**
  * Generates Vue Query cache key for GET /null
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNullQueryKey() {
-  return ['null', '/null'] as const
+  return ['null', 'GET', '/null'] as const
 }
 
 /**
@@ -512,10 +506,10 @@ export function useGetNull(options?: {
 
 /**
  * Generates Vue Query cache key for GET /true
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTrueQueryKey() {
-  return ['true', '/true'] as const
+  return ['true', 'GET', '/true'] as const
 }
 
 /**
@@ -553,10 +547,10 @@ export function useGetTrue(options?: {
 
 /**
  * Generates Vue Query cache key for GET /false
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFalseQueryKey() {
-  return ['false', '/false'] as const
+  return ['false', 'GET', '/false'] as const
 }
 
 /**
@@ -594,10 +588,10 @@ export function useGetFalse(options?: {
 
 /**
  * Generates Vue Query cache key for GET /if
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetIfQueryKey() {
-  return ['if', '/if'] as const
+  return ['if', 'GET', '/if'] as const
 }
 
 /**
@@ -635,10 +629,10 @@ export function useGetIf(options?: {
 
 /**
  * Generates Vue Query cache key for GET /else
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetElseQueryKey() {
-  return ['else', '/else'] as const
+  return ['else', 'GET', '/else'] as const
 }
 
 /**
@@ -676,10 +670,10 @@ export function useGetElse(options?: {
 
 /**
  * Generates Vue Query cache key for GET /for
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetForQueryKey() {
-  return ['for', '/for'] as const
+  return ['for', 'GET', '/for'] as const
 }
 
 /**
@@ -717,10 +711,10 @@ export function useGetFor(options?: {
 
 /**
  * Generates Vue Query cache key for GET /while
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetWhileQueryKey() {
-  return ['while', '/while'] as const
+  return ['while', 'GET', '/while'] as const
 }
 
 /**
@@ -758,10 +752,10 @@ export function useGetWhile(options?: {
 
 /**
  * Generates Vue Query cache key for GET /switch
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSwitchQueryKey() {
-  return ['switch', '/switch'] as const
+  return ['switch', 'GET', '/switch'] as const
 }
 
 /**
@@ -799,10 +793,10 @@ export function useGetSwitch(options?: {
 
 /**
  * Generates Vue Query cache key for GET /case
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCaseQueryKey() {
-  return ['case', '/case'] as const
+  return ['case', 'GET', '/case'] as const
 }
 
 /**
@@ -840,10 +834,10 @@ export function useGetCase(options?: {
 
 /**
  * Generates Vue Query cache key for GET /break
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetBreakQueryKey() {
-  return ['break', '/break'] as const
+  return ['break', 'GET', '/break'] as const
 }
 
 /**
@@ -881,10 +875,10 @@ export function useGetBreak(options?: {
 
 /**
  * Generates Vue Query cache key for GET /continue
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetContinueQueryKey() {
-  return ['continue', '/continue'] as const
+  return ['continue', 'GET', '/continue'] as const
 }
 
 /**
@@ -925,10 +919,10 @@ export function useGetContinue(options?: {
 
 /**
  * Generates Vue Query cache key for GET /try
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetTryQueryKey() {
-  return ['try', '/try'] as const
+  return ['try', 'GET', '/try'] as const
 }
 
 /**
@@ -966,10 +960,10 @@ export function useGetTry(options?: {
 
 /**
  * Generates Vue Query cache key for GET /catch
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCatchQueryKey() {
-  return ['catch', '/catch'] as const
+  return ['catch', 'GET', '/catch'] as const
 }
 
 /**
@@ -1007,10 +1001,10 @@ export function useGetCatch(options?: {
 
 /**
  * Generates Vue Query cache key for GET /finally
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFinallyQueryKey() {
-  return ['finally', '/finally'] as const
+  return ['finally', 'GET', '/finally'] as const
 }
 
 /**
@@ -1051,10 +1045,10 @@ export function useGetFinally(options?: {
 
 /**
  * Generates Vue Query cache key for GET /throw
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetThrowQueryKey() {
-  return ['throw', '/throw'] as const
+  return ['throw', 'GET', '/throw'] as const
 }
 
 /**
@@ -1092,10 +1086,10 @@ export function useGetThrow(options?: {
 
 /**
  * Generates Vue Query cache key for GET /async
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAsyncQueryKey() {
-  return ['async', '/async'] as const
+  return ['async', 'GET', '/async'] as const
 }
 
 /**
@@ -1133,10 +1127,10 @@ export function useGetAsync(options?: {
 
 /**
  * Generates Vue Query cache key for GET /await
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAwaitQueryKey() {
-  return ['await', '/await'] as const
+  return ['await', 'GET', '/await'] as const
 }
 
 /**
@@ -1174,10 +1168,10 @@ export function useGetAwait(options?: {
 
 /**
  * Generates Vue Query cache key for GET /yield
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetYieldQueryKey() {
-  return ['yield', '/yield'] as const
+  return ['yield', 'GET', '/yield'] as const
 }
 
 /**
@@ -1215,10 +1209,10 @@ export function useGetYield(options?: {
 
 /**
  * Generates Vue Query cache key for GET /static
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetStaticQueryKey() {
-  return ['static', '/static'] as const
+  return ['static', 'GET', '/static'] as const
 }
 
 /**
@@ -1256,10 +1250,10 @@ export function useGetStatic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /public
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPublicQueryKey() {
-  return ['public', '/public'] as const
+  return ['public', 'GET', '/public'] as const
 }
 
 /**
@@ -1297,10 +1291,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /private
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPrivateQueryKey() {
-  return ['private', '/private'] as const
+  return ['private', 'GET', '/private'] as const
 }
 
 /**
@@ -1341,10 +1335,10 @@ export function useGetPrivate(options?: {
 
 /**
  * Generates Vue Query cache key for GET /protected
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetProtectedQueryKey() {
-  return ['protected', '/protected'] as const
+  return ['protected', 'GET', '/protected'] as const
 }
 
 /**
@@ -1387,10 +1381,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates Vue Query cache key for GET /abstract
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAbstractQueryKey() {
-  return ['abstract', '/abstract'] as const
+  return ['abstract', 'GET', '/abstract'] as const
 }
 
 /**
@@ -1431,10 +1425,10 @@ export function useGetAbstract(options?: {
 
 /**
  * Generates Vue Query cache key for GET /final
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetFinalQueryKey() {
-  return ['final', '/final'] as const
+  return ['final', 'GET', '/final'] as const
 }
 
 /**
@@ -1472,10 +1466,10 @@ export function useGetFinal(options?: {
 
 /**
  * Generates Vue Query cache key for GET /extends
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetExtendsQueryKey() {
-  return ['extends', '/extends'] as const
+  return ['extends', 'GET', '/extends'] as const
 }
 
 /**
@@ -1516,10 +1510,10 @@ export function useGetExtends(options?: {
 
 /**
  * Generates Vue Query cache key for GET /implements
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetImplementsQueryKey() {
-  return ['implements', '/implements'] as const
+  return ['implements', 'GET', '/implements'] as const
 }
 
 /**
@@ -1562,10 +1556,10 @@ export function useGetImplements(options?: {
 
 /**
  * Generates Vue Query cache key for GET /package
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPackageQueryKey() {
-  return ['package', '/package'] as const
+  return ['package', 'GET', '/package'] as const
 }
 
 /**
@@ -1606,10 +1600,10 @@ export function useGetPackage(options?: {
 
 /**
  * Generates Vue Query cache key for GET /enum
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetEnumQueryKey() {
-  return ['enum', '/enum'] as const
+  return ['enum', 'GET', '/enum'] as const
 }
 
 /**
@@ -1647,10 +1641,10 @@ export function useGetEnum(options?: {
 
 /**
  * Generates Vue Query cache key for GET /const
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetConstQueryKey() {
-  return ['const', '/const'] as const
+  return ['const', 'GET', '/const'] as const
 }
 
 /**
@@ -1688,10 +1682,10 @@ export function useGetConst(options?: {
 
 /**
  * Generates Vue Query cache key for GET /let
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetLetQueryKey() {
-  return ['let', '/let'] as const
+  return ['let', 'GET', '/let'] as const
 }
 
 /**
@@ -1729,10 +1723,10 @@ export function useGetLet(options?: {
 
 /**
  * Generates Vue Query cache key for GET /var
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetVarQueryKey() {
-  return ['var', '/var'] as const
+  return ['var', 'GET', '/var'] as const
 }
 
 /**
@@ -1770,10 +1764,10 @@ export function useGetVar(options?: {
 
 /**
  * Generates Vue Query cache key for GET /this
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetThisQueryKey() {
-  return ['this', '/this'] as const
+  return ['this', 'GET', '/this'] as const
 }
 
 /**
@@ -1811,10 +1805,10 @@ export function useGetThis(options?: {
 
 /**
  * Generates Vue Query cache key for GET /super
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSuperQueryKey() {
-  return ['super', '/super'] as const
+  return ['super', 'GET', '/super'] as const
 }
 
 /**
@@ -1852,10 +1846,10 @@ export function useGetSuper(options?: {
 
 /**
  * Generates Vue Query cache key for GET /self
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetSelfQueryKey() {
-  return ['self', '/self'] as const
+  return ['self', 'GET', '/self'] as const
 }
 
 /**
@@ -1893,10 +1887,10 @@ export function useGetSelf(options?: {
 
 /**
  * Generates Vue Query cache key for GET /constructor
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetConstructorQueryKey() {
-  return ['constructor', '/constructor'] as const
+  return ['constructor', 'GET', '/constructor'] as const
 }
 
 /**
@@ -1939,10 +1933,10 @@ export function useGetConstructor(options?: {
 
 /**
  * Generates Vue Query cache key for GET /prototype
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetPrototypeQueryKey() {
-  return ['prototype', '/prototype'] as const
+  return ['prototype', 'GET', '/prototype'] as const
 }
 
 /**
@@ -1985,10 +1979,10 @@ export function useGetPrototype(options?: {
 
 /**
  * Generates Vue Query cache key for GET /toString
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetToStringQueryKey() {
-  return ['toString', '/toString'] as const
+  return ['toString', 'GET', '/toString'] as const
 }
 
 /**
@@ -2029,10 +2023,10 @@ export function useGetToString(options?: {
 
 /**
  * Generates Vue Query cache key for GET /valueOf
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetValueOfQueryKey() {
-  return ['valueOf', '/valueOf'] as const
+  return ['valueOf', 'GET', '/valueOf'] as const
 }
 
 /**
@@ -2073,10 +2067,10 @@ export function useGetValueOf(options?: {
 
 /**
  * Generates Vue Query cache key for GET /hasOwnProperty
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetHasOwnPropertyQueryKey() {
-  return ['hasOwnProperty', '/hasOwnProperty'] as const
+  return ['hasOwnProperty', 'GET', '/hasOwnProperty'] as const
 }
 
 /**
@@ -2119,10 +2113,10 @@ export function useGetHasOwnProperty(options?: {
 
 /**
  * Generates Vue Query cache key for GET /name-collisions
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNameCollisionsQueryKey() {
-  return ['name-collisions', '/name-collisions'] as const
+  return ['name-collisions', 'GET', '/name-collisions'] as const
 }
 
 /**

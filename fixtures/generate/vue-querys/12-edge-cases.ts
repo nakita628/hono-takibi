@@ -8,10 +8,10 @@ import { client } from '../clients/12-edge-cases'
 
 /**
  * Generates Vue Query cache key for GET /all-methods
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetAllMethodsQueryKey() {
-  return ['all-methods', '/all-methods'] as const
+  return ['all-methods', 'GET', '/all-methods'] as const
 }
 
 /**
@@ -56,10 +56,10 @@ export function useGetAllMethods(options?: {
 
 /**
  * Generates Vue Query mutation key for PUT /all-methods
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPutAllMethodsMutationKey() {
-  return ['PUT', '/all-methods'] as const
+  return ['all-methods', 'PUT', '/all-methods'] as const
 }
 
 /**
@@ -87,24 +87,22 @@ export function usePutAllMethods(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPutAllMethodsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for POST /all-methods
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostAllMethodsMutationKey() {
-  return ['POST', '/all-methods'] as const
+  return ['all-methods', 'POST', '/all-methods'] as const
 }
 
 /**
@@ -132,24 +130,23 @@ export function usePostAllMethods(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostAllMethodsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for DELETE /all-methods
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getDeleteAllMethodsMutationKey() {
-  return ['DELETE', '/all-methods'] as const
+  return ['all-methods', 'DELETE', '/all-methods'] as const
 }
 
 /**
@@ -177,24 +174,23 @@ export function useDeleteAllMethods(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getDeleteAllMethodsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for OPTIONS /all-methods
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getOptionsAllMethodsMutationKey() {
-  return ['OPTIONS', '/all-methods'] as const
+  return ['all-methods', 'OPTIONS', '/all-methods'] as const
 }
 
 /**
@@ -222,24 +218,23 @@ export function useOptionsAllMethods(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getOptionsAllMethodsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for HEAD /all-methods
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getHeadAllMethodsMutationKey() {
-  return ['HEAD', '/all-methods'] as const
+  return ['all-methods', 'HEAD', '/all-methods'] as const
 }
 
 /**
@@ -267,24 +262,23 @@ export function useHeadAllMethods(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getHeadAllMethodsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for PATCH /all-methods
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPatchAllMethodsMutationKey() {
-  return ['PATCH', '/all-methods'] as const
+  return ['all-methods', 'PATCH', '/all-methods'] as const
 }
 
 /**
@@ -312,24 +306,23 @@ export function usePatchAllMethods(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPatchAllMethodsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query mutation key for TRACE /all-methods
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getTraceAllMethodsMutationKey() {
-  return ['TRACE', '/all-methods'] as const
+  return ['all-methods', 'TRACE', '/all-methods'] as const
 }
 
 /**
@@ -357,21 +350,20 @@ export function useTraceAllMethods(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getTraceAllMethodsMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
   args: MaybeRef<
@@ -380,7 +372,7 @@ export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
     >
   >,
 ) {
-  return ['users', '/users/:userId/posts/:postId/comments/:commentId', unref(args)] as const
+  return ['users', 'GET', '/users/:userId/posts/:postId/comments/:commentId', unref(args)] as const
 }
 
 /**
@@ -442,12 +434,12 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 
 /**
  * Generates Vue Query cache key for GET /params-test/{pathParam}
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetParamsTestPathParamQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>>,
 ) {
-  return ['params-test', '/params-test/:pathParam', unref(args)] as const
+  return ['params-test', 'GET', '/params-test/:pathParam', unref(args)] as const
 }
 
 /**
@@ -503,10 +495,10 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates Vue Query mutation key for POST /no-content
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostNoContentMutationKey() {
-  return ['POST', '/no-content'] as const
+  return ['no-content', 'POST', '/no-content'] as const
 }
 
 /**
@@ -535,24 +527,22 @@ export function usePostNoContent(options?: {
         Error,
         void
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostNoContentMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /multi-content
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetMultiContentQueryKey() {
-  return ['multi-content', '/multi-content'] as const
+  return ['multi-content', 'GET', '/multi-content'] as const
 }
 
 /**
@@ -597,10 +587,10 @@ export function useGetMultiContent(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /multi-content
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostMultiContentMutationKey() {
-  return ['POST', '/multi-content'] as const
+  return ['multi-content', 'POST', '/multi-content'] as const
 }
 
 /**
@@ -629,25 +619,23 @@ export function usePostMultiContent(options?: {
         Error,
         InferRequestType<(typeof client)['multi-content']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['multi-content']['$post']>) =>
-      parseResponse(client['multi-content'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } =
+    getPostMultiContentMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /response-ranges
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetResponseRangesQueryKey() {
-  return ['response-ranges', '/response-ranges'] as const
+  return ['response-ranges', 'GET', '/response-ranges'] as const
 }
 
 /**
@@ -692,10 +680,10 @@ export function useGetResponseRanges(options?: {
 
 /**
  * Generates Vue Query cache key for GET /deprecated
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeprecatedQueryKey() {
-  return ['deprecated', '/deprecated'] as const
+  return ['deprecated', 'GET', '/deprecated'] as const
 }
 
 /**
@@ -740,10 +728,10 @@ export function useGetDeprecated(options?: {
 
 /**
  * Generates Vue Query cache key for GET /no-operation-id
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNoOperationIdQueryKey() {
-  return ['no-operation-id', '/no-operation-id'] as const
+  return ['no-operation-id', 'GET', '/no-operation-id'] as const
 }
 
 /**
@@ -790,10 +778,10 @@ export function useGetNoOperationId(options?: {
 
 /**
  * Generates Vue Query mutation key for POST /empty-body
- * Returns key [method, path] for mutation state tracking and cache operations
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
 export function getPostEmptyBodyMutationKey() {
-  return ['POST', '/empty-body'] as const
+  return ['empty-body', 'POST', '/empty-body'] as const
 }
 
 /**
@@ -822,25 +810,22 @@ export function usePostEmptyBody(options?: {
         Error,
         InferRequestType<(typeof client)['empty-body']['$post']>
       >,
-      'mutationFn'
+      'mutationFn' | 'mutationKey'
     >
   >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useMutation({
-    ...mutationOptions,
-    mutationFn: async (args: InferRequestType<(typeof client)['empty-body']['$post']>) =>
-      parseResponse(client['empty-body'].$post(args, clientOptions)),
-  })
+  const { mutationKey, mutationFn, ...baseOptions } = getPostEmptyBodyMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 
 /**
  * Generates Vue Query cache key for GET /circular
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetCircularQueryKey() {
-  return ['circular', '/circular'] as const
+  return ['circular', 'GET', '/circular'] as const
 }
 
 /**
@@ -881,10 +866,10 @@ export function useGetCircular(options?: {
 
 /**
  * Generates Vue Query cache key for GET /deep-nesting
- * Returns structured key ['prefix', 'path'] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetDeepNestingQueryKey() {
-  return ['deep-nesting', '/deep-nesting'] as const
+  return ['deep-nesting', 'GET', '/deep-nesting'] as const
 }
 
 /**
@@ -929,12 +914,12 @@ export function useGetDeepNesting(options?: {
 
 /**
  * Generates Vue Query cache key for GET /array-params
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetArrayParamsQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['array-params']['$get']>>,
 ) {
-  return ['array-params', '/array-params', unref(args)] as const
+  return ['array-params', 'GET', '/array-params', unref(args)] as const
 }
 
 /**
@@ -985,12 +970,12 @@ export function useGetArrayParams(
 
 /**
  * Generates Vue Query cache key for GET /object-param
- * Returns structured key ['prefix', 'path', args] for prefix invalidation
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
  */
 export function getGetObjectParamQueryKey(
   args: MaybeRef<InferRequestType<(typeof client)['object-param']['$get']>>,
 ) {
-  return ['object-param', '/object-param', unref(args)] as const
+  return ['object-param', 'GET', '/object-param', unref(args)] as const
 }
 
 /**

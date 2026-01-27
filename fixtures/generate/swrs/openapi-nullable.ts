@@ -6,10 +6,10 @@ import { client } from '../clients/openapi-nullable'
 
 /**
  * Generates SWR cache key for GET /nullable
- * Returns structured key [path] for filter-based invalidation
+ * Returns structured key ['prefix', 'method', 'path'] for filtering
  */
 export function getGetNullableKey() {
-  return ['/nullable'] as const
+  return ['nullable', 'GET', '/nullable'] as const
 }
 
 /**
