@@ -28,11 +28,12 @@ export function createGetSocialAuthorizeProvider(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetSocialAuthorizeProviderQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -90,11 +91,12 @@ export function createGetSocialCallbackProvider(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetSocialCallbackProviderQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -193,8 +195,9 @@ export function createGetProviders(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetProvidersQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetProvidersQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -239,10 +242,9 @@ export function createGetProvidersAdmin(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetProvidersAdminQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetProvidersAdminQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -315,11 +317,12 @@ export function createGetProvidersProviderId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetProvidersProviderIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -452,10 +455,9 @@ export function createGetAccountLinked(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetAccountLinkedQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAccountLinkedQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -559,10 +561,9 @@ export function createGetEnterpriseSso(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -635,11 +636,12 @@ export function createGetEnterpriseSsoConfigId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoConfigIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -752,11 +754,12 @@ export function createGetEnterpriseSsoDomainLookup(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoDomainLookupQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -814,11 +817,12 @@ export function createGetEnterpriseSsoConfigIdMetadata(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoConfigIdMetadataQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 

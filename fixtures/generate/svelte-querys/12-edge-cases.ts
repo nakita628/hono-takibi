@@ -21,8 +21,9 @@ export function createGetAllMethods(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetAllMethodsQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetAllMethodsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -224,9 +225,10 @@ export function createGetUsersUserIdPostsPostIdCommentsCommentId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -284,11 +286,12 @@ export function createGetParamsTestPathParam(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetParamsTestPathParamQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -362,10 +365,9 @@ export function createGetMultiContent(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetMultiContentQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMultiContentQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -433,10 +435,9 @@ export function createGetResponseRanges(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetResponseRangesQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetResponseRangesQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -479,8 +480,9 @@ export function createGetDeprecated(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetDeprecatedQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetDeprecatedQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -527,10 +529,9 @@ export function createGetNoOperationId(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetNoOperationIdQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetNoOperationIdQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -592,8 +593,9 @@ export function createGetCircular(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetCircularQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetCircularQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -638,8 +640,9 @@ export function createGetDeepNesting(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetDeepNestingQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetDeepNestingQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -685,11 +688,9 @@ export function createGetArrayParams(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetArrayParamsQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetArrayParamsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -741,11 +742,9 @@ export function createGetObjectParam(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetObjectParamQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetObjectParamQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 

@@ -22,11 +22,9 @@ export function createGetSessions(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -95,10 +93,9 @@ export function createGetSessionsCurrent(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetSessionsCurrentQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsCurrentQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -253,11 +250,12 @@ export function createGetSessionsSessionId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetSessionsSessionIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -391,11 +389,12 @@ export function createGetSessionsHistory(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetSessionsHistoryQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -453,11 +452,12 @@ export function createGetSessionsSecurityEvents(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetSessionsSecurityEventsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -508,10 +508,9 @@ export function createGetSessionsPolicies(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetSessionsPoliciesQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetSessionsPoliciesQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -583,10 +582,11 @@ export function createGetSessionsTrustedDevices(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetSessionsTrustedDevicesQueryOptions(
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 

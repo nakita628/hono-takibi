@@ -21,8 +21,9 @@ export function createGet(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -65,11 +66,9 @@ export function createGetProjects(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetProjectsQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetProjectsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 

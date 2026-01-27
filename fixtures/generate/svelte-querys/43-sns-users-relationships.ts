@@ -24,11 +24,9 @@ export function createGetUsersUserId(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -84,11 +82,12 @@ export function createGetUsersByUsernameUsername(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersByUsernameUsernameQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -140,11 +139,9 @@ export function createGetUsersSearch(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersSearchQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersSearchQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -194,11 +191,9 @@ export function createGetUsersLookup(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersLookupQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersLookupQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -245,8 +240,9 @@ export function createGetMe(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetMeQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMeQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -458,11 +454,12 @@ export function createGetUsersUserIdFollowers(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdFollowersQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -518,11 +515,12 @@ export function createGetUsersUserIdFollowing(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdFollowingQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -604,11 +602,12 @@ export function createGetRelationships(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetRelationshipsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -664,11 +663,12 @@ export function createGetFollowRequests(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetFollowRequestsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -883,11 +883,9 @@ export function createGetBlocks(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetBlocksQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetBlocksQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -932,8 +930,9 @@ export function createGetMutes(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetMutesQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetMutesQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -977,8 +976,9 @@ export function createGetLists(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetListsQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetListsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1044,11 +1044,9 @@ export function createGetListsListId(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetListsListIdQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetListsListIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1155,11 +1153,12 @@ export function createGetListsListIdMembers(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetListsListIdMembersQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1272,11 +1271,12 @@ export function createGetListsListIdTimeline(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetListsListIdTimelineQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1332,11 +1332,12 @@ export function createGetUsersUserIdLists(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdListsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 

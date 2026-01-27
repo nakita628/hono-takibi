@@ -21,10 +21,9 @@ export function createGetApplicationsMe(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetApplicationsMeQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetApplicationsMeQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -95,11 +94,12 @@ export function createGetApplicationsApplicationId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetApplicationsApplicationIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -185,12 +185,10 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryOptions(
-        args,
-        options?.()?.client,
-      )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -279,9 +277,10 @@ export function createGetApplicationsApplicationIdCommands(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdCommandsQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdCommandsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -393,9 +392,10 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdCommandsCommandIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdCommandsCommandIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -528,11 +528,12 @@ export function createGetApplicationsApplicationIdEmojis(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetApplicationsApplicationIdEmojisQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -618,9 +619,10 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdEmojisEmojiIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdEmojisEmojiIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -755,9 +757,10 @@ export function createGetApplicationsApplicationIdEntitlements(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdEntitlementsQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdEntitlementsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -848,12 +851,10 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryOptions(
-        args,
-        options?.()?.client,
-      )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -999,9 +1000,10 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1145,12 +1147,13 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
       getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryOptions(
         args,
-        options?.()?.client,
+        opts?.client,
       )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1215,12 +1218,10 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryOptions(
-        args,
-        options?.()?.client,
-      )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1366,12 +1367,13 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
       getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryOptions(
         args,
-        options?.()?.client,
+        opts?.client,
       )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1478,9 +1480,10 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetApplicationsApplicationIdRoleConnectionsMetadataQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetApplicationsApplicationIdRoleConnectionsMetadataQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1576,11 +1579,12 @@ export function createGetChannelsChannelId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1709,11 +1713,12 @@ export function createGetChannelsChannelIdInvites(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdInvitesQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1794,11 +1799,12 @@ export function createGetChannelsChannelIdMessages(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdMessagesQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -1914,11 +1920,12 @@ export function createGetChannelsChannelIdMessagesPins(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdMessagesPinsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -2052,9 +2059,10 @@ export function createGetChannelsChannelIdMessagesMessageId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetChannelsChannelIdMessagesMessageIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetChannelsChannelIdMessagesMessageIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -2265,12 +2273,10 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryOptions(
-        args,
-        options?.()?.client,
-      )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -2604,11 +2610,12 @@ export function createGetChannelsChannelIdPins(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdPinsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -2734,9 +2741,10 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -2935,11 +2943,12 @@ export function createGetChannelsChannelIdThreadMembers(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdThreadMembersQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3069,9 +3078,10 @@ export function createGetChannelsChannelIdThreadMembersUserId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetChannelsChannelIdThreadMembersUserIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetChannelsChannelIdThreadMembersUserIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3235,9 +3245,10 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetChannelsChannelIdThreadsArchivedPrivateQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetChannelsChannelIdThreadsArchivedPrivateQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3301,9 +3312,10 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetChannelsChannelIdThreadsArchivedPublicQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetChannelsChannelIdThreadsArchivedPublicQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3363,11 +3375,12 @@ export function createGetChannelsChannelIdThreadsSearch(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdThreadsSearchQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3454,9 +3467,10 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3514,11 +3528,12 @@ export function createGetChannelsChannelIdWebhooks(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdWebhooksQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3591,8 +3606,9 @@ export function createGetGateway(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetGatewayQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetGatewayQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3635,8 +3651,9 @@ export function createGetGatewayBot(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetGatewayBotQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetGatewayBotQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3684,11 +3701,12 @@ export function createGetGuildsTemplatesCode(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsTemplatesCodeQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3740,11 +3758,12 @@ export function createGetGuildsGuildId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3821,11 +3840,12 @@ export function createGetGuildsGuildIdAuditLogs(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdAuditLogsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3881,9 +3901,10 @@ export function createGetGuildsGuildIdAutoModerationRules(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetGuildsGuildIdAutoModerationRulesQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetGuildsGuildIdAutoModerationRulesQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -3974,9 +3995,10 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetGuildsGuildIdAutoModerationRulesRuleIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetGuildsGuildIdAutoModerationRulesRuleIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4112,11 +4134,12 @@ export function createGetGuildsGuildIdBans(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdBansQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4170,11 +4193,12 @@ export function createGetGuildsGuildIdBansUserId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdBansUserIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4308,11 +4332,12 @@ export function createGetGuildsGuildIdChannels(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdChannelsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4419,11 +4444,12 @@ export function createGetGuildsGuildIdEmojis(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdEmojisQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4503,11 +4529,12 @@ export function createGetGuildsGuildIdEmojisEmojiId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdEmojisEmojiIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4616,11 +4643,12 @@ export function createGetGuildsGuildIdIntegrations(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdIntegrationsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4712,11 +4740,12 @@ export function createGetGuildsGuildIdInvites(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdInvitesQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4770,11 +4799,12 @@ export function createGetGuildsGuildIdMembers(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdMembersQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4854,11 +4884,12 @@ export function createGetGuildsGuildIdMembersSearch(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdMembersSearchQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -4912,11 +4943,12 @@ export function createGetGuildsGuildIdMembersUserId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdMembersUserIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5134,11 +5166,12 @@ export function createGetGuildsGuildIdNewMemberWelcome(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdNewMemberWelcomeQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5192,11 +5225,12 @@ export function createGetGuildsGuildIdOnboarding(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdOnboardingQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5276,11 +5310,12 @@ export function createGetGuildsGuildIdPreview(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdPreviewQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5334,11 +5369,12 @@ export function createGetGuildsGuildIdPrune(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdPruneQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5418,11 +5454,12 @@ export function createGetGuildsGuildIdRegions(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdRegionsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5476,11 +5513,12 @@ export function createGetGuildsGuildIdRoles(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdRolesQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5586,11 +5624,12 @@ export function createGetGuildsGuildIdRolesRoleId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdRolesRoleIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5697,11 +5736,12 @@ export function createGetGuildsGuildIdScheduledEvents(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdScheduledEventsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5787,9 +5827,10 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5934,12 +5975,10 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryOptions(
-        args,
-        options?.()?.client,
-      )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -5998,11 +6037,12 @@ export function createGetGuildsGuildIdSoundboardSounds(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdSoundboardSoundsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6088,9 +6128,10 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetGuildsGuildIdSoundboardSoundsSoundIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetGuildsGuildIdSoundboardSoundsSoundIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6223,11 +6264,12 @@ export function createGetGuildsGuildIdStickers(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdStickersQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6309,11 +6351,12 @@ export function createGetGuildsGuildIdStickersStickerId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdStickersStickerIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6432,11 +6475,12 @@ export function createGetGuildsGuildIdTemplates(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdTemplatesQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6594,11 +6638,12 @@ export function createGetGuildsGuildIdThreadsActive(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdThreadsActiveQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6652,11 +6697,12 @@ export function createGetGuildsGuildIdVanityUrl(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdVanityUrlQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6710,11 +6756,12 @@ export function createGetGuildsGuildIdVoiceStatesMe(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdVoiceStatesMeQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6800,11 +6847,12 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdVoiceStatesUserIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6892,11 +6940,12 @@ export function createGetGuildsGuildIdWebhooks(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWebhooksQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -6950,11 +6999,12 @@ export function createGetGuildsGuildIdWelcomeScreen(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWelcomeScreenQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7034,11 +7084,12 @@ export function createGetGuildsGuildIdWidget(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWidgetQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7118,11 +7169,12 @@ export function createGetGuildsGuildIdWidgetJson(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWidgetJsonQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7176,11 +7228,12 @@ export function createGetGuildsGuildIdWidgetPng(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWidgetPngQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7273,11 +7326,9 @@ export function createGetInvitesCode(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetInvitesCodeQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetInvitesCodeQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7390,11 +7441,12 @@ export function createGetLobbiesLobbyId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetLobbiesLobbyIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7676,11 +7728,12 @@ export function createGetLobbiesLobbyIdMessages(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetLobbiesLobbyIdMessagesQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7755,8 +7808,9 @@ export function createGetOauth2Me(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetOauth2MeQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauth2MeQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7803,10 +7857,11 @@ export function createGetOauth2ApplicationsMe(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetOauth2ApplicationsMeQueryOptions(
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7849,8 +7904,9 @@ export function createGetOauth2Keys(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetOauth2KeysQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauth2KeysQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -7893,10 +7949,9 @@ export function createGetOauth2Userinfo(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetOauth2UserinfoQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetOauth2UserinfoQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8064,10 +8119,11 @@ export function createGetSoundboardDefaultSounds(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetSoundboardDefaultSoundsQueryOptions(
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8140,11 +8196,12 @@ export function createGetStageInstancesChannelId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetStageInstancesChannelIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8248,10 +8305,9 @@ export function createGetStickerPacks(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetStickerPacksQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetStickerPacksQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8299,11 +8355,12 @@ export function createGetStickerPacksPackId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetStickerPacksPackIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8355,11 +8412,12 @@ export function createGetStickersStickerId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetStickersStickerIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8408,8 +8466,9 @@ export function createGetUsersMe(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeQueryOptions(options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8484,9 +8543,10 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetUsersMeApplicationsApplicationIdEntitlementsQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetUsersMeApplicationsApplicationIdEntitlementsQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8550,9 +8610,10 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetUsersMeApplicationsApplicationIdRoleConnectionQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetUsersMeApplicationsApplicationIdRoleConnectionQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8713,10 +8774,9 @@ export function createGetUsersMeConnections(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeConnectionsQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeConnectionsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8762,11 +8822,12 @@ export function createGetUsersMeGuilds(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersMeGuildsQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8849,11 +8910,12 @@ export function createGetUsersMeGuildsGuildIdMember(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetUsersMeGuildsGuildIdMemberQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8905,11 +8967,9 @@ export function createGetUsersUserId(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(
-      args,
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -8958,10 +9018,9 @@ export function createGetVoiceRegions(
   },
 ) {
   return createQuery(() => {
-    const { queryKey, queryFn, ...baseOptions } = getGetVoiceRegionsQueryOptions(
-      options?.()?.client,
-    )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    const opts = options?.()
+    const { queryKey, queryFn, ...baseOptions } = getGetVoiceRegionsQueryOptions(opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -9007,11 +9066,12 @@ export function createGetWebhooksWebhookId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetWebhooksWebhookIdQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -9115,11 +9175,12 @@ export function createGetWebhooksWebhookIdWebhookToken(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } = getGetWebhooksWebhookIdWebhookTokenQueryOptions(
       args,
-      options?.()?.client,
+      opts?.client,
     )
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -9299,9 +9360,10 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 
@@ -9446,9 +9508,10 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
   },
 ) {
   return createQuery(() => {
+    const opts = options?.()
     const { queryKey, queryFn, ...baseOptions } =
-      getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryOptions(args, options?.()?.client)
-    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+      getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryOptions(args, opts?.client)
+    return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
 

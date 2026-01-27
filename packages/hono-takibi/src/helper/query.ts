@@ -229,12 +229,13 @@ function makeQueryHookCode(
   // Vue Query additionally has type-level protection with Omit (usePartialOmit: true)
 
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
+  // Call options?.() once to avoid multiple evaluations (options could be a getter)
   if (config.useThunk) {
     const optionsGetterCall = hasArgs
-      ? `${optionsGetterName}(args,options?.()?.client)`
-      : `${optionsGetterName}(options?.()?.client)`
+      ? `${optionsGetterName}(args,opts?.client)`
+      : `${optionsGetterName}(opts?.client)`
     return `${docs}
-export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return{...baseOptions,...options?.()?.query,queryKey,queryFn}})}`
+export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const opts=options?.();const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return{...baseOptions,...opts?.query,queryKey,queryFn}})}`
   }
 
   // React TanStack Query / Vue Query: runtime protection
