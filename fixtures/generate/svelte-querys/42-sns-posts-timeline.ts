@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/42-sns-posts-timeline'
 
@@ -13,17 +14,10 @@ import { client } from '../clients/42-sns-posts-timeline'
 export function createGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -33,9 +27,10 @@ export function createGetPosts(
 
 /**
  * Generates Svelte Query cache key for GET /posts
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return ['/posts', args] as const
+  return [client.posts.$url(args).pathname] as const
 }
 
 /**
@@ -46,14 +41,13 @@ export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$
 export const getGetPostsQueryOptions = (
   args: InferRequestType<typeof client.posts.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /posts
@@ -61,25 +55,11 @@ export const getGetPostsQueryOptions = (
  * 投稿作成
  */
 export function createPostPosts(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.posts.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.posts.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.posts.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.posts.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.posts.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -98,17 +78,14 @@ export function createPostPosts(options?: {
 export function createGetPostsPostId(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -121,11 +98,12 @@ export function createGetPostsPostId(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return ['/posts/:postId', args] as const
+  return [client.posts[':postId'].$url(args).pathname] as const
 }
 
 /**
@@ -136,17 +114,16 @@ export function getGetPostsPostIdQueryKey(
 export const getGetPostsPostIdQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsPostIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsPostIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts[':postId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /posts/{postId}
@@ -154,36 +131,16 @@ export const getGetPostsPostIdQueryOptions = (
  * 投稿削除
  */
 export function createDeletePostsPostId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['$delete']>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<(typeof client.posts)[':postId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['$delete']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.posts)[':postId']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['$delete']>>>
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -204,17 +161,16 @@ export function createDeletePostsPostId(options?: {
 export function createGetPostsPostIdThread(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.posts)[':postId']['thread']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -227,11 +183,12 @@ export function createGetPostsPostIdThread(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/thread
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsPostIdThreadQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  return ['/posts/:postId/thread', args] as const
+  return [client.posts[':postId'].thread.$url(args).pathname] as const
 }
 
 /**
@@ -242,17 +199,16 @@ export function getGetPostsPostIdThreadQueryKey(
 export const getGetPostsPostIdThreadQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsPostIdThreadQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].thread.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsPostIdThreadQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts[':postId'].thread.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /posts/{postId}/context
@@ -264,17 +220,16 @@ export const getGetPostsPostIdThreadQueryOptions = (
 export function createGetPostsPostIdContext(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.posts)[':postId']['context']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -287,11 +242,12 @@ export function createGetPostsPostIdContext(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/context
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsPostIdContextQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  return ['/posts/:postId/context', args] as const
+  return [client.posts[':postId'].context.$url(args).pathname] as const
 }
 
 /**
@@ -302,17 +258,16 @@ export function getGetPostsPostIdContextQueryKey(
 export const getGetPostsPostIdContextQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsPostIdContextQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].context.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsPostIdContextQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts[':postId'].context.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /timeline/home
@@ -324,17 +279,12 @@ export const getGetPostsPostIdContextQueryOptions = (
 export function createGetTimelineHome(
   args: InferRequestType<typeof client.timeline.home.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.timeline.home.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -347,11 +297,12 @@ export function createGetTimelineHome(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/home
+ * Uses $url() for type-safe key generation
  */
 export function getGetTimelineHomeQueryKey(
   args: InferRequestType<typeof client.timeline.home.$get>,
 ) {
-  return ['/timeline/home', args] as const
+  return [client.timeline.home.$url(args).pathname] as const
 }
 
 /**
@@ -362,17 +313,16 @@ export function getGetTimelineHomeQueryKey(
 export const getGetTimelineHomeQueryOptions = (
   args: InferRequestType<typeof client.timeline.home.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTimelineHomeQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.timeline.home.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTimelineHomeQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.timeline.home.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /timeline/for-you
@@ -384,17 +334,14 @@ export const getGetTimelineHomeQueryOptions = (
 export function createGetTimelineForYou(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.timeline)['for-you']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -407,11 +354,12 @@ export function createGetTimelineForYou(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/for-you
+ * Uses $url() for type-safe key generation
  */
 export function getGetTimelineForYouQueryKey(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  return ['/timeline/for-you', args] as const
+  return [client.timeline['for-you'].$url(args).pathname] as const
 }
 
 /**
@@ -422,17 +370,16 @@ export function getGetTimelineForYouQueryKey(
 export const getGetTimelineForYouQueryOptions = (
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTimelineForYouQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.timeline['for-you'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTimelineForYouQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.timeline['for-you'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /timeline/user/{userId}
@@ -442,17 +389,16 @@ export const getGetTimelineForYouQueryOptions = (
 export function createGetTimelineUserUserId(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.timeline.user)[':userId']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -465,11 +411,12 @@ export function createGetTimelineUserUserId(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/user/{userId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetTimelineUserUserIdQueryKey(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  return ['/timeline/user/:userId', args] as const
+  return [client.timeline.user[':userId'].$url(args).pathname] as const
 }
 
 /**
@@ -480,17 +427,16 @@ export function getGetTimelineUserUserIdQueryKey(
 export const getGetTimelineUserUserIdQueryOptions = (
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTimelineUserUserIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.timeline.user[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTimelineUserUserIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.timeline.user[':userId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /timeline/hashtag/{hashtag}
@@ -500,17 +446,16 @@ export const getGetTimelineUserUserIdQueryOptions = (
 export function createGetTimelineHashtagHashtag(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.timeline.hashtag)[':hashtag']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -523,11 +468,12 @@ export function createGetTimelineHashtagHashtag(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/hashtag/{hashtag}
+ * Uses $url() for type-safe key generation
  */
 export function getGetTimelineHashtagHashtagQueryKey(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  return ['/timeline/hashtag/:hashtag', args] as const
+  return [client.timeline.hashtag[':hashtag'].$url(args).pathname] as const
 }
 
 /**
@@ -538,17 +484,16 @@ export function getGetTimelineHashtagHashtagQueryKey(
 export const getGetTimelineHashtagHashtagQueryOptions = (
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTimelineHashtagHashtagQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.timeline.hashtag[':hashtag'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTimelineHashtagHashtagQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.timeline.hashtag[':hashtag'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /posts/{postId}/like
@@ -556,40 +501,15 @@ export const getGetTimelineHashtagHashtagQueryOptions = (
  * いいね
  */
 export function createPostPostsPostIdLike(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['like']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -606,40 +526,17 @@ export function createPostPostsPostIdLike(options?: {
  * いいね解除
  */
 export function createDeletePostsPostIdLike(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$delete']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['like']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -657,40 +554,17 @@ export function createDeletePostsPostIdLike(options?: {
  * リポスト
  */
 export function createPostPostsPostIdRepost(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -708,40 +582,17 @@ export function createPostPostsPostIdRepost(options?: {
  * リポスト解除
  */
 export function createDeletePostsPostIdRepost(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$delete']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['repost']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -759,40 +610,17 @@ export function createDeletePostsPostIdRepost(options?: {
  * 引用投稿
  */
 export function createPostPostsPostIdQuote(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['quote']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['quote']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['quote']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -810,40 +638,17 @@ export function createPostPostsPostIdQuote(options?: {
  * ブックマーク追加
  */
 export function createPostPostsPostIdBookmark(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -861,40 +666,17 @@ export function createPostPostsPostIdBookmark(options?: {
  * ブックマーク解除
  */
 export function createDeletePostsPostIdBookmark(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$delete']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['bookmark']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -914,17 +696,10 @@ export function createDeletePostsPostIdBookmark(options?: {
 export function createGetBookmarks(
   args: InferRequestType<typeof client.bookmarks.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bookmarks.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -937,9 +712,10 @@ export function createGetBookmarks(
 
 /**
  * Generates Svelte Query cache key for GET /bookmarks
+ * Uses $url() for type-safe key generation
  */
 export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  return ['/bookmarks', args] as const
+  return [client.bookmarks.$url(args).pathname] as const
 }
 
 /**
@@ -950,14 +726,13 @@ export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.boo
 export const getGetBookmarksQueryOptions = (
   args: InferRequestType<typeof client.bookmarks.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetBookmarksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.bookmarks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetBookmarksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.bookmarks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /posts/{postId}/likes
@@ -967,17 +742,16 @@ export const getGetBookmarksQueryOptions = (
 export function createGetPostsPostIdLikes(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.posts)[':postId']['likes']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -990,11 +764,12 @@ export function createGetPostsPostIdLikes(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/likes
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsPostIdLikesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  return ['/posts/:postId/likes', args] as const
+  return [client.posts[':postId'].likes.$url(args).pathname] as const
 }
 
 /**
@@ -1005,17 +780,16 @@ export function getGetPostsPostIdLikesQueryKey(
 export const getGetPostsPostIdLikesQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsPostIdLikesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].likes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsPostIdLikesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts[':postId'].likes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /posts/{postId}/reposts
@@ -1025,17 +799,16 @@ export const getGetPostsPostIdLikesQueryOptions = (
 export function createGetPostsPostIdReposts(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.posts)[':postId']['reposts']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1048,11 +821,12 @@ export function createGetPostsPostIdReposts(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/reposts
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsPostIdRepostsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  return ['/posts/:postId/reposts', args] as const
+  return [client.posts[':postId'].reposts.$url(args).pathname] as const
 }
 
 /**
@@ -1063,17 +837,16 @@ export function getGetPostsPostIdRepostsQueryKey(
 export const getGetPostsPostIdRepostsQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsPostIdRepostsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].reposts.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsPostIdRepostsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts[':postId'].reposts.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /posts/{postId}/quotes
@@ -1083,17 +856,16 @@ export const getGetPostsPostIdRepostsQueryOptions = (
 export function createGetPostsPostIdQuotes(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.posts)[':postId']['quotes']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1106,11 +878,12 @@ export function createGetPostsPostIdQuotes(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/quotes
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsPostIdQuotesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  return ['/posts/:postId/quotes', args] as const
+  return [client.posts[':postId'].quotes.$url(args).pathname] as const
 }
 
 /**
@@ -1121,17 +894,16 @@ export function getGetPostsPostIdQuotesQueryKey(
 export const getGetPostsPostIdQuotesQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsPostIdQuotesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].quotes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsPostIdQuotesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts[':postId'].quotes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /posts/{postId}/replies
@@ -1141,17 +913,16 @@ export const getGetPostsPostIdQuotesQueryOptions = (
 export function createGetPostsPostIdReplies(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.posts)[':postId']['replies']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1164,11 +935,12 @@ export function createGetPostsPostIdReplies(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/replies
+ * Uses $url() for type-safe key generation
  */
 export function getGetPostsPostIdRepliesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  return ['/posts/:postId/replies', args] as const
+  return [client.posts[':postId'].replies.$url(args).pathname] as const
 }
 
 /**
@@ -1179,17 +951,16 @@ export function getGetPostsPostIdRepliesQueryKey(
 export const getGetPostsPostIdRepliesQueryOptions = (
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPostsPostIdRepliesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.posts[':postId'].replies.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPostsPostIdRepliesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.posts[':postId'].replies.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /posts/{postId}/replies
@@ -1197,40 +968,17 @@ export const getGetPostsPostIdRepliesQueryOptions = (
  * 返信投稿
  */
 export function createPostPostsPostIdReplies(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.posts)[':postId']['replies']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.posts)[':postId']['replies']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.posts)[':postId']['replies']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1248,27 +996,13 @@ export function createPostPostsPostIdReplies(options?: {
  * メディアアップロード
  */
 export function createPostMediaUpload(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.media.upload.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.media.upload.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.media.upload.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.media.upload.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.media.upload.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.media.upload.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.media.upload.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.media.upload.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1287,17 +1021,14 @@ export function createPostMediaUpload(options?: {
 export function createGetMediaMediaId(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.media)[':mediaId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1310,11 +1041,12 @@ export function createGetMediaMediaId(
 
 /**
  * Generates Svelte Query cache key for GET /media/{mediaId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return ['/media/:mediaId', args] as const
+  return [client.media[':mediaId'].$url(args).pathname] as const
 }
 
 /**
@@ -1325,17 +1057,16 @@ export function getGetMediaMediaIdQueryKey(
 export const getGetMediaMediaIdQueryOptions = (
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMediaMediaIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.media[':mediaId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMediaMediaIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.media[':mediaId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PATCH /media/{mediaId}
@@ -1343,34 +1074,15 @@ export const getGetMediaMediaIdQueryOptions = (
  * メディア情報更新
  */
 export function createPatchMediaMediaId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.media)[':mediaId']['$patch']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.media)[':mediaId']['$patch']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.media)[':mediaId']['$patch']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.media)[':mediaId']['$patch']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.media)[':mediaId']['$patch']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.media)[':mediaId']['$patch']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.media)[':mediaId']['$patch']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.media)[':mediaId']['$patch']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

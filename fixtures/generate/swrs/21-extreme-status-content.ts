@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
 /**
@@ -28,9 +28,10 @@ export function useGetExtremeResponses(options?: {
 
 /**
  * Generates SWR cache key for GET /extreme-responses
+ * Uses $url() for type-safe key generation
  */
 export function getGetExtremeResponsesKey() {
-  return ['/extreme-responses'] as const
+  return client['extreme-responses'].$url().pathname
 }
 
 /**
@@ -44,20 +45,32 @@ export function usePostMultipartVariations(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['multipart-variations']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /multipart-variations',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['multipart-variations']['$post']> },
-    ) => parseResponse(client['multipart-variations'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostMultipartVariationsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['multipart-variations']['$post']> },
+      ) => parseResponse(client['multipart-variations'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /multipart-variations
+ * Uses $url() for type-safe key generation
+ */
+export function getPostMultipartVariationsMutationKey() {
+  return `POST ${client['multipart-variations'].$url().pathname}`
 }
 
 /**
@@ -71,18 +84,30 @@ export function usePostCharsetVariations(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['charset-variations']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /charset-variations',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['charset-variations']['$post']> },
-    ) => parseResponse(client['charset-variations'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostCharsetVariationsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['charset-variations']['$post']> },
+      ) => parseResponse(client['charset-variations'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /charset-variations
+ * Uses $url() for type-safe key generation
+ */
+export function getPostCharsetVariationsMutationKey() {
+  return `POST ${client['charset-variations'].$url().pathname}`
 }

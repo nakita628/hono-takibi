@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/02-simple-schemas'
 
@@ -7,17 +8,10 @@ import { client } from '../clients/02-simple-schemas'
  * GET /users
  */
 export function createGetUsers(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +20,10 @@ export function createGetUsers(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /users
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersQueryKey() {
-  return ['/users'] as const
+  return [client.users.$url().pathname] as const
 }
 
 /**
@@ -36,41 +31,23 @@ export function getGetUsersQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetUsersQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetUsersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUsersQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /users
  */
 export function createPostUsers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.users.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.users.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.users.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.users.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -87,17 +64,14 @@ export function createPostUsers(options?: {
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -110,11 +84,12 @@ export function createGetUsersUserId(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', args] as const
+  return [client.users[':userId'].$url(args).pathname] as const
 }
 
 /**
@@ -125,14 +100,13 @@ export function getGetUsersUserIdQueryKey(
 export const getGetUsersUserIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users[':userId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

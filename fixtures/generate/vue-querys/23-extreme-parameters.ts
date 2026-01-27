@@ -1,5 +1,6 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
@@ -11,17 +12,25 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
+                  >
+                >
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -34,13 +43,18 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 
 /**
  * Generates Vue Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ * Uses $url() for type-safe key generation
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
   args: InferRequestType<
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
 ) {
-  return ['/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10', args] as const
+  return [
+    client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
+      ':p10'
+    ].$url(args).pathname,
+  ] as const
 }
 
 /**
@@ -53,16 +67,15 @@ export const getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions = (
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
-          ':p10'
-        ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
+        ':p10'
+      ].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /query-styles
@@ -70,17 +83,19 @@ export const getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryOptions = (
 export function useGetQueryStyles(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['query-styles']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -90,11 +105,12 @@ export function useGetQueryStyles(
 
 /**
  * Generates Vue Query cache key for GET /query-styles
+ * Uses $url() for type-safe key generation
  */
 export function getGetQueryStylesQueryKey(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  return ['/query-styles', args] as const
+  return [client['query-styles'].$url(args).pathname] as const
 }
 
 /**
@@ -105,17 +121,16 @@ export function getGetQueryStylesQueryKey(
 export const getGetQueryStylesQueryOptions = (
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetQueryStylesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['query-styles'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetQueryStylesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['query-styles'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /path-styles/{simple}/{label}/{matrix}
@@ -123,17 +138,23 @@ export const getGetQueryStylesQueryOptions = (
 export function useGetPathStylesSimpleLabelMatrix(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>
+                >
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -146,11 +167,12 @@ export function useGetPathStylesSimpleLabelMatrix(
 
 /**
  * Generates Vue Query cache key for GET /path-styles/{simple}/{label}/{matrix}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPathStylesSimpleLabelMatrixQueryKey(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  return ['/path-styles/:simple/:label/:matrix', args] as const
+  return [client['path-styles'][':simple'][':label'][':matrix'].$url(args).pathname] as const
 }
 
 /**
@@ -161,17 +183,16 @@ export function getGetPathStylesSimpleLabelMatrixQueryKey(
 export const getGetPathStylesSimpleLabelMatrixQueryOptions = (
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPathStylesSimpleLabelMatrixQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['path-styles'][':simple'][':label'][':matrix'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /header-styles
@@ -179,17 +200,19 @@ export const getGetPathStylesSimpleLabelMatrixQueryOptions = (
 export function useGetHeaderStyles(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['header-styles']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -199,11 +222,12 @@ export function useGetHeaderStyles(
 
 /**
  * Generates Vue Query cache key for GET /header-styles
+ * Uses $url() for type-safe key generation
  */
 export function getGetHeaderStylesQueryKey(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  return ['/header-styles', args] as const
+  return [client['header-styles'].$url(args).pathname] as const
 }
 
 /**
@@ -214,17 +238,16 @@ export function getGetHeaderStylesQueryKey(
 export const getGetHeaderStylesQueryOptions = (
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetHeaderStylesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['header-styles'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetHeaderStylesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['header-styles'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /cookie-styles
@@ -232,17 +255,19 @@ export const getGetHeaderStylesQueryOptions = (
 export function useGetCookieStyles(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['cookie-styles']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -252,11 +277,12 @@ export function useGetCookieStyles(
 
 /**
  * Generates Vue Query cache key for GET /cookie-styles
+ * Uses $url() for type-safe key generation
  */
 export function getGetCookieStylesQueryKey(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  return ['/cookie-styles', args] as const
+  return [client['cookie-styles'].$url(args).pathname] as const
 }
 
 /**
@@ -267,17 +293,16 @@ export function getGetCookieStylesQueryKey(
 export const getGetCookieStylesQueryOptions = (
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetCookieStylesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['cookie-styles'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetCookieStylesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['cookie-styles'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /many-query-params
@@ -285,17 +310,21 @@ export const getGetCookieStylesQueryOptions = (
 export function useGetManyQueryParams(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['many-query-params']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -305,11 +334,12 @@ export function useGetManyQueryParams(
 
 /**
  * Generates Vue Query cache key for GET /many-query-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetManyQueryParamsQueryKey(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  return ['/many-query-params', args] as const
+  return [client['many-query-params'].$url(args).pathname] as const
 }
 
 /**
@@ -320,17 +350,16 @@ export function getGetManyQueryParamsQueryKey(
 export const getGetManyQueryParamsQueryOptions = (
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetManyQueryParamsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['many-query-params'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetManyQueryParamsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['many-query-params'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /parameter-content
@@ -338,17 +367,21 @@ export const getGetManyQueryParamsQueryOptions = (
 export function useGetParameterContent(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['parameter-content']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -358,11 +391,12 @@ export function useGetParameterContent(
 
 /**
  * Generates Vue Query cache key for GET /parameter-content
+ * Uses $url() for type-safe key generation
  */
 export function getGetParameterContentQueryKey(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  return ['/parameter-content', args] as const
+  return [client['parameter-content'].$url(args).pathname] as const
 }
 
 /**
@@ -373,17 +407,16 @@ export function getGetParameterContentQueryKey(
 export const getGetParameterContentQueryOptions = (
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetParameterContentQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['parameter-content'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetParameterContentQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['parameter-content'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /deprecated-params
@@ -391,17 +424,21 @@ export const getGetParameterContentQueryOptions = (
 export function useGetDeprecatedParams(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['deprecated-params']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -411,11 +448,12 @@ export function useGetDeprecatedParams(
 
 /**
  * Generates Vue Query cache key for GET /deprecated-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetDeprecatedParamsQueryKey(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  return ['/deprecated-params', args] as const
+  return [client['deprecated-params'].$url(args).pathname] as const
 }
 
 /**
@@ -426,17 +464,16 @@ export function getGetDeprecatedParamsQueryKey(
 export const getGetDeprecatedParamsQueryOptions = (
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDeprecatedParamsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['deprecated-params'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetDeprecatedParamsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['deprecated-params'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /examples-params
@@ -444,17 +481,19 @@ export const getGetDeprecatedParamsQueryOptions = (
 export function useGetExamplesParams(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['examples-params']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -464,11 +503,12 @@ export function useGetExamplesParams(
 
 /**
  * Generates Vue Query cache key for GET /examples-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetExamplesParamsQueryKey(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  return ['/examples-params', args] as const
+  return [client['examples-params'].$url(args).pathname] as const
 }
 
 /**
@@ -479,14 +519,13 @@ export function getGetExamplesParamsQueryKey(
 export const getGetExamplesParamsQueryOptions = (
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetExamplesParamsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['examples-params'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetExamplesParamsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['examples-params'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

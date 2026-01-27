@@ -1,5 +1,6 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
@@ -13,17 +14,10 @@ import { client } from '../clients/fizz-buzz'
 export function useGetFizzbuzz(
   args: InferRequestType<typeof client.fizzbuzz.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.fizzbuzz.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -33,9 +27,10 @@ export function useGetFizzbuzz(
 
 /**
  * Generates TanStack Query cache key for GET /fizzbuzz
+ * Uses $url() for type-safe key generation
  */
 export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', args] as const
+  return [client.fizzbuzz.$url(args).pathname] as const
 }
 
 /**
@@ -46,11 +41,10 @@ export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizz
 export const getGetFizzbuzzQueryOptions = (
   args: InferRequestType<typeof client.fizzbuzz.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFizzbuzzQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetFizzbuzzQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.fizzbuzz.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

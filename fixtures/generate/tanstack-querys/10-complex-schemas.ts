@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/10-complex-schemas'
 
@@ -7,25 +8,11 @@ import { client } from '../clients/10-complex-schemas'
  * POST /events
  */
 export function usePostEvents(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.events.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.events.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.events.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.events.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.events.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.events.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -40,27 +27,13 @@ export function usePostEvents(options?: {
  * POST /notifications
  */
 export function usePostNotifications(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.notifications.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.notifications.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.notifications.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.notifications.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.notifications.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -75,25 +48,11 @@ export function usePostNotifications(options?: {
  * POST /shapes
  */
 export function usePostShapes(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shapes.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.shapes.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.shapes.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shapes.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.shapes.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.shapes.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shapes.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.shapes.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -108,27 +67,11 @@ export function usePostShapes(options?: {
  * POST /documents
  */
 export function usePostDocuments(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.documents.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.documents.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.documents.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.documents.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.documents.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -143,25 +86,11 @@ export function usePostDocuments(options?: {
  * POST /mixed
  */
 export function usePostMixed(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mixed.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mixed.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.mixed.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mixed.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mixed.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mixed.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mixed.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.mixed.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

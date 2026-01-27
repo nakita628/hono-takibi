@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-literal'
@@ -11,17 +12,17 @@ import { client } from '../clients/openapi-literal'
  * zod primitive
  */
 export function useGetPrimitive(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.primitive.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -30,9 +31,10 @@ export function useGetPrimitive(options?: {
 
 /**
  * Generates Vue Query cache key for GET /primitive
+ * Uses $url() for type-safe key generation
  */
 export function getGetPrimitiveQueryKey() {
-  return ['/primitive'] as const
+  return [client.primitive.$url().pathname] as const
 }
 
 /**
@@ -40,14 +42,13 @@ export function getGetPrimitiveQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPrimitiveQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.primitive.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPrimitiveQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrimitiveQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.primitive.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

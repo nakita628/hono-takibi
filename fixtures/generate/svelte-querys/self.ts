@@ -1,4 +1,5 @@
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import type { CreateQueryOptions } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/self'
@@ -7,17 +8,10 @@ import { client } from '../clients/self'
  * GET /categories
  */
 export function createGetCategories(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +20,10 @@ export function createGetCategories(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /categories
+ * Uses $url() for type-safe key generation
  */
 export function getGetCategoriesQueryKey() {
-  return ['/categories'] as const
+  return [client.categories.$url().pathname] as const
 }
 
 /**
@@ -36,14 +31,13 @@ export function getGetCategoriesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetCategoriesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.categories.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetCategoriesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCategoriesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.categories.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -11,17 +12,20 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+              >
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -34,13 +38,17 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates Svelte Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Uses $url() for type-safe key generation
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
+  return [
+    client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
+      .pathname,
+  ] as const
 }
 
 /**
@@ -53,72 +61,38 @@ export const getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOpt
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-              >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
             >
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<
+      (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -142,17 +116,16 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
  * GET /reports/organization-summary
  */
 export function createGetReportsOrganizationSummary(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.reports)['organization-summary']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -164,9 +137,10 @@ export function createGetReportsOrganizationSummary(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /reports/organization-summary
+ * Uses $url() for type-safe key generation
  */
 export function getGetReportsOrganizationSummaryQueryKey() {
-  return ['/reports/organization-summary'] as const
+  return [client.reports['organization-summary'].$url().pathname] as const
 }
 
 /**
@@ -176,14 +150,13 @@ export function getGetReportsOrganizationSummaryQueryKey() {
  */
 export const getGetReportsOrganizationSummaryQueryOptions = (
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetReportsOrganizationSummaryQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.reports['organization-summary'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetReportsOrganizationSummaryQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.reports['organization-summary'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

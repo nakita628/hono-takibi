@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
 /**
@@ -28,9 +28,10 @@ export function useGetAllMethods(options?: {
 
 /**
  * Generates SWR cache key for GET /all-methods
+ * Uses $url() for type-safe key generation
  */
 export function getGetAllMethodsKey() {
-  return ['/all-methods'] as const
+  return client['all-methods'].$url().pathname
 }
 
 /**
@@ -42,17 +43,29 @@ export function usePutAllMethods(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$put']>>>>
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /all-methods',
-    async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutAllMethodsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /all-methods
+ * Uses $url() for type-safe key generation
+ */
+export function getPutAllMethodsMutationKey() {
+  return `PUT ${client['all-methods'].$url().pathname}`
 }
 
 /**
@@ -64,17 +77,29 @@ export function usePostAllMethods(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$post']>>>>
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /all-methods',
-    async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostAllMethodsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /all-methods
+ * Uses $url() for type-safe key generation
+ */
+export function getPostAllMethodsMutationKey() {
+  return `POST ${client['all-methods'].$url().pathname}`
 }
 
 /**
@@ -88,17 +113,29 @@ export function useDeleteAllMethods(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /all-methods',
-    async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteAllMethodsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /all-methods
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteAllMethodsMutationKey() {
+  return `DELETE ${client['all-methods'].$url().pathname}`
 }
 
 /**
@@ -112,17 +149,29 @@ export function useOptionsAllMethods(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'OPTIONS /all-methods',
-    async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getOptionsAllMethodsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for OPTIONS /all-methods
+ * Uses $url() for type-safe key generation
+ */
+export function getOptionsAllMethodsMutationKey() {
+  return `OPTIONS ${client['all-methods'].$url().pathname}`
 }
 
 /**
@@ -134,17 +183,29 @@ export function useHeadAllMethods(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$head']>>>>
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'HEAD /all-methods',
-    async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getHeadAllMethodsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for HEAD /all-methods
+ * Uses $url() for type-safe key generation
+ */
+export function getHeadAllMethodsMutationKey() {
+  return `HEAD ${client['all-methods'].$url().pathname}`
 }
 
 /**
@@ -158,17 +219,29 @@ export function usePatchAllMethods(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PATCH /all-methods',
-    async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPatchAllMethodsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PATCH /all-methods
+ * Uses $url() for type-safe key generation
+ */
+export function getPatchAllMethodsMutationKey() {
+  return `PATCH ${client['all-methods'].$url().pathname}`
 }
 
 /**
@@ -182,17 +255,29 @@ export function useTraceAllMethods(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'TRACE /all-methods',
-    async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getTraceAllMethodsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for TRACE /all-methods
+ * Uses $url() for type-safe key generation
+ */
+export function getTraceAllMethodsMutationKey() {
+  return `TRACE ${client['all-methods'].$url().pathname}`
 }
 
 /**
@@ -227,13 +312,14 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return ['/users/:userId/posts/:postId/comments/:commentId', ...(args ? [args] : [])] as const
+  return client.users[':userId'].posts[':postId'].comments[':commentId'].$url(args).pathname
 }
 
 /**
@@ -261,11 +347,12 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates SWR cache key for GET /params-test/{pathParam}
+ * Uses $url() for type-safe key generation
  */
 export function getGetParamsTestPathParamKey(
-  args?: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
+  args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return ['/params-test/:pathParam', ...(args ? [args] : [])] as const
+  return client['params-test'][':pathParam'].$url(args).pathname
 }
 
 /**
@@ -280,17 +367,29 @@ export function usePostNoContent(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /no-content',
-    async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostNoContentMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /no-content
+ * Uses $url() for type-safe key generation
+ */
+export function getPostNoContentMutationKey() {
+  return `POST ${client['no-content'].$url().pathname}`
 }
 
 /**
@@ -315,9 +414,10 @@ export function useGetMultiContent(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-content
+ * Uses $url() for type-safe key generation
  */
 export function getGetMultiContentKey() {
-  return ['/multi-content'] as const
+  return client['multi-content'].$url().pathname
 }
 
 /**
@@ -331,20 +431,32 @@ export function usePostMultiContent(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['multi-content']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /multi-content',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['multi-content']['$post']> },
-    ) => parseResponse(client['multi-content'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostMultiContentMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['multi-content']['$post']> },
+      ) => parseResponse(client['multi-content'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /multi-content
+ * Uses $url() for type-safe key generation
+ */
+export function getPostMultiContentMutationKey() {
+  return `POST ${client['multi-content'].$url().pathname}`
 }
 
 /**
@@ -369,9 +481,10 @@ export function useGetResponseRanges(options?: {
 
 /**
  * Generates SWR cache key for GET /response-ranges
+ * Uses $url() for type-safe key generation
  */
 export function getGetResponseRangesKey() {
-  return ['/response-ranges'] as const
+  return client['response-ranges'].$url().pathname
 }
 
 /**
@@ -398,9 +511,10 @@ export function useGetDeprecated(options?: {
 
 /**
  * Generates SWR cache key for GET /deprecated
+ * Uses $url() for type-safe key generation
  */
 export function getGetDeprecatedKey() {
-  return ['/deprecated'] as const
+  return client.deprecated.$url().pathname
 }
 
 /**
@@ -427,9 +541,10 @@ export function useGetNoOperationId(options?: {
 
 /**
  * Generates SWR cache key for GET /no-operation-id
+ * Uses $url() for type-safe key generation
  */
 export function getGetNoOperationIdKey() {
-  return ['/no-operation-id'] as const
+  return client['no-operation-id'].$url().pathname
 }
 
 /**
@@ -441,18 +556,30 @@ export function usePostEmptyBody(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-body']['$post']>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['empty-body']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /empty-body',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client)['empty-body']['$post']> }) =>
-      parseResponse(client['empty-body'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostEmptyBodyMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)['empty-body']['$post']> }) =>
+        parseResponse(client['empty-body'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /empty-body
+ * Uses $url() for type-safe key generation
+ */
+export function getPostEmptyBodyMutationKey() {
+  return `POST ${client['empty-body'].$url().pathname}`
 }
 
 /**
@@ -477,9 +604,10 @@ export function useGetCircular(options?: {
 
 /**
  * Generates SWR cache key for GET /circular
+ * Uses $url() for type-safe key generation
  */
 export function getGetCircularKey() {
-  return ['/circular'] as const
+  return client.circular.$url().pathname
 }
 
 /**
@@ -504,9 +632,10 @@ export function useGetDeepNesting(options?: {
 
 /**
  * Generates SWR cache key for GET /deep-nesting
+ * Uses $url() for type-safe key generation
  */
 export function getGetDeepNestingKey() {
-  return ['/deep-nesting'] as const
+  return client['deep-nesting'].$url().pathname
 }
 
 /**
@@ -534,11 +663,12 @@ export function useGetArrayParams(
 
 /**
  * Generates SWR cache key for GET /array-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetArrayParamsKey(
-  args?: InferRequestType<(typeof client)['array-params']['$get']>,
+  args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return ['/array-params', ...(args ? [args] : [])] as const
+  return client['array-params'].$url(args).pathname
 }
 
 /**
@@ -566,9 +696,10 @@ export function useGetObjectParam(
 
 /**
  * Generates SWR cache key for GET /object-param
+ * Uses $url() for type-safe key generation
  */
 export function getGetObjectParamKey(
-  args?: InferRequestType<(typeof client)['object-param']['$get']>,
+  args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['/object-param', ...(args ? [args] : [])] as const
+  return client['object-param'].$url(args).pathname
 }

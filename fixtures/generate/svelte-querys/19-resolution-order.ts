@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
@@ -7,17 +8,10 @@ import { client } from '../clients/19-resolution-order'
  * GET /entities
  */
 export function createGetEntities(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +20,10 @@ export function createGetEntities(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /entities
+ * Uses $url() for type-safe key generation
  */
 export function getGetEntitiesQueryKey() {
-  return ['/entities'] as const
+  return [client.entities.$url().pathname] as const
 }
 
 /**
@@ -36,43 +31,26 @@ export function getGetEntitiesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetEntitiesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.entities.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetEntitiesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEntitiesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.entities.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /process
  */
 export function createPostProcess(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.process.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.process.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.process.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.process.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.process.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -87,17 +65,10 @@ export function createPostProcess(options?: {
  * GET /graph
  */
 export function createGetGraph(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.graph.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -106,9 +77,10 @@ export function createGetGraph(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /graph
+ * Uses $url() for type-safe key generation
  */
 export function getGetGraphQueryKey() {
-  return ['/graph'] as const
+  return [client.graph.$url().pathname] as const
 }
 
 /**
@@ -116,43 +88,23 @@ export function getGetGraphQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetGraphQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.graph.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetGraphQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetGraphQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.graph.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /transform
  */
 export function createPostTransform(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.transform.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.transform.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.transform.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.transform.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.transform.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

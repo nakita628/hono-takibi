@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/additional'
@@ -11,17 +12,17 @@ import { client } from '../clients/additional'
  * zod passthrough
  */
 export function useGetPassthrough(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.passthrough.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -30,9 +31,10 @@ export function useGetPassthrough(options?: {
 
 /**
  * Generates Vue Query cache key for GET /passthrough
+ * Uses $url() for type-safe key generation
  */
 export function getGetPassthroughQueryKey() {
-  return ['/passthrough'] as const
+  return [client.passthrough.$url().pathname] as const
 }
 
 /**
@@ -40,14 +42,13 @@ export function getGetPassthroughQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPassthroughQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPassthroughQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.passthrough.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPassthroughQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPassthroughQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.passthrough.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

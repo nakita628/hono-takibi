@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
@@ -11,27 +12,13 @@ import { client } from '../clients/29-practical-user-api'
  * メールアドレスとパスワードで新規ユーザーを登録します
  */
 export function createPostAuthRegister(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.register.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.auth.register.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.auth.register.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.register.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.auth.register.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.auth.register.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.register.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.auth.register.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -50,27 +37,11 @@ export function createPostAuthRegister(options?: {
  * メールアドレスとパスワードで認証し、JWTトークンを取得します
  */
 export function createPostAuthLogin(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.login.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.auth.login.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.auth.login.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.login.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.auth.login.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.auth.login.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.login.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.auth.login.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -89,27 +60,13 @@ export function createPostAuthLogin(options?: {
  * リフレッシュトークンを使用して新しいアクセストークンを取得します
  */
 export function createPostAuthRefresh(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.refresh.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.auth.refresh.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.auth.refresh.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.refresh.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.auth.refresh.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.auth.refresh.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.refresh.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.auth.refresh.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -126,29 +83,14 @@ export function createPostAuthRefresh(options?: {
  * ログアウト
  */
 export function createPostAuthLogout(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.logout.$post>>>>
-          >
-        | undefined,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.logout.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.logout.$post>>>>
+      >
+    | undefined,
+    Error,
+    void
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -166,34 +108,15 @@ export function createPostAuthLogout(options?: {
  * パスワードリセット用のメールを送信します
  */
 export function createPostAuthPasswordForgot(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.forgot.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.auth.password.forgot.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.auth.password.forgot.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.forgot.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.auth.password.forgot.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.auth.password.forgot.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.forgot.$post>>>
+      >
+    >,
+    Error,
+    InferRequestType<typeof client.auth.password.forgot.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -210,34 +133,13 @@ export function createPostAuthPasswordForgot(options?: {
  * パスワードリセット実行
  */
 export function createPostAuthPasswordReset(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.reset.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.auth.password.reset.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.auth.password.reset.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.reset.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.auth.password.reset.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.auth.password.reset.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.auth.password.reset.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.auth.password.reset.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -258,17 +160,10 @@ export function createPostAuthPasswordReset(options?: {
 export function createGetUsers(
   args: InferRequestType<typeof client.users.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -278,9 +173,10 @@ export function createGetUsers(
 
 /**
  * Generates Svelte Query cache key for GET /users
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return ['/users', args] as const
+  return [client.users.$url(args).pathname] as const
 }
 
 /**
@@ -291,14 +187,13 @@ export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$
 export const getGetUsersQueryOptions = (
   args: InferRequestType<typeof client.users.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUsersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetUsersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /users/{userId}
@@ -308,17 +203,14 @@ export const getGetUsersQueryOptions = (
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -331,11 +223,12 @@ export function createGetUsersUserId(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', args] as const
+  return [client.users[':userId'].$url(args).pathname] as const
 }
 
 /**
@@ -346,17 +239,16 @@ export function getGetUsersUserIdQueryKey(
 export const getGetUsersUserIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users[':userId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /users/{userId}
@@ -364,36 +256,16 @@ export const getGetUsersUserIdQueryOptions = (
  * ユーザー削除
  */
 export function createDeleteUsersUserId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.users)[':userId']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.users)[':userId']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$delete']>>>
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.users)[':userId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -410,34 +282,15 @@ export function createDeleteUsersUserId(options?: {
  * ユーザー情報更新
  */
 export function createPatchUsersUserId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.users)[':userId']['$patch']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.users)[':userId']['$patch']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -454,17 +307,10 @@ export function createPatchUsersUserId(options?: {
  * 現在のユーザー情報取得
  */
 export function createGetUsersMe(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -473,9 +319,10 @@ export function createGetUsersMe(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /users/me
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersMeQueryKey() {
-  return ['/users/me'] as const
+  return [client.users.me.$url().pathname] as const
 }
 
 /**
@@ -483,17 +330,16 @@ export function getGetUsersMeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUsersMeQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetUsersMeQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users.me.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetUsersMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUsersMeQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users.me.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PATCH /users/me
@@ -501,27 +347,11 @@ export const getGetUsersMeQueryOptions = (clientOptions?: ClientRequestOptions) 
  * 現在のユーザー情報更新
  */
 export function createPatchUsersMe(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$patch>>>>
-      >,
-      variables: InferRequestType<typeof client.users.me.$patch>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.users.me.$patch>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$patch>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.users.me.$patch>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.users.me.$patch>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.$patch>>>>>,
+    Error,
+    InferRequestType<typeof client.users.me.$patch>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -538,32 +368,13 @@ export function createPatchUsersMe(options?: {
  * パスワード変更
  */
 export function createPutUsersMePassword(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.password.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.users.me.password.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.users.me.password.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.password.$put>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.users.me.password.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.users.me.password.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.password.$put>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.users.me.password.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -580,32 +391,13 @@ export function createPutUsersMePassword(options?: {
  * アバター画像アップロード
  */
 export function createPutUsersMeAvatar(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.users.me.avatar.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.users.me.avatar.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$put>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.users.me.avatar.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.users.me.avatar.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$put>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.users.me.avatar.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -622,33 +414,14 @@ export function createPutUsersMeAvatar(options?: {
  * アバター画像削除
  */
 export function createDeleteUsersMeAvatar(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$delete>>>
-            >
-          >
-        | undefined,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$delete>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.me.avatar.$delete>>>>
+      >
+    | undefined,
+    Error,
+    void
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

@@ -1,5 +1,6 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
@@ -11,17 +12,15 @@ import { client } from '../clients/geojson-example'
  * This endpoint is used to check if the server is working.
  */
 export function useGet(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.index.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -30,9 +29,10 @@ export function useGet(options?: {
 
 /**
  * Generates Vue Query cache key for GET /
+ * Uses $url() for type-safe key generation
  */
 export function getGetQueryKey() {
-  return ['/'] as const
+  return [client.index.$url().pathname] as const
 }
 
 /**
@@ -40,17 +40,13 @@ export function getGetQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.index.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.index.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /projects
@@ -62,17 +58,17 @@ export const getGetQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function useGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$get>>>>
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -82,9 +78,10 @@ export function useGetProjects(
 
 /**
  * Generates Vue Query cache key for GET /projects
+ * Uses $url() for type-safe key generation
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', args] as const
+  return [client.projects.$url(args).pathname] as const
 }
 
 /**
@@ -95,11 +92,10 @@ export function getGetProjectsQueryKey(args: InferRequestType<typeof client.proj
 export const getGetProjectsQueryOptions = (
   args: InferRequestType<typeof client.projects.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProjectsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetProjectsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

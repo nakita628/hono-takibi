@@ -80,8 +80,9 @@ export async function svelteQuery(
     hookPrefix: 'create',
     queryFn: 'createQuery',
     mutationFn: 'createMutation',
-    queryOptionsHelper: 'queryOptions',
     useThunk: true,
+    useQueryOptionsType: 'CreateQueryOptions',
+    useMutationOptionsType: 'CreateMutationOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

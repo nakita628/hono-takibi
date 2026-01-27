@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/07-examples'
 
 /**
@@ -28,9 +28,10 @@ export function useGetProducts(options?: {
 
 /**
  * Generates SWR cache key for GET /products
+ * Uses $url() for type-safe key generation
  */
 export function getGetProductsKey() {
-  return ['/products'] as const
+  return client.products.$url().pathname
 }
 
 /**
@@ -40,18 +41,30 @@ export function usePostProducts(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.products.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /products',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
-      parseResponse(client.products.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostProductsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
+        parseResponse(client.products.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /products
+ * Uses $url() for type-safe key generation
+ */
+export function getPostProductsMutationKey() {
+  return `POST ${client.products.$url().pathname}`
 }
 
 /**
@@ -79,9 +92,10 @@ export function useGetProductsProductId(
 
 /**
  * Generates SWR cache key for GET /products/{productId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetProductsProductIdKey(
-  args?: InferRequestType<(typeof client.products)[':productId']['$get']>,
+  args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['/products/:productId', ...(args ? [args] : [])] as const
+  return client.products[':productId'].$url(args).pathname
 }

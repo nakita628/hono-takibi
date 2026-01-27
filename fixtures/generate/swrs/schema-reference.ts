@@ -1,7 +1,7 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
 import { client } from '../clients/schema-reference'
 
 /**
@@ -28,7 +28,8 @@ export function useGetExample(options?: {
 
 /**
  * Generates SWR cache key for GET /example
+ * Uses $url() for type-safe key generation
  */
 export function getGetExampleKey() {
-  return ['/example'] as const
+  return client.example.$url().pathname
 }

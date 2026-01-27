@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/04-security-schemes'
@@ -7,17 +8,10 @@ import { client } from '../clients/04-security-schemes'
  * GET /public
  */
 export function useGetPublic(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +20,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /public
+ * Uses $url() for type-safe key generation
  */
 export function getGetPublicQueryKey() {
-  return ['/public'] as const
+  return [client.public.$url().pathname] as const
 }
 
 /**
@@ -36,33 +31,22 @@ export function getGetPublicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPublicQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.public.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /protected
  */
 export function useGetProtected(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.protected.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -71,9 +55,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /protected
+ * Uses $url() for type-safe key generation
  */
 export function getGetProtectedQueryKey() {
-  return ['/protected'] as const
+  return [client.protected.$url().pathname] as const
 }
 
 /**
@@ -81,33 +66,25 @@ export function getGetProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetProtectedQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.protected.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProtectedQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.protected.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /admin
  */
 export function useGetAdmin(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.admin.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -116,9 +93,10 @@ export function useGetAdmin(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /admin
+ * Uses $url() for type-safe key generation
  */
 export function getGetAdminQueryKey() {
-  return ['/admin'] as const
+  return [client.admin.$url().pathname] as const
 }
 
 /**
@@ -126,33 +104,26 @@ export function getGetAdminQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAdminQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetAdminQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.admin.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetAdminQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAdminQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.admin.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /oauth-resource
  */
 export function useGetOauthResource(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-resource']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -161,9 +132,10 @@ export function useGetOauthResource(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /oauth-resource
+ * Uses $url() for type-safe key generation
  */
 export function getGetOauthResourceQueryKey() {
-  return ['/oauth-resource'] as const
+  return [client['oauth-resource'].$url().pathname] as const
 }
 
 /**
@@ -171,33 +143,27 @@ export function getGetOauthResourceQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOauthResourceQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetOauthResourceQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['oauth-resource'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetOauthResourceQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOauthResourceQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['oauth-resource'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /multi-auth
  */
 export function useGetMultiAuth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -206,9 +172,10 @@ export function useGetMultiAuth(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /multi-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetMultiAuthQueryKey() {
-  return ['/multi-auth'] as const
+  return [client['multi-auth'].$url().pathname] as const
 }
 
 /**
@@ -216,14 +183,13 @@ export function getGetMultiAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMultiAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMultiAuthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['multi-auth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMultiAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMultiAuthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['multi-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

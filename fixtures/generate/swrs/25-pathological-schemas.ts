@@ -1,7 +1,8 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/25-pathological-schemas'
 
 /**
@@ -13,16 +14,28 @@ export function usePostPathological(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pathological.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.pathological.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /pathological',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.pathological.$post> }) =>
-      parseResponse(client.pathological.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostPathologicalMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.pathological.$post> }) =>
+        parseResponse(client.pathological.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /pathological
+ * Uses $url() for type-safe key generation
+ */
+export function getPostPathologicalMutationKey() {
+  return `POST ${client.pathological.$url().pathname}`
 }

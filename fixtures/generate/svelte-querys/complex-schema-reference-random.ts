@@ -1,4 +1,5 @@
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import type { CreateQueryOptions } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-schema-reference-random'
@@ -9,17 +10,10 @@ import { client } from '../clients/complex-schema-reference-random'
  * Test endpoint for comprehensive schema references
  */
 export function createGetTest(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.test.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -28,9 +22,10 @@ export function createGetTest(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /test
+ * Uses $url() for type-safe key generation
  */
 export function getGetTestQueryKey() {
-  return ['/test'] as const
+  return [client.test.$url().pathname] as const
 }
 
 /**
@@ -38,11 +33,10 @@ export function getGetTestQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTestQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetTestQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.test.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetTestQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTestQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.test.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

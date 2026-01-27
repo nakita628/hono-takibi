@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/23-extreme-parameters'
 
 /**
@@ -37,16 +37,16 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 
 /**
  * Generates SWR cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
+ * Uses $url() for type-safe key generation
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10Key(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
 ) {
-  return [
-    '/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10',
-    ...(args ? [args] : []),
-  ] as const
+  return client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
+    ':p10'
+  ].$url(args).pathname
 }
 
 /**
@@ -74,11 +74,12 @@ export function useGetQueryStyles(
 
 /**
  * Generates SWR cache key for GET /query-styles
+ * Uses $url() for type-safe key generation
  */
 export function getGetQueryStylesKey(
-  args?: InferRequestType<(typeof client)['query-styles']['$get']>,
+  args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  return ['/query-styles', ...(args ? [args] : [])] as const
+  return client['query-styles'].$url(args).pathname
 }
 
 /**
@@ -110,11 +111,12 @@ export function useGetPathStylesSimpleLabelMatrix(
 
 /**
  * Generates SWR cache key for GET /path-styles/{simple}/{label}/{matrix}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPathStylesSimpleLabelMatrixKey(
-  args?: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
+  args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  return ['/path-styles/:simple/:label/:matrix', ...(args ? [args] : [])] as const
+  return client['path-styles'][':simple'][':label'][':matrix'].$url(args).pathname
 }
 
 /**
@@ -142,11 +144,12 @@ export function useGetHeaderStyles(
 
 /**
  * Generates SWR cache key for GET /header-styles
+ * Uses $url() for type-safe key generation
  */
 export function getGetHeaderStylesKey(
-  args?: InferRequestType<(typeof client)['header-styles']['$get']>,
+  args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  return ['/header-styles', ...(args ? [args] : [])] as const
+  return client['header-styles'].$url(args).pathname
 }
 
 /**
@@ -174,11 +177,12 @@ export function useGetCookieStyles(
 
 /**
  * Generates SWR cache key for GET /cookie-styles
+ * Uses $url() for type-safe key generation
  */
 export function getGetCookieStylesKey(
-  args?: InferRequestType<(typeof client)['cookie-styles']['$get']>,
+  args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  return ['/cookie-styles', ...(args ? [args] : [])] as const
+  return client['cookie-styles'].$url(args).pathname
 }
 
 /**
@@ -206,11 +210,12 @@ export function useGetManyQueryParams(
 
 /**
  * Generates SWR cache key for GET /many-query-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetManyQueryParamsKey(
-  args?: InferRequestType<(typeof client)['many-query-params']['$get']>,
+  args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  return ['/many-query-params', ...(args ? [args] : [])] as const
+  return client['many-query-params'].$url(args).pathname
 }
 
 /**
@@ -238,11 +243,12 @@ export function useGetParameterContent(
 
 /**
  * Generates SWR cache key for GET /parameter-content
+ * Uses $url() for type-safe key generation
  */
 export function getGetParameterContentKey(
-  args?: InferRequestType<(typeof client)['parameter-content']['$get']>,
+  args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  return ['/parameter-content', ...(args ? [args] : [])] as const
+  return client['parameter-content'].$url(args).pathname
 }
 
 /**
@@ -270,11 +276,12 @@ export function useGetDeprecatedParams(
 
 /**
  * Generates SWR cache key for GET /deprecated-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetDeprecatedParamsKey(
-  args?: InferRequestType<(typeof client)['deprecated-params']['$get']>,
+  args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  return ['/deprecated-params', ...(args ? [args] : [])] as const
+  return client['deprecated-params'].$url(args).pathname
 }
 
 /**
@@ -302,9 +309,10 @@ export function useGetExamplesParams(
 
 /**
  * Generates SWR cache key for GET /examples-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetExamplesParamsKey(
-  args?: InferRequestType<(typeof client)['examples-params']['$get']>,
+  args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  return ['/examples-params', ...(args ? [args] : [])] as const
+  return client['examples-params'].$url(args).pathname
 }

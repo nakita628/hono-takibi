@@ -1,7 +1,8 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
 /**
@@ -13,18 +14,30 @@ export function usePostWebhooks(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.webhooks.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /webhooks',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
-      parseResponse(client.webhooks.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostWebhooksMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
+        parseResponse(client.webhooks.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /webhooks
+ * Uses $url() for type-safe key generation
+ */
+export function getPostWebhooksMutationKey() {
+  return `POST ${client.webhooks.$url().pathname}`
 }
 
 /**
@@ -38,18 +51,30 @@ export function usePostSubscriptions(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.subscriptions.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /subscriptions',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.subscriptions.$post> }) =>
-      parseResponse(client.subscriptions.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostSubscriptionsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.subscriptions.$post> }) =>
+        parseResponse(client.subscriptions.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /subscriptions
+ * Uses $url() for type-safe key generation
+ */
+export function getPostSubscriptionsMutationKey() {
+  return `POST ${client.subscriptions.$url().pathname}`
 }
 
 /**
@@ -61,18 +86,30 @@ export function usePostJobs(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.jobs.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /jobs',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.jobs.$post> }) =>
-      parseResponse(client.jobs.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostJobsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.jobs.$post> }) =>
+        parseResponse(client.jobs.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /jobs
+ * Uses $url() for type-safe key generation
+ */
+export function getPostJobsMutationKey() {
+  return `POST ${client.jobs.$url().pathname}`
 }
 
 /**
@@ -90,20 +127,34 @@ export function usePostIntegrationsIntegrationIdSync(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /integrations/:integrationId/sync',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']> },
-    ) => parseResponse(client.integrations[':integrationId'].sync.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostIntegrationsIntegrationIdSyncMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
+        },
+      ) => parseResponse(client.integrations[':integrationId'].sync.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /integrations/{integrationId}/sync
+ * Uses $url() for type-safe key generation
+ */
+export function getPostIntegrationsIntegrationIdSyncMutationKey() {
+  return `POST ${client.integrations[':integrationId'].sync.$url().pathname}`
 }

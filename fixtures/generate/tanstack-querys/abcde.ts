@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/abcde'
@@ -9,17 +10,10 @@ import { client } from '../clients/abcde'
  * Get example data
  */
 export function useGetExample(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.example.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -28,9 +22,10 @@ export function useGetExample(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /example
+ * Uses $url() for type-safe key generation
  */
 export function getGetExampleQueryKey() {
-  return ['/example'] as const
+  return [client.example.$url().pathname] as const
 }
 
 /**
@@ -38,14 +33,13 @@ export function getGetExampleQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetExampleQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetExampleQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.example.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetExampleQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExampleQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.example.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

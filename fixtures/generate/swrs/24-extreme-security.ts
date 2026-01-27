@@ -1,9 +1,9 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/24-extreme-security'
 
 /**
@@ -30,9 +30,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /public
+ * Uses $url() for type-safe key generation
  */
 export function getGetPublicKey() {
-  return ['/public'] as const
+  return client.public.$url().pathname
 }
 
 /**
@@ -59,9 +60,10 @@ export function useGetSingleAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /single-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetSingleAuthKey() {
-  return ['/single-auth'] as const
+  return client['single-auth'].$url().pathname
 }
 
 /**
@@ -88,9 +90,10 @@ export function useGetAnyAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /any-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetAnyAuthKey() {
-  return ['/any-auth'] as const
+  return client['any-auth'].$url().pathname
 }
 
 /**
@@ -117,9 +120,10 @@ export function useGetAllAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /all-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetAllAuthKey() {
-  return ['/all-auth'] as const
+  return client['all-auth'].$url().pathname
 }
 
 /**
@@ -146,9 +150,10 @@ export function useGetComplexAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /complex-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetComplexAuthKey() {
-  return ['/complex-auth'] as const
+  return client['complex-auth'].$url().pathname
 }
 
 /**
@@ -175,9 +180,10 @@ export function useGetScopedOauth(options?: {
 
 /**
  * Generates SWR cache key for GET /scoped-oauth
+ * Uses $url() for type-safe key generation
  */
 export function getGetScopedOauthKey() {
-  return ['/scoped-oauth'] as const
+  return client['scoped-oauth'].$url().pathname
 }
 
 /**
@@ -204,9 +210,10 @@ export function useGetMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR cache key for GET /mixed-level-security
+ * Uses $url() for type-safe key generation
  */
 export function getGetMixedLevelSecurityKey() {
-  return ['/mixed-level-security'] as const
+  return client['mixed-level-security'].$url().pathname
 }
 
 /**
@@ -222,17 +229,29 @@ export function usePutMixedLevelSecurity(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /mixed-level-security',
-    async () => parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutMixedLevelSecurityMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /mixed-level-security
+ * Uses $url() for type-safe key generation
+ */
+export function getPutMixedLevelSecurityMutationKey() {
+  return `PUT ${client['mixed-level-security'].$url().pathname}`
 }
 
 /**
@@ -248,17 +267,29 @@ export function usePostMixedLevelSecurity(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /mixed-level-security',
-    async () => parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostMixedLevelSecurityMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /mixed-level-security
+ * Uses $url() for type-safe key generation
+ */
+export function getPostMixedLevelSecurityMutationKey() {
+  return `POST ${client['mixed-level-security'].$url().pathname}`
 }
 
 /**
@@ -277,17 +308,29 @@ export function useDeleteMixedLevelSecurity(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /mixed-level-security',
-    async () => parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteMixedLevelSecurityMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /mixed-level-security
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteMixedLevelSecurityMutationKey() {
+  return `DELETE ${client['mixed-level-security'].$url().pathname}`
 }
 
 /**
@@ -314,9 +357,10 @@ export function useGetOverrideGlobal(options?: {
 
 /**
  * Generates SWR cache key for GET /override-global
+ * Uses $url() for type-safe key generation
  */
 export function getGetOverrideGlobalKey() {
-  return ['/override-global'] as const
+  return client['override-global'].$url().pathname
 }
 
 /**
@@ -343,9 +387,10 @@ export function useGetOptionalEnhanced(options?: {
 
 /**
  * Generates SWR cache key for GET /optional-enhanced
+ * Uses $url() for type-safe key generation
  */
 export function getGetOptionalEnhancedKey() {
-  return ['/optional-enhanced'] as const
+  return client['optional-enhanced'].$url().pathname
 }
 
 /**
@@ -372,7 +417,8 @@ export function useGetMultiTenant(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-tenant
+ * Uses $url() for type-safe key generation
  */
 export function getGetMultiTenantKey() {
-  return ['/multi-tenant'] as const
+  return client['multi-tenant'].$url().pathname
 }

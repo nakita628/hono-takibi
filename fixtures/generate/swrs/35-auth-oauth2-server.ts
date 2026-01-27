@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/35-auth-oauth2-server'
 
 /**
@@ -36,11 +36,12 @@ export function useGetOauthAuthorize(
 
 /**
  * Generates SWR cache key for GET /oauth/authorize
+ * Uses $url() for type-safe key generation
  */
 export function getGetOauthAuthorizeKey(
-  args?: InferRequestType<typeof client.oauth.authorize.$get>,
+  args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return ['/oauth/authorize', ...(args ? [args] : [])] as const
+  return client.oauth.authorize.$url(args).pathname
 }
 
 /**
@@ -55,18 +56,30 @@ export function usePostOauthToken(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.token.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.oauth.token.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /oauth/token',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.token.$post> }) =>
-      parseResponse(client.oauth.token.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOauthTokenMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.oauth.token.$post> }) =>
+        parseResponse(client.oauth.token.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /oauth/token
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOauthTokenMutationKey() {
+  return `POST ${client.oauth.token.$url().pathname}`
 }
 
 /**
@@ -82,18 +95,30 @@ export function usePostOauthRevoke(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.revoke.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.oauth.revoke.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /oauth/revoke',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.revoke.$post> }) =>
-      parseResponse(client.oauth.revoke.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOauthRevokeMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.oauth.revoke.$post> }) =>
+        parseResponse(client.oauth.revoke.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /oauth/revoke
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOauthRevokeMutationKey() {
+  return `POST ${client.oauth.revoke.$url().pathname}`
 }
 
 /**
@@ -109,18 +134,30 @@ export function usePostOauthIntrospect(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.introspect.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.oauth.introspect.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /oauth/introspect',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.introspect.$post> }) =>
-      parseResponse(client.oauth.introspect.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOauthIntrospectMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.oauth.introspect.$post> }) =>
+        parseResponse(client.oauth.introspect.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /oauth/introspect
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOauthIntrospectMutationKey() {
+  return `POST ${client.oauth.introspect.$url().pathname}`
 }
 
 /**
@@ -136,18 +173,30 @@ export function usePostOauthDeviceCode(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.device.code.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.oauth.device.code.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /oauth/device/code',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.device.code.$post> }) =>
-      parseResponse(client.oauth.device.code.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOauthDeviceCodeMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.oauth.device.code.$post> }) =>
+        parseResponse(client.oauth.device.code.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /oauth/device/code
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOauthDeviceCodeMutationKey() {
+  return `POST ${client.oauth.device.code.$url().pathname}`
 }
 
 /**
@@ -176,9 +225,10 @@ export function useGetOauthUserinfo(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth/userinfo
+ * Uses $url() for type-safe key generation
  */
 export function getGetOauthUserinfoKey() {
-  return ['/oauth/userinfo'] as const
+  return client.oauth.userinfo.$url().pathname
 }
 
 /**
@@ -208,9 +258,10 @@ export function useGetWellKnownOpenidConfiguration(options?: {
 
 /**
  * Generates SWR cache key for GET /.well-known/openid-configuration
+ * Uses $url() for type-safe key generation
  */
 export function getGetWellKnownOpenidConfigurationKey() {
-  return ['/.well-known/openid-configuration'] as const
+  return client['.well-known']['openid-configuration'].$url().pathname
 }
 
 /**
@@ -239,9 +290,10 @@ export function useGetWellKnownJwksJson(options?: {
 
 /**
  * Generates SWR cache key for GET /.well-known/jwks.json
+ * Uses $url() for type-safe key generation
  */
 export function getGetWellKnownJwksJsonKey() {
-  return ['/.well-known/jwks.json'] as const
+  return client['.well-known']['jwks.json'].$url().pathname
 }
 
 /**
@@ -268,9 +320,10 @@ export function useGetOauthClients(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth/clients
+ * Uses $url() for type-safe key generation
  */
 export function getGetOauthClientsKey() {
-  return ['/oauth/clients'] as const
+  return client.oauth.clients.$url().pathname
 }
 
 /**
@@ -284,18 +337,30 @@ export function usePostOauthClients(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth.clients.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.oauth.clients.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /oauth/clients',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.oauth.clients.$post> }) =>
-      parseResponse(client.oauth.clients.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOauthClientsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.oauth.clients.$post> }) =>
+        parseResponse(client.oauth.clients.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /oauth/clients
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOauthClientsMutationKey() {
+  return `POST ${client.oauth.clients.$url().pathname}`
 }
 
 /**
@@ -325,11 +390,12 @@ export function useGetOauthClientsClientId(
 
 /**
  * Generates SWR cache key for GET /oauth/clients/{clientId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetOauthClientsClientIdKey(
-  args?: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
+  args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return ['/oauth/clients/:clientId', ...(args ? [args] : [])] as const
+  return client.oauth.clients[':clientId'].$url(args).pathname
 }
 
 /**
@@ -347,20 +413,32 @@ export function usePutOauthClientsClientId(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /oauth/clients/:clientId',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']> },
-    ) => parseResponse(client.oauth.clients[':clientId'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutOauthClientsClientIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']> },
+      ) => parseResponse(client.oauth.clients[':clientId'].$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /oauth/clients/{clientId}
+ * Uses $url() for type-safe key generation
+ */
+export function getPutOauthClientsClientIdMutationKey() {
+  return `PUT ${client.oauth.clients[':clientId'].$url().pathname}`
 }
 
 /**
@@ -379,20 +457,32 @@ export function useDeleteOauthClientsClientId(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /oauth/clients/:clientId',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']> },
-    ) => parseResponse(client.oauth.clients[':clientId'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteOauthClientsClientIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']> },
+      ) => parseResponse(client.oauth.clients[':clientId'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /oauth/clients/{clientId}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteOauthClientsClientIdMutationKey() {
+  return `DELETE ${client.oauth.clients[':clientId'].$url().pathname}`
 }
 
 /**
@@ -410,22 +500,34 @@ export function usePostOauthClientsClientIdSecret(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /oauth/clients/:clientId/secret',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> },
-    ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOauthClientsClientIdSecretMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']> },
+      ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /oauth/clients/{clientId}/secret
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOauthClientsClientIdSecretMutationKey() {
+  return `POST ${client.oauth.clients[':clientId'].secret.$url().pathname}`
 }
 
 /**
@@ -454,9 +556,10 @@ export function useGetOauthConsents(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth/consents
+ * Uses $url() for type-safe key generation
  */
 export function getGetOauthConsentsKey() {
-  return ['/oauth/consents'] as const
+  return client.oauth.consents.$url().pathname
 }
 
 /**
@@ -477,18 +580,30 @@ export function useDeleteOauthConsentsClientId(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /oauth/consents/:clientId',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']> },
-    ) => parseResponse(client.oauth.consents[':clientId'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteOauthConsentsClientIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']> },
+      ) => parseResponse(client.oauth.consents[':clientId'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /oauth/consents/{clientId}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteOauthConsentsClientIdMutationKey() {
+  return `DELETE ${client.oauth.consents[':clientId'].$url().pathname}`
 }

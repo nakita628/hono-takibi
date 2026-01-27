@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/spotify'
 
@@ -13,17 +14,10 @@ import { client } from '../clients/spotify'
 export function createGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.albums.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -33,9 +27,10 @@ export function createGetAlbums(
 
 /**
  * Generates Svelte Query cache key for GET /albums
+ * Uses $url() for type-safe key generation
  */
 export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
-  return ['/albums', args] as const
+  return [client.albums.$url(args).pathname] as const
 }
 
 /**
@@ -46,14 +41,13 @@ export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums
 export const getGetAlbumsQueryOptions = (
   args: InferRequestType<typeof client.albums.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAlbumsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetAlbumsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /albums/{id}
@@ -65,17 +59,12 @@ export const getGetAlbumsQueryOptions = (
 export function createGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.albums)[':id']['$get']>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -88,11 +77,12 @@ export function createGetAlbumsId(
 
 /**
  * Generates Svelte Query cache key for GET /albums/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  return ['/albums/:id', args] as const
+  return [client.albums[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -103,17 +93,16 @@ export function getGetAlbumsIdQueryKey(
 export const getGetAlbumsIdQueryOptions = (
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAlbumsIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.albums[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAlbumsIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.albums[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /albums/{id}/tracks
@@ -126,17 +115,14 @@ export const getGetAlbumsIdQueryOptions = (
 export function createGetAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.albums)[':id']['tracks']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -149,11 +135,12 @@ export function createGetAlbumsIdTracks(
 
 /**
  * Generates Svelte Query cache key for GET /albums/{id}/tracks
+ * Uses $url() for type-safe key generation
  */
 export function getGetAlbumsIdTracksQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return ['/albums/:id/tracks', args] as const
+  return [client.albums[':id'].tracks.$url(args).pathname] as const
 }
 
 /**
@@ -164,17 +151,16 @@ export function getGetAlbumsIdTracksQueryKey(
 export const getGetAlbumsIdTracksQueryOptions = (
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAlbumsIdTracksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.albums[':id'].tracks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAlbumsIdTracksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.albums[':id'].tracks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists
@@ -186,17 +172,10 @@ export const getGetAlbumsIdTracksQueryOptions = (
 export function createGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.artists.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -206,9 +185,10 @@ export function createGetArtists(
 
 /**
  * Generates Svelte Query cache key for GET /artists
+ * Uses $url() for type-safe key generation
  */
 export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
-  return ['/artists', args] as const
+  return [client.artists.$url(args).pathname] as const
 }
 
 /**
@@ -219,14 +199,13 @@ export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artis
 export const getGetArtistsQueryOptions = (
   args: InferRequestType<typeof client.artists.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetArtistsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetArtistsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.artists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /artists/{id}
@@ -238,17 +217,14 @@ export const getGetArtistsQueryOptions = (
 export function createGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.artists)[':id']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -261,11 +237,12 @@ export function createGetArtistsId(
 
 /**
  * Generates Svelte Query cache key for GET /artists/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetArtistsIdQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  return ['/artists/:id', args] as const
+  return [client.artists[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -276,17 +253,16 @@ export function getGetArtistsIdQueryKey(
 export const getGetArtistsIdQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetArtistsIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.artists[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetArtistsIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.artists[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists/{id}/albums
@@ -298,17 +274,16 @@ export const getGetArtistsIdQueryOptions = (
 export function createGetArtistsIdAlbums(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.artists)[':id']['albums']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -321,11 +296,12 @@ export function createGetArtistsIdAlbums(
 
 /**
  * Generates Svelte Query cache key for GET /artists/{id}/albums
+ * Uses $url() for type-safe key generation
  */
 export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return ['/artists/:id/albums', args] as const
+  return [client.artists[':id'].albums.$url(args).pathname] as const
 }
 
 /**
@@ -336,17 +312,16 @@ export function getGetArtistsIdAlbumsQueryKey(
 export const getGetArtistsIdAlbumsQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetArtistsIdAlbumsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.artists[':id'].albums.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetArtistsIdAlbumsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.artists[':id'].albums.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists/{id}/related-artists
@@ -358,17 +333,16 @@ export const getGetArtistsIdAlbumsQueryOptions = (
 export function createGetArtistsIdRelatedArtists(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.artists)[':id']['related-artists']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -381,11 +355,12 @@ export function createGetArtistsIdRelatedArtists(
 
 /**
  * Generates Svelte Query cache key for GET /artists/{id}/related-artists
+ * Uses $url() for type-safe key generation
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return ['/artists/:id/related-artists', args] as const
+  return [client.artists[':id']['related-artists'].$url(args).pathname] as const
 }
 
 /**
@@ -396,17 +371,16 @@ export function getGetArtistsIdRelatedArtistsQueryKey(
 export const getGetArtistsIdRelatedArtistsQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.artists[':id']['related-artists'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetArtistsIdRelatedArtistsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.artists[':id']['related-artists'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /artists/{id}/top-tracks
@@ -418,17 +392,16 @@ export const getGetArtistsIdRelatedArtistsQueryOptions = (
 export function createGetArtistsIdTopTracks(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.artists)[':id']['top-tracks']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -441,11 +414,12 @@ export function createGetArtistsIdTopTracks(
 
 /**
  * Generates Svelte Query cache key for GET /artists/{id}/top-tracks
+ * Uses $url() for type-safe key generation
  */
 export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return ['/artists/:id/top-tracks', args] as const
+  return [client.artists[':id']['top-tracks'].$url(args).pathname] as const
 }
 
 /**
@@ -456,17 +430,16 @@ export function getGetArtistsIdTopTracksQueryKey(
 export const getGetArtistsIdTopTracksQueryOptions = (
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetArtistsIdTopTracksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.artists[':id']['top-tracks'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetArtistsIdTopTracksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.artists[':id']['top-tracks'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audio-analysis/{id}
@@ -478,17 +451,16 @@ export const getGetArtistsIdTopTracksQueryOptions = (
 export function createGetAudioAnalysisId(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['audio-analysis'][':id']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -501,11 +473,12 @@ export function createGetAudioAnalysisId(
 
 /**
  * Generates Svelte Query cache key for GET /audio-analysis/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetAudioAnalysisIdQueryKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return ['/audio-analysis/:id', args] as const
+  return [client['audio-analysis'][':id'].$url(args).pathname] as const
 }
 
 /**
@@ -516,17 +489,16 @@ export function getGetAudioAnalysisIdQueryKey(
 export const getGetAudioAnalysisIdQueryOptions = (
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAudioAnalysisIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['audio-analysis'][':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAudioAnalysisIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['audio-analysis'][':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audio-features
@@ -538,17 +510,14 @@ export const getGetAudioAnalysisIdQueryOptions = (
 export function createGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['audio-features']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -561,11 +530,12 @@ export function createGetAudioFeatures(
 
 /**
  * Generates Svelte Query cache key for GET /audio-features
+ * Uses $url() for type-safe key generation
  */
 export function getGetAudioFeaturesQueryKey(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return ['/audio-features', args] as const
+  return [client['audio-features'].$url(args).pathname] as const
 }
 
 /**
@@ -576,17 +546,16 @@ export function getGetAudioFeaturesQueryKey(
 export const getGetAudioFeaturesQueryOptions = (
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAudioFeaturesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['audio-features'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAudioFeaturesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['audio-features'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audio-features/{id}
@@ -599,17 +568,16 @@ export const getGetAudioFeaturesQueryOptions = (
 export function createGetAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['audio-features'][':id']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -622,11 +590,12 @@ export function createGetAudioFeaturesId(
 
 /**
  * Generates Svelte Query cache key for GET /audio-features/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetAudioFeaturesIdQueryKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return ['/audio-features/:id', args] as const
+  return [client['audio-features'][':id'].$url(args).pathname] as const
 }
 
 /**
@@ -637,17 +606,16 @@ export function getGetAudioFeaturesIdQueryKey(
 export const getGetAudioFeaturesIdQueryOptions = (
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAudioFeaturesIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['audio-features'][':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAudioFeaturesIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['audio-features'][':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audiobooks
@@ -660,17 +628,10 @@ export const getGetAudioFeaturesIdQueryOptions = (
 export function createGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.audiobooks.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -683,9 +644,10 @@ export function createGetAudiobooks(
 
 /**
  * Generates Svelte Query cache key for GET /audiobooks
+ * Uses $url() for type-safe key generation
  */
 export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  return ['/audiobooks', args] as const
+  return [client.audiobooks.$url(args).pathname] as const
 }
 
 /**
@@ -696,17 +658,13 @@ export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.au
 export const getGetAudiobooksQueryOptions = (
   args: InferRequestType<typeof client.audiobooks.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAudiobooksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.audiobooks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAudiobooksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.audiobooks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /audiobooks/{id}
@@ -719,17 +677,14 @@ export const getGetAudiobooksQueryOptions = (
 export function createGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.audiobooks)[':id']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -742,11 +697,12 @@ export function createGetAudiobooksId(
 
 /**
  * Generates Svelte Query cache key for GET /audiobooks/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetAudiobooksIdQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return ['/audiobooks/:id', args] as const
+  return [client.audiobooks[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -757,17 +713,16 @@ export function getGetAudiobooksIdQueryKey(
 export const getGetAudiobooksIdQueryOptions = (
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAudiobooksIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.audiobooks[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAudiobooksIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.audiobooks[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /audiobooks/{id}/chapters
@@ -780,17 +735,16 @@ export const getGetAudiobooksIdQueryOptions = (
 export function createGetAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.audiobooks)[':id']['chapters']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -803,11 +757,12 @@ export function createGetAudiobooksIdChapters(
 
 /**
  * Generates Svelte Query cache key for GET /audiobooks/{id}/chapters
+ * Uses $url() for type-safe key generation
  */
 export function getGetAudiobooksIdChaptersQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return ['/audiobooks/:id/chapters', args] as const
+  return [client.audiobooks[':id'].chapters.$url(args).pathname] as const
 }
 
 /**
@@ -818,17 +773,16 @@ export function getGetAudiobooksIdChaptersQueryKey(
 export const getGetAudiobooksIdChaptersQueryOptions = (
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAudiobooksIdChaptersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.audiobooks[':id'].chapters.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAudiobooksIdChaptersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.audiobooks[':id'].chapters.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/categories
@@ -840,17 +794,12 @@ export const getGetAudiobooksIdChaptersQueryOptions = (
 export function createGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.browse.categories.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -863,11 +812,12 @@ export function createGetBrowseCategories(
 
 /**
  * Generates Svelte Query cache key for GET /browse/categories
+ * Uses $url() for type-safe key generation
  */
 export function getGetBrowseCategoriesQueryKey(
   args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return ['/browse/categories', args] as const
+  return [client.browse.categories.$url(args).pathname] as const
 }
 
 /**
@@ -878,17 +828,16 @@ export function getGetBrowseCategoriesQueryKey(
 export const getGetBrowseCategoriesQueryOptions = (
   args: InferRequestType<typeof client.browse.categories.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetBrowseCategoriesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.browse.categories.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetBrowseCategoriesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.browse.categories.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/categories/{category_id}
@@ -900,17 +849,16 @@ export const getGetBrowseCategoriesQueryOptions = (
 export function createGetBrowseCategoriesCategoryId(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.browse.categories)[':category_id']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -923,11 +871,12 @@ export function createGetBrowseCategoriesCategoryId(
 
 /**
  * Generates Svelte Query cache key for GET /browse/categories/{category_id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return ['/browse/categories/:category_id', args] as const
+  return [client.browse.categories[':category_id'].$url(args).pathname] as const
 }
 
 /**
@@ -938,17 +887,16 @@ export function getGetBrowseCategoriesCategoryIdQueryKey(
 export const getGetBrowseCategoriesCategoryIdQueryOptions = (
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.browse.categories[':category_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetBrowseCategoriesCategoryIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.browse.categories[':category_id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/categories/{category_id}/playlists
@@ -960,17 +908,18 @@ export const getGetBrowseCategoriesCategoryIdQueryOptions = (
 export function createGetBrowseCategoriesCategoryIdPlaylists(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -983,11 +932,12 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
 
 /**
  * Generates Svelte Query cache key for GET /browse/categories/{category_id}/playlists
+ * Uses $url() for type-safe key generation
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return ['/browse/categories/:category_id/playlists', args] as const
+  return [client.browse.categories[':category_id'].playlists.$url(args).pathname] as const
 }
 
 /**
@@ -998,17 +948,16 @@ export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
 export const getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions = (
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.browse.categories[':category_id'].playlists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.browse.categories[':category_id'].playlists.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/featured-playlists
@@ -1020,17 +969,16 @@ export const getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions = (
 export function createGetBrowseFeaturedPlaylists(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.browse)['featured-playlists']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1043,11 +991,12 @@ export function createGetBrowseFeaturedPlaylists(
 
 /**
  * Generates Svelte Query cache key for GET /browse/featured-playlists
+ * Uses $url() for type-safe key generation
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return ['/browse/featured-playlists', args] as const
+  return [client.browse['featured-playlists'].$url(args).pathname] as const
 }
 
 /**
@@ -1058,17 +1007,16 @@ export function getGetBrowseFeaturedPlaylistsQueryKey(
 export const getGetBrowseFeaturedPlaylistsQueryOptions = (
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.browse['featured-playlists'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetBrowseFeaturedPlaylistsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.browse['featured-playlists'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browse/new-releases
@@ -1080,17 +1028,14 @@ export const getGetBrowseFeaturedPlaylistsQueryOptions = (
 export function createGetBrowseNewReleases(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.browse)['new-releases']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1103,11 +1048,12 @@ export function createGetBrowseNewReleases(
 
 /**
  * Generates Svelte Query cache key for GET /browse/new-releases
+ * Uses $url() for type-safe key generation
  */
 export function getGetBrowseNewReleasesQueryKey(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return ['/browse/new-releases', args] as const
+  return [client.browse['new-releases'].$url(args).pathname] as const
 }
 
 /**
@@ -1118,17 +1064,16 @@ export function getGetBrowseNewReleasesQueryKey(
 export const getGetBrowseNewReleasesQueryOptions = (
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetBrowseNewReleasesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.browse['new-releases'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetBrowseNewReleasesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.browse['new-releases'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /chapters
@@ -1141,17 +1086,10 @@ export const getGetBrowseNewReleasesQueryOptions = (
 export function createGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.chapters.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1164,9 +1102,10 @@ export function createGetChapters(
 
 /**
  * Generates Svelte Query cache key for GET /chapters
+ * Uses $url() for type-safe key generation
  */
 export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
-  return ['/chapters', args] as const
+  return [client.chapters.$url(args).pathname] as const
 }
 
 /**
@@ -1177,14 +1116,13 @@ export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chap
 export const getGetChaptersQueryOptions = (
   args: InferRequestType<typeof client.chapters.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetChaptersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetChaptersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.chapters.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /chapters/{id}
@@ -1197,17 +1135,14 @@ export const getGetChaptersQueryOptions = (
 export function createGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.chapters)[':id']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1220,11 +1155,12 @@ export function createGetChaptersId(
 
 /**
  * Generates Svelte Query cache key for GET /chapters/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetChaptersIdQueryKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return ['/chapters/:id', args] as const
+  return [client.chapters[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -1235,17 +1171,16 @@ export function getGetChaptersIdQueryKey(
 export const getGetChaptersIdQueryOptions = (
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetChaptersIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.chapters[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetChaptersIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.chapters[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /episodes
@@ -1257,17 +1192,10 @@ export const getGetChaptersIdQueryOptions = (
 export function createGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.episodes.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1280,9 +1208,10 @@ export function createGetEpisodes(
 
 /**
  * Generates Svelte Query cache key for GET /episodes
+ * Uses $url() for type-safe key generation
  */
 export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
-  return ['/episodes', args] as const
+  return [client.episodes.$url(args).pathname] as const
 }
 
 /**
@@ -1293,14 +1222,13 @@ export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.epis
 export const getGetEpisodesQueryOptions = (
   args: InferRequestType<typeof client.episodes.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetEpisodesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetEpisodesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /episodes/{id}
@@ -1313,17 +1241,14 @@ export const getGetEpisodesQueryOptions = (
 export function createGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.episodes)[':id']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1336,11 +1261,12 @@ export function createGetEpisodesId(
 
 /**
  * Generates Svelte Query cache key for GET /episodes/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetEpisodesIdQueryKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return ['/episodes/:id', args] as const
+  return [client.episodes[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -1351,17 +1277,16 @@ export function getGetEpisodesIdQueryKey(
 export const getGetEpisodesIdQueryOptions = (
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetEpisodesIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.episodes[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetEpisodesIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.episodes[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /markets
@@ -1371,17 +1296,10 @@ export const getGetEpisodesIdQueryOptions = (
  * Get the list of markets where Spotify is available.
  */
 export function createGetMarkets(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.markets.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1390,9 +1308,10 @@ export function createGetMarkets(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /markets
+ * Uses $url() for type-safe key generation
  */
 export function getGetMarketsQueryKey() {
-  return ['/markets'] as const
+  return [client.markets.$url().pathname] as const
 }
 
 /**
@@ -1400,17 +1319,16 @@ export function getGetMarketsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMarketsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.markets.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMarketsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.markets.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me
@@ -1421,17 +1339,10 @@ export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) 
  * current user's username).
  */
 export function createGetMe(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1440,9 +1351,10 @@ export function createGetMe(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /me
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeQueryKey() {
-  return ['/me'] as const
+  return [client.me.$url().pathname] as const
 }
 
 /**
@@ -1450,14 +1362,13 @@ export function getGetMeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMeQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMeQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /me/albums
@@ -1469,17 +1380,10 @@ export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) =>
 export function createGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1492,9 +1396,10 @@ export function createGetMeAlbums(
 
 /**
  * Generates Svelte Query cache key for GET /me/albums
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  return ['/me/albums', args] as const
+  return [client.me.albums.$url(args).pathname] as const
 }
 
 /**
@@ -1505,14 +1410,13 @@ export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.a
 export const getGetMeAlbumsQueryOptions = (
   args: InferRequestType<typeof client.me.albums.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeAlbumsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeAlbumsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.albums.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * PUT /me/albums
@@ -1522,27 +1426,11 @@ export const getGetMeAlbumsQueryOptions = (
  * Save one or more albums to the current user's 'Your Music' library.
  */
 export function createPutMeAlbums(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.me.albums.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.albums.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.albums.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$put>>>>>,
+    Error,
+    InferRequestType<typeof client.me.albums.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1561,27 +1449,11 @@ export function createPutMeAlbums(options?: {
  * Remove one or more albums from the current user's 'Your Music' library.
  */
 export function createDeleteMeAlbums(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>
-      >,
-      variables: InferRequestType<typeof client.me.albums.$delete>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.albums.$delete>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.albums.$delete>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.albums.$delete>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$delete>>>>>,
+    Error,
+    InferRequestType<typeof client.me.albums.$delete>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1602,17 +1474,12 @@ export function createDeleteMeAlbums(options?: {
 export function createGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.contains.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1625,11 +1492,12 @@ export function createGetMeAlbumsContains(
 
 /**
  * Generates Svelte Query cache key for GET /me/albums/contains
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeAlbumsContainsQueryKey(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return ['/me/albums/contains', args] as const
+  return [client.me.albums.contains.$url(args).pathname] as const
 }
 
 /**
@@ -1640,17 +1508,16 @@ export function getGetMeAlbumsContainsQueryKey(
 export const getGetMeAlbumsContainsQueryOptions = (
   args: InferRequestType<typeof client.me.albums.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeAlbumsContainsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.albums.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeAlbumsContainsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.albums.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/audiobooks
@@ -1662,17 +1529,12 @@ export const getGetMeAlbumsContainsQueryOptions = (
 export function createGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1685,11 +1547,12 @@ export function createGetMeAudiobooks(
 
 /**
  * Generates Svelte Query cache key for GET /me/audiobooks
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeAudiobooksQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return ['/me/audiobooks', args] as const
+  return [client.me.audiobooks.$url(args).pathname] as const
 }
 
 /**
@@ -1700,17 +1563,16 @@ export function getGetMeAudiobooksQueryKey(
 export const getGetMeAudiobooksQueryOptions = (
   args: InferRequestType<typeof client.me.audiobooks.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeAudiobooksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.audiobooks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeAudiobooksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.audiobooks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /me/audiobooks
@@ -1720,27 +1582,13 @@ export const getGetMeAudiobooksQueryOptions = (
  * Save one or more audiobooks to the current Spotify user's library.
  */
 export function createPutMeAudiobooks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.me.audiobooks.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.audiobooks.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.audiobooks.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$put>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.me.audiobooks.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1759,32 +1607,13 @@ export function createPutMeAudiobooks(options?: {
  * Remove one or more audiobooks from the Spotify user's library.
  */
 export function createDeleteMeAudiobooks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>>
-      >,
-      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.audiobooks.$delete>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.audiobooks.$delete>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$delete>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.me.audiobooks.$delete>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1805,17 +1634,14 @@ export function createDeleteMeAudiobooks(options?: {
 export function createGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.contains.$get>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1828,11 +1654,12 @@ export function createGetMeAudiobooksContains(
 
 /**
  * Generates Svelte Query cache key for GET /me/audiobooks/contains
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeAudiobooksContainsQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return ['/me/audiobooks/contains', args] as const
+  return [client.me.audiobooks.contains.$url(args).pathname] as const
 }
 
 /**
@@ -1843,17 +1670,16 @@ export function getGetMeAudiobooksContainsQueryKey(
 export const getGetMeAudiobooksContainsQueryOptions = (
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeAudiobooksContainsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.audiobooks.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeAudiobooksContainsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.audiobooks.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/episodes
@@ -1866,17 +1692,12 @@ export const getGetMeAudiobooksContainsQueryOptions = (
 export function createGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1889,9 +1710,10 @@ export function createGetMeEpisodes(
 
 /**
  * Generates Svelte Query cache key for GET /me/episodes
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  return ['/me/episodes', args] as const
+  return [client.me.episodes.$url(args).pathname] as const
 }
 
 /**
@@ -1902,17 +1724,13 @@ export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me
 export const getGetMeEpisodesQueryOptions = (
   args: InferRequestType<typeof client.me.episodes.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeEpisodesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.episodes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeEpisodesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.episodes.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * PUT /me/episodes
@@ -1923,27 +1741,11 @@ export const getGetMeEpisodesQueryOptions = (
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export function createPutMeEpisodes(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.me.episodes.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.episodes.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.episodes.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$put>>>>>,
+    Error,
+    InferRequestType<typeof client.me.episodes.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1963,27 +1765,13 @@ export function createPutMeEpisodes(options?: {
  * This API endpoint is in __beta__ and could change without warning. Please share any feedback that you have, or issues that you discover, in our [developer community forum](https://community.spotify.com/t5/Spotify-for-Developers/bd-p/Spotify_Developer).
  */
 export function createDeleteMeEpisodes(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
-      >,
-      variables: InferRequestType<typeof client.me.episodes.$delete>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.episodes.$delete>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.episodes.$delete>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.episodes.$delete>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$delete>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.me.episodes.$delete>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2005,17 +1793,14 @@ export function createDeleteMeEpisodes(options?: {
 export function createGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.contains.$get>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2028,11 +1813,12 @@ export function createGetMeEpisodesContains(
 
 /**
  * Generates Svelte Query cache key for GET /me/episodes/contains
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeEpisodesContainsQueryKey(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return ['/me/episodes/contains', args] as const
+  return [client.me.episodes.contains.$url(args).pathname] as const
 }
 
 /**
@@ -2043,17 +1829,16 @@ export function getGetMeEpisodesContainsQueryKey(
 export const getGetMeEpisodesContainsQueryOptions = (
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeEpisodesContainsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.episodes.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeEpisodesContainsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.episodes.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/following
@@ -2065,17 +1850,12 @@ export const getGetMeEpisodesContainsQueryOptions = (
 export function createGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2088,9 +1868,10 @@ export function createGetMeFollowing(
 
 /**
  * Generates Svelte Query cache key for GET /me/following
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
-  return ['/me/following', args] as const
+  return [client.me.following.$url(args).pathname] as const
 }
 
 /**
@@ -2101,17 +1882,16 @@ export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.m
 export const getGetMeFollowingQueryOptions = (
   args: InferRequestType<typeof client.me.following.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeFollowingQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.following.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeFollowingQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.following.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /me/following
@@ -2121,29 +1901,14 @@ export const getGetMeFollowingQueryOptions = (
  * Add the current user as a follower of one or more artists or other Spotify users.
  */
 export function createPutMeFollowing(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.following.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.following.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.following.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.following.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$put>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.following.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2162,32 +1927,13 @@ export function createPutMeFollowing(options?: {
  * Remove the current user as a follower of one or more artists or other Spotify users.
  */
 export function createDeleteMeFollowing(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>>
-      >,
-      variables: InferRequestType<typeof client.me.following.$delete>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.following.$delete>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.following.$delete>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.following.$delete>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$delete>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.me.following.$delete>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2208,17 +1954,14 @@ export function createDeleteMeFollowing(options?: {
 export function createGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.following.contains.$get>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2231,11 +1974,12 @@ export function createGetMeFollowingContains(
 
 /**
  * Generates Svelte Query cache key for GET /me/following/contains
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeFollowingContainsQueryKey(
   args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return ['/me/following/contains', args] as const
+  return [client.me.following.contains.$url(args).pathname] as const
 }
 
 /**
@@ -2246,17 +1990,16 @@ export function getGetMeFollowingContainsQueryKey(
 export const getGetMeFollowingContainsQueryOptions = (
   args: InferRequestType<typeof client.me.following.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeFollowingContainsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.following.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeFollowingContainsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.following.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player
@@ -2268,17 +2011,10 @@ export const getGetMeFollowingContainsQueryOptions = (
 export function createGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2291,9 +2027,10 @@ export function createGetMePlayer(
 
 /**
  * Generates Svelte Query cache key for GET /me/player
+ * Uses $url() for type-safe key generation
  */
 export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
-  return ['/me/player', args] as const
+  return [client.me.player.$url(args).pathname] as const
 }
 
 /**
@@ -2304,14 +2041,13 @@ export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.p
 export const getGetMePlayerQueryOptions = (
   args: InferRequestType<typeof client.me.player.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMePlayerQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetMePlayerQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.player.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * PUT /me/player
@@ -2321,29 +2057,12 @@ export const getGetMePlayerQueryOptions = (
  * Transfer playback to a new device and determine if it should start playing.
  */
 export function createPutMePlayer(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$put>>>>>
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2364,17 +2083,16 @@ export function createPutMePlayer(options?: {
 export function createGetMePlayerCurrentlyPlaying(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.me.player)['currently-playing']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2387,11 +2105,12 @@ export function createGetMePlayerCurrentlyPlaying(
 
 /**
  * Generates Svelte Query cache key for GET /me/player/currently-playing
+ * Uses $url() for type-safe key generation
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return ['/me/player/currently-playing', args] as const
+  return [client.me.player['currently-playing'].$url(args).pathname] as const
 }
 
 /**
@@ -2402,17 +2121,16 @@ export function getGetMePlayerCurrentlyPlayingQueryKey(
 export const getGetMePlayerCurrentlyPlayingQueryOptions = (
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.player['currently-playing'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMePlayerCurrentlyPlayingQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.player['currently-playing'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/player/devices
@@ -2422,17 +2140,12 @@ export const getGetMePlayerCurrentlyPlayingQueryOptions = (
  * Get information about a user’s available devices.
  */
 export function createGetMePlayerDevices(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.devices.$get>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2444,9 +2157,10 @@ export function createGetMePlayerDevices(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /me/player/devices
+ * Uses $url() for type-safe key generation
  */
 export function getGetMePlayerDevicesQueryKey() {
-  return ['/me/player/devices'] as const
+  return [client.me.player.devices.$url().pathname] as const
 }
 
 /**
@@ -2454,17 +2168,16 @@ export function getGetMePlayerDevicesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMePlayerDevicesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.player.devices.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMePlayerDevicesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.player.devices.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /me/player/next
@@ -2474,36 +2187,14 @@ export const getGetMePlayerDevicesQueryOptions = (clientOptions?: ClientRequestO
  * Skips to next track in the user’s queue.
  */
 export function createPostMePlayerNext(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.next.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.player.next.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.next.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.next.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.next.$post>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.next.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2522,36 +2213,14 @@ export function createPostMePlayerNext(options?: {
  * Pause playback on the user's account.
  */
 export function createPutMePlayerPause(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.pause.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.player.pause.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.pause.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.pause.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.pause.$put>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.pause.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2570,29 +2239,14 @@ export function createPutMePlayerPause(options?: {
  * Start a new context or resume current playback on the user's active device.
  */
 export function createPutMePlayerPlay(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.play.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.play.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.play.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.play.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.play.$put>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.play.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2611,36 +2265,16 @@ export function createPutMePlayerPlay(options?: {
  * Skips to previous track in the user’s queue.
  */
 export function createPostMePlayerPrevious(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.previous.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.player.previous.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.previous.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.previous.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.me.player.previous.$post>>>
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.previous.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2659,17 +2293,12 @@ export function createPostMePlayerPrevious(options?: {
  * Get the list of objects that make up the user's queue.
  */
 export function createGetMePlayerQueue(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$get>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2678,9 +2307,10 @@ export function createGetMePlayerQueue(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /me/player/queue
+ * Uses $url() for type-safe key generation
  */
 export function getGetMePlayerQueueQueryKey() {
-  return ['/me/player/queue'] as const
+  return [client.me.player.queue.$url().pathname] as const
 }
 
 /**
@@ -2688,17 +2318,16 @@ export function getGetMePlayerQueueQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMePlayerQueueQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.player.queue.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMePlayerQueueQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.player.queue.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /me/player/queue
@@ -2708,36 +2337,14 @@ export const getGetMePlayerQueueQueryOptions = (clientOptions?: ClientRequestOpt
  * Add an item to the end of the user's current playback queue.
  */
 export function createPostMePlayerQueue(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.queue.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.player.queue.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.queue.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.queue.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$post>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.queue.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2759,17 +2366,16 @@ export function createPostMePlayerQueue(options?: {
 export function createGetMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.me.player)['recently-played']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2782,11 +2388,12 @@ export function createGetMePlayerRecentlyPlayed(
 
 /**
  * Generates Svelte Query cache key for GET /me/player/recently-played
+ * Uses $url() for type-safe key generation
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return ['/me/player/recently-played', args] as const
+  return [client.me.player['recently-played'].$url(args).pathname] as const
 }
 
 /**
@@ -2797,17 +2404,16 @@ export function getGetMePlayerRecentlyPlayedQueryKey(
 export const getGetMePlayerRecentlyPlayedQueryOptions = (
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.player['recently-played'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMePlayerRecentlyPlayedQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.player['recently-played'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /me/player/repeat
@@ -2818,36 +2424,14 @@ export const getGetMePlayerRecentlyPlayedQueryOptions = (
  * repeat-context, and off.
  */
 export function createPutMePlayerRepeat(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.repeat.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.player.repeat.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.repeat.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.repeat.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.repeat.$put>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.repeat.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2866,29 +2450,14 @@ export function createPutMePlayerRepeat(options?: {
  * Seeks to the given position in the user’s currently playing track.
  */
 export function createPutMePlayerSeek(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.seek.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.player.seek.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.seek.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.seek.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.seek.$put>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.seek.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2907,36 +2476,14 @@ export function createPutMePlayerSeek(options?: {
  * Toggle shuffle on or off for user’s playback.
  */
 export function createPutMePlayerShuffle(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.shuffle.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.shuffle.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.shuffle.$put>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.shuffle.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2955,36 +2502,14 @@ export function createPutMePlayerShuffle(options?: {
  * Set the volume for the user’s current playback device.
  */
 export function createPutMePlayerVolume(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.me.player.volume.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.me.player.volume.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.player.volume.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.player.volume.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.volume.$put>>>>
+      >
+    | undefined,
+    Error,
+    InferRequestType<typeof client.me.player.volume.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3006,17 +2531,12 @@ export function createPutMePlayerVolume(options?: {
 export function createGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.playlists.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3029,9 +2549,10 @@ export function createGetMePlaylists(
 
 /**
  * Generates Svelte Query cache key for GET /me/playlists
+ * Uses $url() for type-safe key generation
  */
 export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  return ['/me/playlists', args] as const
+  return [client.me.playlists.$url(args).pathname] as const
 }
 
 /**
@@ -3042,17 +2563,16 @@ export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.m
 export const getGetMePlaylistsQueryOptions = (
   args: InferRequestType<typeof client.me.playlists.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMePlaylistsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.playlists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMePlaylistsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.playlists.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/shows
@@ -3064,17 +2584,10 @@ export const getGetMePlaylistsQueryOptions = (
 export function createGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3084,9 +2597,10 @@ export function createGetMeShows(
 
 /**
  * Generates Svelte Query cache key for GET /me/shows
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  return ['/me/shows', args] as const
+  return [client.me.shows.$url(args).pathname] as const
 }
 
 /**
@@ -3097,14 +2611,13 @@ export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.sh
 export const getGetMeShowsQueryOptions = (
   args: InferRequestType<typeof client.me.shows.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeShowsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeShowsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * PUT /me/shows
@@ -3114,27 +2627,11 @@ export const getGetMeShowsQueryOptions = (
  * Save one or more shows to current Spotify user's library.
  */
 export function createPutMeShows(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.me.shows.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.shows.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.shows.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$put>>>>>,
+    Error,
+    InferRequestType<typeof client.me.shows.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3153,27 +2650,11 @@ export function createPutMeShows(options?: {
  * Delete one or more shows from current Spotify user's library.
  */
 export function createDeleteMeShows(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>
-      >,
-      variables: InferRequestType<typeof client.me.shows.$delete>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.shows.$delete>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.shows.$delete>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.shows.$delete>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$delete>>>>>,
+    Error,
+    InferRequestType<typeof client.me.shows.$delete>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3194,17 +2675,12 @@ export function createDeleteMeShows(options?: {
 export function createGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.contains.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3217,11 +2693,12 @@ export function createGetMeShowsContains(
 
 /**
  * Generates Svelte Query cache key for GET /me/shows/contains
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeShowsContainsQueryKey(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return ['/me/shows/contains', args] as const
+  return [client.me.shows.contains.$url(args).pathname] as const
 }
 
 /**
@@ -3232,17 +2709,16 @@ export function getGetMeShowsContainsQueryKey(
 export const getGetMeShowsContainsQueryOptions = (
   args: InferRequestType<typeof client.me.shows.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeShowsContainsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.shows.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeShowsContainsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.shows.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/top/{type}
@@ -3254,17 +2730,14 @@ export const getGetMeShowsContainsQueryOptions = (
 export function createGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.me.top)[':type']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3277,11 +2750,12 @@ export function createGetMeTopType(
 
 /**
  * Generates Svelte Query cache key for GET /me/top/{type}
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeTopTypeQueryKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return ['/me/top/:type', args] as const
+  return [client.me.top[':type'].$url(args).pathname] as const
 }
 
 /**
@@ -3292,17 +2766,16 @@ export function getGetMeTopTypeQueryKey(
 export const getGetMeTopTypeQueryOptions = (
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeTopTypeQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.top[':type'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeTopTypeQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.top[':type'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /me/tracks
@@ -3314,17 +2787,10 @@ export const getGetMeTopTypeQueryOptions = (
 export function createGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3337,9 +2803,10 @@ export function createGetMeTracks(
 
 /**
  * Generates Svelte Query cache key for GET /me/tracks
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  return ['/me/tracks', args] as const
+  return [client.me.tracks.$url(args).pathname] as const
 }
 
 /**
@@ -3350,14 +2817,13 @@ export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.t
 export const getGetMeTracksQueryOptions = (
   args: InferRequestType<typeof client.me.tracks.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeTracksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeTracksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * PUT /me/tracks
@@ -3367,27 +2833,11 @@ export const getGetMeTracksQueryOptions = (
  * Save one or more tracks to the current user's 'Your Music' library.
  */
 export function createPutMeTracks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.me.tracks.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.tracks.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.tracks.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$put>>>>>,
+    Error,
+    InferRequestType<typeof client.me.tracks.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3406,27 +2856,11 @@ export function createPutMeTracks(options?: {
  * Remove one or more tracks from the current user's 'Your Music' library.
  */
 export function createDeleteMeTracks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>
-      >,
-      variables: InferRequestType<typeof client.me.tracks.$delete>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.me.tracks.$delete>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.me.tracks.$delete>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.me.tracks.$delete>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$delete>>>>>,
+    Error,
+    InferRequestType<typeof client.me.tracks.$delete>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3447,17 +2881,12 @@ export function createDeleteMeTracks(options?: {
 export function createGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.contains.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3470,11 +2899,12 @@ export function createGetMeTracksContains(
 
 /**
  * Generates Svelte Query cache key for GET /me/tracks/contains
+ * Uses $url() for type-safe key generation
  */
 export function getGetMeTracksContainsQueryKey(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return ['/me/tracks/contains', args] as const
+  return [client.me.tracks.contains.$url(args).pathname] as const
 }
 
 /**
@@ -3485,17 +2915,16 @@ export function getGetMeTracksContainsQueryKey(
 export const getGetMeTracksContainsQueryOptions = (
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetMeTracksContainsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.me.tracks.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetMeTracksContainsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.me.tracks.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /playlists/{playlist_id}
@@ -3507,17 +2936,16 @@ export const getGetMeTracksContainsQueryOptions = (
 export function createGetPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3530,11 +2958,12 @@ export function createGetPlaylistsPlaylistId(
 
 /**
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return ['/playlists/:playlist_id', args] as const
+  return [client.playlists[':playlist_id'].$url(args).pathname] as const
 }
 
 /**
@@ -3545,17 +2974,16 @@ export function getGetPlaylistsPlaylistIdQueryKey(
 export const getGetPlaylistsPlaylistIdQueryOptions = (
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.playlists[':playlist_id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /playlists/{playlist_id}
@@ -3566,40 +2994,15 @@ export const getGetPlaylistsPlaylistIdQueryOptions = (
  * course, own the playlist.)
  */
 export function createPutPlaylistsPlaylistId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['$put']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3618,40 +3021,17 @@ export function createPutPlaylistsPlaylistId(options?: {
  * Add the current user as a follower of a playlist.
  */
 export function createPutPlaylistsPlaylistIdFollowers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3671,50 +3051,17 @@ export function createPutPlaylistsPlaylistIdFollowers(options?: {
  * Remove the current user as a follower of a playlist.
  */
 export function createDeletePlaylistsPlaylistIdFollowers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client.playlists)[':playlist_id']['followers']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.playlists)[':playlist_id']['followers']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.playlists)[':playlist_id']['followers']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.playlists)[':playlist_id']['followers']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3738,17 +3085,18 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.playlists)[':playlist_id']['followers']['contains']['$get']>
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3761,13 +3109,14 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
 
 /**
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}/followers/contains
+ * Uses $url() for type-safe key generation
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return ['/playlists/:playlist_id/followers/contains', args] as const
+  return [client.playlists[':playlist_id'].followers.contains.$url(args).pathname] as const
 }
 
 /**
@@ -3780,17 +3129,16 @@ export const getGetPlaylistsPlaylistIdFollowersContainsQueryOptions = (
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].followers.contains.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdFollowersContainsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.playlists[':playlist_id'].followers.contains.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /playlists/{playlist_id}/images
@@ -3802,17 +3150,16 @@ export const getGetPlaylistsPlaylistIdFollowersContainsQueryOptions = (
 export function createGetPlaylistsPlaylistIdImages(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3825,11 +3172,12 @@ export function createGetPlaylistsPlaylistIdImages(
 
 /**
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}/images
+ * Uses $url() for type-safe key generation
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/images', args] as const
+  return [client.playlists[':playlist_id'].images.$url(args).pathname] as const
 }
 
 /**
@@ -3840,17 +3188,16 @@ export function getGetPlaylistsPlaylistIdImagesQueryKey(
 export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].images.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdImagesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.playlists[':playlist_id'].images.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /playlists/{playlist_id}/images
@@ -3860,40 +3207,17 @@ export const getGetPlaylistsPlaylistIdImagesQueryOptions = (
  * Replace the image used to represent a specific playlist.
  */
 export function createPutPlaylistsPlaylistIdImages(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['images']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3915,17 +3239,16 @@ export function createPutPlaylistsPlaylistIdImages(options?: {
 export function createGetPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3938,11 +3261,12 @@ export function createGetPlaylistsPlaylistIdTracks(
 
 /**
  * Generates Svelte Query cache key for GET /playlists/{playlist_id}/tracks
+ * Uses $url() for type-safe key generation
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return ['/playlists/:playlist_id/tracks', args] as const
+  return [client.playlists[':playlist_id'].tracks.$url(args).pathname] as const
 }
 
 /**
@@ -3953,17 +3277,16 @@ export function getGetPlaylistsPlaylistIdTracksQueryKey(
 export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.playlists[':playlist_id'].tracks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPlaylistsPlaylistIdTracksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.playlists[':playlist_id'].tracks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /playlists/{playlist_id}/tracks
@@ -3979,40 +3302,17 @@ export const getGetPlaylistsPlaylistIdTracksQueryOptions = (
  * These operations can't be applied together in a single request.
  */
 export function createPutPlaylistsPlaylistIdTracks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -4032,40 +3332,17 @@ export function createPutPlaylistsPlaylistIdTracks(options?: {
  * Add one or more items to a user's playlist.
  */
 export function createPostPlaylistsPlaylistIdTracks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -4085,40 +3362,17 @@ export function createPostPlaylistsPlaylistIdTracks(options?: {
  * Remove one or more items from a user's playlist.
  */
 export function createDeletePlaylistsPlaylistIdTracks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -4142,17 +3396,12 @@ export function createDeletePlaylistsPlaylistIdTracks(options?: {
 export function createGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.recommendations.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4165,11 +3414,12 @@ export function createGetRecommendations(
 
 /**
  * Generates Svelte Query cache key for GET /recommendations
+ * Uses $url() for type-safe key generation
  */
 export function getGetRecommendationsQueryKey(
   args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return ['/recommendations', args] as const
+  return [client.recommendations.$url(args).pathname] as const
 }
 
 /**
@@ -4180,17 +3430,16 @@ export function getGetRecommendationsQueryKey(
 export const getGetRecommendationsQueryOptions = (
   args: InferRequestType<typeof client.recommendations.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetRecommendationsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.recommendations.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetRecommendationsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.recommendations.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /recommendations/available-genre-seeds
@@ -4200,17 +3449,16 @@ export const getGetRecommendationsQueryOptions = (
  * Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations).
  */
 export function createGetRecommendationsAvailableGenreSeeds(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.recommendations)['available-genre-seeds']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -4222,9 +3470,10 @@ export function createGetRecommendationsAvailableGenreSeeds(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /recommendations/available-genre-seeds
+ * Uses $url() for type-safe key generation
  */
 export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
-  return ['/recommendations/available-genre-seeds'] as const
+  return [client.recommendations['available-genre-seeds'].$url().pathname] as const
 }
 
 /**
@@ -4234,17 +3483,16 @@ export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
  */
 export const getGetRecommendationsAvailableGenreSeedsQueryOptions = (
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.recommendations['available-genre-seeds'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetRecommendationsAvailableGenreSeedsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.recommendations['available-genre-seeds'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /search
@@ -4258,17 +3506,10 @@ export const getGetRecommendationsAvailableGenreSeedsQueryOptions = (
 export function createGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4278,9 +3519,10 @@ export function createGetSearch(
 
 /**
  * Generates Svelte Query cache key for GET /search
+ * Uses $url() for type-safe key generation
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['/search', args] as const
+  return [client.search.$url(args).pathname] as const
 }
 
 /**
@@ -4291,14 +3533,13 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
 export const getGetSearchQueryOptions = (
   args: InferRequestType<typeof client.search.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSearchQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetSearchQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /shows
@@ -4310,17 +3551,10 @@ export const getGetSearchQueryOptions = (
 export function createGetShows(
   args: InferRequestType<typeof client.shows.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shows.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4330,9 +3564,10 @@ export function createGetShows(
 
 /**
  * Generates Svelte Query cache key for GET /shows
+ * Uses $url() for type-safe key generation
  */
 export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
-  return ['/shows', args] as const
+  return [client.shows.$url(args).pathname] as const
 }
 
 /**
@@ -4343,14 +3578,13 @@ export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$
 export const getGetShowsQueryOptions = (
   args: InferRequestType<typeof client.shows.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetShowsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetShowsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.shows.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /shows/{id}
@@ -4363,17 +3597,12 @@ export const getGetShowsQueryOptions = (
 export function createGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.shows)[':id']['$get']>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4383,11 +3612,12 @@ export function createGetShowsId(
 
 /**
  * Generates Svelte Query cache key for GET /shows/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetShowsIdQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  return ['/shows/:id', args] as const
+  return [client.shows[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -4398,17 +3628,16 @@ export function getGetShowsIdQueryKey(
 export const getGetShowsIdQueryOptions = (
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetShowsIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.shows[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetShowsIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.shows[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /shows/{id}/episodes
@@ -4420,17 +3649,16 @@ export const getGetShowsIdQueryOptions = (
 export function createGetShowsIdEpisodes(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.shows)[':id']['episodes']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4443,11 +3671,12 @@ export function createGetShowsIdEpisodes(
 
 /**
  * Generates Svelte Query cache key for GET /shows/{id}/episodes
+ * Uses $url() for type-safe key generation
  */
 export function getGetShowsIdEpisodesQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return ['/shows/:id/episodes', args] as const
+  return [client.shows[':id'].episodes.$url(args).pathname] as const
 }
 
 /**
@@ -4458,17 +3687,16 @@ export function getGetShowsIdEpisodesQueryKey(
 export const getGetShowsIdEpisodesQueryOptions = (
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetShowsIdEpisodesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.shows[':id'].episodes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetShowsIdEpisodesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.shows[':id'].episodes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /tracks
@@ -4480,17 +3708,10 @@ export const getGetShowsIdEpisodesQueryOptions = (
 export function createGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tracks.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4500,9 +3721,10 @@ export function createGetTracks(
 
 /**
  * Generates Svelte Query cache key for GET /tracks
+ * Uses $url() for type-safe key generation
  */
 export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
-  return ['/tracks', args] as const
+  return [client.tracks.$url(args).pathname] as const
 }
 
 /**
@@ -4513,14 +3735,13 @@ export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks
 export const getGetTracksQueryOptions = (
   args: InferRequestType<typeof client.tracks.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTracksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetTracksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.tracks.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /tracks/{id}
@@ -4533,17 +3754,12 @@ export const getGetTracksQueryOptions = (
 export function createGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.tracks)[':id']['$get']>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4556,11 +3772,12 @@ export function createGetTracksId(
 
 /**
  * Generates Svelte Query cache key for GET /tracks/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetTracksIdQueryKey(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  return ['/tracks/:id', args] as const
+  return [client.tracks[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -4571,17 +3788,16 @@ export function getGetTracksIdQueryKey(
 export const getGetTracksIdQueryOptions = (
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTracksIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.tracks[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTracksIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.tracks[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{user_id}
@@ -4593,17 +3809,14 @@ export const getGetTracksIdQueryOptions = (
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':user_id']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4616,11 +3829,12 @@ export function createGetUsersUserId(
 
 /**
  * Generates Svelte Query cache key for GET /users/{user_id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return ['/users/:user_id', args] as const
+  return [client.users[':user_id'].$url(args).pathname] as const
 }
 
 /**
@@ -4631,17 +3845,16 @@ export function getGetUsersUserIdQueryKey(
 export const getGetUsersUserIdQueryOptions = (
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUsersUserIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users[':user_id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUsersUserIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users[':user_id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /users/{user_id}/playlists
@@ -4653,17 +3866,16 @@ export const getGetUsersUserIdQueryOptions = (
 export function createGetUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4676,11 +3888,12 @@ export function createGetUsersUserIdPlaylists(
 
 /**
  * Generates Svelte Query cache key for GET /users/{user_id}/playlists
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return ['/users/:user_id/playlists', args] as const
+  return [client.users[':user_id'].playlists.$url(args).pathname] as const
 }
 
 /**
@@ -4691,17 +3904,16 @@ export function getGetUsersUserIdPlaylistsQueryKey(
 export const getGetUsersUserIdPlaylistsQueryOptions = (
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users[':user_id'].playlists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUsersUserIdPlaylistsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users[':user_id'].playlists.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /users/{user_id}/playlists
@@ -4712,40 +3924,17 @@ export const getGetUsersUserIdPlaylistsQueryOptions = (
  * you [add tracks](/documentation/web-api/reference/add-tracks-to-playlist).)
  */
 export function createPostUsersUserIdPlaylists(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.users)[':user_id']['playlists']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

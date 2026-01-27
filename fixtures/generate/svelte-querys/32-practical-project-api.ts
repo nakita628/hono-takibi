@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/32-practical-project-api'
 
@@ -11,17 +12,10 @@ import { client } from '../clients/32-practical-project-api'
 export function createGetProjects(
   args: InferRequestType<typeof client.projects.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -34,9 +28,10 @@ export function createGetProjects(
 
 /**
  * Generates Svelte Query cache key for GET /projects
+ * Uses $url() for type-safe key generation
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', args] as const
+  return [client.projects.$url(args).pathname] as const
 }
 
 /**
@@ -47,14 +42,13 @@ export function getGetProjectsQueryKey(args: InferRequestType<typeof client.proj
 export const getGetProjectsQueryOptions = (
   args: InferRequestType<typeof client.projects.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProjectsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetProjectsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.projects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /projects
@@ -62,27 +56,11 @@ export const getGetProjectsQueryOptions = (
  * プロジェクト作成
  */
 export function createPostProjects(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.projects.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.projects.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.projects.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.projects.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.projects.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.projects.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -101,17 +79,14 @@ export function createPostProjects(options?: {
 export function createGetProjectsProjectId(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.projects)[':projectId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -124,11 +99,12 @@ export function createGetProjectsProjectId(
 
 /**
  * Generates Svelte Query cache key for GET /projects/{projectId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetProjectsProjectIdQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return ['/projects/:projectId', args] as const
+  return [client.projects[':projectId'].$url(args).pathname] as const
 }
 
 /**
@@ -139,17 +115,16 @@ export function getGetProjectsProjectIdQueryKey(
 export const getGetProjectsProjectIdQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProjectsProjectIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetProjectsProjectIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.projects[':projectId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /projects/{projectId}
@@ -157,36 +132,15 @@ export const getGetProjectsProjectIdQueryOptions = (
  * プロジェクト更新
  */
 export function createPutProjectsProjectId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.projects)[':projectId']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.projects)[':projectId']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.projects)[':projectId']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.projects)[':projectId']['$put']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.projects)[':projectId']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -203,42 +157,18 @@ export function createPutProjectsProjectId(options?: {
  * プロジェクト削除
  */
 export function createDeleteProjectsProjectId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.projects)[':projectId']['$delete']>>
-              >
-            >
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['$delete']>>
           >
-        | undefined,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.projects)[':projectId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.projects)[':projectId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.projects)[':projectId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -257,17 +187,16 @@ export function createDeleteProjectsProjectId(options?: {
 export function createGetProjectsProjectIdMembers(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['members']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -280,11 +209,12 @@ export function createGetProjectsProjectIdMembers(
 
 /**
  * Generates Svelte Query cache key for GET /projects/{projectId}/members
+ * Uses $url() for type-safe key generation
  */
 export function getGetProjectsProjectIdMembersQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return ['/projects/:projectId/members', args] as const
+  return [client.projects[':projectId'].members.$url(args).pathname] as const
 }
 
 /**
@@ -295,17 +225,16 @@ export function getGetProjectsProjectIdMembersQueryKey(
 export const getGetProjectsProjectIdMembersQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProjectsProjectIdMembersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].members.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetProjectsProjectIdMembersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.projects[':projectId'].members.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /projects/{projectId}/members
@@ -313,40 +242,17 @@ export const getGetProjectsProjectIdMembersQueryOptions = (
  * メンバー追加
  */
 export function createPostProjectsProjectIdMembers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.projects)[':projectId']['members']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.projects)[':projectId']['members']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.projects)[':projectId']['members']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -366,17 +272,16 @@ export function createPostProjectsProjectIdMembers(options?: {
 export function createGetProjectsProjectIdTasks(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['tasks']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -389,11 +294,12 @@ export function createGetProjectsProjectIdTasks(
 
 /**
  * Generates Svelte Query cache key for GET /projects/{projectId}/tasks
+ * Uses $url() for type-safe key generation
  */
 export function getGetProjectsProjectIdTasksQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return ['/projects/:projectId/tasks', args] as const
+  return [client.projects[':projectId'].tasks.$url(args).pathname] as const
 }
 
 /**
@@ -404,17 +310,16 @@ export function getGetProjectsProjectIdTasksQueryKey(
 export const getGetProjectsProjectIdTasksQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProjectsProjectIdTasksQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].tasks.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetProjectsProjectIdTasksQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.projects[':projectId'].tasks.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /projects/{projectId}/tasks
@@ -422,40 +327,17 @@ export const getGetProjectsProjectIdTasksQueryOptions = (
  * タスク作成
  */
 export function createPostProjectsProjectIdTasks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.projects)[':projectId']['tasks']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.projects)[':projectId']['tasks']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.projects)[':projectId']['tasks']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -475,17 +357,14 @@ export function createPostProjectsProjectIdTasks(options?: {
 export function createGetTasksTaskId(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -498,11 +377,12 @@ export function createGetTasksTaskId(
 
 /**
  * Generates Svelte Query cache key for GET /tasks/{taskId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetTasksTaskIdQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return ['/tasks/:taskId', args] as const
+  return [client.tasks[':taskId'].$url(args).pathname] as const
 }
 
 /**
@@ -513,17 +393,16 @@ export function getGetTasksTaskIdQueryKey(
 export const getGetTasksTaskIdQueryOptions = (
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTasksTaskIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.tasks[':taskId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTasksTaskIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.tasks[':taskId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /tasks/{taskId}
@@ -531,34 +410,15 @@ export const getGetTasksTaskIdQueryOptions = (
  * タスク更新
  */
 export function createPutTasksTaskId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$put']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.tasks)[':taskId']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$put']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.tasks)[':taskId']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -575,36 +435,16 @@ export function createPutTasksTaskId(options?: {
  * タスク削除
  */
 export function createDeleteTasksTaskId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$delete']>>>
-            >
-          >
-        | undefined,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$delete']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.tasks)[':taskId']['$delete']>>>
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.tasks)[':taskId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -621,40 +461,17 @@ export function createDeleteTasksTaskId(options?: {
  * タスクステータス更新
  */
 export function createPatchTasksTaskIdStatus(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.tasks)[':taskId']['status']['$patch']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.tasks)[':taskId']['status']['$patch']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.tasks)[':taskId']['status']['$patch']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -674,17 +491,16 @@ export function createPatchTasksTaskIdStatus(options?: {
 export function createGetTasksTaskIdComments(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.tasks)[':taskId']['comments']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -697,11 +513,12 @@ export function createGetTasksTaskIdComments(
 
 /**
  * Generates Svelte Query cache key for GET /tasks/{taskId}/comments
+ * Uses $url() for type-safe key generation
  */
 export function getGetTasksTaskIdCommentsQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return ['/tasks/:taskId/comments', args] as const
+  return [client.tasks[':taskId'].comments.$url(args).pathname] as const
 }
 
 /**
@@ -712,17 +529,16 @@ export function getGetTasksTaskIdCommentsQueryKey(
 export const getGetTasksTaskIdCommentsQueryOptions = (
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTasksTaskIdCommentsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.tasks[':taskId'].comments.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTasksTaskIdCommentsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.tasks[':taskId'].comments.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /tasks/{taskId}/comments
@@ -730,40 +546,17 @@ export const getGetTasksTaskIdCommentsQueryOptions = (
  * コメント追加
  */
 export function createPostTasksTaskIdComments(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.tasks)[':taskId']['comments']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.tasks)[':taskId']['comments']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.tasks)[':taskId']['comments']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -783,17 +576,16 @@ export function createPostTasksTaskIdComments(options?: {
 export function createGetTasksTaskIdTimeEntries(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.tasks)[':taskId']['time-entries']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -806,11 +598,12 @@ export function createGetTasksTaskIdTimeEntries(
 
 /**
  * Generates Svelte Query cache key for GET /tasks/{taskId}/time-entries
+ * Uses $url() for type-safe key generation
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return ['/tasks/:taskId/time-entries', args] as const
+  return [client.tasks[':taskId']['time-entries'].$url(args).pathname] as const
 }
 
 /**
@@ -821,17 +614,16 @@ export function getGetTasksTaskIdTimeEntriesQueryKey(
 export const getGetTasksTaskIdTimeEntriesQueryOptions = (
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.tasks[':taskId']['time-entries'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetTasksTaskIdTimeEntriesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.tasks[':taskId']['time-entries'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /tasks/{taskId}/time-entries
@@ -839,40 +631,17 @@ export const getGetTasksTaskIdTimeEntriesQueryOptions = (
  * 時間記録作成
  */
 export function createPostTasksTaskIdTimeEntries(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.tasks)[':taskId']['time-entries']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.tasks)[':taskId']['time-entries']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.tasks)[':taskId']['time-entries']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -892,17 +661,16 @@ export function createPostTasksTaskIdTimeEntries(options?: {
 export function createGetProjectsProjectIdMilestones(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.projects)[':projectId']['milestones']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -915,11 +683,12 @@ export function createGetProjectsProjectIdMilestones(
 
 /**
  * Generates Svelte Query cache key for GET /projects/{projectId}/milestones
+ * Uses $url() for type-safe key generation
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return ['/projects/:projectId/milestones', args] as const
+  return [client.projects[':projectId'].milestones.$url(args).pathname] as const
 }
 
 /**
@@ -930,17 +699,16 @@ export function getGetProjectsProjectIdMilestonesQueryKey(
 export const getGetProjectsProjectIdMilestonesQueryOptions = (
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.projects[':projectId'].milestones.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetProjectsProjectIdMilestonesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.projects[':projectId'].milestones.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /projects/{projectId}/milestones
@@ -948,40 +716,17 @@ export const getGetProjectsProjectIdMilestonesQueryOptions = (
  * マイルストーン作成
  */
 export function createPostProjectsProjectIdMilestones(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.projects)[':projectId']['milestones']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.projects)[':projectId']['milestones']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.projects)[':projectId']['milestones']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -999,17 +744,10 @@ export function createPostProjectsProjectIdMilestones(options?: {
  * チーム一覧取得
  */
 export function createGetTeams(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.teams.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1018,9 +756,10 @@ export function createGetTeams(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /teams
+ * Uses $url() for type-safe key generation
  */
 export function getGetTeamsQueryKey() {
-  return ['/teams'] as const
+  return [client.teams.$url().pathname] as const
 }
 
 /**
@@ -1028,17 +767,13 @@ export function getGetTeamsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTeamsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetTeamsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.teams.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetTeamsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTeamsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.teams.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /teams
@@ -1046,25 +781,11 @@ export const getGetTeamsQueryOptions = (clientOptions?: ClientRequestOptions) =>
  * チーム作成
  */
 export function createPostTeams(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.teams.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.teams.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.teams.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.teams.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.teams.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.teams.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.teams.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.teams.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/21-extreme-status-content'
 
@@ -7,17 +8,14 @@ import { client } from '../clients/21-extreme-status-content'
  * GET /extreme-responses
  */
 export function createGetExtremeResponses(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['extreme-responses']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -29,9 +27,10 @@ export function createGetExtremeResponses(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /extreme-responses
+ * Uses $url() for type-safe key generation
  */
 export function getGetExtremeResponsesQueryKey() {
-  return ['/extreme-responses'] as const
+  return [client['extreme-responses'].$url().pathname] as const
 }
 
 /**
@@ -39,56 +38,30 @@ export function getGetExtremeResponsesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetExtremeResponsesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetExtremeResponsesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['extreme-responses'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetExtremeResponsesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExtremeResponsesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['extreme-responses'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /multipart-variations
  */
 export function createPostMultipartVariations(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['multipart-variations']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['multipart-variations']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['multipart-variations']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -103,36 +76,15 @@ export function createPostMultipartVariations(options?: {
  * POST /charset-variations
  */
 export function createPostCharsetVariations(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['charset-variations']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['charset-variations']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['charset-variations']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['charset-variations']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

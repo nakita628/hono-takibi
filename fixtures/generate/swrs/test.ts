@@ -1,7 +1,7 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
 import { client } from '../clients/test'
 
 /**
@@ -30,9 +30,10 @@ export function useGetHono(options?: {
 
 /**
  * Generates SWR cache key for GET /hono
+ * Uses $url() for type-safe key generation
  */
 export function getGetHonoKey() {
-  return ['/hono'] as const
+  return client.hono.$url().pathname
 }
 
 /**
@@ -61,9 +62,10 @@ export function useGetHonoX(options?: {
 
 /**
  * Generates SWR cache key for GET /hono-x
+ * Uses $url() for type-safe key generation
  */
 export function getGetHonoXKey() {
-  return ['/hono-x'] as const
+  return client['hono-x'].$url().pathname
 }
 
 /**
@@ -92,7 +94,8 @@ export function useGetZodOpenapiHono(options?: {
 
 /**
  * Generates SWR cache key for GET /zod-openapi-hono
+ * Uses $url() for type-safe key generation
  */
 export function getGetZodOpenapiHonoKey() {
-  return ['/zod-openapi-hono'] as const
+  return client['zod-openapi-hono'].$url().pathname
 }

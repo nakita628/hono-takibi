@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/discriminated-union'
 
@@ -7,27 +8,18 @@ import { client } from '../clients/discriminated-union'
  * POST /messages
  */
 export function usePostMessages(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.messages.$post>
       >,
-      variables: InferRequestType<typeof client.messages.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.messages.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.messages.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.messages.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.messages.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

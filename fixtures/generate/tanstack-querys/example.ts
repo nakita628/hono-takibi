@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/example'
@@ -9,17 +10,10 @@ import { client } from '../clients/example'
  * Returns a payload exercising every custom format, constraint, and nullable case
  */
 export function useGetSample(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sample.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -28,9 +22,10 @@ export function useGetSample(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /sample
+ * Uses $url() for type-safe key generation
  */
 export function getGetSampleQueryKey() {
-  return ['/sample'] as const
+  return [client.sample.$url().pathname] as const
 }
 
 /**
@@ -38,14 +33,10 @@ export function getGetSampleQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSampleQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSampleQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sample.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSampleQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSampleQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sample.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

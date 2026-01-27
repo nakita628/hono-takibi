@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
@@ -7,17 +8,15 @@ import { client } from '../clients/01-minimal'
  * GET /health
  */
 export function useGetHealth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +25,10 @@ export function useGetHealth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /health
+ * Uses $url() for type-safe key generation
  */
 export function getGetHealthQueryKey() {
-  return ['/health'] as const
+  return [client.health.$url().pathname] as const
 }
 
 /**
@@ -36,14 +36,10 @@ export function getGetHealthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetHealthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.health.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHealthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.health.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

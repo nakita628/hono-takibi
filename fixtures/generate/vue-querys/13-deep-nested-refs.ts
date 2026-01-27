@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
@@ -11,17 +12,25 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
+                  >
+                >
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -34,13 +43,17 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates Vue Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Uses $url() for type-safe key generation
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
+  return [
+    client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
+      .pathname,
+  ] as const
 }
 
 /**
@@ -53,72 +66,43 @@ export const getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOpt
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-              >
-            >
-          >
-        >
-      >,
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-                  >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
                 >
               >
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+        >,
+        Error,
+        InferRequestType<
+          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+        >
       >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -142,17 +126,21 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
  * GET /reports/organization-summary
  */
 export function useGetReportsOrganizationSummary(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.reports)['organization-summary']['$get']>>
+            >
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -164,9 +152,10 @@ export function useGetReportsOrganizationSummary(options?: {
 
 /**
  * Generates Vue Query cache key for GET /reports/organization-summary
+ * Uses $url() for type-safe key generation
  */
 export function getGetReportsOrganizationSummaryQueryKey() {
-  return ['/reports/organization-summary'] as const
+  return [client.reports['organization-summary'].$url().pathname] as const
 }
 
 /**
@@ -176,14 +165,13 @@ export function getGetReportsOrganizationSummaryQueryKey() {
  */
 export const getGetReportsOrganizationSummaryQueryOptions = (
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetReportsOrganizationSummaryQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.reports['organization-summary'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetReportsOrganizationSummaryQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.reports['organization-summary'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

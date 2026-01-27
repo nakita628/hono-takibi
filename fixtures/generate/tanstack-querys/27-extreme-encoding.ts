@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
@@ -7,34 +8,15 @@ import { client } from '../clients/27-extreme-encoding'
  * POST /encoding-test
  */
 export function usePostEncodingTest(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['encoding-test']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['encoding-test']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['encoding-test']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['encoding-test']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['encoding-test']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['encoding-test']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -51,17 +33,14 @@ export function usePostEncodingTest(options?: {
 export function useGetContentNegotiation(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['content-negotiation']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -71,11 +50,12 @@ export function useGetContentNegotiation(
 
 /**
  * Generates TanStack Query cache key for GET /content-negotiation
+ * Uses $url() for type-safe key generation
  */
 export function getGetContentNegotiationQueryKey(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['/content-negotiation', args] as const
+  return [client['content-negotiation'].$url(args).pathname] as const
 }
 
 /**
@@ -86,52 +66,30 @@ export function getGetContentNegotiationQueryKey(
 export const getGetContentNegotiationQueryOptions = (
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetContentNegotiationQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['content-negotiation'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetContentNegotiationQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['content-negotiation'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /binary-variations
  */
 export function usePostBinaryVariations(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['binary-variations']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['binary-variations']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['binary-variations']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['binary-variations']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['binary-variations']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['binary-variations']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -146,17 +104,10 @@ export function usePostBinaryVariations(options?: {
  * GET /streaming
  */
 export function useGetStreaming(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -165,9 +116,10 @@ export function useGetStreaming(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /streaming
+ * Uses $url() for type-safe key generation
  */
 export function getGetStreamingQueryKey() {
-  return ['/streaming'] as const
+  return [client.streaming.$url().pathname] as const
 }
 
 /**
@@ -175,43 +127,26 @@ export function getGetStreamingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetStreamingQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetStreamingQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.streaming.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetStreamingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStreamingQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.streaming.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /streaming
  */
 export function usePostStreaming(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.streaming.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.streaming.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.streaming.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.streaming.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.streaming.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -226,38 +161,15 @@ export function usePostStreaming(options?: {
  * POST /url-encoded-complex
  */
 export function usePostUrlEncodedComplex(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['url-encoded-complex']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['url-encoded-complex']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['url-encoded-complex']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -272,17 +184,14 @@ export function usePostUrlEncodedComplex(options?: {
  * GET /response-encoding
  */
 export function useGetResponseEncoding(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['response-encoding']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -291,9 +200,10 @@ export function useGetResponseEncoding(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /response-encoding
+ * Uses $url() for type-safe key generation
  */
 export function getGetResponseEncodingQueryKey() {
-  return ['/response-encoding'] as const
+  return [client['response-encoding'].$url().pathname] as const
 }
 
 /**
@@ -301,50 +211,30 @@ export function getGetResponseEncodingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetResponseEncodingQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetResponseEncodingQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['response-encoding'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetResponseEncodingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetResponseEncodingQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['response-encoding'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /schema-encoding
  */
 export function usePostSchemaEncoding(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['schema-encoding']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['schema-encoding']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['schema-encoding']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['schema-encoding']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['schema-encoding']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['schema-encoding']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

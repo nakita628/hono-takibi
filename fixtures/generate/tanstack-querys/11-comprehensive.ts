@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/11-comprehensive'
 
@@ -13,17 +14,10 @@ import { client } from '../clients/11-comprehensive'
 export function useGetProducts(
   args: InferRequestType<typeof client.products.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -33,9 +27,10 @@ export function useGetProducts(
 
 /**
  * Generates TanStack Query cache key for GET /products
+ * Uses $url() for type-safe key generation
  */
 export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  return ['/products', args] as const
+  return [client.products.$url(args).pathname] as const
 }
 
 /**
@@ -46,14 +41,13 @@ export function getGetProductsQueryKey(args: InferRequestType<typeof client.prod
 export const getGetProductsQueryOptions = (
   args: InferRequestType<typeof client.products.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProductsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetProductsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.products.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /products
@@ -61,27 +55,11 @@ export const getGetProductsQueryOptions = (
  * Create a new product
  */
 export function usePostProducts(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.products.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.products.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.products.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.products.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.products.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.products.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -100,17 +78,14 @@ export function usePostProducts(options?: {
 export function useGetProductsProductId(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -120,11 +95,12 @@ export function useGetProductsProductId(
 
 /**
  * Generates TanStack Query cache key for GET /products/{productId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return ['/products/:productId', args] as const
+  return [client.products[':productId'].$url(args).pathname] as const
 }
 
 /**
@@ -135,17 +111,16 @@ export function getGetProductsProductIdQueryKey(
 export const getGetProductsProductIdQueryOptions = (
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetProductsProductIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.products[':productId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetProductsProductIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.products[':productId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /products/{productId}
@@ -153,36 +128,15 @@ export const getGetProductsProductIdQueryOptions = (
  * Update a product
  */
 export function usePutProductsProductId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.products)[':productId']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.products)[':productId']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.products)[':productId']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.products)[':productId']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.products)[':productId']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.products)[':productId']['$put']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.products)[':productId']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -199,42 +153,18 @@ export function usePutProductsProductId(options?: {
  * Delete a product
  */
 export function useDeleteProductsProductId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.products)[':productId']['$delete']>>
-              >
-            >
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.products)[':productId']['$delete']>>
           >
-        | undefined,
-      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.products)[':productId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.products)[':productId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.products)[':productId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -251,25 +181,11 @@ export function useDeleteProductsProductId(options?: {
  * Create a new order
  */
 export function usePostOrders(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.orders.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.orders.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.orders.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.orders.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -286,27 +202,11 @@ export function usePostOrders(options?: {
  * Register a webhook endpoint
  */
 export function usePostWebhooks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.webhooks.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.webhooks.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.webhooks.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.webhooks.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.webhooks.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

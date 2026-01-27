@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/44-sns-notifications-dm-search'
 
@@ -11,17 +12,12 @@ import { client } from '../clients/44-sns-notifications-dm-search'
 export function useGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -31,11 +27,12 @@ export function useGetNotifications(
 
 /**
  * Generates TanStack Query cache key for GET /notifications
+ * Uses $url() for type-safe key generation
  */
 export function getGetNotificationsQueryKey(
   args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return ['/notifications', args] as const
+  return [client.notifications.$url(args).pathname] as const
 }
 
 /**
@@ -46,17 +43,16 @@ export function getGetNotificationsQueryKey(
 export const getGetNotificationsQueryOptions = (
   args: InferRequestType<typeof client.notifications.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetNotificationsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.notifications.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetNotificationsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.notifications.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /notifications/unread-count
@@ -64,17 +60,16 @@ export const getGetNotificationsQueryOptions = (
  * 未読通知数取得
  */
 export function useGetNotificationsUnreadCount(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.notifications)['unread-count']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -83,9 +78,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /notifications/unread-count
+ * Uses $url() for type-safe key generation
  */
 export function getGetNotificationsUnreadCountQueryKey() {
-  return ['/notifications/unread-count'] as const
+  return [client.notifications['unread-count'].$url().pathname] as const
 }
 
 /**
@@ -93,17 +89,18 @@ export function getGetNotificationsUnreadCountQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotificationsUnreadCountQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetNotificationsUnreadCountQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.notifications['unread-count'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetNotificationsUnreadCountQueryOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  queryKey: getGetNotificationsUnreadCountQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.notifications['unread-count'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /notifications/mark-read
@@ -111,40 +108,17 @@ export const getGetNotificationsUnreadCountQueryOptions = (clientOptions?: Clien
  * 通知を既読にする
  */
 export function usePostNotificationsMarkRead(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.notifications)['mark-read']['$post']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.notifications)['mark-read']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.notifications)['mark-read']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.notifications)['mark-read']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.notifications)['mark-read']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -162,17 +136,14 @@ export function usePostNotificationsMarkRead(options?: {
  * 通知設定取得
  */
 export function useGetNotificationsSettings(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$get>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -181,9 +152,10 @@ export function useGetNotificationsSettings(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /notifications/settings
+ * Uses $url() for type-safe key generation
  */
 export function getGetNotificationsSettingsQueryKey() {
-  return ['/notifications/settings'] as const
+  return [client.notifications.settings.$url().pathname] as const
 }
 
 /**
@@ -191,17 +163,16 @@ export function getGetNotificationsSettingsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNotificationsSettingsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetNotificationsSettingsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.notifications.settings.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetNotificationsSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNotificationsSettingsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.notifications.settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /notifications/settings
@@ -209,34 +180,15 @@ export const getGetNotificationsSettingsQueryOptions = (clientOptions?: ClientRe
  * 通知設定更新
  */
 export function usePutNotificationsSettings(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$put>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.notifications.settings.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.notifications.settings.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$put>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.notifications.settings.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.notifications.settings.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$put>>>
+      >
+    >,
+    Error,
+    InferRequestType<typeof client.notifications.settings.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -255,17 +207,12 @@ export function usePutNotificationsSettings(options?: {
 export function useGetDmConversations(
   args: InferRequestType<typeof client.dm.conversations.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -275,11 +222,12 @@ export function useGetDmConversations(
 
 /**
  * Generates TanStack Query cache key for GET /dm/conversations
+ * Uses $url() for type-safe key generation
  */
 export function getGetDmConversationsQueryKey(
   args: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  return ['/dm/conversations', args] as const
+  return [client.dm.conversations.$url(args).pathname] as const
 }
 
 /**
@@ -290,17 +238,16 @@ export function getGetDmConversationsQueryKey(
 export const getGetDmConversationsQueryOptions = (
   args: InferRequestType<typeof client.dm.conversations.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDmConversationsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.dm.conversations.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetDmConversationsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.dm.conversations.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /dm/conversations
@@ -308,32 +255,13 @@ export const getGetDmConversationsQueryOptions = (
  * 会話作成
  */
 export function usePostDmConversations(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.dm.conversations.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.dm.conversations.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.dm.conversations.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.dm.conversations.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.dm.conversations.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -352,17 +280,16 @@ export function usePostDmConversations(options?: {
 export function useGetDmConversationsConversationId(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -375,11 +302,12 @@ export function useGetDmConversationsConversationId(
 
 /**
  * Generates TanStack Query cache key for GET /dm/conversations/{conversationId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetDmConversationsConversationIdQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  return ['/dm/conversations/:conversationId', args] as const
+  return [client.dm.conversations[':conversationId'].$url(args).pathname] as const
 }
 
 /**
@@ -390,17 +318,16 @@ export function getGetDmConversationsConversationIdQueryKey(
 export const getGetDmConversationsConversationIdQueryOptions = (
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDmConversationsConversationIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.dm.conversations[':conversationId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetDmConversationsConversationIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.dm.conversations[':conversationId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /dm/conversations/{conversationId}
@@ -408,42 +335,18 @@ export const getGetDmConversationsConversationIdQueryOptions = (
  * 会話を退出
  */
 export function useDeleteDmConversationsConversationId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['$delete']>>
-              >
-            >
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['$delete']>>
           >
-        | undefined,
-      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -463,17 +366,18 @@ export function useDeleteDmConversationsConversationId(options?: {
 export function useGetDmConversationsConversationIdMessages(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -486,11 +390,12 @@ export function useGetDmConversationsConversationIdMessages(
 
 /**
  * Generates TanStack Query cache key for GET /dm/conversations/{conversationId}/messages
+ * Uses $url() for type-safe key generation
  */
 export function getGetDmConversationsConversationIdMessagesQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  return ['/dm/conversations/:conversationId/messages', args] as const
+  return [client.dm.conversations[':conversationId'].messages.$url(args).pathname] as const
 }
 
 /**
@@ -501,17 +406,16 @@ export function getGetDmConversationsConversationIdMessagesQueryKey(
 export const getGetDmConversationsConversationIdMessagesQueryOptions = (
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDmConversationsConversationIdMessagesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.dm.conversations[':conversationId'].messages.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetDmConversationsConversationIdMessagesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.dm.conversations[':conversationId'].messages.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /dm/conversations/{conversationId}/messages
@@ -519,54 +423,19 @@ export const getGetDmConversationsConversationIdMessagesQueryOptions = (
  * メッセージ送信
  */
 export function usePostDmConversationsConversationIdMessages(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
-            >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client.dm.conversations)[':conversationId']['messages']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['messages']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -587,52 +456,17 @@ export function usePostDmConversationsConversationIdMessages(options?: {
  * 会話を既読にする
  */
 export function usePostDmConversationsConversationIdRead(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
-            >
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['read']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['read']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['read']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['read']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -650,52 +484,19 @@ export function usePostDmConversationsConversationIdRead(options?: {
  * 入力中インジケーター送信
  */
 export function usePostDmConversationsConversationIdTyping(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
-            >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.dm.conversations)[':conversationId']['typing']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -716,42 +517,18 @@ export function usePostDmConversationsConversationIdTyping(options?: {
  * メッセージ削除
  */
 export function useDeleteDmMessagesMessageId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['$delete']>>
-              >
-            >
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['$delete']>>
           >
-        | undefined,
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -769,40 +546,17 @@ export function useDeleteDmMessagesMessageId(options?: {
  * メッセージにリアクション追加
  */
 export function usePostDmMessagesMessageIdReactions(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -820,50 +574,17 @@ export function usePostDmMessagesMessageIdReactions(options?: {
  * メッセージのリアクション削除
  */
 export function useDeleteDmMessagesMessageIdReactions(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.dm.messages)[':messageId']['reactions']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -881,17 +602,14 @@ export function useDeleteDmMessagesMessageIdReactions(options?: {
  * 未読メッセージ数取得
  */
 export function useGetDmUnreadCount(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.dm)['unread-count']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -900,9 +618,10 @@ export function useGetDmUnreadCount(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /dm/unread-count
+ * Uses $url() for type-safe key generation
  */
 export function getGetDmUnreadCountQueryKey() {
-  return ['/dm/unread-count'] as const
+  return [client.dm['unread-count'].$url().pathname] as const
 }
 
 /**
@@ -910,17 +629,16 @@ export function getGetDmUnreadCountQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDmUnreadCountQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetDmUnreadCountQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.dm['unread-count'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetDmUnreadCountQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDmUnreadCountQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.dm['unread-count'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /search/posts
@@ -930,17 +648,12 @@ export const getGetDmUnreadCountQueryOptions = (clientOptions?: ClientRequestOpt
 export function useGetSearchPosts(
   args: InferRequestType<typeof client.search.posts.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.posts.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -950,9 +663,10 @@ export function useGetSearchPosts(
 
 /**
  * Generates TanStack Query cache key for GET /search/posts
+ * Uses $url() for type-safe key generation
  */
 export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return ['/search/posts', args] as const
+  return [client.search.posts.$url(args).pathname] as const
 }
 
 /**
@@ -963,17 +677,16 @@ export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.s
 export const getGetSearchPostsQueryOptions = (
   args: InferRequestType<typeof client.search.posts.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSearchPostsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.search.posts.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSearchPostsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.search.posts.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /search/users
@@ -983,17 +696,12 @@ export const getGetSearchPostsQueryOptions = (
 export function useGetSearchUsers(
   args: InferRequestType<typeof client.search.users.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.users.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1003,9 +711,10 @@ export function useGetSearchUsers(
 
 /**
  * Generates TanStack Query cache key for GET /search/users
+ * Uses $url() for type-safe key generation
  */
 export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return ['/search/users', args] as const
+  return [client.search.users.$url(args).pathname] as const
 }
 
 /**
@@ -1016,17 +725,16 @@ export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.s
 export const getGetSearchUsersQueryOptions = (
   args: InferRequestType<typeof client.search.users.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSearchUsersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.search.users.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSearchUsersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.search.users.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /search/hashtags
@@ -1036,17 +744,12 @@ export const getGetSearchUsersQueryOptions = (
 export function useGetSearchHashtags(
   args: InferRequestType<typeof client.search.hashtags.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.hashtags.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1056,11 +759,12 @@ export function useGetSearchHashtags(
 
 /**
  * Generates TanStack Query cache key for GET /search/hashtags
+ * Uses $url() for type-safe key generation
  */
 export function getGetSearchHashtagsQueryKey(
   args: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  return ['/search/hashtags', args] as const
+  return [client.search.hashtags.$url(args).pathname] as const
 }
 
 /**
@@ -1071,17 +775,16 @@ export function getGetSearchHashtagsQueryKey(
 export const getGetSearchHashtagsQueryOptions = (
   args: InferRequestType<typeof client.search.hashtags.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSearchHashtagsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.search.hashtags.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSearchHashtagsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.search.hashtags.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /search/recent
@@ -1089,17 +792,12 @@ export const getGetSearchHashtagsQueryOptions = (
  * 最近の検索履歴
  */
 export function useGetSearchRecent(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$get>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1108,9 +806,10 @@ export function useGetSearchRecent(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /search/recent
+ * Uses $url() for type-safe key generation
  */
 export function getGetSearchRecentQueryKey() {
-  return ['/search/recent'] as const
+  return [client.search.recent.$url().pathname] as const
 }
 
 /**
@@ -1118,17 +817,16 @@ export function getGetSearchRecentQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSearchRecentQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSearchRecentQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.search.recent.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSearchRecentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSearchRecentQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.search.recent.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /search/recent
@@ -1136,33 +834,14 @@ export const getGetSearchRecentQueryOptions = (clientOptions?: ClientRequestOpti
  * 検索履歴クリア
  */
 export function useDeleteSearchRecent(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$delete>>>
-            >
-          >
-        | undefined,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$delete>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$delete>>>>
+      >
+    | undefined,
+    Error,
+    void
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1180,17 +859,10 @@ export function useDeleteSearchRecent(options?: {
 export function useGetTrends(
   args: InferRequestType<typeof client.trends.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trends.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1200,9 +872,10 @@ export function useGetTrends(
 
 /**
  * Generates TanStack Query cache key for GET /trends
+ * Uses $url() for type-safe key generation
  */
 export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends.$get>) {
-  return ['/trends', args] as const
+  return [client.trends.$url(args).pathname] as const
 }
 
 /**
@@ -1213,14 +886,13 @@ export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends
 export const getGetTrendsQueryOptions = (
   args: InferRequestType<typeof client.trends.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTrendsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.trends.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetTrendsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.trends.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /trends/locations
@@ -1228,17 +900,12 @@ export const getGetTrendsQueryOptions = (
  * トレンド対応地域一覧
  */
 export function useGetTrendsLocations(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trends.locations.$get>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1247,9 +914,10 @@ export function useGetTrendsLocations(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /trends/locations
+ * Uses $url() for type-safe key generation
  */
 export function getGetTrendsLocationsQueryKey() {
-  return ['/trends/locations'] as const
+  return [client.trends.locations.$url().pathname] as const
 }
 
 /**
@@ -1257,17 +925,16 @@ export function getGetTrendsLocationsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTrendsLocationsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetTrendsLocationsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.trends.locations.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetTrendsLocationsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTrendsLocationsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.trends.locations.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /suggestions/users
@@ -1277,17 +944,12 @@ export const getGetTrendsLocationsQueryOptions = (clientOptions?: ClientRequestO
 export function useGetSuggestionsUsers(
   args: InferRequestType<typeof client.suggestions.users.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.suggestions.users.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1297,11 +959,12 @@ export function useGetSuggestionsUsers(
 
 /**
  * Generates TanStack Query cache key for GET /suggestions/users
+ * Uses $url() for type-safe key generation
  */
 export function getGetSuggestionsUsersQueryKey(
   args: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  return ['/suggestions/users', args] as const
+  return [client.suggestions.users.$url(args).pathname] as const
 }
 
 /**
@@ -1312,17 +975,16 @@ export function getGetSuggestionsUsersQueryKey(
 export const getGetSuggestionsUsersQueryOptions = (
   args: InferRequestType<typeof client.suggestions.users.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSuggestionsUsersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.suggestions.users.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSuggestionsUsersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.suggestions.users.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /suggestions/users/{userId}/hide
@@ -1330,40 +992,17 @@ export const getGetSuggestionsUsersQueryOptions = (
  * おすすめユーザーを非表示
  */
 export function usePostSuggestionsUsersUserIdHide(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.suggestions.users)[':userId']['hide']['$post']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.suggestions.users)[':userId']['hide']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.suggestions.users)[':userId']['hide']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1381,17 +1020,12 @@ export function usePostSuggestionsUsersUserIdHide(options?: {
  * おすすめトピック取得
  */
 export function useGetSuggestionsTopics(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.suggestions.topics.$get>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1400,9 +1034,10 @@ export function useGetSuggestionsTopics(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /suggestions/topics
+ * Uses $url() for type-safe key generation
  */
 export function getGetSuggestionsTopicsQueryKey() {
-  return ['/suggestions/topics'] as const
+  return [client.suggestions.topics.$url().pathname] as const
 }
 
 /**
@@ -1410,17 +1045,16 @@ export function getGetSuggestionsTopicsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSuggestionsTopicsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSuggestionsTopicsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.suggestions.topics.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSuggestionsTopicsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSuggestionsTopicsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.suggestions.topics.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /topics/{topicId}/follow
@@ -1428,40 +1062,17 @@ export const getGetSuggestionsTopicsQueryOptions = (clientOptions?: ClientReques
  * トピックをフォロー
  */
 export function usePostTopicsTopicIdFollow(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$post']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1479,40 +1090,17 @@ export function usePostTopicsTopicIdFollow(options?: {
  * トピックのフォロー解除
  */
 export function useDeleteTopicsTopicIdFollow(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$delete']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$delete']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.topics)[':topicId']['follow']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
@@ -9,17 +10,17 @@ import { client } from '../clients/06-headers'
 export function useGetResources(
   args: InferRequestType<typeof client.resources.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$get>>>>
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -29,9 +30,10 @@ export function useGetResources(
 
 /**
  * Generates Vue Query cache key for GET /resources
+ * Uses $url() for type-safe key generation
  */
 export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', args] as const
+  return [client.resources.$url(args).pathname] as const
 }
 
 /**
@@ -42,14 +44,13 @@ export function getGetResourcesQueryKey(args: InferRequestType<typeof client.res
 export const getGetResourcesQueryOptions = (
   args: InferRequestType<typeof client.resources.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetResourcesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.resources.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetResourcesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.resources.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /resources/{id}
@@ -57,17 +58,19 @@ export const getGetResourcesQueryOptions = (
 export function useGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -77,11 +80,12 @@ export function useGetResourcesId(
 
 /**
  * Generates Vue Query cache key for GET /resources/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['/resources/:id', args] as const
+  return [client.resources[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -92,50 +96,35 @@ export function getGetResourcesIdQueryKey(
 export const getGetResourcesIdQueryOptions = (
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetResourcesIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.resources[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetResourcesIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.resources[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /resources/{id}
  */
 export function usePutResourcesId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.resources)[':id']['$put']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.resources)[':id']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.resources)[':id']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.resources)[':id']['$put']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -152,17 +141,19 @@ export function usePutResourcesId(options?: {
 export function useGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.download)[':id']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -172,11 +163,12 @@ export function useGetDownloadId(
 
 /**
  * Generates Vue Query cache key for GET /download/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return ['/download/:id', args] as const
+  return [client.download[':id'].$url(args).pathname] as const
 }
 
 /**
@@ -187,14 +179,13 @@ export function getGetDownloadIdQueryKey(
 export const getGetDownloadIdQueryOptions = (
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDownloadIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.download[':id'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetDownloadIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.download[':id'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

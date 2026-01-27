@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-complex-array'
@@ -11,17 +12,15 @@ import { client } from '../clients/openapi-complex-array'
  * zod array
  */
 export function useGetArray(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.array.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -30,9 +29,10 @@ export function useGetArray(options?: {
 
 /**
  * Generates Vue Query cache key for GET /array
+ * Uses $url() for type-safe key generation
  */
 export function getGetArrayQueryKey() {
-  return ['/array'] as const
+  return [client.array.$url().pathname] as const
 }
 
 /**
@@ -40,14 +40,10 @@ export function getGetArrayQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetArrayQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetArrayQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.array.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetArrayQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetArrayQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.array.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

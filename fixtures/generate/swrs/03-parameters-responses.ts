@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/03-parameters-responses'
 
 /**
@@ -31,9 +31,10 @@ export function useGetItems(
 
 /**
  * Generates SWR cache key for GET /items
+ * Uses $url() for type-safe key generation
  */
-export function getGetItemsKey(args?: InferRequestType<typeof client.items.$get>) {
-  return ['/items', ...(args ? [args] : [])] as const
+export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
+  return client.items.$url(args).pathname
 }
 
 /**
@@ -61,11 +62,12 @@ export function useGetItemsItemId(
 
 /**
  * Generates SWR cache key for GET /items/{itemId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetItemsItemIdKey(
-  args?: InferRequestType<(typeof client.items)[':itemId']['$get']>,
+  args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return ['/items/:itemId', ...(args ? [args] : [])] as const
+  return client.items[':itemId'].$url(args).pathname
 }
 
 /**
@@ -80,18 +82,30 @@ export function useDeleteItemsItemId(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.items)[':itemId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /items/:itemId',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$delete']> },
-    ) => parseResponse(client.items[':itemId'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteItemsItemIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$delete']> },
+      ) => parseResponse(client.items[':itemId'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /items/{itemId}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteItemsItemIdMutationKey() {
+  return `DELETE ${client.items[':itemId'].$url().pathname}`
 }

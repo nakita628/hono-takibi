@@ -1,7 +1,7 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
 import { client } from '../clients/openapi-number'
 
 /**
@@ -30,7 +30,8 @@ export function useGetNumber(options?: {
 
 /**
  * Generates SWR cache key for GET /number
+ * Uses $url() for type-safe key generation
  */
 export function getGetNumberKey() {
-  return ['/number'] as const
+  return client.number.$url().pathname
 }

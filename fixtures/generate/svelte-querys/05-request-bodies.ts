@@ -1,5 +1,6 @@
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/05-request-bodies'
 
@@ -7,25 +8,11 @@ import { client } from '../clients/05-request-bodies'
  * POST /users
  */
 export function createPostUsers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.users.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.users.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.users.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.users.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.users.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -40,34 +27,15 @@ export function createPostUsers(options?: {
  * PUT /users/{userId}
  */
 export function createPutUsersUserId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.users)[':userId']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.users)[':userId']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$put']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.users)[':userId']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -82,34 +50,15 @@ export function createPutUsersUserId(options?: {
  * PATCH /users/{userId}
  */
 export function createPatchUsersUserId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.users)[':userId']['$patch']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.users)[':userId']['$patch']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.users)[':userId']['$patch']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.users)[':userId']['$patch']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -124,40 +73,17 @@ export function createPatchUsersUserId(options?: {
  * POST /users/{userId}/avatar
  */
 export function createPostUsersUserIdAvatar(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.users)[':userId']['avatar']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.users)[':userId']['avatar']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.users)[':userId']['avatar']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.users)[':userId']['avatar']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -173,27 +99,11 @@ export function createPostUsersUserIdAvatar(options?: {
  * POST /bulk/users
  */
 export function createPostBulkUsers(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bulk.users.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.bulk.users.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.bulk.users.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bulk.users.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.bulk.users.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.bulk.users.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bulk.users.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.bulk.users.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

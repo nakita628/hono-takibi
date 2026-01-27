@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 
@@ -7,17 +8,19 @@ import { client } from '../clients/12-edge-cases'
  * GET /all-methods
  */
 export function useGetAllMethods(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +29,10 @@ export function useGetAllMethods(options?: {
 
 /**
  * Generates Vue Query cache key for GET /all-methods
+ * Uses $url() for type-safe key generation
  */
 export function getGetAllMethodsQueryKey() {
-  return ['/all-methods'] as const
+  return [client['all-methods'].$url().pathname] as const
 }
 
 /**
@@ -36,47 +40,35 @@ export function getGetAllMethodsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAllMethodsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetAllMethodsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['all-methods'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetAllMethodsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAllMethodsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['all-methods'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /all-methods
  */
 export function usePutAllMethods(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$put']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$put']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$put']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -90,31 +82,20 @@ export function usePutAllMethods(options?: {
  * POST /all-methods
  */
 export function usePostAllMethods(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$post']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$post']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$post']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -128,31 +109,20 @@ export function usePostAllMethods(options?: {
  * DELETE /all-methods
  */
 export function useDeleteAllMethods(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$delete']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$delete']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$delete']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -166,31 +136,20 @@ export function useDeleteAllMethods(options?: {
  * OPTIONS /all-methods
  */
 export function useOptionsAllMethods(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$options']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$options']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$options']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -204,31 +163,20 @@ export function useOptionsAllMethods(options?: {
  * HEAD /all-methods
  */
 export function useHeadAllMethods(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$head']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$head']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$head']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -242,31 +190,20 @@ export function useHeadAllMethods(options?: {
  * PATCH /all-methods
  */
 export function usePatchAllMethods(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$patch']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$patch']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$patch']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -280,31 +217,20 @@ export function usePatchAllMethods(options?: {
  * TRACE /all-methods
  */
 export function useTraceAllMethods(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$trace']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$trace']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['all-methods']['$trace']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -322,17 +248,25 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<
+                  ReturnType<
+                    (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
+                  >
+                >
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -345,13 +279,16 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
   args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return ['/users/:userId/posts/:postId/comments/:commentId', args] as const
+  return [
+    client.users[':userId'].posts[':postId'].comments[':commentId'].$url(args).pathname,
+  ] as const
 }
 
 /**
@@ -364,17 +301,16 @@ export const getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions = (
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users[':userId'].posts[':postId'].comments[':commentId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /params-test/{pathParam}
@@ -382,17 +318,21 @@ export const getGetUsersUserIdPostsPostIdCommentsCommentIdQueryOptions = (
 export function useGetParamsTestPathParam(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client)['params-test'][':pathParam']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -405,11 +345,12 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates Vue Query cache key for GET /params-test/{pathParam}
+ * Uses $url() for type-safe key generation
  */
 export function getGetParamsTestPathParamQueryKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return ['/params-test/:pathParam', args] as const
+  return [client['params-test'][':pathParam'].$url(args).pathname] as const
 }
 
 /**
@@ -420,49 +361,36 @@ export function getGetParamsTestPathParamQueryKey(
 export const getGetParamsTestPathParamQueryOptions = (
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetParamsTestPathParamQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['params-test'][':pathParam'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetParamsTestPathParamQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['params-test'][':pathParam'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /no-content
  */
 export function usePostNoContent(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<Awaited<ReturnType<(typeof client)['no-content']['$post']>>>
             >
           >
         | undefined,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['no-content']['$post']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -476,17 +404,19 @@ export function usePostNoContent(options?: {
  * GET /multi-content
  */
 export function useGetMultiContent(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -495,9 +425,10 @@ export function useGetMultiContent(options?: {
 
 /**
  * Generates Vue Query cache key for GET /multi-content
+ * Uses $url() for type-safe key generation
  */
 export function getGetMultiContentQueryKey() {
-  return ['/multi-content'] as const
+  return [client['multi-content'].$url().pathname] as const
 }
 
 /**
@@ -505,50 +436,35 @@ export function getGetMultiContentQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMultiContentQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMultiContentQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['multi-content'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMultiContentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMultiContentQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['multi-content'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /multi-content
  */
 export function usePostMultiContent(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['multi-content']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['multi-content']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-content']['$post']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['multi-content']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['multi-content']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client)['multi-content']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -563,17 +479,19 @@ export function usePostMultiContent(options?: {
  * GET /response-ranges
  */
 export function useGetResponseRanges(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['response-ranges']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -582,9 +500,10 @@ export function useGetResponseRanges(options?: {
 
 /**
  * Generates Vue Query cache key for GET /response-ranges
+ * Uses $url() for type-safe key generation
  */
 export function getGetResponseRangesQueryKey() {
-  return ['/response-ranges'] as const
+  return [client['response-ranges'].$url().pathname] as const
 }
 
 /**
@@ -592,17 +511,16 @@ export function getGetResponseRangesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetResponseRangesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetResponseRangesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['response-ranges'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetResponseRangesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetResponseRangesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['response-ranges'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /deprecated
@@ -610,17 +528,17 @@ export const getGetResponseRangesQueryOptions = (clientOptions?: ClientRequestOp
  * This operation is deprecated
  */
 export function useGetDeprecated(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deprecated.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -629,9 +547,10 @@ export function useGetDeprecated(options?: {
 
 /**
  * Generates Vue Query cache key for GET /deprecated
+ * Uses $url() for type-safe key generation
  */
 export function getGetDeprecatedQueryKey() {
-  return ['/deprecated'] as const
+  return [client.deprecated.$url().pathname] as const
 }
 
 /**
@@ -639,17 +558,16 @@ export function getGetDeprecatedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDeprecatedQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetDeprecatedQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.deprecated.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetDeprecatedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeprecatedQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.deprecated.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /no-operation-id
@@ -657,17 +575,19 @@ export const getGetDeprecatedQueryOptions = (clientOptions?: ClientRequestOption
  * Operation without operationId
  */
 export function useGetNoOperationId(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['no-operation-id']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -676,9 +596,10 @@ export function useGetNoOperationId(options?: {
 
 /**
  * Generates Vue Query cache key for GET /no-operation-id
+ * Uses $url() for type-safe key generation
  */
 export function getGetNoOperationIdQueryKey() {
-  return ['/no-operation-id'] as const
+  return [client['no-operation-id'].$url().pathname] as const
 }
 
 /**
@@ -686,50 +607,35 @@ export function getGetNoOperationIdQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNoOperationIdQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetNoOperationIdQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['no-operation-id'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetNoOperationIdQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNoOperationIdQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['no-operation-id'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /empty-body
  */
 export function usePostEmptyBody(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-body']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['empty-body']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['empty-body']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-body']['$post']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-body']['$post']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['empty-body']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['empty-body']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client)['empty-body']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -744,17 +650,15 @@ export function usePostEmptyBody(options?: {
  * GET /circular
  */
 export function useGetCircular(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.circular.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -763,9 +667,10 @@ export function useGetCircular(options?: {
 
 /**
  * Generates Vue Query cache key for GET /circular
+ * Uses $url() for type-safe key generation
  */
 export function getGetCircularQueryKey() {
-  return ['/circular'] as const
+  return [client.circular.$url().pathname] as const
 }
 
 /**
@@ -773,33 +678,34 @@ export function getGetCircularQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCircularQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetCircularQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.circular.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetCircularQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCircularQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.circular.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /deep-nesting
  */
 export function useGetDeepNesting(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['deep-nesting']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -808,9 +714,10 @@ export function useGetDeepNesting(options?: {
 
 /**
  * Generates Vue Query cache key for GET /deep-nesting
+ * Uses $url() for type-safe key generation
  */
 export function getGetDeepNestingQueryKey() {
-  return ['/deep-nesting'] as const
+  return [client['deep-nesting'].$url().pathname] as const
 }
 
 /**
@@ -818,17 +725,16 @@ export function getGetDeepNestingQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDeepNestingQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetDeepNestingQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['deep-nesting'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetDeepNestingQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeepNestingQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['deep-nesting'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /array-params
@@ -836,17 +742,19 @@ export const getGetDeepNestingQueryOptions = (clientOptions?: ClientRequestOptio
 export function useGetArrayParams(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['array-params']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -856,11 +764,12 @@ export function useGetArrayParams(
 
 /**
  * Generates Vue Query cache key for GET /array-params
+ * Uses $url() for type-safe key generation
  */
 export function getGetArrayParamsQueryKey(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return ['/array-params', args] as const
+  return [client['array-params'].$url(args).pathname] as const
 }
 
 /**
@@ -871,17 +780,16 @@ export function getGetArrayParamsQueryKey(
 export const getGetArrayParamsQueryOptions = (
   args: InferRequestType<(typeof client)['array-params']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetArrayParamsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['array-params'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetArrayParamsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['array-params'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /object-param
@@ -889,17 +797,19 @@ export const getGetArrayParamsQueryOptions = (
 export function useGetObjectParam(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client)['object-param']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -909,11 +819,12 @@ export function useGetObjectParam(
 
 /**
  * Generates Vue Query cache key for GET /object-param
+ * Uses $url() for type-safe key generation
  */
 export function getGetObjectParamQueryKey(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return ['/object-param', args] as const
+  return [client['object-param'].$url(args).pathname] as const
 }
 
 /**
@@ -924,14 +835,13 @@ export function getGetObjectParamQueryKey(
 export const getGetObjectParamQueryOptions = (
   args: InferRequestType<(typeof client)['object-param']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetObjectParamQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['object-param'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetObjectParamQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['object-param'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

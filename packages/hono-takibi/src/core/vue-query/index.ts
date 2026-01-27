@@ -78,7 +78,10 @@ export async function vueQuery(
     hookPrefix: 'use',
     queryFn: 'useQuery',
     mutationFn: 'useMutation',
-    queryOptionsHelper: 'queryOptions',
+    useQueryOptionsType: 'UseQueryOptions',
+    useMutationOptionsType: 'UseMutationOptions',
+    // Vue Query needs Partial<Omit<...>> due to QueryKey type conflicts with MaybeRefOrGetter
+    usePartialOmit: true,
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

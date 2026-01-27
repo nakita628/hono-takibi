@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/test'
@@ -11,17 +12,10 @@ import { client } from '../clients/test'
  * Hono
  */
 export function useGetHono(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hono.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -30,9 +24,10 @@ export function useGetHono(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /hono
+ * Uses $url() for type-safe key generation
  */
 export function getGetHonoQueryKey() {
-  return ['/hono'] as const
+  return [client.hono.$url().pathname] as const
 }
 
 /**
@@ -40,14 +35,13 @@ export function getGetHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetHonoQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHonoQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.hono.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /hono-x
@@ -57,17 +51,12 @@ export const getGetHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
  * HonoX
  */
 export function useGetHonoX(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['hono-x']['$get']>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -76,9 +65,10 @@ export function useGetHonoX(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /hono-x
+ * Uses $url() for type-safe key generation
  */
 export function getGetHonoXQueryKey() {
-  return ['/hono-x'] as const
+  return [client['hono-x'].$url().pathname] as const
 }
 
 /**
@@ -86,17 +76,16 @@ export function getGetHonoXQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetHonoXQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['hono-x'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHonoXQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['hono-x'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /zod-openapi-hono
@@ -106,17 +95,14 @@ export const getGetHonoXQueryOptions = (clientOptions?: ClientRequestOptions) =>
  * ZodOpenAPIHono
  */
 export function useGetZodOpenapiHono(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['zod-openapi-hono']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -125,9 +111,10 @@ export function useGetZodOpenapiHono(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /zod-openapi-hono
+ * Uses $url() for type-safe key generation
  */
 export function getGetZodOpenapiHonoQueryKey() {
-  return ['/zod-openapi-hono'] as const
+  return [client['zod-openapi-hono'].$url().pathname] as const
 }
 
 /**
@@ -135,14 +122,13 @@ export function getGetZodOpenapiHonoQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetZodOpenapiHonoQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetZodOpenapiHonoQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['zod-openapi-hono'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetZodOpenapiHonoQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetZodOpenapiHonoQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['zod-openapi-hono'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

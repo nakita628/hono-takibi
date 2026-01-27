@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/19-resolution-order'
 
 /**
@@ -28,9 +28,10 @@ export function useGetEntities(options?: {
 
 /**
  * Generates SWR cache key for GET /entities
+ * Uses $url() for type-safe key generation
  */
 export function getGetEntitiesKey() {
-  return ['/entities'] as const
+  return client.entities.$url().pathname
 }
 
 /**
@@ -40,18 +41,30 @@ export function usePostProcess(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.process.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.process.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /process',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.process.$post> }) =>
-      parseResponse(client.process.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostProcessMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.process.$post> }) =>
+        parseResponse(client.process.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /process
+ * Uses $url() for type-safe key generation
+ */
+export function getPostProcessMutationKey() {
+  return `POST ${client.process.$url().pathname}`
 }
 
 /**
@@ -76,9 +89,10 @@ export function useGetGraph(options?: {
 
 /**
  * Generates SWR cache key for GET /graph
+ * Uses $url() for type-safe key generation
  */
 export function getGetGraphKey() {
-  return ['/graph'] as const
+  return client.graph.$url().pathname
 }
 
 /**
@@ -88,16 +102,28 @@ export function usePostTransform(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.transform.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.transform.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /transform',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.transform.$post> }) =>
-      parseResponse(client.transform.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostTransformMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.transform.$post> }) =>
+        parseResponse(client.transform.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /transform
+ * Uses $url() for type-safe key generation
+ */
+export function getPostTransformMutationKey() {
+  return `POST ${client.transform.$url().pathname}`
 }

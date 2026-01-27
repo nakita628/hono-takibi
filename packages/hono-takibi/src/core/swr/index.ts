@@ -71,27 +71,41 @@ const toKeyGetterName = (method: string, pathStr: string): string => {
 }
 
 /**
- * Generates SWR key getter function code.
+ * Convert method + path to mutation key getter name (e.g., "put" + "/pet" -> "getPutPetMutationKey")
+ */
+const toMutationKeyGetterName = (method: string, pathStr: string): string => {
+  const funcName = methodPath(method, pathStr)
+  return `get${funcName.charAt(0).toUpperCase()}${funcName.slice(1)}MutationKey`
+}
+
+/**
+ * Generates SWR key getter function code using $url() for type-safe keys.
+ * @see https://hono.dev/docs/guides/rpc#url
  */
 const makeKeyGetterCode = (
   keyGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
   honoPath: string,
+  clientPath: string,
 ): string => {
   // Add space between * and / to prevent early comment termination (* / instead of */)
   const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
   const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
+  // Use $url() for type-safe key generation
+  // This resolves args into actual URL, avoiding cache issues with complex args
   if (hasArgs) {
     return `/**
  * Generates SWR cache key for GET ${safeCommentPath}
+ * Uses $url() for type-safe key generation
  */
-export function ${keyGetterName}(args?:${inferRequestType}){return['${honoPath}',...(args?[args]:[])]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){return ${clientPath}.$url(args).pathname}`
   }
   return `/**
  * Generates SWR cache key for GET ${safeCommentPathNoParam}
+ * Uses $url() for type-safe key generation
  */
-export function ${keyGetterName}(){return['${honoPath}']as const}`
+export function ${keyGetterName}(){return ${clientPath}.$url().pathname}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -136,10 +150,12 @@ const makeHookCode = (
 
   let hookCode: string
 
+  const clientPath = `${deps.client}${pathResult.runtimePath}`
+
   if (isQuery) {
-    // useSWR hook for GET - use key getter function
+    // useSWR hook for GET - use key getter function with $url()
     const keyGetterName = toKeyGetterName(method, pathStr)
-    const keyGetterCode = makeKeyGetterCode(keyGetterName, hasArgs, inferRequestType, honoPath)
+    const keyGetterCode = makeKeyGetterCode(keyGetterName, hasArgs, inferRequestType, honoPath, clientPath)
 
     const argsSig = hasArgs ? `args:${inferRequestType},` : ''
     const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
@@ -147,8 +163,8 @@ const makeHookCode = (
 
     const keyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
     const clientCall = hasArgs
-      ? `${deps.client}${pathResult.runtimePath}.$${method}(args,clientOptions)`
-      : `${deps.client}${pathResult.runtimePath}.$${method}(undefined,clientOptions)`
+      ? `${clientPath}.$${method}(args,clientOptions)`
+      : `${clientPath}.$${method}(undefined,clientOptions)`
     const fetcherBody = buildFetcher(clientCall)
 
     hookCode = `${docs}
@@ -158,27 +174,46 @@ ${keyGetterCode}`
   } else {
     // useSWRMutation hook for POST/PUT/DELETE/PATCH
     const methodUpper = method.toUpperCase()
-    const mutationKey = `'${methodUpper} ${honoPath}'`
     const variablesType = hasArgs ? inferRequestType : 'undefined'
 
     // Only add | undefined when there are 204/205 No Content responses
     const responseTypeWithUndefined = hasNoContent
       ? `${parseResponseType}|undefined`
       : parseResponseType
-    const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,string,${variablesType}>`
+    const mutationConfigType = `SWRMutationConfiguration<${responseTypeWithUndefined},Error,Key,${variablesType}>`
+
+    // Generate helper function name
+    const mutationKeyGetterName = toMutationKeyGetterName(method, pathStr)
+
+    // Safe comment path for JSDoc
+    const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
+
+    // Generate MutationKey function using $url() for type-safe key
+    // Format: "METHOD /path" for uniqueness (e.g., "POST /pet")
+    const mutationKeyGetterCode = `/**
+ * Generates SWR mutation key for ${methodUpper} ${safeCommentPath}
+ * Uses $url() for type-safe key generation
+ */
+export function ${mutationKeyGetterName}(){return\`${methodUpper} \${${clientPath}.$url().pathname}\`}`
 
     if (hasArgs) {
-      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(arg,clientOptions)`
+      const clientCall = `${clientPath}.$${method}(arg,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
-      const optionsSig = `options?:{mutation?:${mutationConfigType};client?:ClientRequestOptions}`
+
+      const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};return useSWRMutation(${mutationKey},async(_:string,{arg}:{arg:${inferRequestType}})=>${fetcherBody},mutationOptions)}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const swrKey=mutationOptions?.swrKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${inferRequestType}})=>${fetcherBody},mutationOptions)}}
+
+${mutationKeyGetterCode}`
     } else {
-      const clientCall = `${deps.client}${pathResult.runtimePath}.$${method}(undefined,clientOptions)`
+      const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
-      const optionsSig = `options?:{mutation?:${mutationConfigType};client?:ClientRequestOptions}`
+
+      const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};return useSWRMutation(${mutationKey},async()=>${fetcherBody},mutationOptions)}`
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const swrKey=mutationOptions?.swrKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${fetcherBody},mutationOptions)}}
+
+${mutationKeyGetterCode}`
     }
   }
 
@@ -226,10 +261,13 @@ const makeHeader = (
 ): string => {
   const lines: string[] = []
 
-  // SWR imports
+  // SWR imports - Key is needed for both query and mutation
   if (hasQuery) {
     lines.push("import useSWR from'swr'")
     lines.push("import type{Key,SWRConfiguration}from'swr'")
+  } else if (hasMutation) {
+    // Mutation needs Key type from 'swr'
+    lines.push("import type{Key}from'swr'")
   }
   if (hasMutation) {
     lines.push("import useSWRMutation from'swr/mutation'")

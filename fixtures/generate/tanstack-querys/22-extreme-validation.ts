@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/22-extreme-validation'
 
@@ -7,27 +8,11 @@ import { client } from '../clients/22-extreme-validation'
  * POST /validate
  */
 export function usePostValidate(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.validate.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.validate.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.validate.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.validate.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.validate.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

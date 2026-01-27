@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/17-mixed-inline-refs'
 
 /**
@@ -31,9 +31,10 @@ export function useGetUsers(
 
 /**
  * Generates SWR cache key for GET /users
+ * Uses $url() for type-safe key generation
  */
-export function getGetUsersKey(args?: InferRequestType<typeof client.users.$get>) {
-  return ['/users', ...(args ? [args] : [])] as const
+export function getGetUsersKey(args: InferRequestType<typeof client.users.$get>) {
+  return client.users.$url(args).pathname
 }
 
 /**
@@ -43,18 +44,30 @@ export function usePostUsers(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.users.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /users',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
-      parseResponse(client.users.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostUsersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.users.$post> }) =>
+        parseResponse(client.users.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /users
+ * Uses $url() for type-safe key generation
+ */
+export function getPostUsersMutationKey() {
+  return `POST ${client.users.$url().pathname}`
 }
 
 /**
@@ -82,11 +95,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR cache key for GET /users/{userId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdKey(
-  args?: InferRequestType<(typeof client.users)[':userId']['$get']>,
+  args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return ['/users/:userId', ...(args ? [args] : [])] as const
+  return client.users[':userId'].$url(args).pathname
 }
 
 /**
@@ -96,18 +110,30 @@ export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.orders.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /orders',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-      parseResponse(client.orders.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOrdersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
+        parseResponse(client.orders.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /orders
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOrdersMutationKey() {
+  return `POST ${client.orders.$url().pathname}`
 }
 
 /**
@@ -135,11 +161,12 @@ export function useGetProductsProductIdVariants(
 
 /**
  * Generates SWR cache key for GET /products/{productId}/variants
+ * Uses $url() for type-safe key generation
  */
 export function getGetProductsProductIdVariantsKey(
-  args?: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
+  args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
-  return ['/products/:productId/variants', ...(args ? [args] : [])] as const
+  return client.products[':productId'].variants.$url(args).pathname
 }
 
 /**
@@ -151,18 +178,30 @@ export function usePostReportsGenerate(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.reports.generate.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.reports.generate.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /reports/generate',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.reports.generate.$post> }) =>
-      parseResponse(client.reports.generate.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostReportsGenerateMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.reports.generate.$post> }) =>
+        parseResponse(client.reports.generate.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /reports/generate
+ * Uses $url() for type-safe key generation
+ */
+export function getPostReportsGenerateMutationKey() {
+  return `POST ${client.reports.generate.$url().pathname}`
 }
 
 /**
@@ -174,16 +213,28 @@ export function usePostWebhooksTest(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.test.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.webhooks.test.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /webhooks/test',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.webhooks.test.$post> }) =>
-      parseResponse(client.webhooks.test.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostWebhooksTestMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.webhooks.test.$post> }) =>
+        parseResponse(client.webhooks.test.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /webhooks/test
+ * Uses $url() for type-safe key generation
+ */
+export function getPostWebhooksTestMutationKey() {
+  return `POST ${client.webhooks.test.$url().pathname}`
 }

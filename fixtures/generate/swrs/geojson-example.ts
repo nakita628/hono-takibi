@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/geojson-example'
 
 /**
@@ -30,9 +30,10 @@ export function useGet(options?: {
 
 /**
  * Generates SWR cache key for GET /
+ * Uses $url() for type-safe key generation
  */
 export function getGetKey() {
-  return ['/'] as const
+  return client.index.$url().pathname
 }
 
 /**
@@ -64,7 +65,8 @@ export function useGetProjects(
 
 /**
  * Generates SWR cache key for GET /projects
+ * Uses $url() for type-safe key generation
  */
-export function getGetProjectsKey(args?: InferRequestType<typeof client.projects.$get>) {
-  return ['/projects', ...(args ? [args] : [])] as const
+export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
+  return client.projects.$url(args).pathname
 }

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
@@ -9,27 +10,18 @@ import { client } from '../clients/09-callbacks'
  * Register a webhook endpoint
  */
 export function usePostWebhooks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.webhooks.$post>
       >,
-      variables: InferRequestType<typeof client.webhooks.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.webhooks.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.webhooks.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.webhooks.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -46,27 +38,18 @@ export function usePostWebhooks(options?: {
  * Create a subscription with payment callbacks
  */
 export function usePostSubscriptions(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.subscriptions.$post>
       >,
-      variables: InferRequestType<typeof client.subscriptions.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.subscriptions.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.subscriptions.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.subscriptions.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -83,25 +66,16 @@ export function usePostSubscriptions(options?: {
  * Create an async job with progress callbacks
  */
 export function usePostJobs(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.jobs.$post>
       >,
-      variables: InferRequestType<typeof client.jobs.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.jobs.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.jobs.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.jobs.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -118,40 +92,22 @@ export function usePostJobs(options?: {
  * Trigger data sync with callbacks
  */
 export function usePostIntegrationsIntegrationIdSync(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

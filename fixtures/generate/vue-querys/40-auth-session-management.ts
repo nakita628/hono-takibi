@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/40-auth-session-management'
 
@@ -13,17 +14,17 @@ import { client } from '../clients/40-auth-session-management'
 export function useGetSessions(
   args: InferRequestType<typeof client.sessions.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$get>>>>
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -33,9 +34,10 @@ export function useGetSessions(
 
 /**
  * Generates Vue Query cache key for GET /sessions
+ * Uses $url() for type-safe key generation
  */
 export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return ['/sessions', args] as const
+  return [client.sessions.$url(args).pathname] as const
 }
 
 /**
@@ -46,14 +48,13 @@ export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sess
 export const getGetSessionsQueryOptions = (
   args: InferRequestType<typeof client.sessions.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSessionsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetSessionsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sessions.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /sessions
@@ -63,27 +64,18 @@ export const getGetSessionsQueryOptions = (
  * 認証成功後にセッションを作成
  */
 export function usePostSessions(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.sessions.$post>
       >,
-      variables: InferRequestType<typeof client.sessions.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.sessions.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.sessions.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.sessions.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -100,17 +92,17 @@ export function usePostSessions(options?: {
  * 現在のセッション取得
  */
 export function useGetSessionsCurrent(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -119,9 +111,10 @@ export function useGetSessionsCurrent(options?: {
 
 /**
  * Generates Vue Query cache key for GET /sessions/current
+ * Uses $url() for type-safe key generation
  */
 export function getGetSessionsCurrentQueryKey() {
-  return ['/sessions/current'] as const
+  return [client.sessions.current.$url().pathname] as const
 }
 
 /**
@@ -129,17 +122,16 @@ export function getGetSessionsCurrentQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSessionsCurrentQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sessions.current.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsCurrentQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sessions.current.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /sessions/current
@@ -147,33 +139,21 @@ export const getGetSessionsCurrentQueryOptions = (clientOptions?: ClientRequestO
  * 現在のセッション終了（ログアウト）
  */
 export function useDeleteSessionsCurrent(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$delete>>>
             >
           >
         | undefined,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.$delete>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -192,36 +172,20 @@ export function useDeleteSessionsCurrent(options?: {
  * リフレッシュトークンを使用してセッションを更新
  */
 export function usePostSessionsCurrentRefresh(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.sessions.current.refresh.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.sessions.current.refresh.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>
-              >
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.refresh.$post>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.sessions.current.refresh.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.sessions.current.refresh.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<typeof client.sessions.current.refresh.$post>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -240,34 +204,20 @@ export function usePostSessionsCurrentRefresh(options?: {
  * アクティブなセッションの有効期限を延長
  */
 export function usePostSessionsCurrentExtend(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.sessions.current.extend.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.sessions.current.extend.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.extend.$post>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.sessions.current.extend.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.sessions.current.extend.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<typeof client.sessions.current.extend.$post>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -286,33 +236,20 @@ export function usePostSessionsCurrentExtend(options?: {
  * ユーザーアクティビティを記録してアイドルタイムアウトをリセット
  */
 export function usePostSessionsCurrentActivity(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.activity.$post>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<typeof client.sessions.current.activity.$post>>
-              >
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.sessions.current.activity.$post>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -331,17 +268,21 @@ export function usePostSessionsCurrentActivity(options?: {
 export function useGetSessionsSessionId(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -351,11 +292,12 @@ export function useGetSessionsSessionId(
 
 /**
  * Generates Vue Query cache key for GET /sessions/{sessionId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetSessionsSessionIdQueryKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return ['/sessions/:sessionId', args] as const
+  return [client.sessions[':sessionId'].$url(args).pathname] as const
 }
 
 /**
@@ -366,17 +308,16 @@ export function getGetSessionsSessionIdQueryKey(
 export const getGetSessionsSessionIdQueryOptions = (
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSessionsSessionIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sessions[':sessionId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSessionsSessionIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sessions[':sessionId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /sessions/{sessionId}
@@ -386,9 +327,9 @@ export const getGetSessionsSessionIdQueryOptions = (
  * 指定したセッションを強制的に終了
  */
 export function useDeleteSessionsSessionId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<
@@ -397,31 +338,12 @@ export function useDeleteSessionsSessionId(options?: {
             >
           >
         | undefined,
-      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.sessions)[':sessionId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -440,38 +362,22 @@ export function useDeleteSessionsSessionId(options?: {
  * 現在のセッション以外の全セッションを無効化
  */
 export function usePostSessionsRevokeAll(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.sessions)['revoke-all']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.sessions)['revoke-all']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -490,32 +396,20 @@ export function usePostSessionsRevokeAll(options?: {
  * セッショントークンの有効性を検証
  */
 export function usePostSessionsValidate(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.sessions.validate.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.sessions.validate.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.sessions.validate.$post>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.sessions.validate.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.sessions.validate.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<typeof client.sessions.validate.$post>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -534,17 +428,19 @@ export function usePostSessionsValidate(options?: {
 export function useGetSessionsHistory(
   args: InferRequestType<typeof client.sessions.history.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.history.$get>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -554,11 +450,12 @@ export function useGetSessionsHistory(
 
 /**
  * Generates Vue Query cache key for GET /sessions/history
+ * Uses $url() for type-safe key generation
  */
 export function getGetSessionsHistoryQueryKey(
   args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return ['/sessions/history', args] as const
+  return [client.sessions.history.$url(args).pathname] as const
 }
 
 /**
@@ -569,17 +466,16 @@ export function getGetSessionsHistoryQueryKey(
 export const getGetSessionsHistoryQueryOptions = (
   args: InferRequestType<typeof client.sessions.history.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSessionsHistoryQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sessions.history.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSessionsHistoryQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sessions.history.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/security-events
@@ -591,17 +487,21 @@ export const getGetSessionsHistoryQueryOptions = (
 export function useGetSessionsSecurityEvents(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.sessions)['security-events']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -614,11 +514,12 @@ export function useGetSessionsSecurityEvents(
 
 /**
  * Generates Vue Query cache key for GET /sessions/security-events
+ * Uses $url() for type-safe key generation
  */
 export function getGetSessionsSecurityEventsQueryKey(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return ['/sessions/security-events', args] as const
+  return [client.sessions['security-events'].$url(args).pathname] as const
 }
 
 /**
@@ -629,17 +530,16 @@ export function getGetSessionsSecurityEventsQueryKey(
 export const getGetSessionsSecurityEventsQueryOptions = (
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSessionsSecurityEventsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sessions['security-events'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSessionsSecurityEventsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sessions['security-events'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /sessions/policies
@@ -647,17 +547,19 @@ export const getGetSessionsSecurityEventsQueryOptions = (
  * セッションポリシー取得
  */
 export function useGetSessionsPolicies(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$get>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -666,9 +568,10 @@ export function useGetSessionsPolicies(options?: {
 
 /**
  * Generates Vue Query cache key for GET /sessions/policies
+ * Uses $url() for type-safe key generation
  */
 export function getGetSessionsPoliciesQueryKey() {
-  return ['/sessions/policies'] as const
+  return [client.sessions.policies.$url().pathname] as const
 }
 
 /**
@@ -676,17 +579,16 @@ export function getGetSessionsPoliciesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSessionsPoliciesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sessions.policies.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsPoliciesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sessions.policies.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /sessions/policies
@@ -694,32 +596,20 @@ export const getGetSessionsPoliciesQueryOptions = (clientOptions?: ClientRequest
  * セッションポリシー更新
  */
 export function usePutSessionsPolicies(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.sessions.policies.$put>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.sessions.policies.$put>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.sessions.policies.$put>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.sessions.policies.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.sessions.policies.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<typeof client.sessions.policies.$put>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -736,17 +626,21 @@ export function usePutSessionsPolicies(options?: {
  * 信頼済みデバイス一覧
  */
 export function useGetSessionsTrustedDevices(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$get']>>
+            >
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -755,9 +649,10 @@ export function useGetSessionsTrustedDevices(options?: {
 
 /**
  * Generates Vue Query cache key for GET /sessions/trusted-devices
+ * Uses $url() for type-safe key generation
  */
 export function getGetSessionsTrustedDevicesQueryKey() {
-  return ['/sessions/trusted-devices'] as const
+  return [client.sessions['trusted-devices'].$url().pathname] as const
 }
 
 /**
@@ -765,17 +660,16 @@ export function getGetSessionsTrustedDevicesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSessionsTrustedDevicesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.sessions['trusted-devices'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSessionsTrustedDevicesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.sessions['trusted-devices'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /sessions/trusted-devices
@@ -783,40 +677,22 @@ export const getGetSessionsTrustedDevicesQueryOptions = (clientOptions?: ClientR
  * 現在のデバイスを信頼
  */
 export function usePostSessionsTrustedDevices(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.sessions)['trusted-devices']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -834,9 +710,9 @@ export function usePostSessionsTrustedDevices(options?: {
  * 信頼済みデバイス削除
  */
 export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<
@@ -847,41 +723,12 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
             >
           >
         | undefined,
-      variables: InferRequestType<
-        (typeof client.sessions)['trusted-devices'][':deviceId']['$delete']
+        Error,
+        InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
       >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.sessions)['trusted-devices'][':deviceId']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.sessions)['trusted-devices'][':deviceId']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.sessions)['trusted-devices'][':deviceId']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

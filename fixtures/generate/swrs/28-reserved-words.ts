@@ -1,9 +1,9 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import useSWRMutation from 'swr/mutation'
 import { client } from '../clients/28-reserved-words'
 
 /**
@@ -28,9 +28,10 @@ export function useGetClass(options?: {
 
 /**
  * Generates SWR cache key for GET /class
+ * Uses $url() for type-safe key generation
  */
 export function getGetClassKey() {
-  return ['/class'] as const
+  return client.class.$url().pathname
 }
 
 /**
@@ -55,9 +56,10 @@ export function useGetInterface(options?: {
 
 /**
  * Generates SWR cache key for GET /interface
+ * Uses $url() for type-safe key generation
  */
 export function getGetInterfaceKey() {
-  return ['/interface'] as const
+  return client.interface.$url().pathname
 }
 
 /**
@@ -82,9 +84,10 @@ export function useGetType(options?: {
 
 /**
  * Generates SWR cache key for GET /type
+ * Uses $url() for type-safe key generation
  */
 export function getGetTypeKey() {
-  return ['/type'] as const
+  return client.type.$url().pathname
 }
 
 /**
@@ -94,17 +97,29 @@ export function usePostFunction(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>>,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /function',
-    async () => parseResponse(client.function.$post(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostFunctionMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client.function.$post(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /function
+ * Uses $url() for type-safe key generation
+ */
+export function getPostFunctionMutationKey() {
+  return `POST ${client.function.$url().pathname}`
 }
 
 /**
@@ -129,9 +144,10 @@ export function useGetReturn(options?: {
 
 /**
  * Generates SWR cache key for GET /return
+ * Uses $url() for type-safe key generation
  */
 export function getGetReturnKey() {
-  return ['/return'] as const
+  return client.return.$url().pathname
 }
 
 /**
@@ -156,9 +172,10 @@ export function useGetImport(options?: {
 
 /**
  * Generates SWR cache key for GET /import
+ * Uses $url() for type-safe key generation
  */
 export function getGetImportKey() {
-  return ['/import'] as const
+  return client.import.$url().pathname
 }
 
 /**
@@ -183,9 +200,10 @@ export function useGetExport(options?: {
 
 /**
  * Generates SWR cache key for GET /export
+ * Uses $url() for type-safe key generation
  */
 export function getGetExportKey() {
-  return ['/export'] as const
+  return client.export.$url().pathname
 }
 
 /**
@@ -210,9 +228,10 @@ export function useGetDefault(options?: {
 
 /**
  * Generates SWR cache key for GET /default
+ * Uses $url() for type-safe key generation
  */
 export function getGetDefaultKey() {
-  return ['/default'] as const
+  return client.default.$url().pathname
 }
 
 /**
@@ -222,17 +241,29 @@ export function usePostNew(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /new',
-    async () => parseResponse(client.new.$post(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostNewMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client.new.$post(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /new
+ * Uses $url() for type-safe key generation
+ */
+export function getPostNewMutationKey() {
+  return `POST ${client.new.$url().pathname}`
 }
 
 /**
@@ -242,17 +273,29 @@ export function useDeleteDelete(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>>,
     Error,
-    string,
+    Key,
     undefined
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /delete',
-    async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteDeleteMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /delete
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteDeleteMutationKey() {
+  return `DELETE ${client.delete.$url().pathname}`
 }
 
 /**
@@ -277,9 +320,10 @@ export function useGetVoid(options?: {
 
 /**
  * Generates SWR cache key for GET /void
+ * Uses $url() for type-safe key generation
  */
 export function getGetVoidKey() {
-  return ['/void'] as const
+  return client.void.$url().pathname
 }
 
 /**
@@ -304,9 +348,10 @@ export function useGetNull(options?: {
 
 /**
  * Generates SWR cache key for GET /null
+ * Uses $url() for type-safe key generation
  */
 export function getGetNullKey() {
-  return ['/null'] as const
+  return client.null.$url().pathname
 }
 
 /**
@@ -331,9 +376,10 @@ export function useGetTrue(options?: {
 
 /**
  * Generates SWR cache key for GET /true
+ * Uses $url() for type-safe key generation
  */
 export function getGetTrueKey() {
-  return ['/true'] as const
+  return client.true.$url().pathname
 }
 
 /**
@@ -358,9 +404,10 @@ export function useGetFalse(options?: {
 
 /**
  * Generates SWR cache key for GET /false
+ * Uses $url() for type-safe key generation
  */
 export function getGetFalseKey() {
-  return ['/false'] as const
+  return client.false.$url().pathname
 }
 
 /**
@@ -385,9 +432,10 @@ export function useGetIf(options?: {
 
 /**
  * Generates SWR cache key for GET /if
+ * Uses $url() for type-safe key generation
  */
 export function getGetIfKey() {
-  return ['/if'] as const
+  return client.if.$url().pathname
 }
 
 /**
@@ -412,9 +460,10 @@ export function useGetElse(options?: {
 
 /**
  * Generates SWR cache key for GET /else
+ * Uses $url() for type-safe key generation
  */
 export function getGetElseKey() {
-  return ['/else'] as const
+  return client.else.$url().pathname
 }
 
 /**
@@ -439,9 +488,10 @@ export function useGetFor(options?: {
 
 /**
  * Generates SWR cache key for GET /for
+ * Uses $url() for type-safe key generation
  */
 export function getGetForKey() {
-  return ['/for'] as const
+  return client.for.$url().pathname
 }
 
 /**
@@ -466,9 +516,10 @@ export function useGetWhile(options?: {
 
 /**
  * Generates SWR cache key for GET /while
+ * Uses $url() for type-safe key generation
  */
 export function getGetWhileKey() {
-  return ['/while'] as const
+  return client.while.$url().pathname
 }
 
 /**
@@ -493,9 +544,10 @@ export function useGetSwitch(options?: {
 
 /**
  * Generates SWR cache key for GET /switch
+ * Uses $url() for type-safe key generation
  */
 export function getGetSwitchKey() {
-  return ['/switch'] as const
+  return client.switch.$url().pathname
 }
 
 /**
@@ -520,9 +572,10 @@ export function useGetCase(options?: {
 
 /**
  * Generates SWR cache key for GET /case
+ * Uses $url() for type-safe key generation
  */
 export function getGetCaseKey() {
-  return ['/case'] as const
+  return client.case.$url().pathname
 }
 
 /**
@@ -547,9 +600,10 @@ export function useGetBreak(options?: {
 
 /**
  * Generates SWR cache key for GET /break
+ * Uses $url() for type-safe key generation
  */
 export function getGetBreakKey() {
-  return ['/break'] as const
+  return client.break.$url().pathname
 }
 
 /**
@@ -574,9 +628,10 @@ export function useGetContinue(options?: {
 
 /**
  * Generates SWR cache key for GET /continue
+ * Uses $url() for type-safe key generation
  */
 export function getGetContinueKey() {
-  return ['/continue'] as const
+  return client.continue.$url().pathname
 }
 
 /**
@@ -601,9 +656,10 @@ export function useGetTry(options?: {
 
 /**
  * Generates SWR cache key for GET /try
+ * Uses $url() for type-safe key generation
  */
 export function getGetTryKey() {
-  return ['/try'] as const
+  return client.try.$url().pathname
 }
 
 /**
@@ -628,9 +684,10 @@ export function useGetCatch(options?: {
 
 /**
  * Generates SWR cache key for GET /catch
+ * Uses $url() for type-safe key generation
  */
 export function getGetCatchKey() {
-  return ['/catch'] as const
+  return client.catch.$url().pathname
 }
 
 /**
@@ -655,9 +712,10 @@ export function useGetFinally(options?: {
 
 /**
  * Generates SWR cache key for GET /finally
+ * Uses $url() for type-safe key generation
  */
 export function getGetFinallyKey() {
-  return ['/finally'] as const
+  return client.finally.$url().pathname
 }
 
 /**
@@ -682,9 +740,10 @@ export function useGetThrow(options?: {
 
 /**
  * Generates SWR cache key for GET /throw
+ * Uses $url() for type-safe key generation
  */
 export function getGetThrowKey() {
-  return ['/throw'] as const
+  return client.throw.$url().pathname
 }
 
 /**
@@ -709,9 +768,10 @@ export function useGetAsync(options?: {
 
 /**
  * Generates SWR cache key for GET /async
+ * Uses $url() for type-safe key generation
  */
 export function getGetAsyncKey() {
-  return ['/async'] as const
+  return client.async.$url().pathname
 }
 
 /**
@@ -736,9 +796,10 @@ export function useGetAwait(options?: {
 
 /**
  * Generates SWR cache key for GET /await
+ * Uses $url() for type-safe key generation
  */
 export function getGetAwaitKey() {
-  return ['/await'] as const
+  return client.await.$url().pathname
 }
 
 /**
@@ -763,9 +824,10 @@ export function useGetYield(options?: {
 
 /**
  * Generates SWR cache key for GET /yield
+ * Uses $url() for type-safe key generation
  */
 export function getGetYieldKey() {
-  return ['/yield'] as const
+  return client.yield.$url().pathname
 }
 
 /**
@@ -790,9 +852,10 @@ export function useGetStatic(options?: {
 
 /**
  * Generates SWR cache key for GET /static
+ * Uses $url() for type-safe key generation
  */
 export function getGetStaticKey() {
-  return ['/static'] as const
+  return client.static.$url().pathname
 }
 
 /**
@@ -817,9 +880,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /public
+ * Uses $url() for type-safe key generation
  */
 export function getGetPublicKey() {
-  return ['/public'] as const
+  return client.public.$url().pathname
 }
 
 /**
@@ -844,9 +908,10 @@ export function useGetPrivate(options?: {
 
 /**
  * Generates SWR cache key for GET /private
+ * Uses $url() for type-safe key generation
  */
 export function getGetPrivateKey() {
-  return ['/private'] as const
+  return client.private.$url().pathname
 }
 
 /**
@@ -871,9 +936,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates SWR cache key for GET /protected
+ * Uses $url() for type-safe key generation
  */
 export function getGetProtectedKey() {
-  return ['/protected'] as const
+  return client.protected.$url().pathname
 }
 
 /**
@@ -898,9 +964,10 @@ export function useGetAbstract(options?: {
 
 /**
  * Generates SWR cache key for GET /abstract
+ * Uses $url() for type-safe key generation
  */
 export function getGetAbstractKey() {
-  return ['/abstract'] as const
+  return client.abstract.$url().pathname
 }
 
 /**
@@ -925,9 +992,10 @@ export function useGetFinal(options?: {
 
 /**
  * Generates SWR cache key for GET /final
+ * Uses $url() for type-safe key generation
  */
 export function getGetFinalKey() {
-  return ['/final'] as const
+  return client.final.$url().pathname
 }
 
 /**
@@ -952,9 +1020,10 @@ export function useGetExtends(options?: {
 
 /**
  * Generates SWR cache key for GET /extends
+ * Uses $url() for type-safe key generation
  */
 export function getGetExtendsKey() {
-  return ['/extends'] as const
+  return client.extends.$url().pathname
 }
 
 /**
@@ -979,9 +1048,10 @@ export function useGetImplements(options?: {
 
 /**
  * Generates SWR cache key for GET /implements
+ * Uses $url() for type-safe key generation
  */
 export function getGetImplementsKey() {
-  return ['/implements'] as const
+  return client.implements.$url().pathname
 }
 
 /**
@@ -1006,9 +1076,10 @@ export function useGetPackage(options?: {
 
 /**
  * Generates SWR cache key for GET /package
+ * Uses $url() for type-safe key generation
  */
 export function getGetPackageKey() {
-  return ['/package'] as const
+  return client.package.$url().pathname
 }
 
 /**
@@ -1033,9 +1104,10 @@ export function useGetEnum(options?: {
 
 /**
  * Generates SWR cache key for GET /enum
+ * Uses $url() for type-safe key generation
  */
 export function getGetEnumKey() {
-  return ['/enum'] as const
+  return client.enum.$url().pathname
 }
 
 /**
@@ -1060,9 +1132,10 @@ export function useGetConst(options?: {
 
 /**
  * Generates SWR cache key for GET /const
+ * Uses $url() for type-safe key generation
  */
 export function getGetConstKey() {
-  return ['/const'] as const
+  return client.const.$url().pathname
 }
 
 /**
@@ -1087,9 +1160,10 @@ export function useGetLet(options?: {
 
 /**
  * Generates SWR cache key for GET /let
+ * Uses $url() for type-safe key generation
  */
 export function getGetLetKey() {
-  return ['/let'] as const
+  return client.let.$url().pathname
 }
 
 /**
@@ -1114,9 +1188,10 @@ export function useGetVar(options?: {
 
 /**
  * Generates SWR cache key for GET /var
+ * Uses $url() for type-safe key generation
  */
 export function getGetVarKey() {
-  return ['/var'] as const
+  return client.var.$url().pathname
 }
 
 /**
@@ -1141,9 +1216,10 @@ export function useGetThis(options?: {
 
 /**
  * Generates SWR cache key for GET /this
+ * Uses $url() for type-safe key generation
  */
 export function getGetThisKey() {
-  return ['/this'] as const
+  return client.this.$url().pathname
 }
 
 /**
@@ -1168,9 +1244,10 @@ export function useGetSuper(options?: {
 
 /**
  * Generates SWR cache key for GET /super
+ * Uses $url() for type-safe key generation
  */
 export function getGetSuperKey() {
-  return ['/super'] as const
+  return client.super.$url().pathname
 }
 
 /**
@@ -1195,9 +1272,10 @@ export function useGetSelf(options?: {
 
 /**
  * Generates SWR cache key for GET /self
+ * Uses $url() for type-safe key generation
  */
 export function getGetSelfKey() {
-  return ['/self'] as const
+  return client.self.$url().pathname
 }
 
 /**
@@ -1222,9 +1300,10 @@ export function useGetConstructor(options?: {
 
 /**
  * Generates SWR cache key for GET /constructor
+ * Uses $url() for type-safe key generation
  */
 export function getGetConstructorKey() {
-  return ['/constructor'] as const
+  return client.constructor.$url().pathname
 }
 
 /**
@@ -1249,9 +1328,10 @@ export function useGetPrototype(options?: {
 
 /**
  * Generates SWR cache key for GET /prototype
+ * Uses $url() for type-safe key generation
  */
 export function getGetPrototypeKey() {
-  return ['/prototype'] as const
+  return client.prototype.$url().pathname
 }
 
 /**
@@ -1276,9 +1356,10 @@ export function useGetToString(options?: {
 
 /**
  * Generates SWR cache key for GET /toString
+ * Uses $url() for type-safe key generation
  */
 export function getGetToStringKey() {
-  return ['/toString'] as const
+  return client.toString.$url().pathname
 }
 
 /**
@@ -1303,9 +1384,10 @@ export function useGetValueOf(options?: {
 
 /**
  * Generates SWR cache key for GET /valueOf
+ * Uses $url() for type-safe key generation
  */
 export function getGetValueOfKey() {
-  return ['/valueOf'] as const
+  return client.valueOf.$url().pathname
 }
 
 /**
@@ -1330,9 +1412,10 @@ export function useGetHasOwnProperty(options?: {
 
 /**
  * Generates SWR cache key for GET /hasOwnProperty
+ * Uses $url() for type-safe key generation
  */
 export function getGetHasOwnPropertyKey() {
-  return ['/hasOwnProperty'] as const
+  return client.hasOwnProperty.$url().pathname
 }
 
 /**
@@ -1357,7 +1440,8 @@ export function useGetNameCollisions(options?: {
 
 /**
  * Generates SWR cache key for GET /name-collisions
+ * Uses $url() for type-safe key generation
  */
 export function getGetNameCollisionsKey() {
-  return ['/name-collisions'] as const
+  return client['name-collisions'].$url().pathname
 }

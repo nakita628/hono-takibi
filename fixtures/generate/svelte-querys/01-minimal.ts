@@ -1,4 +1,5 @@
-import { createQuery, queryOptions } from '@tanstack/svelte-query'
+import { createQuery } from '@tanstack/svelte-query'
+import type { CreateQueryOptions } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/01-minimal'
@@ -7,17 +8,10 @@ import { client } from '../clients/01-minimal'
  * GET /health
  */
 export function createGetHealth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.health.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +20,10 @@ export function createGetHealth(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /health
+ * Uses $url() for type-safe key generation
  */
 export function getGetHealthQueryKey() {
-  return ['/health'] as const
+  return [client.health.$url().pathname] as const
 }
 
 /**
@@ -36,14 +31,10 @@ export function getGetHealthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetHealthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.health.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetHealthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHealthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.health.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

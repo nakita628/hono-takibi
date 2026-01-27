@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
 /**
@@ -35,9 +35,10 @@ export function useGetPath(
 
 /**
  * Generates SWR cache key for GET /{path}
+ * Uses $url() for type-safe key generation
  */
-export function getGetPathKey(args?: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', ...(args ? [args] : [])] as const
+export function getGetPathKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
+  return client[':path'].$url(args).pathname
 }
 
 /**
@@ -53,18 +54,30 @@ export function usePutPath(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)[':path']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /:path',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$put']> }) =>
-      parseResponse(client[':path'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutPathMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)[':path']['$put']> }) =>
+        parseResponse(client[':path'].$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /{path}
+ * Uses $url() for type-safe key generation
+ */
+export function getPutPathMutationKey() {
+  return `PUT ${client[':path'].$url().pathname}`
 }
 
 /**
@@ -80,18 +93,30 @@ export function usePostPath(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)[':path']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /:path',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$post']> }) =>
-      parseResponse(client[':path'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostPathMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)[':path']['$post']> }) =>
+        parseResponse(client[':path'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /{path}
+ * Uses $url() for type-safe key generation
+ */
+export function getPostPathMutationKey() {
+  return `POST ${client[':path'].$url().pathname}`
 }
 
 /**
@@ -107,18 +132,30 @@ export function useDeletePath(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)[':path']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /:path',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client)[':path']['$delete']> }) =>
-      parseResponse(client[':path'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeletePathMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)[':path']['$delete']> }) =>
+        parseResponse(client[':path'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /{path}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeletePathMutationKey() {
+  return `DELETE ${client[':path'].$url().pathname}`
 }
 
 /**
@@ -141,22 +178,36 @@ export function usePost1IndexesIndexNameQuery(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/query',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].query.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameQueryMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].query.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/query
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameQueryMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].query.$url().pathname}`
 }
 
 /**
@@ -183,20 +234,34 @@ export function usePost1IndexesQueries(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/*/queries',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']> },
-    ) => parseResponse(client['1'].indexes['*'].queries.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesQueriesMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']> },
+      ) => parseResponse(client['1'].indexes['*'].queries.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/* /queries
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesQueriesMutationKey() {
+  return `POST ${client['1'].indexes['*'].queries.$url().pathname}`
 }
 
 /**
@@ -224,31 +289,44 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/facets/:facetName/query',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-        >
-      },
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].facets[':facetName'].query.$post(arg, clientOptions),
-      ),
-    mutationOptions,
-  )
+  const swrKey =
+    mutationOptions?.swrKey ?? getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['1'].indexes[':indexName'].facets[':facetName'].query.$post(arg, clientOptions),
+        ),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/facets/{facetName}/query
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].facets[':facetName'].query.$url().pathname}`
 }
 
 /**
@@ -292,24 +370,36 @@ export function usePost1IndexesIndexNameBrowse(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/browse',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameBrowseMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/browse
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameBrowseMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].browse.$url().pathname}`
 }
 
 /**
@@ -339,20 +429,32 @@ export function usePost1IndexesIndexName(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']> },
+      ) => parseResponse(client['1'].indexes[':indexName'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].$url().pathname}`
 }
 
 /**
@@ -378,20 +480,34 @@ export function useDelete1IndexesIndexName(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /1/indexes/:indexName',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDelete1IndexesIndexNameMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']> },
+      ) => parseResponse(client['1'].indexes[':indexName'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}
+ * Uses $url() for type-safe key generation
+ */
+export function getDelete1IndexesIndexNameMutationKey() {
+  return `DELETE ${client['1'].indexes[':indexName'].$url().pathname}`
 }
 
 /**
@@ -426,11 +542,12 @@ export function useGet1IndexesIndexNameObjectID(
 
 /**
  * Generates SWR cache key for GET /1/indexes/{indexName}/{objectID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameObjectIDKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/:objectID', ...(args ? [args] : [])] as const
+  return client['1'].indexes[':indexName'][':objectID'].$url(args).pathname
 }
 
 /**
@@ -455,24 +572,36 @@ export function usePut1IndexesIndexNameObjectID(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /1/indexes/:indexName/:objectID',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPut1IndexesIndexNameObjectIDMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/{objectID}
+ * Uses $url() for type-safe key generation
+ */
+export function getPut1IndexesIndexNameObjectIDMutationKey() {
+  return `PUT ${client['1'].indexes[':indexName'][':objectID'].$url().pathname}`
 }
 
 /**
@@ -495,24 +624,39 @@ export function useDelete1IndexesIndexNameObjectID(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /1/indexes/:indexName/:objectID',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDelete1IndexesIndexNameObjectIDMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}/{objectID}
+ * Uses $url() for type-safe key generation
+ */
+export function getDelete1IndexesIndexNameObjectIDMutationKey() {
+  return `DELETE ${client['1'].indexes[':indexName'][':objectID'].$url().pathname}`
 }
 
 /**
@@ -541,26 +685,38 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/deleteByQuery',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameDeleteByQueryMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
+          >
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/deleteByQuery
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameDeleteByQueryMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].deleteByQuery.$url().pathname}`
 }
 
 /**
@@ -581,22 +737,36 @@ export function usePost1IndexesIndexNameClear(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/clear',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameClearMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/clear
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameClearMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].clear.$url().pathname}`
 }
 
 /**
@@ -646,29 +816,41 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/:objectID/partial',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-        >
-      },
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'][':objectID'].partial.$post(arg, clientOptions),
-      ),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameObjectIDPartialMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['1'].indexes[':indexName'][':objectID'].partial.$post(arg, clientOptions),
+        ),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/{objectID}/partial
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameObjectIDPartialMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'][':objectID'].partial.$url().pathname}`
 }
 
 /**
@@ -695,22 +877,36 @@ export function usePost1IndexesIndexNameBatch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/batch',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']> },
-    ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameBatchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/batch
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameBatchMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].batch.$url().pathname}`
 }
 
 /**
@@ -735,20 +931,32 @@ export function usePost1IndexesBatch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/*/batch',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']> },
-    ) => parseResponse(client['1'].indexes['*'].batch.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesBatchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']> },
+      ) => parseResponse(client['1'].indexes['*'].batch.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/* /batch
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesBatchMutationKey() {
+  return `POST ${client['1'].indexes['*'].batch.$url().pathname}`
 }
 
 /**
@@ -770,20 +978,34 @@ export function usePost1IndexesObjects(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/*/objects',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']> },
-    ) => parseResponse(client['1'].indexes['*'].objects.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesObjectsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']> },
+      ) => parseResponse(client['1'].indexes['*'].objects.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/* /objects
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesObjectsMutationKey() {
+  return `POST ${client['1'].indexes['*'].objects.$url().pathname}`
 }
 
 /**
@@ -816,11 +1038,12 @@ export function useGet1IndexesIndexNameSettings(
 
 /**
  * Generates SWR cache key for GET /1/indexes/{indexName}/settings
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameSettingsKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/settings', ...(args ? [args] : [])] as const
+  return client['1'].indexes[':indexName'].settings.$url(args).pathname
 }
 
 /**
@@ -845,24 +1068,36 @@ export function usePut1IndexesIndexNameSettings(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /1/indexes/:indexName/settings',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPut1IndexesIndexNameSettingsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/settings
+ * Uses $url() for type-safe key generation
+ */
+export function getPut1IndexesIndexNameSettingsMutationKey() {
+  return `PUT ${client['1'].indexes[':indexName'].settings.$url().pathname}`
 }
 
 /**
@@ -902,13 +1137,14 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
 
 /**
  * Generates SWR cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', ...(args ? [args] : [])] as const
+  return client['1'].indexes[':indexName'].synonyms[':objectID'].$url(args).pathname
 }
 
 /**
@@ -934,29 +1170,41 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /1/indexes/:indexName/synonyms/:objectID',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-        >
-      },
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$put(arg, clientOptions),
-      ),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPut1IndexesIndexNameSynonymsObjectIDMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['1'].indexes[':indexName'].synonyms[':objectID'].$put(arg, clientOptions),
+        ),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/synonyms/{objectID}
+ * Uses $url() for type-safe key generation
+ */
+export function getPut1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return `PUT ${client['1'].indexes[':indexName'].synonyms[':objectID'].$url().pathname}`
 }
 
 /**
@@ -981,31 +1229,43 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /1/indexes/:indexName/synonyms/:objectID',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-        >
-      },
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(arg, clientOptions),
-      ),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDelete1IndexesIndexNameSynonymsObjectIDMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(arg, clientOptions),
+        ),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}/synonyms/{objectID}
+ * Uses $url() for type-safe key generation
+ */
+export function getDelete1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return `DELETE ${client['1'].indexes[':indexName'].synonyms[':objectID'].$url().pathname}`
 }
 
 /**
@@ -1030,26 +1290,39 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/synonyms/batch',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameSynonymsBatchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+          >
+        },
+      ) =>
+        parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/batch
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameSynonymsBatchMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].synonyms.batch.$url().pathname}`
 }
 
 /**
@@ -1071,26 +1344,39 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/synonyms/clear',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameSynonymsClearMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+          >
+        },
+      ) =>
+        parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/clear
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameSynonymsClearMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].synonyms.clear.$url().pathname}`
 }
 
 /**
@@ -1112,26 +1398,39 @@ export function usePost1IndexesIndexNameSynonymsSearch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/synonyms/search',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameSynonymsSearchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+          >
+        },
+      ) =>
+        parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/search
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameSynonymsSearchMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].synonyms.search.$url().pathname}`
 }
 
 /**
@@ -1160,9 +1459,10 @@ export function useGet1Keys(options?: {
 
 /**
  * Generates SWR cache key for GET /1/keys
+ * Uses $url() for type-safe key generation
  */
 export function getGet1KeysKey() {
-  return ['/1/keys'] as const
+  return client['1'].keys.$url().pathname
 }
 
 /**
@@ -1178,18 +1478,30 @@ export function usePost1Keys(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['keys']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/keys',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client)['1']['keys']['$post']> }) =>
-      parseResponse(client['1'].keys.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1KeysMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client)['1']['keys']['$post']> }) =>
+        parseResponse(client['1'].keys.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/keys
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1KeysMutationKey() {
+  return `POST ${client['1'].keys.$url().pathname}`
 }
 
 /**
@@ -1225,11 +1537,12 @@ export function useGet1KeysKey(
 
 /**
  * Generates SWR cache key for GET /1/keys/{key}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1KeysKeyKey(
-  args?: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
+  args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['/1/keys/:key', ...(args ? [args] : [])] as const
+  return client['1'].keys[':key'].$url(args).pathname
 }
 
 /**
@@ -1249,20 +1562,32 @@ export function usePut1KeysKey(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /1/keys/:key',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$put']> },
-    ) => parseResponse(client['1'].keys[':key'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPut1KeysKeyMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$put']> },
+      ) => parseResponse(client['1'].keys[':key'].$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /1/keys/{key}
+ * Uses $url() for type-safe key generation
+ */
+export function getPut1KeysKeyMutationKey() {
+  return `PUT ${client['1'].keys[':key'].$url().pathname}`
 }
 
 /**
@@ -1280,20 +1605,32 @@ export function useDelete1KeysKey(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /1/keys/:key',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']> },
-    ) => parseResponse(client['1'].keys[':key'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDelete1KeysKeyMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']> },
+      ) => parseResponse(client['1'].keys[':key'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /1/keys/{key}
+ * Uses $url() for type-safe key generation
+ */
+export function getDelete1KeysKeyMutationKey() {
+  return `DELETE ${client['1'].keys[':key'].$url().pathname}`
 }
 
 /**
@@ -1318,20 +1655,34 @@ export function usePost1KeysKeyRestore(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/keys/:key/restore',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']> },
-    ) => parseResponse(client['1'].keys[':key'].restore.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1KeysKeyRestoreMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']> },
+      ) => parseResponse(client['1'].keys[':key'].restore.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/keys/{key}/restore
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1KeysKeyRestoreMutationKey() {
+  return `POST ${client['1'].keys[':key'].restore.$url().pathname}`
 }
 
 /**
@@ -1370,13 +1721,14 @@ export function useGet1IndexesIndexNameRulesObjectID(
 
 /**
  * Generates SWR cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameRulesObjectIDKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/rules/:objectID', ...(args ? [args] : [])] as const
+  return client['1'].indexes[':indexName'].rules[':objectID'].$url(args).pathname
 }
 
 /**
@@ -1401,27 +1753,41 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /1/indexes/:indexName/rules/:objectID',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-        >
-      },
-    ) =>
-      parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPut1IndexesIndexNameRulesObjectIDMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['1'].indexes[':indexName'].rules[':objectID'].$put(arg, clientOptions),
+        ),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /1/indexes/{indexName}/rules/{objectID}
+ * Uses $url() for type-safe key generation
+ */
+export function getPut1IndexesIndexNameRulesObjectIDMutationKey() {
+  return `PUT ${client['1'].indexes[':indexName'].rules[':objectID'].$url().pathname}`
 }
 
 /**
@@ -1447,29 +1813,41 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /1/indexes/:indexName/rules/:objectID',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-        >
-      },
-    ) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].rules[':objectID'].$delete(arg, clientOptions),
-      ),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDelete1IndexesIndexNameRulesObjectIDMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+          >
+        },
+      ) =>
+        parseResponse(
+          client['1'].indexes[':indexName'].rules[':objectID'].$delete(arg, clientOptions),
+        ),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /1/indexes/{indexName}/rules/{objectID}
+ * Uses $url() for type-safe key generation
+ */
+export function getDelete1IndexesIndexNameRulesObjectIDMutationKey() {
+  return `DELETE ${client['1'].indexes[':indexName'].rules[':objectID'].$url().pathname}`
 }
 
 /**
@@ -1496,26 +1874,38 @@ export function usePost1IndexesIndexNameRulesBatch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/rules/batch',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameRulesBatchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+          >
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/batch
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameRulesBatchMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].rules.batch.$url().pathname}`
 }
 
 /**
@@ -1537,26 +1927,38 @@ export function usePost1IndexesIndexNameRulesClear(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/rules/clear',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameRulesClearMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+          >
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/clear
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameRulesClearMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].rules.clear.$url().pathname}`
 }
 
 /**
@@ -1578,26 +1980,38 @@ export function usePost1IndexesIndexNameRulesSearch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/rules/search',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameRulesSearchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+          >
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/search
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameRulesSearchMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].rules.search.$url().pathname}`
 }
 
 /**
@@ -1619,26 +2033,39 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/dictionaries/:dictionaryName/batch',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
-        >
-      },
-    ) => parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1DictionariesDictionaryNameBatchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+          >
+        },
+      ) =>
+        parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/batch
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1DictionariesDictionaryNameBatchMutationKey() {
+  return `POST ${client['1'].dictionaries[':dictionaryName'].batch.$url().pathname}`
 }
 
 /**
@@ -1660,27 +2087,39 @@ export function usePost1DictionariesDictionaryNameSearch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/dictionaries/:dictionaryName/search',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-        >
-      },
-    ) =>
-      parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1DictionariesDictionaryNameSearchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<
+            (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+          >
+        },
+      ) =>
+        parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/search
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1DictionariesDictionaryNameSearchMutationKey() {
+  return `POST ${client['1'].dictionaries[':dictionaryName'].search.$url().pathname}`
 }
 
 /**
@@ -1710,9 +2149,10 @@ export function useGet1DictionariesSettings(options?: {
 
 /**
  * Generates SWR cache key for GET /1/dictionaries/* /settings
+ * Uses $url() for type-safe key generation
  */
 export function getGet1DictionariesSettingsKey() {
-  return ['/1/dictionaries/*/settings'] as const
+  return client['1'].dictionaries['*'].settings.$url().pathname
 }
 
 /**
@@ -1732,22 +2172,34 @@ export function usePut1DictionariesSettings(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /1/dictionaries/*/settings',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> },
-    ) => parseResponse(client['1'].dictionaries['*'].settings.$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPut1DictionariesSettingsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']> },
+      ) => parseResponse(client['1'].dictionaries['*'].settings.$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /1/dictionaries/* /settings
+ * Uses $url() for type-safe key generation
+ */
+export function getPut1DictionariesSettingsMutationKey() {
+  return `PUT ${client['1'].dictionaries['*'].settings.$url().pathname}`
 }
 
 /**
@@ -1777,9 +2229,10 @@ export function useGet1DictionariesLanguages(options?: {
 
 /**
  * Generates SWR cache key for GET /1/dictionaries/* /languages
+ * Uses $url() for type-safe key generation
  */
 export function getGet1DictionariesLanguagesKey() {
-  return ['/1/dictionaries/*/languages'] as const
+  return client['1'].dictionaries['*'].languages.$url().pathname
 }
 
 /**
@@ -1814,11 +2267,12 @@ export function useGet1ClustersMapping(
 
 /**
  * Generates SWR cache key for GET /1/clusters/mapping
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['/1/clusters/mapping', ...(args ? [args] : [])] as const
+  return client['1'].clusters.mapping.$url(args).pathname
 }
 
 /**
@@ -1840,20 +2294,32 @@ export function usePost1ClustersMapping(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/clusters/mapping',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']> },
-    ) => parseResponse(client['1'].clusters.mapping.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1ClustersMappingMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']> },
+      ) => parseResponse(client['1'].clusters.mapping.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/clusters/mapping
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1ClustersMappingMutationKey() {
+  return `POST ${client['1'].clusters.mapping.$url().pathname}`
 }
 
 /**
@@ -1875,22 +2341,34 @@ export function usePost1ClustersMappingBatch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/clusters/mapping/batch',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> },
-    ) => parseResponse(client['1'].clusters.mapping.batch.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1ClustersMappingBatchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']> },
+      ) => parseResponse(client['1'].clusters.mapping.batch.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/clusters/mapping/batch
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1ClustersMappingBatchMutationKey() {
+  return `POST ${client['1'].clusters.mapping.batch.$url().pathname}`
 }
 
 /**
@@ -1922,9 +2400,10 @@ export function useGet1ClustersMappingTop(options?: {
 
 /**
  * Generates SWR cache key for GET /1/clusters/mapping/top
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingTopKey() {
-  return ['/1/clusters/mapping/top'] as const
+  return client['1'].clusters.mapping.top.$url().pathname
 }
 
 /**
@@ -1959,11 +2438,12 @@ export function useGet1ClustersMappingUserID(
 
 /**
  * Generates SWR cache key for GET /1/clusters/mapping/{userID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingUserIDKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['/1/clusters/mapping/:userID', ...(args ? [args] : [])] as const
+  return client['1'].clusters.mapping[':userID'].$url(args).pathname
 }
 
 /**
@@ -1983,24 +2463,36 @@ export function useDelete1ClustersMappingUserID(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /1/clusters/mapping/:userID',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-      },
-    ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDelete1ClustersMappingUserIDMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
+        },
+      ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /1/clusters/mapping/{userID}
+ * Uses $url() for type-safe key generation
+ */
+export function getDelete1ClustersMappingUserIDMutationKey() {
+  return `DELETE ${client['1'].clusters.mapping[':userID'].$url().pathname}`
 }
 
 /**
@@ -2029,9 +2521,10 @@ export function useGet1Clusters(options?: {
 
 /**
  * Generates SWR cache key for GET /1/clusters
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersKey() {
-  return ['/1/clusters'] as const
+  return client['1'].clusters.$url().pathname
 }
 
 /**
@@ -2054,22 +2547,36 @@ export function usePost1ClustersMappingSearch(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/clusters/mapping/search',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']> },
-    ) => parseResponse(client['1'].clusters.mapping.search.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1ClustersMappingSearchMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
+        },
+      ) => parseResponse(client['1'].clusters.mapping.search.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/clusters/mapping/search
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1ClustersMappingSearchMutationKey() {
+  return `POST ${client['1'].clusters.mapping.search.$url().pathname}`
 }
 
 /**
@@ -2101,11 +2608,12 @@ export function useGet1ClustersMappingPending(
 
 /**
  * Generates SWR cache key for GET /1/clusters/mapping/pending
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingPendingKey(
-  args?: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
+  args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['/1/clusters/mapping/pending', ...(args ? [args] : [])] as const
+  return client['1'].clusters.mapping.pending.$url(args).pathname
 }
 
 /**
@@ -2134,9 +2642,10 @@ export function useGet1SecuritySources(options?: {
 
 /**
  * Generates SWR cache key for GET /1/security/sources
+ * Uses $url() for type-safe key generation
  */
 export function getGet1SecuritySourcesKey() {
-  return ['/1/security/sources'] as const
+  return client['1'].security.sources.$url().pathname
 }
 
 /**
@@ -2156,20 +2665,32 @@ export function usePut1SecuritySources(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['security']['sources']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /1/security/sources',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['1']['security']['sources']['$put']> },
-    ) => parseResponse(client['1'].security.sources.$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPut1SecuritySourcesMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['1']['security']['sources']['$put']> },
+      ) => parseResponse(client['1'].security.sources.$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /1/security/sources
+ * Uses $url() for type-safe key generation
+ */
+export function getPut1SecuritySourcesMutationKey() {
+  return `PUT ${client['1'].security.sources.$url().pathname}`
 }
 
 /**
@@ -2189,22 +2710,36 @@ export function usePost1SecuritySourcesAppend(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/security/sources/append',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']> },
-    ) => parseResponse(client['1'].security.sources.append.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1SecuritySourcesAppendMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
+        },
+      ) => parseResponse(client['1'].security.sources.append.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/security/sources/append
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1SecuritySourcesAppendMutationKey() {
+  return `POST ${client['1'].security.sources.append.$url().pathname}`
 }
 
 /**
@@ -2224,24 +2759,36 @@ export function useDelete1SecuritySourcesSource(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /1/security/sources/:source',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-      },
-    ) => parseResponse(client['1'].security.sources[':source'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDelete1SecuritySourcesSourceMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
+        },
+      ) => parseResponse(client['1'].security.sources[':source'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /1/security/sources/{source}
+ * Uses $url() for type-safe key generation
+ */
+export function getDelete1SecuritySourcesSourceMutationKey() {
+  return `DELETE ${client['1'].security.sources[':source'].$url().pathname}`
 }
 
 /**
@@ -2277,9 +2824,10 @@ export function useGet1Logs(
 
 /**
  * Generates SWR cache key for GET /1/logs
+ * Uses $url() for type-safe key generation
  */
-export function getGet1LogsKey(args?: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', ...(args ? [args] : [])] as const
+export function getGet1LogsKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
+  return client['1'].logs.$url(args).pathname
 }
 
 /**
@@ -2311,11 +2859,12 @@ export function useGet1TaskTaskID(
 
 /**
  * Generates SWR cache key for GET /1/task/{taskID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1TaskTaskIDKey(
-  args?: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', ...(args ? [args] : [])] as const
+  return client['1'].task[':taskID'].$url(args).pathname
 }
 
 /**
@@ -2355,11 +2904,12 @@ export function useGet1IndexesIndexNameTaskTaskID(
 
 /**
  * Generates SWR cache key for GET /1/indexes/{indexName}/task/{taskID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameTaskTaskIDKey(
-  args?: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
+  args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/task/:taskID', ...(args ? [args] : [])] as const
+  return client['1'].indexes[':indexName'].task[':taskID'].$url(args).pathname
 }
 
 /**
@@ -2402,24 +2952,36 @@ export function usePost1IndexesIndexNameOperation(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /1/indexes/:indexName/operation',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-      },
-    ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPost1IndexesIndexNameOperationMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
+        },
+      ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /1/indexes/{indexName}/operation
+ * Uses $url() for type-safe key generation
+ */
+export function getPost1IndexesIndexNameOperationMutationKey() {
+  return `POST ${client['1'].indexes[':indexName'].operation.$url().pathname}`
 }
 
 /**
@@ -2453,11 +3015,10 @@ export function useGet1Indexes(
 
 /**
  * Generates SWR cache key for GET /1/indexes
+ * Uses $url() for type-safe key generation
  */
-export function getGet1IndexesKey(
-  args?: InferRequestType<(typeof client)['1']['indexes']['$get']>,
-) {
-  return ['/1/indexes', ...(args ? [args] : [])] as const
+export function getGet1IndexesKey(args: InferRequestType<(typeof client)['1']['indexes']['$get']>) {
+  return client['1'].indexes.$url(args).pathname
 }
 
 /**
@@ -2489,9 +3050,10 @@ export function useGetWaitForApiKey(
 
 /**
  * Generates SWR cache key for GET /waitForApiKey
+ * Uses $url() for type-safe key generation
  */
-export function getGetWaitForApiKeyKey(args?: InferRequestType<typeof client.waitForApiKey.$get>) {
-  return ['/waitForApiKey', ...(args ? [args] : [])] as const
+export function getGetWaitForApiKeyKey(args: InferRequestType<typeof client.waitForApiKey.$get>) {
+  return client.waitForApiKey.$url(args).pathname
 }
 
 /**
@@ -2525,9 +3087,10 @@ export function useGetWaitForTask(
 
 /**
  * Generates SWR cache key for GET /waitForTask
+ * Uses $url() for type-safe key generation
  */
-export function getGetWaitForTaskKey(args?: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', ...(args ? [args] : [])] as const
+export function getGetWaitForTaskKey(args: InferRequestType<typeof client.waitForTask.$get>) {
+  return client.waitForTask.$url(args).pathname
 }
 
 /**
@@ -2559,11 +3122,10 @@ export function useGetWaitForAppTask(
 
 /**
  * Generates SWR cache key for GET /waitForAppTask
+ * Uses $url() for type-safe key generation
  */
-export function getGetWaitForAppTaskKey(
-  args?: InferRequestType<typeof client.waitForAppTask.$get>,
-) {
-  return ['/waitForAppTask', ...(args ? [args] : [])] as const
+export function getGetWaitForAppTaskKey(args: InferRequestType<typeof client.waitForAppTask.$get>) {
+  return client.waitForAppTask.$url(args).pathname
 }
 
 /**
@@ -2599,9 +3161,10 @@ export function useGetBrowseObjects(
 
 /**
  * Generates SWR cache key for GET /browseObjects
+ * Uses $url() for type-safe key generation
  */
-export function getGetBrowseObjectsKey(args?: InferRequestType<typeof client.browseObjects.$get>) {
-  return ['/browseObjects', ...(args ? [args] : [])] as const
+export function getGetBrowseObjectsKey(args: InferRequestType<typeof client.browseObjects.$get>) {
+  return client.browseObjects.$url(args).pathname
 }
 
 /**
@@ -2645,11 +3208,12 @@ export function useGetGenerateSecuredApiKey(
 
 /**
  * Generates SWR cache key for GET /generateSecuredApiKey
+ * Uses $url() for type-safe key generation
  */
 export function getGetGenerateSecuredApiKeyKey(
-  args?: InferRequestType<typeof client.generateSecuredApiKey.$get>,
+  args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['/generateSecuredApiKey', ...(args ? [args] : [])] as const
+  return client.generateSecuredApiKey.$url(args).pathname
 }
 
 /**
@@ -2681,11 +3245,12 @@ export function useGetAccountCopyIndex(
 
 /**
  * Generates SWR cache key for GET /accountCopyIndex
+ * Uses $url() for type-safe key generation
  */
 export function getGetAccountCopyIndexKey(
-  args?: InferRequestType<typeof client.accountCopyIndex.$get>,
+  args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/accountCopyIndex', ...(args ? [args] : [])] as const
+  return client.accountCopyIndex.$url(args).pathname
 }
 
 /**
@@ -2732,11 +3297,12 @@ export function useGetReplaceAllObjects(
 
 /**
  * Generates SWR cache key for GET /replaceAllObjects
+ * Uses $url() for type-safe key generation
  */
 export function getGetReplaceAllObjectsKey(
-  args?: InferRequestType<typeof client.replaceAllObjects.$get>,
+  args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/replaceAllObjects', ...(args ? [args] : [])] as const
+  return client.replaceAllObjects.$url(args).pathname
 }
 
 /**
@@ -2782,11 +3348,12 @@ export function useGetReplaceAllObjectsWithTransformation(
 
 /**
  * Generates SWR cache key for GET /replaceAllObjectsWithTransformation
+ * Uses $url() for type-safe key generation
  */
 export function getGetReplaceAllObjectsWithTransformationKey(
-  args?: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return client.replaceAllObjectsWithTransformation.$url(args).pathname
 }
 
 /**
@@ -2818,9 +3385,10 @@ export function useGetChunkedBatch(
 
 /**
  * Generates SWR cache key for GET /chunkedBatch
+ * Uses $url() for type-safe key generation
  */
-export function getGetChunkedBatchKey(args?: InferRequestType<typeof client.chunkedBatch.$get>) {
-  return ['/chunkedBatch', ...(args ? [args] : [])] as const
+export function getGetChunkedBatchKey(args: InferRequestType<typeof client.chunkedBatch.$get>) {
+  return client.chunkedBatch.$url(args).pathname
 }
 
 /**
@@ -2852,9 +3420,10 @@ export function useGetSaveObjects(
 
 /**
  * Generates SWR cache key for GET /saveObjects
+ * Uses $url() for type-safe key generation
  */
-export function getGetSaveObjectsKey(args?: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', ...(args ? [args] : [])] as const
+export function getGetSaveObjectsKey(args: InferRequestType<typeof client.saveObjects.$get>) {
+  return client.saveObjects.$url(args).pathname
 }
 
 /**
@@ -2887,11 +3456,12 @@ export function useGetSaveObjectsWithTransformation(
 
 /**
  * Generates SWR cache key for GET /saveObjectsWithTransformation
+ * Uses $url() for type-safe key generation
  */
 export function getGetSaveObjectsWithTransformationKey(
-  args?: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
+  args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['/saveObjectsWithTransformation', ...(args ? [args] : [])] as const
+  return client.saveObjectsWithTransformation.$url(args).pathname
 }
 
 /**
@@ -2907,18 +3477,30 @@ export function usePostDeleteObjects(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.deleteObjects.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /deleteObjects',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.deleteObjects.$post> }) =>
-      parseResponse(client.deleteObjects.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostDeleteObjectsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.deleteObjects.$post> }) =>
+        parseResponse(client.deleteObjects.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /deleteObjects
+ * Uses $url() for type-safe key generation
+ */
+export function getPostDeleteObjectsMutationKey() {
+  return `POST ${client.deleteObjects.$url().pathname}`
 }
 
 /**
@@ -2936,20 +3518,32 @@ export function usePostPartialUpdateObjects(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.partialUpdateObjects.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /partialUpdateObjects',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<typeof client.partialUpdateObjects.$post> },
-    ) => parseResponse(client.partialUpdateObjects.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostPartialUpdateObjectsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<typeof client.partialUpdateObjects.$post> },
+      ) => parseResponse(client.partialUpdateObjects.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /partialUpdateObjects
+ * Uses $url() for type-safe key generation
+ */
+export function getPostPartialUpdateObjectsMutationKey() {
+  return `POST ${client.partialUpdateObjects.$url().pathname}`
 }
 
 /**
@@ -2969,22 +3563,35 @@ export function usePostPartialUpdateObjectsWithTransformation(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /partialUpdateObjectsWithTransformation',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post> },
-    ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey =
+    mutationOptions?.swrKey ?? getPostPartialUpdateObjectsWithTransformationMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: { arg: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post> },
+      ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /partialUpdateObjectsWithTransformation
+ * Uses $url() for type-safe key generation
+ */
+export function getPostPartialUpdateObjectsWithTransformationMutationKey() {
+  return `POST ${client.partialUpdateObjectsWithTransformation.$url().pathname}`
 }
 
 /**
@@ -3016,9 +3623,10 @@ export function useGetIndexExists(
 
 /**
  * Generates SWR cache key for GET /indexExists
+ * Uses $url() for type-safe key generation
  */
-export function getGetIndexExistsKey(args?: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', ...(args ? [args] : [])] as const
+export function getGetIndexExistsKey(args: InferRequestType<typeof client.indexExists.$get>) {
+  return client.indexExists.$url(args).pathname
 }
 
 /**
@@ -3050,9 +3658,10 @@ export function useGetSetClientApiKey(
 
 /**
  * Generates SWR cache key for GET /setClientApiKey
+ * Uses $url() for type-safe key generation
  */
 export function getGetSetClientApiKeyKey(
-  args?: InferRequestType<typeof client.setClientApiKey.$get>,
+  args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['/setClientApiKey', ...(args ? [args] : [])] as const
+  return client.setClientApiKey.$url(args).pathname
 }

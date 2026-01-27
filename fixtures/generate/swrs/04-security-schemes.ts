@@ -1,7 +1,7 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
 import { client } from '../clients/04-security-schemes'
 
 /**
@@ -26,9 +26,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates SWR cache key for GET /public
+ * Uses $url() for type-safe key generation
  */
 export function getGetPublicKey() {
-  return ['/public'] as const
+  return client.public.$url().pathname
 }
 
 /**
@@ -53,9 +54,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates SWR cache key for GET /protected
+ * Uses $url() for type-safe key generation
  */
 export function getGetProtectedKey() {
-  return ['/protected'] as const
+  return client.protected.$url().pathname
 }
 
 /**
@@ -80,9 +82,10 @@ export function useGetAdmin(options?: {
 
 /**
  * Generates SWR cache key for GET /admin
+ * Uses $url() for type-safe key generation
  */
 export function getGetAdminKey() {
-  return ['/admin'] as const
+  return client.admin.$url().pathname
 }
 
 /**
@@ -107,9 +110,10 @@ export function useGetOauthResource(options?: {
 
 /**
  * Generates SWR cache key for GET /oauth-resource
+ * Uses $url() for type-safe key generation
  */
 export function getGetOauthResourceKey() {
-  return ['/oauth-resource'] as const
+  return client['oauth-resource'].$url().pathname
 }
 
 /**
@@ -134,7 +138,8 @@ export function useGetMultiAuth(options?: {
 
 /**
  * Generates SWR cache key for GET /multi-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetMultiAuthKey() {
-  return ['/multi-auth'] as const
+  return client['multi-auth'].$url().pathname
 }

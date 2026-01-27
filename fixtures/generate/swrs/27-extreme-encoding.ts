@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
@@ -17,20 +17,32 @@ export function usePostEncodingTest(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['encoding-test']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /encoding-test',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['encoding-test']['$post']> },
-    ) => parseResponse(client['encoding-test'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostEncodingTestMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['encoding-test']['$post']> },
+      ) => parseResponse(client['encoding-test'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /encoding-test
+ * Uses $url() for type-safe key generation
+ */
+export function getPostEncodingTestMutationKey() {
+  return `POST ${client['encoding-test'].$url().pathname}`
 }
 
 /**
@@ -58,11 +70,12 @@ export function useGetContentNegotiation(
 
 /**
  * Generates SWR cache key for GET /content-negotiation
+ * Uses $url() for type-safe key generation
  */
 export function getGetContentNegotiationKey(
-  args?: InferRequestType<(typeof client)['content-negotiation']['$get']>,
+  args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return ['/content-negotiation', ...(args ? [args] : [])] as const
+  return client['content-negotiation'].$url(args).pathname
 }
 
 /**
@@ -76,20 +89,32 @@ export function usePostBinaryVariations(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['binary-variations']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /binary-variations',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['binary-variations']['$post']> },
-    ) => parseResponse(client['binary-variations'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostBinaryVariationsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['binary-variations']['$post']> },
+      ) => parseResponse(client['binary-variations'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /binary-variations
+ * Uses $url() for type-safe key generation
+ */
+export function getPostBinaryVariationsMutationKey() {
+  return `POST ${client['binary-variations'].$url().pathname}`
 }
 
 /**
@@ -114,9 +139,10 @@ export function useGetStreaming(options?: {
 
 /**
  * Generates SWR cache key for GET /streaming
+ * Uses $url() for type-safe key generation
  */
 export function getGetStreamingKey() {
-  return ['/streaming'] as const
+  return client.streaming.$url().pathname
 }
 
 /**
@@ -126,18 +152,30 @@ export function usePostStreaming(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.streaming.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /streaming',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.streaming.$post> }) =>
-      parseResponse(client.streaming.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostStreamingMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.streaming.$post> }) =>
+        parseResponse(client.streaming.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /streaming
+ * Uses $url() for type-safe key generation
+ */
+export function getPostStreamingMutationKey() {
+  return `POST ${client.streaming.$url().pathname}`
 }
 
 /**
@@ -151,20 +189,32 @@ export function usePostUrlEncodedComplex(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['url-encoded-complex']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /url-encoded-complex',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['url-encoded-complex']['$post']> },
-    ) => parseResponse(client['url-encoded-complex'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostUrlEncodedComplexMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['url-encoded-complex']['$post']> },
+      ) => parseResponse(client['url-encoded-complex'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /url-encoded-complex
+ * Uses $url() for type-safe key generation
+ */
+export function getPostUrlEncodedComplexMutationKey() {
+  return `POST ${client['url-encoded-complex'].$url().pathname}`
 }
 
 /**
@@ -189,9 +239,10 @@ export function useGetResponseEncoding(options?: {
 
 /**
  * Generates SWR cache key for GET /response-encoding
+ * Uses $url() for type-safe key generation
  */
 export function getGetResponseEncodingKey() {
-  return ['/response-encoding'] as const
+  return client['response-encoding'].$url().pathname
 }
 
 /**
@@ -205,18 +256,30 @@ export function usePostSchemaEncoding(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client)['schema-encoding']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /schema-encoding',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client)['schema-encoding']['$post']> },
-    ) => parseResponse(client['schema-encoding'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostSchemaEncodingMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client)['schema-encoding']['$post']> },
+      ) => parseResponse(client['schema-encoding'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /schema-encoding
+ * Uses $url() for type-safe key generation
+ */
+export function getPostSchemaEncodingMutationKey() {
+  return `POST ${client['schema-encoding'].$url().pathname}`
 }

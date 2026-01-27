@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/15-cross-component-refs'
 
@@ -9,17 +10,17 @@ import { client } from '../clients/15-cross-component-refs'
 export function useGetEntities(
   args: InferRequestType<typeof client.entities.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$get>>>>
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -29,9 +30,10 @@ export function useGetEntities(
 
 /**
  * Generates Vue Query cache key for GET /entities
+ * Uses $url() for type-safe key generation
  */
 export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
-  return ['/entities', args] as const
+  return [client.entities.$url(args).pathname] as const
 }
 
 /**
@@ -42,40 +44,30 @@ export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.enti
 export const getGetEntitiesQueryOptions = (
   args: InferRequestType<typeof client.entities.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetEntitiesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.entities.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetEntitiesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.entities.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /entities
  */
 export function usePostEntities(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.entities.$post>
       >,
-      variables: InferRequestType<typeof client.entities.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.entities.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.entities.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.entities.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.entities.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -92,17 +84,21 @@ export function usePostEntities(options?: {
 export function useGetEntitiesEntityId(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.entities)[':entityId']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -112,11 +108,12 @@ export function useGetEntitiesEntityId(
 
 /**
  * Generates Vue Query cache key for GET /entities/{entityId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return ['/entities/:entityId', args] as const
+  return [client.entities[':entityId'].$url(args).pathname] as const
 }
 
 /**
@@ -127,52 +124,35 @@ export function getGetEntitiesEntityIdQueryKey(
 export const getGetEntitiesEntityIdQueryOptions = (
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetEntitiesEntityIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.entities[':entityId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetEntitiesEntityIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.entities[':entityId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /entities/{entityId}
  */
 export function usePutEntitiesEntityId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>
-              >
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.entities)[':entityId']['$put']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.entities)[':entityId']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.entities)[':entityId']['$put']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -187,9 +167,9 @@ export function usePutEntitiesEntityId(options?: {
  * DELETE /entities/{entityId}
  */
 export function useDeleteEntitiesEntityId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<
@@ -198,31 +178,12 @@ export function useDeleteEntitiesEntityId(options?: {
             >
           >
         | undefined,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.entities)[':entityId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.entities)[':entityId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        InferRequestType<(typeof client.entities)[':entityId']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -239,17 +200,21 @@ export function useDeleteEntitiesEntityId(options?: {
 export function useGetEntitiesEntityIdRelationships(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -262,11 +227,12 @@ export function useGetEntitiesEntityIdRelationships(
 
 /**
  * Generates Vue Query cache key for GET /entities/{entityId}/relationships
+ * Uses $url() for type-safe key generation
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return ['/entities/:entityId/relationships', args] as const
+  return [client.entities[':entityId'].relationships.$url(args).pathname] as const
 }
 
 /**
@@ -277,56 +243,37 @@ export function getGetEntitiesEntityIdRelationshipsQueryKey(
 export const getGetEntitiesEntityIdRelationshipsQueryOptions = (
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.entities[':entityId'].relationships.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetEntitiesEntityIdRelationshipsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.entities[':entityId'].relationships.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /entities/{entityId}/relationships
  */
 export function usePostEntitiesEntityIdRelationships(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.entities)[':entityId']['relationships']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -342,25 +289,16 @@ export function usePostEntitiesEntityIdRelationships(options?: {
  * POST /batch
  */
 export function usePostBatch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.batch.$post>
       >,
-      variables: InferRequestType<typeof client.batch.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.batch.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.batch.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.batch.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.batch.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

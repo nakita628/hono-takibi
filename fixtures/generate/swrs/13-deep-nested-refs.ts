@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/13-deep-nested-refs'
 
 /**
@@ -41,16 +41,15 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Uses $url() for type-safe key generation
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
-  args?: InferRequestType<
+  args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return [
-    '/organizations/:orgId/departments/:deptId/teams/:teamId/members',
-    ...(args ? [args] : []),
-  ] as const
+  return client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
+    .pathname
 }
 
 /**
@@ -70,34 +69,48 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<
       (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
     >
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /organizations/:orgId/departments/:deptId/teams/:teamId/members',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<
-          (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
-        >
-      },
-    ) =>
-      parseResponse(
-        client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
+  const swrKey =
+    mutationOptions?.swrKey ??
+    getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
           arg,
-          clientOptions,
+        }: {
+          arg: InferRequestType<
+            (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+          >
+        },
+      ) =>
+        parseResponse(
+          client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
+            arg,
+            clientOptions,
+          ),
         ),
-      ),
-    mutationOptions,
-  )
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
+  return `POST ${client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url().pathname}`
 }
 
 /**
@@ -123,7 +136,8 @@ export function useGetReportsOrganizationSummary(options?: {
 
 /**
  * Generates SWR cache key for GET /reports/organization-summary
+ * Uses $url() for type-safe key generation
  */
 export function getGetReportsOrganizationSummaryKey() {
-  return ['/reports/organization-summary'] as const
+  return client.reports['organization-summary'].$url().pathname
 }

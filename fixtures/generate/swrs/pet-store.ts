@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
 /**
@@ -17,18 +17,30 @@ export function usePutPet(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.pet.$put>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /pet',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$put> }) =>
-      parseResponse(client.pet.$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutPetMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.pet.$put> }) =>
+        parseResponse(client.pet.$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /pet
+ * Uses $url() for type-safe key generation
+ */
+export function getPutPetMutationKey() {
+  return `PUT ${client.pet.$url().pathname}`
 }
 
 /**
@@ -42,18 +54,30 @@ export function usePostPet(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.pet.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /pet',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.pet.$post> }) =>
-      parseResponse(client.pet.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostPetMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.pet.$post> }) =>
+        parseResponse(client.pet.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /pet
+ * Uses $url() for type-safe key generation
+ */
+export function getPostPetMutationKey() {
+  return `POST ${client.pet.$url().pathname}`
 }
 
 /**
@@ -85,11 +109,12 @@ export function useGetPetFindByStatus(
 
 /**
  * Generates SWR cache key for GET /pet/findByStatus
+ * Uses $url() for type-safe key generation
  */
 export function getGetPetFindByStatusKey(
-  args?: InferRequestType<typeof client.pet.findByStatus.$get>,
+  args: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  return ['/pet/findByStatus', ...(args ? [args] : [])] as const
+  return client.pet.findByStatus.$url(args).pathname
 }
 
 /**
@@ -121,9 +146,10 @@ export function useGetPetFindByTags(
 
 /**
  * Generates SWR cache key for GET /pet/findByTags
+ * Uses $url() for type-safe key generation
  */
-export function getGetPetFindByTagsKey(args?: InferRequestType<typeof client.pet.findByTags.$get>) {
-  return ['/pet/findByTags', ...(args ? [args] : [])] as const
+export function getGetPetFindByTagsKey(args: InferRequestType<typeof client.pet.findByTags.$get>) {
+  return client.pet.findByTags.$url(args).pathname
 }
 
 /**
@@ -155,9 +181,10 @@ export function useGetPetPetId(
 
 /**
  * Generates SWR cache key for GET /pet/{petId}
+ * Uses $url() for type-safe key generation
  */
-export function getGetPetPetIdKey(args?: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
-  return ['/pet/:petId', ...(args ? [args] : [])] as const
+export function getGetPetPetIdKey(args: InferRequestType<(typeof client.pet)[':petId']['$get']>) {
+  return client.pet[':petId'].$url(args).pathname
 }
 
 /**
@@ -171,18 +198,30 @@ export function usePostPetPetId(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$post']>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.pet)[':petId']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /pet/:petId',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$post']> }) =>
-      parseResponse(client.pet[':petId'].$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostPetPetIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$post']> }) =>
+        parseResponse(client.pet[':petId'].$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /pet/{petId}
+ * Uses $url() for type-safe key generation
+ */
+export function getPostPetPetIdMutationKey() {
+  return `POST ${client.pet[':petId'].$url().pathname}`
 }
 
 /**
@@ -200,20 +239,32 @@ export function useDeletePetPetId(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.pet)[':petId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /pet/:petId',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$delete']> },
-    ) => parseResponse(client.pet[':petId'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeletePetPetIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['$delete']> },
+      ) => parseResponse(client.pet[':petId'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /pet/{petId}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeletePetPetIdMutationKey() {
+  return `DELETE ${client.pet[':petId'].$url().pathname}`
 }
 
 /**
@@ -231,20 +282,32 @@ export function usePostPetPetIdUploadImage(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /pet/:petId/uploadImage',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']> },
-    ) => parseResponse(client.pet[':petId'].uploadImage.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostPetPetIdUploadImageMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']> },
+      ) => parseResponse(client.pet[':petId'].uploadImage.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /pet/{petId}/uploadImage
+ * Uses $url() for type-safe key generation
+ */
+export function getPostPetPetIdUploadImageMutationKey() {
+  return `POST ${client.pet[':petId'].uploadImage.$url().pathname}`
 }
 
 /**
@@ -273,9 +336,10 @@ export function useGetStoreInventory(options?: {
 
 /**
  * Generates SWR cache key for GET /store/inventory
+ * Uses $url() for type-safe key generation
  */
 export function getGetStoreInventoryKey() {
-  return ['/store/inventory'] as const
+  return client.store.inventory.$url().pathname
 }
 
 /**
@@ -289,18 +353,30 @@ export function usePostStoreOrder(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.order.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.store.order.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /store/order',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.store.order.$post> }) =>
-      parseResponse(client.store.order.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostStoreOrderMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.store.order.$post> }) =>
+        parseResponse(client.store.order.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /store/order
+ * Uses $url() for type-safe key generation
+ */
+export function getPostStoreOrderMutationKey() {
+  return `POST ${client.store.order.$url().pathname}`
 }
 
 /**
@@ -332,11 +408,12 @@ export function useGetStoreOrderOrderId(
 
 /**
  * Generates SWR cache key for GET /store/order/{orderId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetStoreOrderOrderIdKey(
-  args?: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
+  args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  return ['/store/order/:orderId', ...(args ? [args] : [])] as const
+  return client.store.order[':orderId'].$url(args).pathname
 }
 
 /**
@@ -356,20 +433,32 @@ export function useDeleteStoreOrderOrderId(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /store/order/:orderId',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.store.order)[':orderId']['$delete']> },
-    ) => parseResponse(client.store.order[':orderId'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteStoreOrderOrderIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.store.order)[':orderId']['$delete']> },
+      ) => parseResponse(client.store.order[':orderId'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /store/order/{orderId}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteStoreOrderOrderIdMutationKey() {
+  return `DELETE ${client.store.order[':orderId'].$url().pathname}`
 }
 
 /**
@@ -383,18 +472,30 @@ export function usePostUser(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.user.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /user',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.user.$post> }) =>
-      parseResponse(client.user.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostUserMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.user.$post> }) =>
+        parseResponse(client.user.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /user
+ * Uses $url() for type-safe key generation
+ */
+export function getPostUserMutationKey() {
+  return `POST ${client.user.$url().pathname}`
 }
 
 /**
@@ -410,20 +511,30 @@ export function usePostUserCreateWithList(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.createWithList.$post>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.user.createWithList.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /user/createWithList',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<typeof client.user.createWithList.$post> },
-    ) => parseResponse(client.user.createWithList.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostUserCreateWithListMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.user.createWithList.$post> }) =>
+        parseResponse(client.user.createWithList.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /user/createWithList
+ * Uses $url() for type-safe key generation
+ */
+export function getPostUserCreateWithListMutationKey() {
+  return `POST ${client.user.createWithList.$url().pathname}`
 }
 
 /**
@@ -453,9 +564,10 @@ export function useGetUserLogin(
 
 /**
  * Generates SWR cache key for GET /user/login
+ * Uses $url() for type-safe key generation
  */
-export function getGetUserLoginKey(args?: InferRequestType<typeof client.user.login.$get>) {
-  return ['/user/login', ...(args ? [args] : [])] as const
+export function getGetUserLoginKey(args: InferRequestType<typeof client.user.login.$get>) {
+  return client.user.login.$url(args).pathname
 }
 
 /**
@@ -482,9 +594,10 @@ export function useGetUserLogout(options?: {
 
 /**
  * Generates SWR cache key for GET /user/logout
+ * Uses $url() for type-safe key generation
  */
 export function getGetUserLogoutKey() {
-  return ['/user/logout'] as const
+  return client.user.logout.$url().pathname
 }
 
 /**
@@ -514,11 +627,12 @@ export function useGetUserUsername(
 
 /**
  * Generates SWR cache key for GET /user/{username}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUserUsernameKey(
-  args?: InferRequestType<(typeof client.user)[':username']['$get']>,
+  args: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  return ['/user/:username', ...(args ? [args] : [])] as const
+  return client.user[':username'].$url(args).pathname
 }
 
 /**
@@ -536,20 +650,32 @@ export function usePutUserUsername(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.user)[':username']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /user/:username',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$put']> },
-    ) => parseResponse(client.user[':username'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutUserUsernameMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$put']> },
+      ) => parseResponse(client.user[':username'].$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /user/{username}
+ * Uses $url() for type-safe key generation
+ */
+export function getPutUserUsernameMutationKey() {
+  return `PUT ${client.user[':username'].$url().pathname}`
 }
 
 /**
@@ -567,18 +693,30 @@ export function useDeleteUserUsername(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.user)[':username']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /user/:username',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$delete']> },
-    ) => parseResponse(client.user[':username'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteUserUsernameMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.user)[':username']['$delete']> },
+      ) => parseResponse(client.user[':username'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /user/{username}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteUserUsernameMutationKey() {
+  return `DELETE ${client.user[':username'].$url().pathname}`
 }

@@ -101,34 +101,44 @@ function makeQueryOptionsGetterName(method: string, pathStr: string): string {
 }
 
 /**
- * Generates query key getter function code.
+ * Generates query key getter function code using $url() for type-safe keys.
+ *
+ * Uses Hono RPC's $url() method to generate resolved URL paths as cache keys.
+ * This avoids potential issues with complex args objects and shallow comparison.
  *
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
  * @param inferRequestType - TypeScript type for request
  * @param honoPath - Hono-style path (with :param)
+ * @param clientPath - Client path expression
  * @param config - Framework configuration
  * @returns Query key getter function code
+ * @see https://hono.dev/docs/guides/rpc#url
  */
 function makeQueryKeyGetterCode(
   keyGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
   honoPath: string,
+  clientPath: string,
   config: { frameworkName: string },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
+  // Use $url() for type-safe key generation
+  // Returns resolved URL path as a stable cache key
   if (hasArgs) {
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
+ * Uses $url() for type-safe key generation
  */
-export function ${keyGetterName}(args:${inferRequestType}){return['${honoPath}',args]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){return[${clientPath}.$url(args).pathname]as const}`
   }
   return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
+ * Uses $url() for type-safe key generation
  */
-export function ${keyGetterName}(){return['${honoPath}']as const}`
+export function ${keyGetterName}(){return[${clientPath}.$url().pathname]as const}`
 }
 
 /**
@@ -137,9 +147,8 @@ export function ${keyGetterName}(){return['${honoPath}']as const}`
  * This function returns an object compatible with TanStack Query's queryOptions pattern,
  * enabling prefetching, ensureQueryData, and other advanced patterns.
  *
- * Uses the queryOptions() helper for proper type inference, signal handling, and DataTag branding.
- * Does NOT accept override options to avoid Vue Query's MaybeRefDeep type conflicts.
- * Override options should be spread at useQuery() level instead.
+ * Returns a plain object (not using queryOptions() helper) to avoid type conflicts
+ * when spreading with user-provided options. TypeScript infers the exact return type.
  * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
  *
  * @param optionsGetterName - Function name for options getter
@@ -160,38 +169,36 @@ function makeQueryOptionsGetterCode(
   clientPath: string,
   method: string,
   honoPath: string,
-  config: { frameworkName: string; queryOptionsHelper?: string },
+  config: { frameworkName: string },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
   const commentPath = hasArgs ? safeCommentPath : safeCommentPathNoParam
 
-  // Build client call WITH signal for queryOptions
-  // queryOptions() provides proper type inference for signal
+  // Build client call WITH signal for query cancellation
   // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-cancellation
   const clientCallWithSignal = hasArgs
     ? `${clientPath}.$${method}(args,{...clientOptions,init:{...clientOptions?.init,signal}})`
     : `${clientPath}.$${method}(undefined,{...clientOptions,init:{...clientOptions?.init,signal}})`
   const fetcherBody = makeFetcher(clientCallWithSignal)
   const queryKeyCall = hasArgs ? `${keyGetterName}(args)` : `${keyGetterName}()`
-  const optionsHelper = config.queryOptionsHelper ?? 'queryOptions'
 
-  // No override options here - spread happens at useQuery() level
-  // This preserves DataTag branding and avoids Vue Query's MaybeRefDeep type conflicts
+  // Return plain object - TypeScript infers the exact type
+  // This avoids DataTag branding conflicts when spreading with UseQueryOptions
   if (hasArgs) {
     return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const ${optionsGetterName}=(args:${inferRequestType},clientOptions?:ClientRequestOptions)=>${optionsHelper}({queryKey:${queryKeyCall},queryFn:({signal})=>${fetcherBody}})`
+export const ${optionsGetterName}=(args:${inferRequestType},clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:{signal:AbortSignal})=>${fetcherBody}})`
   }
   return `/**
  * Returns ${config.frameworkName} query options for GET ${commentPath}
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>${optionsHelper}({queryKey:${queryKeyCall},queryFn:({signal})=>${fetcherBody}})`
+export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({queryKey:${queryKeyCall},queryFn:({signal}:{signal:AbortSignal})=>${fetcherBody}})`
 }
 
 /* ─────────────────────────────── Query Hook Code ─────────────────────────────── */
@@ -201,8 +208,9 @@ function makeQueryHookCode(
   optionsGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
+  parseResponseType: string,
   docs: string,
-  config: { queryFn: string; useThunk?: boolean },
+  config: { queryFn: string; useThunk?: boolean; useQueryOptionsType: string; usePartialOmit?: boolean },
 ): string {
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
   // Get base options from getter (no override options)
@@ -210,16 +218,13 @@ function makeQueryHookCode(
     ? `${optionsGetterName}(args,clientOptions)`
     : `${optionsGetterName}(clientOptions)`
 
-  // Query options type - inline type for all frameworks
-  // Explicitly excludes queryKey and queryFn to avoid type conflicts
-  // Generic options (select, placeholderData, initialData) are NOT included:
-  // - Vue/Svelte: MaybeRefDeep type conflicts
-  // - React: initialData expects TQueryFnData, not TData (select output type)
-  // For these advanced options, use getXxxQueryOptions() directly with useQuery
+  // Use official TanStack Query options type
+  // Vue Query needs Partial<Omit<...>> due to QueryKey type conflicts with MaybeRefOrGetter
   // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
-  const queryOptionsTypeStr =
-    '{enabled?:boolean;staleTime?:number;gcTime?:number;refetchInterval?:number|false;refetchOnWindowFocus?:boolean;refetchOnMount?:boolean;refetchOnReconnect?:boolean;retry?:boolean|number;retryDelay?:number}'
-  const optionsType = `{query?:${queryOptionsTypeStr};client?:ClientRequestOptions}`
+  const queryOptionsType = config.usePartialOmit
+    ? `Partial<Omit<${config.useQueryOptionsType}<${parseResponseType},Error>,'queryKey'|'queryFn'>>`
+    : `${config.useQueryOptionsType}<${parseResponseType},Error>`
+  const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
 
   // Spread at useQuery level to override options
   // queryOptions() returns DataTag-branded options, spread preserves type safety
@@ -242,21 +247,21 @@ function makeMutationHookCode(
   clientPath: string,
   method: string,
   docs: string,
-  config: { mutationFn: string; useThunk?: boolean },
+  config: { mutationFn: string; useThunk?: boolean; useMutationOptionsType: string; usePartialOmit?: boolean },
   hasNoContent: boolean,
 ): string {
   // Simple pattern with typed callbacks
-  const variablesType = hasArgs ? inferRequestType : 'undefined'
+  const variablesType = hasArgs ? inferRequestType : 'void'
 
   // For 204/205 responses, parseResponse returns undefined
   const dataType = hasNoContent ? `${inferResponseType}|undefined` : inferResponseType
-  // onSettled data is always potentially undefined (mutation may not complete)
-  // Avoid duplicate `| undefined` when dataType already includes it
-  const onSettledDataType = hasNoContent ? dataType : `${dataType}|undefined`
 
-  // Inline mutation options type - excludes mutationFn to prevent override
-  const inlineMutationOptionsType = `{onSuccess?:(data:${dataType},variables:${variablesType})=>void;onError?:(error:Error,variables:${variablesType})=>void;onSettled?:(data:${onSettledDataType},error:Error|null,variables:${variablesType})=>void;onMutate?:(variables:${variablesType})=>void;retry?:boolean|number;retryDelay?:number}`
-  const optionsType = `{mutation?:${inlineMutationOptionsType};client?:ClientRequestOptions}`
+  // Use official TanStack Query mutation options type
+  // Vue Query needs Partial<Omit<...>> due to type conflicts with MaybeRefOrGetter
+  const mutationOptionsType = config.usePartialOmit
+    ? `Partial<Omit<${config.useMutationOptionsType}<${dataType},Error,${variablesType}>,'mutationFn'>>`
+    : `${config.useMutationOptionsType}<${dataType},Error,${variablesType}>`
+  const optionsType = `{mutation?:${mutationOptionsType};client?:ClientRequestOptions}`
 
   // Svelte Query v5+ requires thunk pattern: createMutation(() => options)
   if (hasArgs) {
@@ -291,8 +296,10 @@ function makeHookCode(
     frameworkName: string
     queryFn: string
     mutationFn: string
-    queryOptionsHelper?: string
     useThunk?: boolean
+    useQueryOptionsType: string
+    useMutationOptionsType: string
+    usePartialOmit?: boolean
   },
 ): { code: string; isQuery: boolean; hasArgs: boolean } | null {
   const op = item[method]
@@ -325,6 +332,7 @@ function makeHookCode(
       hasArgs,
       inferRequestType,
       honoPath,
+      clientPath,
       config,
     )
     const optionsGetterCode = makeQueryOptionsGetterCode(
@@ -342,6 +350,7 @@ function makeHookCode(
       optionsGetterName,
       hasArgs,
       inferRequestType,
+      parseResponseType,
       docs,
       config,
     )
@@ -378,8 +387,10 @@ function makeHookCodes(
     frameworkName: string
     queryFn: string
     mutationFn: string
-    queryOptionsHelper?: string
     useThunk?: boolean
+    useQueryOptionsType: string
+    useMutationOptionsType: string
+    usePartialOmit?: boolean
   },
 ): { hookName: string; code: string; isQuery: boolean; hasArgs: boolean }[] {
   return Object.entries(paths)
@@ -410,6 +421,7 @@ function makeHookCodes(
  *
  * Imports include:
  * - Query/Mutation hooks from the framework package
+ * - UseQueryOptions/UseMutationOptions types for proper typing
  * - Hono client types (InferRequestType, InferResponseType, ClientRequestOptions)
  * - parseResponse for type-safe response handling
  */
@@ -419,13 +431,23 @@ function makeHeader(
   hasMutation: boolean,
   needsInferRequestType: boolean,
   clientName: string,
-  config: { packageName: string; queryFn: string; mutationFn: string; queryOptionsHelper?: string },
+  config: {
+    packageName: string
+    queryFn: string
+    mutationFn: string
+    useQueryOptionsType: string
+    useMutationOptionsType: string
+  },
 ): string {
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
     ...(hasMutation ? [config.mutationFn] : []),
-    // Import queryOptions helper for getXxxQueryOptions functions
-    ...(hasQuery && config.queryOptionsHelper ? [config.queryOptionsHelper] : []),
+  ]
+
+  // Type imports for options - UseQueryOptions, UseMutationOptions
+  const typeImports = [
+    ...(hasQuery ? [config.useQueryOptionsType] : []),
+    ...(hasMutation ? [config.useMutationOptionsType] : []),
   ]
 
   // Hono client type imports
@@ -439,6 +461,9 @@ function makeHeader(
   const lines = [
     ...(queryImports.length > 0
       ? [`import{${queryImports.join(',')}}from'${config.packageName}'`]
+      : []),
+    ...(typeImports.length > 0
+      ? [`import type{${typeImports.join(',')}}from'${config.packageName}'`]
       : []),
     `import type{${honoTypeImportParts.join(',')}}from'hono/client'`,
     "import{parseResponse}from'hono/client'",
@@ -498,8 +523,10 @@ export async function makeQueryHooks(
     hookPrefix: string
     queryFn: string
     mutationFn: string
-    queryOptionsHelper?: string
     useThunk?: boolean
+    useQueryOptionsType: string
+    useMutationOptionsType: string
+    usePartialOmit?: boolean
   },
   split?: boolean,
   clientName = 'client',

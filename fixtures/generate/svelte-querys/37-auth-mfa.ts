@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/37-auth-mfa'
 
@@ -9,17 +10,10 @@ import { client } from '../clients/37-auth-mfa'
  * MFA設定状況取得
  */
 export function createGetMfaStatus(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.status.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -28,9 +22,10 @@ export function createGetMfaStatus(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /mfa/status
+ * Uses $url() for type-safe key generation
  */
 export function getGetMfaStatusQueryKey() {
-  return ['/mfa/status'] as const
+  return [client.mfa.status.$url().pathname] as const
 }
 
 /**
@@ -38,17 +33,16 @@ export function getGetMfaStatusQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMfaStatusQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMfaStatusQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.mfa.status.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMfaStatusQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaStatusQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.mfa.status.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /mfa/methods
@@ -56,17 +50,10 @@ export const getGetMfaStatusQueryOptions = (clientOptions?: ClientRequestOptions
  * 登録済みMFA方式一覧
  */
 export function createGetMfaMethods(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.methods.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -75,9 +62,10 @@ export function createGetMfaMethods(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /mfa/methods
+ * Uses $url() for type-safe key generation
  */
 export function getGetMfaMethodsQueryKey() {
-  return ['/mfa/methods'] as const
+  return [client.mfa.methods.$url().pathname] as const
 }
 
 /**
@@ -85,17 +73,16 @@ export function getGetMfaMethodsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMfaMethodsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMfaMethodsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.mfa.methods.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMfaMethodsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaMethodsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.mfa.methods.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /mfa/preferred
@@ -103,27 +90,13 @@ export const getGetMfaMethodsQueryOptions = (clientOptions?: ClientRequestOption
  * 優先MFA方式設定
  */
 export function createPutMfaPreferred(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.preferred.$put>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.preferred.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.mfa.preferred.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.preferred.$put>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.preferred.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.preferred.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.preferred.$put>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.preferred.$put>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -142,32 +115,13 @@ export function createPutMfaPreferred(options?: {
  * TOTP認証の設定を開始し、QRコードとシークレットを取得します
  */
 export function createPostMfaTotpSetup(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.setup.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.totp.setup.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.totp.setup.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.setup.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.totp.setup.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.totp.setup.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.setup.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.totp.setup.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -186,32 +140,13 @@ export function createPostMfaTotpSetup(options?: {
  * TOTPコードを検証して設定を完了します
  */
 export function createPostMfaTotpVerify(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.verify.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.totp.verify.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.totp.verify.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.verify.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.totp.verify.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.totp.verify.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.verify.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.totp.verify.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -228,29 +163,12 @@ export function createPostMfaTotpVerify(options?: {
  * TOTP無効化
  */
 export function createDeleteMfaTotp(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.$delete>>>>
-          >
-        | undefined,
-      variables: InferRequestType<typeof client.mfa.totp.$delete>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.mfa.totp.$delete>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.$delete>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.totp.$delete>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.totp.$delete>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.totp.$delete>>>>>
+    | undefined,
+    Error,
+    InferRequestType<typeof client.mfa.totp.$delete>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -269,27 +187,13 @@ export function createDeleteMfaTotp(options?: {
  * 電話番号を登録し、確認コードを送信します
  */
 export function createPostMfaSmsSetup(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.setup.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.sms.setup.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.mfa.sms.setup.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.setup.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.sms.setup.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.sms.setup.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.setup.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.sms.setup.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -306,32 +210,13 @@ export function createPostMfaSmsSetup(options?: {
  * SMS認証設定確認
  */
 export function createPostMfaSmsVerify(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.verify.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.sms.verify.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.sms.verify.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.verify.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.sms.verify.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.sms.verify.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.sms.verify.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.sms.verify.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -348,42 +233,16 @@ export function createPostMfaSmsVerify(options?: {
  * SMS認証削除
  */
 export function createDeleteMfaSmsMethodId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.mfa.sms)[':methodId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      variables: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.mfa.sms)[':methodId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.mfa.sms)[':methodId']['$delete']>>>
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -400,32 +259,13 @@ export function createDeleteMfaSmsMethodId(options?: {
  * メール認証設定開始
  */
 export function createPostMfaEmailSetup(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.setup.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.email.setup.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.email.setup.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.setup.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.email.setup.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.email.setup.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.setup.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.email.setup.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -442,32 +282,13 @@ export function createPostMfaEmailSetup(options?: {
  * メール認証設定確認
  */
 export function createPostMfaEmailVerify(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.verify.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.email.verify.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.email.verify.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.verify.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.email.verify.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.email.verify.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.email.verify.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.email.verify.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -486,40 +307,15 @@ export function createPostMfaEmailVerify(options?: {
  * WebAuthn認証器登録のためのオプションを取得します
  */
 export function createPostMfaWebauthnRegisterOptions(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<typeof client.mfa.webauthn.register.options.$post>>
-          >
-        >
-      >,
-      variables: InferRequestType<typeof client.mfa.webauthn.register.options.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.webauthn.register.options.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<typeof client.mfa.webauthn.register.options.$post>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.webauthn.register.options.$post>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<typeof client.mfa.webauthn.register.options.$post>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.mfa.webauthn.register.options.$post>>>
+      >
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.webauthn.register.options.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -536,40 +332,15 @@ export function createPostMfaWebauthnRegisterOptions(options?: {
  * WebAuthn登録検証
  */
 export function createPostMfaWebauthnRegisterVerify(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<typeof client.mfa.webauthn.register.verify.$post>>
-          >
-        >
-      >,
-      variables: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<typeof client.mfa.webauthn.register.verify.$post>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<typeof client.mfa.webauthn.register.verify.$post>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.mfa.webauthn.register.verify.$post>>>
+      >
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.webauthn.register.verify.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -586,17 +357,14 @@ export function createPostMfaWebauthnRegisterVerify(options?: {
  * WebAuthn認証器一覧
  */
 export function createGetMfaWebauthnCredentials(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.mfa.webauthn.credentials.$get>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -608,9 +376,10 @@ export function createGetMfaWebauthnCredentials(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /mfa/webauthn/credentials
+ * Uses $url() for type-safe key generation
  */
 export function getGetMfaWebauthnCredentialsQueryKey() {
-  return ['/mfa/webauthn/credentials'] as const
+  return [client.mfa.webauthn.credentials.$url().pathname] as const
 }
 
 /**
@@ -618,17 +387,16 @@ export function getGetMfaWebauthnCredentialsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMfaWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMfaWebauthnCredentialsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.mfa.webauthn.credentials.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMfaWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaWebauthnCredentialsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.mfa.webauthn.credentials.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /mfa/webauthn/credentials/{credentialId}
@@ -636,54 +404,20 @@ export const getGetMfaWebauthnCredentialsQueryOptions = (clientOptions?: ClientR
  * WebAuthn認証器削除
  */
 export function createDeleteMfaWebauthnCredentialsCredentialId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-                >
-              >
+  mutation?: CreateMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
             >
           >
-        | undefined,
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -702,50 +436,17 @@ export function createDeleteMfaWebauthnCredentialsCredentialId(options?: {
  * WebAuthn認証器更新
  */
 export function createPatchMfaWebauthnCredentialsCredentialId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.mfa.webauthn.credentials)[':credentialId']['$patch']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -766,40 +467,17 @@ export function createPatchMfaWebauthnCredentialsCredentialId(options?: {
  * 新しいバックアップコードを生成します（既存のコードは無効化されます）
  */
 export function createPostMfaBackupCodesGenerate(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.mfa)['backup-codes']['generate']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.mfa)['backup-codes']['generate']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.mfa)['backup-codes']['generate']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -817,17 +495,16 @@ export function createPostMfaBackupCodesGenerate(options?: {
  * バックアップコード状況取得
  */
 export function createGetMfaBackupCodesStatus(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.mfa)['backup-codes']['status']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -839,9 +516,10 @@ export function createGetMfaBackupCodesStatus(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /mfa/backup-codes/status
+ * Uses $url() for type-safe key generation
  */
 export function getGetMfaBackupCodesStatusQueryKey() {
-  return ['/mfa/backup-codes/status'] as const
+  return [client.mfa['backup-codes'].status.$url().pathname] as const
 }
 
 /**
@@ -849,17 +527,16 @@ export function getGetMfaBackupCodesStatusQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMfaBackupCodesStatusQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMfaBackupCodesStatusQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.mfa['backup-codes'].status.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMfaBackupCodesStatusQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMfaBackupCodesStatusQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.mfa['backup-codes'].status.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /mfa/challenge
@@ -869,27 +546,13 @@ export const getGetMfaBackupCodesStatusQueryOptions = (clientOptions?: ClientReq
  * ログイン時などにMFA認証チャレンジを作成します
  */
 export function createPostMfaChallenge(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.challenge.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.mfa.challenge.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.challenge.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.challenge.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.challenge.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -908,34 +571,13 @@ export function createPostMfaChallenge(options?: {
  * SMSまたはメールでMFAコードを送信します
  */
 export function createPostMfaChallengeSend(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.send.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.mfa.challenge.send.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.challenge.send.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.send.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.challenge.send.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.challenge.send.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.challenge.send.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.challenge.send.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -954,27 +596,11 @@ export function createPostMfaChallengeSend(options?: {
  * MFAコードを検証し、認証を完了します
  */
 export function createPostMfaVerify(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.verify.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.verify.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.mfa.verify.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.verify.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.verify.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.verify.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.verify.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.mfa.verify.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -991,40 +617,17 @@ export function createPostMfaVerify(options?: {
  * WebAuthn認証オプション取得
  */
 export function createPostMfaWebauthnAuthenticateOptions(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<typeof client.mfa.webauthn.authenticate.options.$post>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<typeof client.mfa.webauthn.authenticate.options.$post>>
         >
-      >,
-      variables: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<typeof client.mfa.webauthn.authenticate.options.$post>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1044,27 +647,13 @@ export function createPostMfaWebauthnAuthenticateOptions(options?: {
  * MFA認証器にアクセスできない場合のリカバリーを開始します
  */
 export function createPostMfaRecovery(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.mfa.recovery.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.mfa.recovery.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.recovery.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.recovery.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.recovery.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1081,34 +670,13 @@ export function createPostMfaRecovery(options?: {
  * MFAリカバリー検証
  */
 export function createPostMfaRecoveryVerify(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.verify.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.mfa.recovery.verify.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.mfa.recovery.verify.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.verify.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.mfa.recovery.verify.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.mfa.recovery.verify.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.mfa.recovery.verify.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.mfa.recovery.verify.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

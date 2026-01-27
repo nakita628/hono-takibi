@@ -1,4 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'
@@ -7,17 +8,15 @@ import { client } from '../clients/28-reserved-words'
  * GET /class
  */
 export function useGetClass(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.class.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -26,9 +25,10 @@ export function useGetClass(options?: {
 
 /**
  * Generates Vue Query cache key for GET /class
+ * Uses $url() for type-safe key generation
  */
 export function getGetClassQueryKey() {
-  return ['/class'] as const
+  return [client.class.$url().pathname] as const
 }
 
 /**
@@ -36,33 +36,29 @@ export function getGetClassQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetClassQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetClassQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.class.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetClassQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetClassQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.class.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /interface
  */
 export function useGetInterface(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.interface.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -71,9 +67,10 @@ export function useGetInterface(options?: {
 
 /**
  * Generates Vue Query cache key for GET /interface
+ * Uses $url() for type-safe key generation
  */
 export function getGetInterfaceQueryKey() {
-  return ['/interface'] as const
+  return [client.interface.$url().pathname] as const
 }
 
 /**
@@ -81,33 +78,30 @@ export function getGetInterfaceQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetInterfaceQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetInterfaceQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.interface.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetInterfaceQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetInterfaceQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.interface.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /type
  */
 export function useGetType(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.type.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -116,9 +110,10 @@ export function useGetType(options?: {
 
 /**
  * Generates Vue Query cache key for GET /type
+ * Uses $url() for type-safe key generation
  */
 export function getGetTypeQueryKey() {
-  return ['/type'] as const
+  return [client.type.$url().pathname] as const
 }
 
 /**
@@ -126,40 +121,30 @@ export function getGetTypeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetTypeQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetTypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTypeQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.type.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /function
  */
 export function usePostFunction(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
+        >,
+        Error,
+        void
       >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.function.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -173,17 +158,15 @@ export function usePostFunction(options?: {
  * GET /return
  */
 export function useGetReturn(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.return.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -192,9 +175,10 @@ export function useGetReturn(options?: {
 
 /**
  * Generates Vue Query cache key for GET /return
+ * Uses $url() for type-safe key generation
  */
 export function getGetReturnQueryKey() {
-  return ['/return'] as const
+  return [client.return.$url().pathname] as const
 }
 
 /**
@@ -202,33 +186,27 @@ export function getGetReturnQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetReturnQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetReturnQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.return.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetReturnQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetReturnQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.return.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /import
  */
 export function useGetImport(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.import.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -237,9 +215,10 @@ export function useGetImport(options?: {
 
 /**
  * Generates Vue Query cache key for GET /import
+ * Uses $url() for type-safe key generation
  */
 export function getGetImportQueryKey() {
-  return ['/import'] as const
+  return [client.import.$url().pathname] as const
 }
 
 /**
@@ -247,33 +226,27 @@ export function getGetImportQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetImportQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetImportQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.import.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetImportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImportQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.import.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /export
  */
 export function useGetExport(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.export.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -282,9 +255,10 @@ export function useGetExport(options?: {
 
 /**
  * Generates Vue Query cache key for GET /export
+ * Uses $url() for type-safe key generation
  */
 export function getGetExportQueryKey() {
-  return ['/export'] as const
+  return [client.export.$url().pathname] as const
 }
 
 /**
@@ -292,33 +266,27 @@ export function getGetExportQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetExportQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetExportQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.export.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetExportQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExportQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.export.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /default
  */
 export function useGetDefault(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.default.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -327,9 +295,10 @@ export function useGetDefault(options?: {
 
 /**
  * Generates Vue Query cache key for GET /default
+ * Uses $url() for type-safe key generation
  */
 export function getGetDefaultQueryKey() {
-  return ['/default'] as const
+  return [client.default.$url().pathname] as const
 }
 
 /**
@@ -337,39 +306,31 @@ export function getGetDefaultQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetDefaultQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.default.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetDefaultQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDefaultQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.default.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /new
  */
 export function usePostNew(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.new.$post>>>>>,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -383,27 +344,18 @@ export function usePostNew(options?: {
  * DELETE /delete
  */
 export function useDeleteDelete(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
+        >,
+        Error,
+        void
       >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.delete.$delete>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -417,17 +369,15 @@ export function useDeleteDelete(options?: {
  * GET /void
  */
 export function useGetVoid(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.void.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -436,9 +386,10 @@ export function useGetVoid(options?: {
 
 /**
  * Generates Vue Query cache key for GET /void
+ * Uses $url() for type-safe key generation
  */
 export function getGetVoidQueryKey() {
-  return ['/void'] as const
+  return [client.void.$url().pathname] as const
 }
 
 /**
@@ -446,30 +397,27 @@ export function getGetVoidQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetVoidQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetVoidQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetVoidQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVoidQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.void.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /null
  */
 export function useGetNull(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.null.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -478,9 +426,10 @@ export function useGetNull(options?: {
 
 /**
  * Generates Vue Query cache key for GET /null
+ * Uses $url() for type-safe key generation
  */
 export function getGetNullQueryKey() {
-  return ['/null'] as const
+  return [client.null.$url().pathname] as const
 }
 
 /**
@@ -488,30 +437,27 @@ export function getGetNullQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNullQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetNullQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetNullQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNullQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.null.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /true
  */
 export function useGetTrue(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.true.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -520,9 +466,10 @@ export function useGetTrue(options?: {
 
 /**
  * Generates Vue Query cache key for GET /true
+ * Uses $url() for type-safe key generation
  */
 export function getGetTrueQueryKey() {
-  return ['/true'] as const
+  return [client.true.$url().pathname] as const
 }
 
 /**
@@ -530,30 +477,27 @@ export function getGetTrueQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTrueQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetTrueQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetTrueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTrueQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.true.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /false
  */
 export function useGetFalse(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.false.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -562,9 +506,10 @@ export function useGetFalse(options?: {
 
 /**
  * Generates Vue Query cache key for GET /false
+ * Uses $url() for type-safe key generation
  */
 export function getGetFalseQueryKey() {
-  return ['/false'] as const
+  return [client.false.$url().pathname] as const
 }
 
 /**
@@ -572,33 +517,27 @@ export function getGetFalseQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFalseQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetFalseQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.false.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetFalseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFalseQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.false.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /if
  */
 export function useGetIf(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.if.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -607,9 +546,10 @@ export function useGetIf(options?: {
 
 /**
  * Generates Vue Query cache key for GET /if
+ * Uses $url() for type-safe key generation
  */
 export function getGetIfQueryKey() {
-  return ['/if'] as const
+  return [client.if.$url().pathname] as const
 }
 
 /**
@@ -617,30 +557,27 @@ export function getGetIfQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetIfQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetIfQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetIfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetIfQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.if.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /else
  */
 export function useGetElse(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.else.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -649,9 +586,10 @@ export function useGetElse(options?: {
 
 /**
  * Generates Vue Query cache key for GET /else
+ * Uses $url() for type-safe key generation
  */
 export function getGetElseQueryKey() {
-  return ['/else'] as const
+  return [client.else.$url().pathname] as const
 }
 
 /**
@@ -659,30 +597,27 @@ export function getGetElseQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetElseQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetElseQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetElseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetElseQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.else.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /for
  */
 export function useGetFor(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.for.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -691,9 +626,10 @@ export function useGetFor(options?: {
 
 /**
  * Generates Vue Query cache key for GET /for
+ * Uses $url() for type-safe key generation
  */
 export function getGetForQueryKey() {
-  return ['/for'] as const
+  return [client.for.$url().pathname] as const
 }
 
 /**
@@ -701,30 +637,27 @@ export function getGetForQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetForQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetForQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetForQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetForQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.for.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /while
  */
 export function useGetWhile(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.while.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -733,9 +666,10 @@ export function useGetWhile(options?: {
 
 /**
  * Generates Vue Query cache key for GET /while
+ * Uses $url() for type-safe key generation
  */
 export function getGetWhileQueryKey() {
-  return ['/while'] as const
+  return [client.while.$url().pathname] as const
 }
 
 /**
@@ -743,33 +677,27 @@ export function getGetWhileQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetWhileQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetWhileQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.while.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetWhileQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetWhileQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.while.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /switch
  */
 export function useGetSwitch(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.switch.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -778,9 +706,10 @@ export function useGetSwitch(options?: {
 
 /**
  * Generates Vue Query cache key for GET /switch
+ * Uses $url() for type-safe key generation
  */
 export function getGetSwitchQueryKey() {
-  return ['/switch'] as const
+  return [client.switch.$url().pathname] as const
 }
 
 /**
@@ -788,33 +717,27 @@ export function getGetSwitchQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSwitchQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSwitchQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.switch.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSwitchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSwitchQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.switch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /case
  */
 export function useGetCase(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.case.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -823,9 +746,10 @@ export function useGetCase(options?: {
 
 /**
  * Generates Vue Query cache key for GET /case
+ * Uses $url() for type-safe key generation
  */
 export function getGetCaseQueryKey() {
-  return ['/case'] as const
+  return [client.case.$url().pathname] as const
 }
 
 /**
@@ -833,30 +757,27 @@ export function getGetCaseQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCaseQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetCaseQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetCaseQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCaseQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.case.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /break
  */
 export function useGetBreak(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.break.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -865,9 +786,10 @@ export function useGetBreak(options?: {
 
 /**
  * Generates Vue Query cache key for GET /break
+ * Uses $url() for type-safe key generation
  */
 export function getGetBreakQueryKey() {
-  return ['/break'] as const
+  return [client.break.$url().pathname] as const
 }
 
 /**
@@ -875,33 +797,27 @@ export function getGetBreakQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBreakQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetBreakQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.break.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetBreakQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetBreakQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.break.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /continue
  */
 export function useGetContinue(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.continue.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -910,9 +826,10 @@ export function useGetContinue(options?: {
 
 /**
  * Generates Vue Query cache key for GET /continue
+ * Uses $url() for type-safe key generation
  */
 export function getGetContinueQueryKey() {
-  return ['/continue'] as const
+  return [client.continue.$url().pathname] as const
 }
 
 /**
@@ -920,33 +837,30 @@ export function getGetContinueQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetContinueQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetContinueQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.continue.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetContinueQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetContinueQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.continue.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /try
  */
 export function useGetTry(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.try.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -955,9 +869,10 @@ export function useGetTry(options?: {
 
 /**
  * Generates Vue Query cache key for GET /try
+ * Uses $url() for type-safe key generation
  */
 export function getGetTryQueryKey() {
-  return ['/try'] as const
+  return [client.try.$url().pathname] as const
 }
 
 /**
@@ -965,30 +880,27 @@ export function getGetTryQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTryQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetTryQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetTryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTryQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.try.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /catch
  */
 export function useGetCatch(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.catch.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -997,9 +909,10 @@ export function useGetCatch(options?: {
 
 /**
  * Generates Vue Query cache key for GET /catch
+ * Uses $url() for type-safe key generation
  */
 export function getGetCatchQueryKey() {
-  return ['/catch'] as const
+  return [client.catch.$url().pathname] as const
 }
 
 /**
@@ -1007,33 +920,27 @@ export function getGetCatchQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetCatchQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetCatchQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.catch.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetCatchQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetCatchQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.catch.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /finally
  */
 export function useGetFinally(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.finally.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1042,9 +949,10 @@ export function useGetFinally(options?: {
 
 /**
  * Generates Vue Query cache key for GET /finally
+ * Uses $url() for type-safe key generation
  */
 export function getGetFinallyQueryKey() {
-  return ['/finally'] as const
+  return [client.finally.$url().pathname] as const
 }
 
 /**
@@ -1052,33 +960,30 @@ export function getGetFinallyQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFinallyQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetFinallyQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.finally.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetFinallyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinallyQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.finally.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /throw
  */
 export function useGetThrow(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.throw.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1087,9 +992,10 @@ export function useGetThrow(options?: {
 
 /**
  * Generates Vue Query cache key for GET /throw
+ * Uses $url() for type-safe key generation
  */
 export function getGetThrowQueryKey() {
-  return ['/throw'] as const
+  return [client.throw.$url().pathname] as const
 }
 
 /**
@@ -1097,33 +1003,27 @@ export function getGetThrowQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetThrowQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetThrowQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.throw.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetThrowQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThrowQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.throw.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /async
  */
 export function useGetAsync(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.async.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1132,9 +1032,10 @@ export function useGetAsync(options?: {
 
 /**
  * Generates Vue Query cache key for GET /async
+ * Uses $url() for type-safe key generation
  */
 export function getGetAsyncQueryKey() {
-  return ['/async'] as const
+  return [client.async.$url().pathname] as const
 }
 
 /**
@@ -1142,33 +1043,27 @@ export function getGetAsyncQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAsyncQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetAsyncQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.async.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetAsyncQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAsyncQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.async.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /await
  */
 export function useGetAwait(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.await.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1177,9 +1072,10 @@ export function useGetAwait(options?: {
 
 /**
  * Generates Vue Query cache key for GET /await
+ * Uses $url() for type-safe key generation
  */
 export function getGetAwaitQueryKey() {
-  return ['/await'] as const
+  return [client.await.$url().pathname] as const
 }
 
 /**
@@ -1187,33 +1083,27 @@ export function getGetAwaitQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAwaitQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetAwaitQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.await.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetAwaitQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAwaitQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.await.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /yield
  */
 export function useGetYield(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.yield.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1222,9 +1112,10 @@ export function useGetYield(options?: {
 
 /**
  * Generates Vue Query cache key for GET /yield
+ * Uses $url() for type-safe key generation
  */
 export function getGetYieldQueryKey() {
-  return ['/yield'] as const
+  return [client.yield.$url().pathname] as const
 }
 
 /**
@@ -1232,33 +1123,27 @@ export function getGetYieldQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetYieldQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetYieldQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.yield.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetYieldQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetYieldQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.yield.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /static
  */
 export function useGetStatic(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.static.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1267,9 +1152,10 @@ export function useGetStatic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /static
+ * Uses $url() for type-safe key generation
  */
 export function getGetStaticQueryKey() {
-  return ['/static'] as const
+  return [client.static.$url().pathname] as const
 }
 
 /**
@@ -1277,33 +1163,27 @@ export function getGetStaticQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetStaticQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetStaticQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.static.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetStaticQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStaticQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.static.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /public
  */
 export function useGetPublic(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1312,9 +1192,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /public
+ * Uses $url() for type-safe key generation
  */
 export function getGetPublicQueryKey() {
-  return ['/public'] as const
+  return [client.public.$url().pathname] as const
 }
 
 /**
@@ -1322,33 +1203,27 @@ export function getGetPublicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPublicQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.public.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /private
  */
 export function useGetPrivate(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.private.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1357,9 +1232,10 @@ export function useGetPrivate(options?: {
 
 /**
  * Generates Vue Query cache key for GET /private
+ * Uses $url() for type-safe key generation
  */
 export function getGetPrivateQueryKey() {
-  return ['/private'] as const
+  return [client.private.$url().pathname] as const
 }
 
 /**
@@ -1367,33 +1243,32 @@ export function getGetPrivateQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPrivateQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPrivateQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.private.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPrivateQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrivateQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.private.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /protected
  */
 export function useGetProtected(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.protected.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1402,9 +1277,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates Vue Query cache key for GET /protected
+ * Uses $url() for type-safe key generation
  */
 export function getGetProtectedQueryKey() {
-  return ['/protected'] as const
+  return [client.protected.$url().pathname] as const
 }
 
 /**
@@ -1412,33 +1288,30 @@ export function getGetProtectedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetProtectedQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.protected.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetProtectedQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.protected.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /abstract
  */
 export function useGetAbstract(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.abstract.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1447,9 +1320,10 @@ export function useGetAbstract(options?: {
 
 /**
  * Generates Vue Query cache key for GET /abstract
+ * Uses $url() for type-safe key generation
  */
 export function getGetAbstractQueryKey() {
-  return ['/abstract'] as const
+  return [client.abstract.$url().pathname] as const
 }
 
 /**
@@ -1457,33 +1331,30 @@ export function getGetAbstractQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAbstractQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetAbstractQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.abstract.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetAbstractQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAbstractQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.abstract.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /final
  */
 export function useGetFinal(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.final.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1492,9 +1363,10 @@ export function useGetFinal(options?: {
 
 /**
  * Generates Vue Query cache key for GET /final
+ * Uses $url() for type-safe key generation
  */
 export function getGetFinalQueryKey() {
-  return ['/final'] as const
+  return [client.final.$url().pathname] as const
 }
 
 /**
@@ -1502,33 +1374,27 @@ export function getGetFinalQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetFinalQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetFinalQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.final.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetFinalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetFinalQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.final.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /extends
  */
 export function useGetExtends(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.extends.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1537,9 +1403,10 @@ export function useGetExtends(options?: {
 
 /**
  * Generates Vue Query cache key for GET /extends
+ * Uses $url() for type-safe key generation
  */
 export function getGetExtendsQueryKey() {
-  return ['/extends'] as const
+  return [client.extends.$url().pathname] as const
 }
 
 /**
@@ -1547,33 +1414,32 @@ export function getGetExtendsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetExtendsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetExtendsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.extends.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetExtendsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetExtendsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.extends.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /implements
  */
 export function useGetImplements(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.implements.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1582,9 +1448,10 @@ export function useGetImplements(options?: {
 
 /**
  * Generates Vue Query cache key for GET /implements
+ * Uses $url() for type-safe key generation
  */
 export function getGetImplementsQueryKey() {
-  return ['/implements'] as const
+  return [client.implements.$url().pathname] as const
 }
 
 /**
@@ -1592,33 +1459,30 @@ export function getGetImplementsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetImplementsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetImplementsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.implements.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetImplementsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetImplementsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.implements.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /package
  */
 export function useGetPackage(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.package.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1627,9 +1491,10 @@ export function useGetPackage(options?: {
 
 /**
  * Generates Vue Query cache key for GET /package
+ * Uses $url() for type-safe key generation
  */
 export function getGetPackageQueryKey() {
-  return ['/package'] as const
+  return [client.package.$url().pathname] as const
 }
 
 /**
@@ -1637,33 +1502,30 @@ export function getGetPackageQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPackageQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPackageQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.package.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPackageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPackageQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.package.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /enum
  */
 export function useGetEnum(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.enum.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1672,9 +1534,10 @@ export function useGetEnum(options?: {
 
 /**
  * Generates Vue Query cache key for GET /enum
+ * Uses $url() for type-safe key generation
  */
 export function getGetEnumQueryKey() {
-  return ['/enum'] as const
+  return [client.enum.$url().pathname] as const
 }
 
 /**
@@ -1682,30 +1545,27 @@ export function getGetEnumQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEnumQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetEnumQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetEnumQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEnumQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.enum.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /const
  */
 export function useGetConst(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.const.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1714,9 +1574,10 @@ export function useGetConst(options?: {
 
 /**
  * Generates Vue Query cache key for GET /const
+ * Uses $url() for type-safe key generation
  */
 export function getGetConstQueryKey() {
-  return ['/const'] as const
+  return [client.const.$url().pathname] as const
 }
 
 /**
@@ -1724,33 +1585,27 @@ export function getGetConstQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetConstQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetConstQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.const.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetConstQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.const.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /let
  */
 export function useGetLet(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.let.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1759,9 +1614,10 @@ export function useGetLet(options?: {
 
 /**
  * Generates Vue Query cache key for GET /let
+ * Uses $url() for type-safe key generation
  */
 export function getGetLetQueryKey() {
-  return ['/let'] as const
+  return [client.let.$url().pathname] as const
 }
 
 /**
@@ -1769,30 +1625,27 @@ export function getGetLetQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetLetQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetLetQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetLetQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetLetQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.let.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /var
  */
 export function useGetVar(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.var.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1801,9 +1654,10 @@ export function useGetVar(options?: {
 
 /**
  * Generates Vue Query cache key for GET /var
+ * Uses $url() for type-safe key generation
  */
 export function getGetVarQueryKey() {
-  return ['/var'] as const
+  return [client.var.$url().pathname] as const
 }
 
 /**
@@ -1811,30 +1665,27 @@ export function getGetVarQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetVarQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetVarQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetVarQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetVarQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.var.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /this
  */
 export function useGetThis(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.this.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1843,9 +1694,10 @@ export function useGetThis(options?: {
 
 /**
  * Generates Vue Query cache key for GET /this
+ * Uses $url() for type-safe key generation
  */
 export function getGetThisQueryKey() {
-  return ['/this'] as const
+  return [client.this.$url().pathname] as const
 }
 
 /**
@@ -1853,30 +1705,27 @@ export function getGetThisQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetThisQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetThisQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetThisQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetThisQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.this.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /super
  */
 export function useGetSuper(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.super.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1885,9 +1734,10 @@ export function useGetSuper(options?: {
 
 /**
  * Generates Vue Query cache key for GET /super
+ * Uses $url() for type-safe key generation
  */
 export function getGetSuperQueryKey() {
-  return ['/super'] as const
+  return [client.super.$url().pathname] as const
 }
 
 /**
@@ -1895,33 +1745,27 @@ export function getGetSuperQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSuperQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSuperQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.super.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSuperQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSuperQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.super.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /self
  */
 export function useGetSelf(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.self.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1930,9 +1774,10 @@ export function useGetSelf(options?: {
 
 /**
  * Generates Vue Query cache key for GET /self
+ * Uses $url() for type-safe key generation
  */
 export function getGetSelfQueryKey() {
-  return ['/self'] as const
+  return [client.self.$url().pathname] as const
 }
 
 /**
@@ -1940,30 +1785,29 @@ export function getGetSelfQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSelfQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSelfQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+export const getGetSelfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSelfQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.self.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /constructor
  */
 export function useGetConstructor(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.constructor.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1972,9 +1816,10 @@ export function useGetConstructor(options?: {
 
 /**
  * Generates Vue Query cache key for GET /constructor
+ * Uses $url() for type-safe key generation
  */
 export function getGetConstructorQueryKey() {
-  return ['/constructor'] as const
+  return [client.constructor.$url().pathname] as const
 }
 
 /**
@@ -1982,33 +1827,32 @@ export function getGetConstructorQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetConstructorQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetConstructorQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.constructor.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetConstructorQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetConstructorQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.constructor.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /prototype
  */
 export function useGetPrototype(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.prototype.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2017,9 +1861,10 @@ export function useGetPrototype(options?: {
 
 /**
  * Generates Vue Query cache key for GET /prototype
+ * Uses $url() for type-safe key generation
  */
 export function getGetPrototypeQueryKey() {
-  return ['/prototype'] as const
+  return [client.prototype.$url().pathname] as const
 }
 
 /**
@@ -2027,33 +1872,30 @@ export function getGetPrototypeQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPrototypeQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPrototypeQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.prototype.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPrototypeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPrototypeQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.prototype.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /toString
  */
 export function useGetToString(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.toString.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2062,9 +1904,10 @@ export function useGetToString(options?: {
 
 /**
  * Generates Vue Query cache key for GET /toString
+ * Uses $url() for type-safe key generation
  */
 export function getGetToStringQueryKey() {
-  return ['/toString'] as const
+  return [client.toString.$url().pathname] as const
 }
 
 /**
@@ -2072,33 +1915,30 @@ export function getGetToStringQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetToStringQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetToStringQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.toString.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetToStringQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetToStringQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.toString.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /valueOf
  */
 export function useGetValueOf(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.valueOf.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2107,9 +1947,10 @@ export function useGetValueOf(options?: {
 
 /**
  * Generates Vue Query cache key for GET /valueOf
+ * Uses $url() for type-safe key generation
  */
 export function getGetValueOfQueryKey() {
-  return ['/valueOf'] as const
+  return [client.valueOf.$url().pathname] as const
 }
 
 /**
@@ -2117,33 +1958,32 @@ export function getGetValueOfQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetValueOfQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetValueOfQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.valueOf.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetValueOfQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetValueOfQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.valueOf.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /hasOwnProperty
  */
 export function useGetHasOwnProperty(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.hasOwnProperty.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2152,9 +1992,10 @@ export function useGetHasOwnProperty(options?: {
 
 /**
  * Generates Vue Query cache key for GET /hasOwnProperty
+ * Uses $url() for type-safe key generation
  */
 export function getGetHasOwnPropertyQueryKey() {
-  return ['/hasOwnProperty'] as const
+  return [client.hasOwnProperty.$url().pathname] as const
 }
 
 /**
@@ -2162,33 +2003,34 @@ export function getGetHasOwnPropertyQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetHasOwnPropertyQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetHasOwnPropertyQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.hasOwnProperty.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetHasOwnPropertyQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetHasOwnPropertyQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.hasOwnProperty.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /name-collisions
  */
 export function useGetNameCollisions(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['name-collisions']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2197,9 +2039,10 @@ export function useGetNameCollisions(options?: {
 
 /**
  * Generates Vue Query cache key for GET /name-collisions
+ * Uses $url() for type-safe key generation
  */
 export function getGetNameCollisionsQueryKey() {
-  return ['/name-collisions'] as const
+  return [client['name-collisions'].$url().pathname] as const
 }
 
 /**
@@ -2207,14 +2050,13 @@ export function getGetNameCollisionsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNameCollisionsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetNameCollisionsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['name-collisions'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetNameCollisionsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNameCollisionsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['name-collisions'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

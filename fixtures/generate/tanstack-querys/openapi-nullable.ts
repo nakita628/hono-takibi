@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-nullable'
@@ -11,17 +12,10 @@ import { client } from '../clients/openapi-nullable'
  * zod nullable
  */
 export function useGetNullable(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.nullable.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -30,9 +24,10 @@ export function useGetNullable(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /nullable
+ * Uses $url() for type-safe key generation
  */
 export function getGetNullableQueryKey() {
-  return ['/nullable'] as const
+  return [client.nullable.$url().pathname] as const
 }
 
 /**
@@ -40,14 +35,13 @@ export function getGetNullableQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNullableQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetNullableQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.nullable.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetNullableQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNullableQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.nullable.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

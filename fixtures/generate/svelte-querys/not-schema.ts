@@ -1,5 +1,6 @@
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/not-schema'
 
@@ -7,27 +8,11 @@ import { client } from '../clients/not-schema'
  * POST /validate
  */
 export function createPostValidate(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.validate.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.validate.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.validate.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.validate.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.validate.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.validate.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

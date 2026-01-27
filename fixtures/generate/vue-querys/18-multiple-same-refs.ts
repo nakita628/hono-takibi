@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/18-multiple-same-refs'
 
@@ -9,17 +10,17 @@ import { client } from '../clients/18-multiple-same-refs'
 export function useGetDocuments(
   args: InferRequestType<typeof client.documents.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$get>>>>
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -29,9 +30,10 @@ export function useGetDocuments(
 
 /**
  * Generates Vue Query cache key for GET /documents
+ * Uses $url() for type-safe key generation
  */
 export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
-  return ['/documents', args] as const
+  return [client.documents.$url(args).pathname] as const
 }
 
 /**
@@ -42,40 +44,30 @@ export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.doc
 export const getGetDocumentsQueryOptions = (
   args: InferRequestType<typeof client.documents.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDocumentsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.documents.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetDocumentsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.documents.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /documents
  */
 export function usePostDocuments(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.documents.$post>
       >,
-      variables: InferRequestType<typeof client.documents.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.documents.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.documents.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.documents.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.documents.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -92,17 +84,21 @@ export function usePostDocuments(options?: {
 export function useGetDocumentsDocumentId(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.documents)[':documentId']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -115,11 +111,12 @@ export function useGetDocumentsDocumentId(
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetDocumentsDocumentIdQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return ['/documents/:documentId', args] as const
+  return [client.documents[':documentId'].$url(args).pathname] as const
 }
 
 /**
@@ -130,56 +127,37 @@ export function getGetDocumentsDocumentIdQueryKey(
 export const getGetDocumentsDocumentIdQueryOptions = (
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDocumentsDocumentIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.documents[':documentId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetDocumentsDocumentIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.documents[':documentId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /documents/{documentId}
  */
 export function usePutDocumentsDocumentId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.documents)[':documentId']['$put']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.documents)[':documentId']['$put']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.documents)[':documentId']['$put']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.documents)[':documentId']['$put']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.documents)[':documentId']['$put']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -196,17 +174,21 @@ export function usePutDocumentsDocumentId(options?: {
 export function useGetDocumentsDocumentIdVersions(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.documents)[':documentId']['versions']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -219,11 +201,12 @@ export function useGetDocumentsDocumentIdVersions(
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}/versions
+ * Uses $url() for type-safe key generation
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return ['/documents/:documentId/versions', args] as const
+  return [client.documents[':documentId'].versions.$url(args).pathname] as const
 }
 
 /**
@@ -234,56 +217,37 @@ export function getGetDocumentsDocumentIdVersionsQueryKey(
 export const getGetDocumentsDocumentIdVersionsQueryOptions = (
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetDocumentsDocumentIdVersionsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.documents[':documentId'].versions.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetDocumentsDocumentIdVersionsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.documents[':documentId'].versions.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /documents/{documentId}/share
  */
 export function usePostDocumentsDocumentIdShare(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.documents)[':documentId']['share']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.documents)[':documentId']['share']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.documents)[':documentId']['share']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -301,17 +265,21 @@ export function usePostDocumentsDocumentIdShare(options?: {
 export function useGetUsersUserIdDocuments(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.users)[':userId']['documents']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -324,11 +292,12 @@ export function useGetUsersUserIdDocuments(
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}/documents
+ * Uses $url() for type-safe key generation
  */
 export function getGetUsersUserIdDocumentsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return ['/users/:userId/documents', args] as const
+  return [client.users[':userId'].documents.$url(args).pathname] as const
 }
 
 /**
@@ -339,43 +308,31 @@ export function getGetUsersUserIdDocumentsQueryKey(
 export const getGetUsersUserIdDocumentsQueryOptions = (
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUsersUserIdDocumentsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.users[':userId'].documents.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUsersUserIdDocumentsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.users[':userId'].documents.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /compare
  */
 export function usePostCompare(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.compare.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.compare.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.compare.$post>
       >,
-      variables: InferRequestType<typeof client.compare.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.compare.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.compare.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.compare.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.compare.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -390,17 +347,17 @@ export function usePostCompare(options?: {
  * GET /templates
  */
 export function useGetTemplates(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -409,9 +366,10 @@ export function useGetTemplates(options?: {
 
 /**
  * Generates Vue Query cache key for GET /templates
+ * Uses $url() for type-safe key generation
  */
 export function getGetTemplatesQueryKey() {
-  return ['/templates'] as const
+  return [client.templates.$url().pathname] as const
 }
 
 /**
@@ -419,43 +377,33 @@ export function getGetTemplatesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetTemplatesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetTemplatesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.templates.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetTemplatesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetTemplatesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.templates.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /templates
  */
 export function usePostTemplates(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.templates.$post>
       >,
-      variables: InferRequestType<typeof client.templates.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.templates.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.templates.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.templates.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -470,27 +418,18 @@ export function usePostTemplates(options?: {
  * POST /workflows
  */
 export function usePostWorkflows(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.workflows.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.workflows.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.workflows.$post>
       >,
-      variables: InferRequestType<typeof client.workflows.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.workflows.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.workflows.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.workflows.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.workflows.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

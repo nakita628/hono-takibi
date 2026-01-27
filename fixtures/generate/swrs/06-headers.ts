@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/06-headers'
 
 /**
@@ -31,9 +31,10 @@ export function useGetResources(
 
 /**
  * Generates SWR cache key for GET /resources
+ * Uses $url() for type-safe key generation
  */
-export function getGetResourcesKey(args?: InferRequestType<typeof client.resources.$get>) {
-  return ['/resources', ...(args ? [args] : [])] as const
+export function getGetResourcesKey(args: InferRequestType<typeof client.resources.$get>) {
+  return client.resources.$url(args).pathname
 }
 
 /**
@@ -61,11 +62,12 @@ export function useGetResourcesId(
 
 /**
  * Generates SWR cache key for GET /resources/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetResourcesIdKey(
-  args?: InferRequestType<(typeof client.resources)[':id']['$get']>,
+  args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return ['/resources/:id', ...(args ? [args] : [])] as const
+  return client.resources[':id'].$url(args).pathname
 }
 
 /**
@@ -79,20 +81,32 @@ export function usePutResourcesId(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.resources)[':id']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /resources/:id',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.resources)[':id']['$put']> },
-    ) => parseResponse(client.resources[':id'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutResourcesIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.resources)[':id']['$put']> },
+      ) => parseResponse(client.resources[':id'].$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /resources/{id}
+ * Uses $url() for type-safe key generation
+ */
+export function getPutResourcesIdMutationKey() {
+  return `PUT ${client.resources[':id'].$url().pathname}`
 }
 
 /**
@@ -120,9 +134,10 @@ export function useGetDownloadId(
 
 /**
  * Generates SWR cache key for GET /download/{id}
+ * Uses $url() for type-safe key generation
  */
 export function getGetDownloadIdKey(
-  args?: InferRequestType<(typeof client.download)[':id']['$get']>,
+  args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return ['/download/:id', ...(args ? [args] : [])] as const
+  return client.download[':id'].$url(args).pathname
 }

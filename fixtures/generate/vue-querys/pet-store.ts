@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/pet-store'
 
@@ -11,23 +12,16 @@ import { client } from '../clients/pet-store'
  * Update an existing pet by Id
  */
 export function usePutPet(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
-      variables: InferRequestType<typeof client.pet.$put>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.pet.$put>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.pet.$put>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.pet.$put>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
+        Error,
+        InferRequestType<typeof client.pet.$put>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -46,23 +40,16 @@ export function usePutPet(options?: {
  * Add a new pet to the store
  */
 export function usePostPet(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$post>>>>>,
-      variables: InferRequestType<typeof client.pet.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.pet.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.pet.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.pet.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.pet.$post>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -83,17 +70,19 @@ export function usePostPet(options?: {
 export function useGetPetFindByStatus(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<typeof client.pet.findByStatus.$get>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -103,11 +92,12 @@ export function useGetPetFindByStatus(
 
 /**
  * Generates Vue Query cache key for GET /pet/findByStatus
+ * Uses $url() for type-safe key generation
  */
 export function getGetPetFindByStatusQueryKey(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  return ['/pet/findByStatus', args] as const
+  return [client.pet.findByStatus.$url(args).pathname] as const
 }
 
 /**
@@ -118,17 +108,16 @@ export function getGetPetFindByStatusQueryKey(
 export const getGetPetFindByStatusQueryOptions = (
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPetFindByStatusQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.pet.findByStatus.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPetFindByStatusQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.pet.findByStatus.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /pet/findByTags
@@ -140,17 +129,17 @@ export const getGetPetFindByStatusQueryOptions = (
 export function useGetPetFindByTags(
   args: InferRequestType<typeof client.pet.findByTags.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.findByTags.$get>>>>
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -160,11 +149,12 @@ export function useGetPetFindByTags(
 
 /**
  * Generates Vue Query cache key for GET /pet/findByTags
+ * Uses $url() for type-safe key generation
  */
 export function getGetPetFindByTagsQueryKey(
   args: InferRequestType<typeof client.pet.findByTags.$get>,
 ) {
-  return ['/pet/findByTags', args] as const
+  return [client.pet.findByTags.$url(args).pathname] as const
 }
 
 /**
@@ -175,17 +165,16 @@ export function getGetPetFindByTagsQueryKey(
 export const getGetPetFindByTagsQueryOptions = (
   args: InferRequestType<typeof client.pet.findByTags.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPetFindByTagsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.pet.findByTags.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPetFindByTagsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.pet.findByTags.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /pet/{petId}
@@ -197,17 +186,19 @@ export const getGetPetFindByTagsQueryOptions = (
 export function useGetPetPetId(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -217,11 +208,12 @@ export function useGetPetPetId(
 
 /**
  * Generates Vue Query cache key for GET /pet/{petId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPetPetIdQueryKey(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
 ) {
-  return ['/pet/:petId', args] as const
+  return [client.pet[':petId'].$url(args).pathname] as const
 }
 
 /**
@@ -232,17 +224,16 @@ export function getGetPetPetIdQueryKey(
 export const getGetPetPetIdQueryOptions = (
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPetPetIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.pet[':petId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPetPetIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.pet[':petId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /pet/{petId}
@@ -250,34 +241,20 @@ export const getGetPetPetIdQueryOptions = (
  * Updates a pet in the store with form data
  */
 export function usePostPetPetId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$post']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$post']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.pet)[':petId']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.pet)[':petId']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.pet)[':petId']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -296,34 +273,20 @@ export function usePostPetPetId(options?: {
  * delete a pet
  */
 export function useDeletePetPetId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$delete']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$delete']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.pet)[':petId']['$delete']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.pet)[':petId']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.pet)[':petId']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -340,40 +303,22 @@ export function useDeletePetPetId(options?: {
  * uploads an image
  */
 export function usePostPetPetIdUploadImage(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.pet)[':petId']['uploadImage']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.pet)[':petId']['uploadImage']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.pet)[':petId']['uploadImage']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.pet)[':petId']['uploadImage']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -393,17 +338,17 @@ export function usePostPetPetIdUploadImage(options?: {
  * Returns a map of status codes to quantities
  */
 export function useGetStoreInventory(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.inventory.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -412,9 +357,10 @@ export function useGetStoreInventory(options?: {
 
 /**
  * Generates Vue Query cache key for GET /store/inventory
+ * Uses $url() for type-safe key generation
  */
 export function getGetStoreInventoryQueryKey() {
-  return ['/store/inventory'] as const
+  return [client.store.inventory.$url().pathname] as const
 }
 
 /**
@@ -422,17 +368,16 @@ export function getGetStoreInventoryQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetStoreInventoryQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetStoreInventoryQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.store.inventory.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetStoreInventoryQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStoreInventoryQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.store.inventory.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /store/order
@@ -442,27 +387,18 @@ export const getGetStoreInventoryQueryOptions = (clientOptions?: ClientRequestOp
  * Place a new order in the store
  */
 export function usePostStoreOrder(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.order.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.order.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.store.order.$post>
       >,
-      variables: InferRequestType<typeof client.store.order.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.store.order.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.store.order.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.store.order.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.store.order.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -483,17 +419,21 @@ export function usePostStoreOrder(options?: {
 export function useGetStoreOrderOrderId(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.store.order)[':orderId']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -503,11 +443,12 @@ export function useGetStoreOrderOrderId(
 
 /**
  * Generates Vue Query cache key for GET /store/order/{orderId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetStoreOrderOrderIdQueryKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  return ['/store/order/:orderId', args] as const
+  return [client.store.order[':orderId'].$url(args).pathname] as const
 }
 
 /**
@@ -518,17 +459,16 @@ export function getGetStoreOrderOrderIdQueryKey(
 export const getGetStoreOrderOrderIdQueryOptions = (
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetStoreOrderOrderIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.store.order[':orderId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetStoreOrderOrderIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.store.order[':orderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /store/order/{orderId}
@@ -538,40 +478,22 @@ export const getGetStoreOrderOrderIdQueryOptions = (
  * For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
  */
 export function useDeleteStoreOrderOrderId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.store.order)[':orderId']['$delete']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.store.order)[':orderId']['$delete']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.store.order)[':orderId']['$delete']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.store.order)[':orderId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.store.order)[':orderId']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -591,25 +513,16 @@ export function useDeleteStoreOrderOrderId(options?: {
  * This can only be done by the logged in user.
  */
 export function usePostUser(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.user.$post>
       >,
-      variables: InferRequestType<typeof client.user.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.user.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.user.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.user.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -628,34 +541,20 @@ export function usePostUser(options?: {
  * Creates list of users with given input array
  */
 export function usePostUserCreateWithList(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.user.createWithList.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.user.createWithList.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.user.createWithList.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.user.createWithList.$post>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<typeof client.user.createWithList.$post>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.user.createWithList.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.user.createWithList.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<typeof client.user.createWithList.$post>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -674,17 +573,17 @@ export function usePostUserCreateWithList(options?: {
 export function useGetUserLogin(
   args: InferRequestType<typeof client.user.login.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.login.$get>>>>
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -694,9 +593,10 @@ export function useGetUserLogin(
 
 /**
  * Generates Vue Query cache key for GET /user/login
+ * Uses $url() for type-safe key generation
  */
 export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.user.login.$get>) {
-  return ['/user/login', args] as const
+  return [client.user.login.$url(args).pathname] as const
 }
 
 /**
@@ -707,17 +607,13 @@ export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.use
 export const getGetUserLoginQueryOptions = (
   args: InferRequestType<typeof client.user.login.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUserLoginQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.user.login.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUserLoginQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.user.login.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /user/logout
@@ -725,17 +621,17 @@ export const getGetUserLoginQueryOptions = (
  * Logs out current logged in user session
  */
 export function useGetUserLogout(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.user.logout.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -744,9 +640,10 @@ export function useGetUserLogout(options?: {
 
 /**
  * Generates Vue Query cache key for GET /user/logout
+ * Uses $url() for type-safe key generation
  */
 export function getGetUserLogoutQueryKey() {
-  return ['/user/logout'] as const
+  return [client.user.logout.$url().pathname] as const
 }
 
 /**
@@ -754,17 +651,16 @@ export function getGetUserLogoutQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUserLogoutQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetUserLogoutQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.user.logout.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetUserLogoutQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUserLogoutQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.user.logout.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /user/{username}
@@ -774,17 +670,19 @@ export const getGetUserLogoutQueryOptions = (clientOptions?: ClientRequestOption
 export function useGetUserUsername(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -794,11 +692,12 @@ export function useGetUserUsername(
 
 /**
  * Generates Vue Query cache key for GET /user/{username}
+ * Uses $url() for type-safe key generation
  */
 export function getGetUserUsernameQueryKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  return ['/user/:username', args] as const
+  return [client.user[':username'].$url(args).pathname] as const
 }
 
 /**
@@ -809,17 +708,16 @@ export function getGetUserUsernameQueryKey(
 export const getGetUserUsernameQueryOptions = (
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetUserUsernameQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.user[':username'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetUserUsernameQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.user[':username'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /user/{username}
@@ -829,34 +727,20 @@ export const getGetUserUsernameQueryOptions = (
  * This can only be done by the logged in user.
  */
 export function usePutUserUsername(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.user)[':username']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.user)[':username']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$put']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$put']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.user)[':username']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.user)[':username']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.user)[':username']['$put']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -875,36 +759,20 @@ export function usePutUserUsername(options?: {
  * This can only be done by the logged in user.
  */
 export function useDeleteUserUsername(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$delete']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.user)[':username']['$delete']>>
-              >
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.user)[':username']['$delete']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.user)[':username']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.user)[':username']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.user)[':username']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

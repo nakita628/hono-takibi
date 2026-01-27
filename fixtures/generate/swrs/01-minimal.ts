@@ -1,7 +1,7 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
 import { client } from '../clients/01-minimal'
 
 /**
@@ -26,7 +26,8 @@ export function useGetHealth(options?: {
 
 /**
  * Generates SWR cache key for GET /health
+ * Uses $url() for type-safe key generation
  */
 export function getGetHealthKey() {
-  return ['/health'] as const
+  return client.health.$url().pathname
 }

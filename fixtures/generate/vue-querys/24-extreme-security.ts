@@ -1,4 +1,5 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/24-extreme-security'
@@ -9,17 +10,15 @@ import { client } from '../clients/24-extreme-security'
  * Completely public endpoint
  */
 export function useGetPublic(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -28,9 +27,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /public
+ * Uses $url() for type-safe key generation
  */
 export function getGetPublicQueryKey() {
-  return ['/public'] as const
+  return [client.public.$url().pathname] as const
 }
 
 /**
@@ -38,17 +38,13 @@ export function getGetPublicQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetPublicQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.public.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetPublicQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.public.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /single-auth
@@ -56,17 +52,19 @@ export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =
  * Single authentication required
  */
 export function useGetSingleAuth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['single-auth']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -75,9 +73,10 @@ export function useGetSingleAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /single-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetSingleAuthQueryKey() {
-  return ['/single-auth'] as const
+  return [client['single-auth'].$url().pathname] as const
 }
 
 /**
@@ -85,17 +84,16 @@ export function getGetSingleAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSingleAuthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['single-auth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSingleAuthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['single-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /any-auth
@@ -103,17 +101,17 @@ export const getGetSingleAuthQueryOptions = (clientOptions?: ClientRequestOption
  * Any of these auth methods works (OR)
  */
 export function useGetAnyAuth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['any-auth']['$get']>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -122,9 +120,10 @@ export function useGetAnyAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /any-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetAnyAuthQueryKey() {
-  return ['/any-auth'] as const
+  return [client['any-auth'].$url().pathname] as const
 }
 
 /**
@@ -132,17 +131,16 @@ export function getGetAnyAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetAnyAuthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['any-auth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAnyAuthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['any-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /all-auth
@@ -150,17 +148,17 @@ export const getGetAnyAuthQueryOptions = (clientOptions?: ClientRequestOptions) 
  * All of these auth methods required (AND)
  */
 export function useGetAllAuth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['all-auth']['$get']>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -169,9 +167,10 @@ export function useGetAllAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /all-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetAllAuthQueryKey() {
-  return ['/all-auth'] as const
+  return [client['all-auth'].$url().pathname] as const
 }
 
 /**
@@ -179,17 +178,16 @@ export function getGetAllAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetAllAuthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['all-auth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetAllAuthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['all-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /complex-auth
@@ -197,17 +195,19 @@ export const getGetAllAuthQueryOptions = (clientOptions?: ClientRequestOptions) 
  * Complex AND/OR security requirements
  */
 export function useGetComplexAuth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['complex-auth']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -216,9 +216,10 @@ export function useGetComplexAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /complex-auth
+ * Uses $url() for type-safe key generation
  */
 export function getGetComplexAuthQueryKey() {
-  return ['/complex-auth'] as const
+  return [client['complex-auth'].$url().pathname] as const
 }
 
 /**
@@ -226,17 +227,16 @@ export function getGetComplexAuthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetComplexAuthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['complex-auth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetComplexAuthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['complex-auth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /scoped-oauth
@@ -244,17 +244,19 @@ export const getGetComplexAuthQueryOptions = (clientOptions?: ClientRequestOptio
  * OAuth with many specific scopes
  */
 export function useGetScopedOauth(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['scoped-oauth']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -263,9 +265,10 @@ export function useGetScopedOauth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /scoped-oauth
+ * Uses $url() for type-safe key generation
  */
 export function getGetScopedOauthQueryKey() {
-  return ['/scoped-oauth'] as const
+  return [client['scoped-oauth'].$url().pathname] as const
 }
 
 /**
@@ -273,17 +276,16 @@ export function getGetScopedOauthQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetScopedOauthQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['scoped-oauth'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetScopedOauthQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['scoped-oauth'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /mixed-level-security
@@ -291,17 +293,21 @@ export const getGetScopedOauthQueryOptions = (clientOptions?: ClientRequestOptio
  * Path level + operation level security
  */
 export function useGetMixedLevelSecurity(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)['mixed-level-security']['$get']>>
+            >
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -310,9 +316,10 @@ export function useGetMixedLevelSecurity(options?: {
 
 /**
  * Generates Vue Query cache key for GET /mixed-level-security
+ * Uses $url() for type-safe key generation
  */
 export function getGetMixedLevelSecurityQueryKey() {
-  return ['/mixed-level-security'] as const
+  return [client['mixed-level-security'].$url().pathname] as const
 }
 
 /**
@@ -320,17 +327,16 @@ export function getGetMixedLevelSecurityQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMixedLevelSecurityQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['mixed-level-security'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMixedLevelSecurityQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['mixed-level-security'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /mixed-level-security
@@ -338,33 +344,22 @@ export const getGetMixedLevelSecurityQueryOptions = (clientOptions?: ClientReque
  * Admin-only security
  */
 export function usePutMixedLevelSecurity(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>>
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)['mixed-level-security']['$put']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -381,35 +376,22 @@ export function usePutMixedLevelSecurity(options?: {
  * Different security for POST
  */
 export function usePostMixedLevelSecurity(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
-          >
-        >
-      >,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client)['mixed-level-security']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -426,9 +408,9 @@ export function usePostMixedLevelSecurity(options?: {
  * Super admin security
  */
 export function useDeleteMixedLevelSecurity(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<
@@ -437,26 +419,12 @@ export function useDeleteMixedLevelSecurity(options?: {
             >
           >
         | undefined,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['mixed-level-security']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -473,17 +441,19 @@ export function useDeleteMixedLevelSecurity(options?: {
  * Override global security with public
  */
 export function useGetOverrideGlobal(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['override-global']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -492,9 +462,10 @@ export function useGetOverrideGlobal(options?: {
 
 /**
  * Generates Vue Query cache key for GET /override-global
+ * Uses $url() for type-safe key generation
  */
 export function getGetOverrideGlobalQueryKey() {
-  return ['/override-global'] as const
+  return [client['override-global'].$url().pathname] as const
 }
 
 /**
@@ -502,17 +473,16 @@ export function getGetOverrideGlobalQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetOverrideGlobalQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['override-global'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOverrideGlobalQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['override-global'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /optional-enhanced
@@ -520,17 +490,19 @@ export const getGetOverrideGlobalQueryOptions = (clientOptions?: ClientRequestOp
  * Optional auth with enhanced access if authenticated
  */
 export function useGetOptionalEnhanced(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['optional-enhanced']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -539,9 +511,10 @@ export function useGetOptionalEnhanced(options?: {
 
 /**
  * Generates Vue Query cache key for GET /optional-enhanced
+ * Uses $url() for type-safe key generation
  */
 export function getGetOptionalEnhancedQueryKey() {
-  return ['/optional-enhanced'] as const
+  return [client['optional-enhanced'].$url().pathname] as const
 }
 
 /**
@@ -549,17 +522,16 @@ export function getGetOptionalEnhancedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetOptionalEnhancedQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['optional-enhanced'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetOptionalEnhancedQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['optional-enhanced'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /multi-tenant
@@ -567,17 +539,19 @@ export const getGetOptionalEnhancedQueryOptions = (clientOptions?: ClientRequest
  * Multi-tenant with org-level auth
  */
 export function useGetMultiTenant(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-tenant']['$get']>>>
+          >
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -586,9 +560,10 @@ export function useGetMultiTenant(options?: {
 
 /**
  * Generates Vue Query cache key for GET /multi-tenant
+ * Uses $url() for type-safe key generation
  */
 export function getGetMultiTenantQueryKey() {
-  return ['/multi-tenant'] as const
+  return [client['multi-tenant'].$url().pathname] as const
 }
 
 /**
@@ -596,14 +571,13 @@ export function getGetMultiTenantQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetMultiTenantQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['multi-tenant'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetMultiTenantQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetMultiTenantQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['multi-tenant'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

@@ -1,5 +1,6 @@
-import { queryOptions, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery } from '@tanstack/react-query'
+import type { UseQueryOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/20-ref-edge-cases'
 
@@ -9,17 +10,10 @@ import { client } from '../clients/20-ref-edge-cases'
 export function useGetTest(
   args: InferRequestType<typeof client.test.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.test.$get>>>>>,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -29,9 +23,10 @@ export function useGetTest(
 
 /**
  * Generates TanStack Query cache key for GET /test
+ * Uses $url() for type-safe key generation
  */
 export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
-  return ['/test', args] as const
+  return [client.test.$url(args).pathname] as const
 }
 
 /**
@@ -42,30 +37,24 @@ export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$ge
 export const getGetTestQueryOptions = (
   args: InferRequestType<typeof client.test.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTestQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.test.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetTestQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.test.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /empty-refs
  */
 export function useGetEmptyRefs(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['empty-refs']['$get']>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -74,9 +63,10 @@ export function useGetEmptyRefs(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /empty-refs
+ * Uses $url() for type-safe key generation
  */
 export function getGetEmptyRefsQueryKey() {
-  return ['/empty-refs'] as const
+  return [client['empty-refs'].$url().pathname] as const
 }
 
 /**
@@ -84,33 +74,27 @@ export function getGetEmptyRefsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetEmptyRefsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetEmptyRefsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['empty-refs'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetEmptyRefsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetEmptyRefsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['empty-refs'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /unicode-refs
  */
 export function useGetUnicodeRefs(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['unicode-refs']['$get']>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -119,9 +103,10 @@ export function useGetUnicodeRefs(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /unicode-refs
+ * Uses $url() for type-safe key generation
  */
 export function getGetUnicodeRefsQueryKey() {
-  return ['/unicode-refs'] as const
+  return [client['unicode-refs'].$url().pathname] as const
 }
 
 /**
@@ -129,33 +114,29 @@ export function getGetUnicodeRefsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetUnicodeRefsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetUnicodeRefsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['unicode-refs'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetUnicodeRefsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetUnicodeRefsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['unicode-refs'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /special-chars
  */
 export function useGetSpecialChars(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['special-chars']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -164,9 +145,10 @@ export function useGetSpecialChars(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /special-chars
+ * Uses $url() for type-safe key generation
  */
 export function getGetSpecialCharsQueryKey() {
-  return ['/special-chars'] as const
+  return [client['special-chars'].$url().pathname] as const
 }
 
 /**
@@ -174,33 +156,29 @@ export function getGetSpecialCharsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSpecialCharsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSpecialCharsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['special-chars'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSpecialCharsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSpecialCharsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['special-chars'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /numeric-start
  */
 export function useGetNumericStart(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['numeric-start']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -209,9 +187,10 @@ export function useGetNumericStart(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /numeric-start
+ * Uses $url() for type-safe key generation
  */
 export function getGetNumericStartQueryKey() {
-  return ['/numeric-start'] as const
+  return [client['numeric-start'].$url().pathname] as const
 }
 
 /**
@@ -219,33 +198,27 @@ export function getGetNumericStartQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetNumericStartQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetNumericStartQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['numeric-start'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetNumericStartQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetNumericStartQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['numeric-start'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /ref-in-allof
  */
 export function useGetRefInAllof(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['ref-in-allof']['$get']>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -254,9 +227,10 @@ export function useGetRefInAllof(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /ref-in-allof
+ * Uses $url() for type-safe key generation
  */
 export function getGetRefInAllofQueryKey() {
-  return ['/ref-in-allof'] as const
+  return [client['ref-in-allof'].$url().pathname] as const
 }
 
 /**
@@ -264,33 +238,29 @@ export function getGetRefInAllofQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetRefInAllofQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetRefInAllofQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['ref-in-allof'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetRefInAllofQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetRefInAllofQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['ref-in-allof'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /deeply-nested
  */
 export function useGetDeeplyNested(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['deeply-nested']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -299,9 +269,10 @@ export function useGetDeeplyNested(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /deeply-nested
+ * Uses $url() for type-safe key generation
  */
 export function getGetDeeplyNestedQueryKey() {
-  return ['/deeply-nested'] as const
+  return [client['deeply-nested'].$url().pathname] as const
 }
 
 /**
@@ -309,33 +280,29 @@ export function getGetDeeplyNestedQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetDeeplyNestedQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetDeeplyNestedQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['deeply-nested'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetDeeplyNestedQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetDeeplyNestedQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['deeply-nested'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /same-name-diff-context
  */
 export function useGetSameNameDiffContext(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['same-name-diff-context']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -344,9 +311,10 @@ export function useGetSameNameDiffContext(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /same-name-diff-context
+ * Uses $url() for type-safe key generation
  */
 export function getGetSameNameDiffContextQueryKey() {
-  return ['/same-name-diff-context'] as const
+  return [client['same-name-diff-context'].$url().pathname] as const
 }
 
 /**
@@ -354,14 +322,13 @@ export function getGetSameNameDiffContextQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetSameNameDiffContextQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetSameNameDiffContextQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['same-name-diff-context'].$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetSameNameDiffContextQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetSameNameDiffContextQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['same-name-diff-context'].$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

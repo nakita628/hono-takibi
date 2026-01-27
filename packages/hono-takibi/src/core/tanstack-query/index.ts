@@ -78,7 +78,8 @@ export async function tanstackQuery(
     hookPrefix: 'use',
     queryFn: 'useQuery',
     mutationFn: 'useMutation',
-    queryOptionsHelper: 'queryOptions',
+    useQueryOptionsType: 'UseQueryOptions',
+    useMutationOptionsType: 'UseMutationOptions',
   }
   return makeQueryHooks(openAPI, output, importPath, config, split, clientName)
 }

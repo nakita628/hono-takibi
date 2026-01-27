@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/34-practical-storage-api'
 
@@ -11,17 +12,15 @@ import { client } from '../clients/34-practical-storage-api'
 export function useGetFiles(
   args: InferRequestType<typeof client.files.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.$get>>>>>,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -31,9 +30,10 @@ export function useGetFiles(
 
 /**
  * Generates Vue Query cache key for GET /files
+ * Uses $url() for type-safe key generation
  */
 export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
-  return ['/files', args] as const
+  return [client.files.$url(args).pathname] as const
 }
 
 /**
@@ -44,14 +44,13 @@ export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$
 export const getGetFilesQueryOptions = (
   args: InferRequestType<typeof client.files.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFilesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetFilesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.files.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /files/upload
@@ -59,27 +58,18 @@ export const getGetFilesQueryOptions = (
  * ファイルアップロード
  */
 export function usePostFilesUpload(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.files.upload.$post>
       >,
-      variables: InferRequestType<typeof client.files.upload.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.files.upload.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.files.upload.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.files.upload.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -98,38 +88,22 @@ export function usePostFilesUpload(options?: {
  * 大容量ファイルの分割アップロードを開始します
  */
 export function usePostFilesUploadMultipartInit(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<typeof client.files.upload.multipart.init.$post>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<typeof client.files.upload.multipart.init.$post>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<typeof client.files.upload.multipart.init.$post>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -146,52 +120,24 @@ export function usePostFilesUploadMultipartInit(options?: {
  * パートアップロード
  */
 export function usePostFilesUploadMultipartUploadIdPart(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
-            >
-          >
-        >
-      >,
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
-                >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
               >
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
+        >,
+        Error,
+        InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>
       >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['part']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -209,54 +155,24 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
  * マルチパートアップロード完了
  */
 export function usePostFilesUploadMultipartUploadIdComplete(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
-            >
-          >
-        >
-      >,
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
-                  >
-                >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
               >
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+        >,
+        Error,
+        InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['complete']['$post']>
       >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -279,17 +195,19 @@ export function usePostFilesUploadMultipartUploadIdComplete(options?: {
 export function useGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$get']>>>
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -299,11 +217,12 @@ export function useGetFilesFileId(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return ['/files/:fileId', args] as const
+  return [client.files[':fileId'].$url(args).pathname] as const
 }
 
 /**
@@ -314,17 +233,16 @@ export function getGetFilesFileIdQueryKey(
 export const getGetFilesFileIdQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFilesFileIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetFilesFileIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.files[':fileId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /files/{fileId}
@@ -332,36 +250,21 @@ export const getGetFilesFileIdQueryOptions = (
  * ファイル削除（ゴミ箱へ移動）
  */
 export function useDeleteFilesFileId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
             >
           >
         | undefined,
-      variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$delete']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.files)[':fileId']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        InferRequestType<(typeof client.files)[':fileId']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -378,34 +281,20 @@ export function useDeleteFilesFileId(options?: {
  * ファイル情報更新
  */
 export function usePatchFilesFileId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
-            >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<Awaited<ReturnType<(typeof client.files)[':fileId']['$patch']>>>
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.files)[':fileId']['$patch']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.files)[':fileId']['$patch']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -424,17 +313,21 @@ export function usePatchFilesFileId(options?: {
 export function useGetFilesFileIdDownload(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['download']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -447,11 +340,12 @@ export function useGetFilesFileIdDownload(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/download
+ * Uses $url() for type-safe key generation
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return ['/files/:fileId/download', args] as const
+  return [client.files[':fileId'].download.$url(args).pathname] as const
 }
 
 /**
@@ -462,17 +356,16 @@ export function getGetFilesFileIdDownloadQueryKey(
 export const getGetFilesFileIdDownloadQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFilesFileIdDownloadQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].download.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetFilesFileIdDownloadQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.files[':fileId'].download.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /files/{fileId}/download-url
@@ -482,17 +375,21 @@ export const getGetFilesFileIdDownloadQueryOptions = (
 export function useGetFilesFileIdDownloadUrl(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['download-url']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -505,11 +402,12 @@ export function useGetFilesFileIdDownloadUrl(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/download-url
+ * Uses $url() for type-safe key generation
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return ['/files/:fileId/download-url', args] as const
+  return [client.files[':fileId']['download-url'].$url(args).pathname] as const
 }
 
 /**
@@ -520,17 +418,16 @@ export function getGetFilesFileIdDownloadUrlQueryKey(
 export const getGetFilesFileIdDownloadUrlQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.files[':fileId']['download-url'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetFilesFileIdDownloadUrlQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.files[':fileId']['download-url'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /files/{fileId}/copy
@@ -538,40 +435,22 @@ export const getGetFilesFileIdDownloadUrlQueryOptions = (
  * ファイルコピー
  */
 export function usePostFilesFileIdCopy(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.files)[':fileId']['copy']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -588,40 +467,22 @@ export function usePostFilesFileIdCopy(options?: {
  * ファイル移動
  */
 export function usePostFilesFileIdMove(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.files)[':fileId']['move']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.files)[':fileId']['move']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -640,17 +501,21 @@ export function usePostFilesFileIdMove(options?: {
 export function useGetFilesFileIdThumbnail(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['thumbnail']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -663,11 +528,12 @@ export function useGetFilesFileIdThumbnail(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/thumbnail
+ * Uses $url() for type-safe key generation
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return ['/files/:fileId/thumbnail', args] as const
+  return [client.files[':fileId'].thumbnail.$url(args).pathname] as const
 }
 
 /**
@@ -678,17 +544,16 @@ export function getGetFilesFileIdThumbnailQueryKey(
 export const getGetFilesFileIdThumbnailQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFilesFileIdThumbnailQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].thumbnail.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetFilesFileIdThumbnailQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.files[':fileId'].thumbnail.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /folders
@@ -696,27 +561,16 @@ export const getGetFilesFileIdThumbnailQueryOptions = (
  * フォルダ作成
  */
 export function usePostFolders(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>>,
+        Error,
+        InferRequestType<typeof client.folders.$post>
       >,
-      variables: InferRequestType<typeof client.folders.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.folders.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.folders.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.folders.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.folders.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -735,17 +589,21 @@ export function usePostFolders(options?: {
 export function useGetFoldersFolderId(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.folders)[':folderId']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -755,11 +613,12 @@ export function useGetFoldersFolderId(
 
 /**
  * Generates Vue Query cache key for GET /folders/{folderId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return ['/folders/:folderId', args] as const
+  return [client.folders[':folderId'].$url(args).pathname] as const
 }
 
 /**
@@ -770,17 +629,16 @@ export function getGetFoldersFolderIdQueryKey(
 export const getGetFoldersFolderIdQueryOptions = (
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFoldersFolderIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.folders[':folderId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetFoldersFolderIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.folders[':folderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /folders/{folderId}
@@ -788,9 +646,9 @@ export const getGetFoldersFolderIdQueryOptions = (
  * フォルダ削除
  */
 export function useDeleteFoldersFolderId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<
@@ -799,31 +657,12 @@ export function useDeleteFoldersFolderId(options?: {
             >
           >
         | undefined,
-      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.folders)[':folderId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.folders)[':folderId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        InferRequestType<(typeof client.folders)[':folderId']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -840,36 +679,22 @@ export function useDeleteFoldersFolderId(options?: {
  * フォルダ情報更新
  */
 export function usePatchFoldersFolderId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.folders)[':folderId']['$patch']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.folders)[':folderId']['$patch']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -888,17 +713,21 @@ export function usePatchFoldersFolderId(options?: {
 export function useGetFilesFileIdShare(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -908,11 +737,12 @@ export function useGetFilesFileIdShare(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/share
+ * Uses $url() for type-safe key generation
  */
 export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return ['/files/:fileId/share', args] as const
+  return [client.files[':fileId'].share.$url(args).pathname] as const
 }
 
 /**
@@ -923,17 +753,16 @@ export function getGetFilesFileIdShareQueryKey(
 export const getGetFilesFileIdShareQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFilesFileIdShareQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].share.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetFilesFileIdShareQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.files[':fileId'].share.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /files/{fileId}/share
@@ -941,40 +770,22 @@ export const getGetFilesFileIdShareQueryOptions = (
  * ファイル共有
  */
 export function usePostFilesFileIdShare(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.files)[':fileId']['share']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -992,9 +803,9 @@ export function usePostFilesFileIdShare(options?: {
  * 共有解除
  */
 export function useDeleteFilesFileIdShare(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<
@@ -1003,31 +814,12 @@ export function useDeleteFilesFileIdShare(options?: {
             >
           >
         | undefined,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1045,40 +837,22 @@ export function useDeleteFilesFileIdShare(options?: {
  * 共有リンク作成
  */
 export function usePostFilesFileIdShareLink(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.files)[':fileId']['share']['link']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1098,17 +872,21 @@ export function usePostFilesFileIdShareLink(options?: {
 export function useGetFilesFileIdVersions(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<
+            ReturnType<
+              typeof parseResponse<
+                Awaited<ReturnType<(typeof client.files)[':fileId']['versions']['$get']>>
+              >
+            >
+          >,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1121,11 +899,12 @@ export function useGetFilesFileIdVersions(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}/versions
+ * Uses $url() for type-safe key generation
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return ['/files/:fileId/versions', args] as const
+  return [client.files[':fileId'].versions.$url(args).pathname] as const
 }
 
 /**
@@ -1136,17 +915,16 @@ export function getGetFilesFileIdVersionsQueryKey(
 export const getGetFilesFileIdVersionsQueryOptions = (
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetFilesFileIdVersionsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.files[':fileId'].versions.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetFilesFileIdVersionsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.files[':fileId'].versions.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /files/{fileId}/versions/{versionId}/restore
@@ -1154,56 +932,28 @@ export const getGetFilesFileIdVersionsQueryOptions = (
  * バージョン復元
  */
 export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-              >
-            >
-          >
-        >
-      >,
-      variables: InferRequestType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-                  >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<
+                ReturnType<
+                  (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
                 >
               >
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+        >,
+        Error,
+        InferRequestType<
+          (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+        >
       >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1228,17 +978,15 @@ export function usePostFilesFileIdVersionsVersionIdRestore(options?: {
 export function useGetTrash(
   args: InferRequestType<typeof client.trash.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$get>>>>>,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1248,9 +996,10 @@ export function useGetTrash(
 
 /**
  * Generates Vue Query cache key for GET /trash
+ * Uses $url() for type-safe key generation
  */
 export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
-  return ['/trash', args] as const
+  return [client.trash.$url(args).pathname] as const
 }
 
 /**
@@ -1261,14 +1010,13 @@ export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$
 export const getGetTrashQueryOptions = (
   args: InferRequestType<typeof client.trash.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetTrashQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetTrashQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.trash.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * DELETE /trash
@@ -1276,29 +1024,19 @@ export const getGetTrashQueryOptions = (
  * ゴミ箱を空にする
  */
 export function useDeleteTrash(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>
           >
         | undefined,
-      variables: undefined,
-    ) => void
-    onError?: (error: Error, variables: undefined) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trash.$delete>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: undefined,
-    ) => void
-    onMutate?: (variables: undefined) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        void
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1314,40 +1052,22 @@ export function useDeleteTrash(options?: {
  * ゴミ箱から復元
  */
 export function usePostTrashFileIdRestore(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
-          >
-        >
-      >,
-      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
-              >
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<
+            typeof parseResponse<
+              Awaited<ReturnType<(typeof client.trash)[':fileId']['restore']['$post']>>
             >
           >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >,
+        Error,
+        InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1365,17 +1085,17 @@ export function usePostTrashFileIdRestore(options?: {
  * ストレージ使用量取得
  */
 export function useGetStorageUsage(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.storage.usage.$get>>>>
+        >,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1384,9 +1104,10 @@ export function useGetStorageUsage(options?: {
 
 /**
  * Generates Vue Query cache key for GET /storage/usage
+ * Uses $url() for type-safe key generation
  */
 export function getGetStorageUsageQueryKey() {
-  return ['/storage/usage'] as const
+  return [client.storage.usage.$url().pathname] as const
 }
 
 /**
@@ -1394,14 +1115,13 @@ export function getGetStorageUsageQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetStorageUsageQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetStorageUsageQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.storage.usage.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetStorageUsageQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetStorageUsageQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.storage.usage.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

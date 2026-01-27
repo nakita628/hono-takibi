@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/25-pathological-schemas'
 
@@ -7,27 +8,13 @@ import { client } from '../clients/25-pathological-schemas'
  * POST /pathological
  */
 export function usePostPathological(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pathological.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.pathological.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.pathological.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pathological.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.pathological.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.pathological.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pathological.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.pathological.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

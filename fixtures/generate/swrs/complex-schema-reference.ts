@@ -1,7 +1,7 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
 import { client } from '../clients/complex-schema-reference'
 
 /**
@@ -28,7 +28,8 @@ export function useGetTest(options?: {
 
 /**
  * Generates SWR cache key for GET /test
+ * Uses $url() for type-safe key generation
  */
 export function getGetTestKey() {
-  return ['/test'] as const
+  return client.test.$url().pathname
 }

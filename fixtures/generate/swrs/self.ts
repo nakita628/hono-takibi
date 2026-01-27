@@ -1,7 +1,7 @@
+import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
 import { client } from '../clients/self'
 
 /**
@@ -26,7 +26,8 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR cache key for GET /categories
+ * Uses $url() for type-safe key generation
  */
 export function getGetCategoriesKey() {
-  return ['/categories'] as const
+  return client.categories.$url().pathname
 }

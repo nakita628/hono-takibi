@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
@@ -7,25 +8,11 @@ import { client } from '../clients/08-links'
  * POST /orders
  */
 export function createPostOrders(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.orders.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.orders.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.orders.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.orders.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.orders.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -42,17 +29,14 @@ export function createPostOrders(options?: {
 export function createGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -65,11 +49,12 @@ export function createGetOrdersOrderId(
 
 /**
  * Generates Svelte Query cache key for GET /orders/{orderId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['/orders/:orderId', args] as const
+  return [client.orders[':orderId'].$url(args).pathname] as const
 }
 
 /**
@@ -80,52 +65,30 @@ export function getGetOrdersOrderIdQueryKey(
 export const getGetOrdersOrderIdQueryOptions = (
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetOrdersOrderIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.orders[':orderId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetOrdersOrderIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.orders[':orderId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /orders/{orderId}
  */
 export function createDeleteOrdersOrderId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client.orders)[':orderId']['$delete']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.orders)[':orderId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -142,17 +105,16 @@ export function createDeleteOrdersOrderId(options?: {
 export function createGetOrdersOrderIdItems(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.orders)[':orderId']['items']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -165,11 +127,12 @@ export function createGetOrdersOrderIdItems(
 
 /**
  * Generates Svelte Query cache key for GET /orders/{orderId}/items
+ * Uses $url() for type-safe key generation
  */
 export function getGetOrdersOrderIdItemsQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  return ['/orders/:orderId/items', args] as const
+  return [client.orders[':orderId'].items.$url(args).pathname] as const
 }
 
 /**
@@ -180,17 +143,16 @@ export function getGetOrdersOrderIdItemsQueryKey(
 export const getGetOrdersOrderIdItemsQueryOptions = (
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetOrdersOrderIdItemsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.orders[':orderId'].items.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetOrdersOrderIdItemsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.orders[':orderId'].items.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /customers/{customerId}
@@ -198,17 +160,16 @@ export const getGetOrdersOrderIdItemsQueryOptions = (
 export function createGetCustomersCustomerId(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.customers)[':customerId']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -221,11 +182,12 @@ export function createGetCustomersCustomerId(
 
 /**
  * Generates Svelte Query cache key for GET /customers/{customerId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetCustomersCustomerIdQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['/customers/:customerId', args] as const
+  return [client.customers[':customerId'].$url(args).pathname] as const
 }
 
 /**
@@ -236,17 +198,16 @@ export function getGetCustomersCustomerIdQueryKey(
 export const getGetCustomersCustomerIdQueryOptions = (
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetCustomersCustomerIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.customers[':customerId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetCustomersCustomerIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.customers[':customerId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /customers/{customerId}/orders
@@ -254,17 +215,16 @@ export const getGetCustomersCustomerIdQueryOptions = (
 export function createGetCustomersCustomerIdOrders(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.customers)[':customerId']['orders']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -277,11 +237,12 @@ export function createGetCustomersCustomerIdOrders(
 
 /**
  * Generates Svelte Query cache key for GET /customers/{customerId}/orders
+ * Uses $url() for type-safe key generation
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['/customers/:customerId/orders', args] as const
+  return [client.customers[':customerId'].orders.$url(args).pathname] as const
 }
 
 /**
@@ -292,17 +253,16 @@ export function getGetCustomersCustomerIdOrdersQueryKey(
 export const getGetCustomersCustomerIdOrdersQueryOptions = (
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetCustomersCustomerIdOrdersQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.customers[':customerId'].orders.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetCustomersCustomerIdOrdersQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.customers[':customerId'].orders.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /payments/{paymentId}
@@ -310,17 +270,14 @@ export const getGetCustomersCustomerIdOrdersQueryOptions = (
 export function createGetPaymentsPaymentId(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.payments)[':paymentId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -333,11 +290,12 @@ export function createGetPaymentsPaymentId(
 
 /**
  * Generates Svelte Query cache key for GET /payments/{paymentId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPaymentsPaymentIdQueryKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['/payments/:paymentId', args] as const
+  return [client.payments[':paymentId'].$url(args).pathname] as const
 }
 
 /**
@@ -348,14 +306,13 @@ export function getGetPaymentsPaymentIdQueryKey(
 export const getGetPaymentsPaymentIdQueryOptions = (
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPaymentsPaymentIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.payments[':paymentId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetPaymentsPaymentIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.payments[':paymentId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

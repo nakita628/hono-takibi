@@ -1,4 +1,5 @@
-import { queryOptions, useQuery } from '@tanstack/vue-query'
+import { useQuery } from '@tanstack/vue-query'
+import type { UseQueryOptions } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/openapi-boolean'
@@ -11,17 +12,15 @@ import { client } from '../clients/openapi-boolean'
  * zod boolean
  */
 export function useGetBoolean(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: Partial<
+    Omit<
+      UseQueryOptions<
+        Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.boolean.$get>>>>>,
+        Error
+      >,
+      'queryKey' | 'queryFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -30,9 +29,10 @@ export function useGetBoolean(options?: {
 
 /**
  * Generates Vue Query cache key for GET /boolean
+ * Uses $url() for type-safe key generation
  */
 export function getGetBooleanQueryKey() {
-  return ['/boolean'] as const
+  return [client.boolean.$url().pathname] as const
 }
 
 /**
@@ -40,14 +40,13 @@ export function getGetBooleanQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetBooleanQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetBooleanQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.boolean.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetBooleanQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetBooleanQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.boolean.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

@@ -1,7 +1,7 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
+import type { Key, SWRConfiguration } from 'swr'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/fizz-buzz'
 
 /**
@@ -33,7 +33,8 @@ export function useGetFizzbuzz(
 
 /**
  * Generates SWR cache key for GET /fizzbuzz
+ * Uses $url() for type-safe key generation
  */
-export function getGetFizzbuzzKey(args?: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return ['/fizzbuzz', ...(args ? [args] : [])] as const
+export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
+  return client.fizzbuzz.$url(args).pathname
 }

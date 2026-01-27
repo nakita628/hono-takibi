@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/react-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/react-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/38-auth-apikey-management'
 
@@ -11,17 +12,12 @@ import { client } from '../clients/38-auth-apikey-management'
 export function useGetApiKeys(
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$get']>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -31,9 +27,10 @@ export function useGetApiKeys(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys
+ * Uses $url() for type-safe key generation
  */
 export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return ['/api-keys', args] as const
+  return [client['api-keys'].$url(args).pathname] as const
 }
 
 /**
@@ -44,17 +41,13 @@ export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['ap
 export const getGetApiKeysQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetApiKeysQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['api-keys'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetApiKeysQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['api-keys'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * POST /api-keys
@@ -62,32 +55,13 @@ export const getGetApiKeysQueryOptions = (
  * APIキー作成
  */
 export function usePostApiKeys(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
-      >,
-      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['api-keys']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['api-keys']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['$post']>>>>
+    >,
+    Error,
+    InferRequestType<(typeof client)['api-keys']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -106,17 +80,14 @@ export function usePostApiKeys(options?: {
 export function useGetApiKeysKeyId(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -126,11 +97,12 @@ export function useGetApiKeysKeyId(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys/{keyId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  return ['/api-keys/:keyId', args] as const
+  return [client['api-keys'][':keyId'].$url(args).pathname] as const
 }
 
 /**
@@ -141,17 +113,16 @@ export function getGetApiKeysKeyIdQueryKey(
 export const getGetApiKeysKeyIdQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetApiKeysKeyIdQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['api-keys'][':keyId'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetApiKeysKeyIdQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['api-keys'][':keyId'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /api-keys/{keyId}
@@ -159,42 +130,18 @@ export const getGetApiKeysKeyIdQueryOptions = (
  * APIキー削除
  */
 export function useDeleteApiKeysKeyId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
-              >
-            >
+  mutation?: UseMutationOptions<
+    | Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
           >
-        | undefined,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        >
+      >
+    | undefined,
+    Error,
+    InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -211,38 +158,15 @@ export function useDeleteApiKeysKeyId(options?: {
  * APIキー更新
  */
 export function usePatchApiKeysKeyId(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['$patch']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -259,40 +183,17 @@ export function usePatchApiKeysKeyId(options?: {
  * APIキー無効化
  */
 export function usePostApiKeysKeyIdRevoke(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -310,40 +211,17 @@ export function usePostApiKeysKeyIdRevoke(options?: {
  * APIキーローテーション
  */
 export function usePostApiKeysKeyIdRotate(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
-          >
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -363,17 +241,16 @@ export function usePostApiKeysKeyIdRotate(options?: {
 export function useGetApiKeysKeyIdUsage(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['api-keys'][':keyId']['usage']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -383,11 +260,12 @@ export function useGetApiKeysKeyIdUsage(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/usage
+ * Uses $url() for type-safe key generation
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  return ['/api-keys/:keyId/usage', args] as const
+  return [client['api-keys'][':keyId'].usage.$url(args).pathname] as const
 }
 
 /**
@@ -398,17 +276,16 @@ export function getGetApiKeysKeyIdUsageQueryKey(
 export const getGetApiKeysKeyIdUsageQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['api-keys'][':keyId'].usage.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetApiKeysKeyIdUsageQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['api-keys'][':keyId'].usage.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /api-keys/{keyId}/rate-limit/current
@@ -418,17 +295,18 @@ export const getGetApiKeysKeyIdUsageQueryOptions = (
 export function useGetApiKeysKeyIdRateLimitCurrent(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: UseQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -441,11 +319,12 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/rate-limit/current
+ * Uses $url() for type-safe key generation
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return ['/api-keys/:keyId/rate-limit/current', args] as const
+  return [client['api-keys'][':keyId']['rate-limit'].current.$url(args).pathname] as const
 }
 
 /**
@@ -456,17 +335,16 @@ export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
 export const getGetApiKeysKeyIdRateLimitCurrentQueryOptions = (
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetApiKeysKeyIdRateLimitCurrentQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['api-keys'][':keyId']['rate-limit'].current.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /api-keys/verify
@@ -474,36 +352,15 @@ export const getGetApiKeysKeyIdRateLimitCurrentQueryOptions = (
  * APIキー検証
  */
 export function usePostApiKeysVerify(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: UseMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['api-keys']['verify']['$post']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['api-keys']['verify']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -520,17 +377,10 @@ export function usePostApiKeysVerify(options?: {
  * 利用可能なスコープ一覧
  */
 export function useGetScopes(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.scopes.$get>>>>>,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -539,9 +389,10 @@ export function useGetScopes(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /scopes
+ * Uses $url() for type-safe key generation
  */
 export function getGetScopesQueryKey() {
-  return ['/scopes'] as const
+  return [client.scopes.$url().pathname] as const
 }
 
 /**
@@ -549,14 +400,10 @@ export function getGetScopesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGetScopesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGetScopesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.scopes.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGetScopesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGetScopesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.scopes.$get(undefined, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})

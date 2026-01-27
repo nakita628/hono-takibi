@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
@@ -21,20 +21,32 @@ export function usePostWebauthnRegisterOptions(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.webauthn.register.options.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /webauthn/register/options',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<typeof client.webauthn.register.options.$post> },
-    ) => parseResponse(client.webauthn.register.options.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostWebauthnRegisterOptionsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<typeof client.webauthn.register.options.$post> },
+      ) => parseResponse(client.webauthn.register.options.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /webauthn/register/options
+ * Uses $url() for type-safe key generation
+ */
+export function getPostWebauthnRegisterOptionsMutationKey() {
+  return `POST ${client.webauthn.register.options.$url().pathname}`
 }
 
 /**
@@ -52,20 +64,32 @@ export function usePostWebauthnRegisterVerify(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.webauthn.register.verify.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /webauthn/register/verify',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<typeof client.webauthn.register.verify.$post> },
-    ) => parseResponse(client.webauthn.register.verify.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostWebauthnRegisterVerifyMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<typeof client.webauthn.register.verify.$post> },
+      ) => parseResponse(client.webauthn.register.verify.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /webauthn/register/verify
+ * Uses $url() for type-safe key generation
+ */
+export function getPostWebauthnRegisterVerifyMutationKey() {
+  return `POST ${client.webauthn.register.verify.$url().pathname}`
 }
 
 /**
@@ -83,20 +107,32 @@ export function usePostWebauthnAuthenticateOptions(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.webauthn.authenticate.options.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /webauthn/authenticate/options',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<typeof client.webauthn.authenticate.options.$post> },
-    ) => parseResponse(client.webauthn.authenticate.options.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostWebauthnAuthenticateOptionsMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<typeof client.webauthn.authenticate.options.$post> },
+      ) => parseResponse(client.webauthn.authenticate.options.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /webauthn/authenticate/options
+ * Uses $url() for type-safe key generation
+ */
+export function getPostWebauthnAuthenticateOptionsMutationKey() {
+  return `POST ${client.webauthn.authenticate.options.$url().pathname}`
 }
 
 /**
@@ -114,20 +150,32 @@ export function usePostWebauthnAuthenticateVerify(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.webauthn.authenticate.verify.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /webauthn/authenticate/verify',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<typeof client.webauthn.authenticate.verify.$post> },
-    ) => parseResponse(client.webauthn.authenticate.verify.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostWebauthnAuthenticateVerifyMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<typeof client.webauthn.authenticate.verify.$post> },
+      ) => parseResponse(client.webauthn.authenticate.verify.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /webauthn/authenticate/verify
+ * Uses $url() for type-safe key generation
+ */
+export function getPostWebauthnAuthenticateVerifyMutationKey() {
+  return `POST ${client.webauthn.authenticate.verify.$url().pathname}`
 }
 
 /**
@@ -156,9 +204,10 @@ export function useGetWebauthnCredentials(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/credentials
+ * Uses $url() for type-safe key generation
  */
 export function getGetWebauthnCredentialsKey() {
-  return ['/webauthn/credentials'] as const
+  return client.webauthn.credentials.$url().pathname
 }
 
 /**
@@ -190,11 +239,12 @@ export function useGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates SWR cache key for GET /webauthn/credentials/{credentialId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetWebauthnCredentialsCredentialIdKey(
-  args?: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
+  args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return ['/webauthn/credentials/:credentialId', ...(args ? [args] : [])] as const
+  return client.webauthn.credentials[':credentialId'].$url(args).pathname
 }
 
 /**
@@ -215,24 +265,36 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /webauthn/credentials/:credentialId',
-    async (
-      _: string,
-      {
-        arg,
-      }: {
-        arg: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
-      },
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteWebauthnCredentialsCredentialIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>
+        },
+      ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /webauthn/credentials/{credentialId}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
+  return `DELETE ${client.webauthn.credentials[':credentialId'].$url().pathname}`
 }
 
 /**
@@ -252,22 +314,36 @@ export function usePatchWebauthnCredentialsCredentialId(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PATCH /webauthn/credentials/:credentialId',
-    async (
-      _: string,
-      {
-        arg,
-      }: { arg: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']> },
-    ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPatchWebauthnCredentialsCredentialIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        {
+          arg,
+        }: {
+          arg: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>
+        },
+      ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PATCH /webauthn/credentials/{credentialId}
+ * Uses $url() for type-safe key generation
+ */
+export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
+  return `PATCH ${client.webauthn.credentials[':credentialId'].$url().pathname}`
 }
 
 /**
@@ -296,9 +372,10 @@ export function useGetWebauthnSettings(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/settings
+ * Uses $url() for type-safe key generation
  */
 export function getGetWebauthnSettingsKey() {
-  return ['/webauthn/settings'] as const
+  return client.webauthn.settings.$url().pathname
 }
 
 /**
@@ -325,9 +402,10 @@ export function useGetWebauthnSettingsRp(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/settings/rp
+ * Uses $url() for type-safe key generation
  */
 export function getGetWebauthnSettingsRpKey() {
-  return ['/webauthn/settings/rp'] as const
+  return client.webauthn.settings.rp.$url().pathname
 }
 
 /**
@@ -341,20 +419,30 @@ export function usePutWebauthnSettingsRp(options?: {
       ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$put>>>>
     >,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.webauthn.settings.rp.$put>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /webauthn/settings/rp',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<typeof client.webauthn.settings.rp.$put> },
-    ) => parseResponse(client.webauthn.settings.rp.$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPutWebauthnSettingsRpMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.webauthn.settings.rp.$put> }) =>
+        parseResponse(client.webauthn.settings.rp.$put(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for PUT /webauthn/settings/rp
+ * Uses $url() for type-safe key generation
+ */
+export function getPutWebauthnSettingsRpMutationKey() {
+  return `PUT ${client.webauthn.settings.rp.$url().pathname}`
 }
 
 /**
@@ -383,7 +471,8 @@ export function useGetWebauthnAuthenticators(options?: {
 
 /**
  * Generates SWR cache key for GET /webauthn/authenticators
+ * Uses $url() for type-safe key generation
  */
 export function getGetWebauthnAuthenticatorsKey() {
-  return ['/webauthn/authenticators'] as const
+  return client.webauthn.authenticators.$url().pathname
 }

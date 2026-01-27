@@ -1,9 +1,9 @@
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
 import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { Key, SWRConfiguration } from 'swr'
 import useSWRMutation from 'swr/mutation'
+import type { SWRMutationConfiguration } from 'swr/mutation'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
 /**
@@ -13,18 +13,30 @@ export function usePostOrders(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.orders.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /orders',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
-      parseResponse(client.orders.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getPostOrdersMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
+        parseResponse(client.orders.$post(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for POST /orders
+ * Uses $url() for type-safe key generation
+ */
+export function getPostOrdersMutationKey() {
+  return `POST ${client.orders.$url().pathname}`
 }
 
 /**
@@ -52,11 +64,12 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetOrdersOrderIdKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return ['/orders/:orderId', ...(args ? [args] : [])] as const
+  return client.orders[':orderId'].$url(args).pathname
 }
 
 /**
@@ -70,20 +83,32 @@ export function useDeleteOrdersOrderId(options?: {
       >
     >,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.orders)[':orderId']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /orders/:orderId',
-    async (
-      _: string,
-      { arg }: { arg: InferRequestType<(typeof client.orders)[':orderId']['$delete']> },
-    ) => parseResponse(client.orders[':orderId'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const swrKey = mutationOptions?.swrKey ?? getDeleteOrdersOrderIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (
+        _: Key,
+        { arg }: { arg: InferRequestType<(typeof client.orders)[':orderId']['$delete']> },
+      ) => parseResponse(client.orders[':orderId'].$delete(arg, clientOptions)),
+      mutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /orders/{orderId}
+ * Uses $url() for type-safe key generation
+ */
+export function getDeleteOrdersOrderIdMutationKey() {
+  return `DELETE ${client.orders[':orderId'].$url().pathname}`
 }
 
 /**
@@ -111,11 +136,12 @@ export function useGetOrdersOrderIdItems(
 
 /**
  * Generates SWR cache key for GET /orders/{orderId}/items
+ * Uses $url() for type-safe key generation
  */
 export function getGetOrdersOrderIdItemsKey(
-  args?: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
+  args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  return ['/orders/:orderId/items', ...(args ? [args] : [])] as const
+  return client.orders[':orderId'].items.$url(args).pathname
 }
 
 /**
@@ -143,11 +169,12 @@ export function useGetCustomersCustomerId(
 
 /**
  * Generates SWR cache key for GET /customers/{customerId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetCustomersCustomerIdKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
+  args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  return ['/customers/:customerId', ...(args ? [args] : [])] as const
+  return client.customers[':customerId'].$url(args).pathname
 }
 
 /**
@@ -175,11 +202,12 @@ export function useGetCustomersCustomerIdOrders(
 
 /**
  * Generates SWR cache key for GET /customers/{customerId}/orders
+ * Uses $url() for type-safe key generation
  */
 export function getGetCustomersCustomerIdOrdersKey(
-  args?: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
+  args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  return ['/customers/:customerId/orders', ...(args ? [args] : [])] as const
+  return client.customers[':customerId'].orders.$url(args).pathname
 }
 
 /**
@@ -207,9 +235,10 @@ export function useGetPaymentsPaymentId(
 
 /**
  * Generates SWR cache key for GET /payments/{paymentId}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPaymentsPaymentIdKey(
-  args?: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
+  args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  return ['/payments/:paymentId', ...(args ? [args] : [])] as const
+  return client.payments[':paymentId'].$url(args).pathname
 }

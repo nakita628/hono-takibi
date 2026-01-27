@@ -1,5 +1,6 @@
-import { queryOptions, useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import type { UseQueryOptions, UseMutationOptions } from '@tanstack/vue-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
@@ -9,27 +10,18 @@ import { client } from '../clients/edge'
  * Polymorphic object with discriminator
  */
 export function usePostPolymorphic(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
+        Awaited<
+          ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
+        >,
+        Error,
+        InferRequestType<typeof client.polymorphic.$post>
       >,
-      variables: InferRequestType<typeof client.polymorphic.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.polymorphic.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.polymorphic.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.polymorphic.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.polymorphic.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -48,17 +40,15 @@ export function usePostPolymorphic(options?: {
 export function useGetSearch(
   args: InferRequestType<typeof client.search.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: Partial<
+      Omit<
+        UseQueryOptions<
+          Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.$get>>>>>,
+          Error
+        >,
+        'queryKey' | 'queryFn'
+      >
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -68,9 +58,10 @@ export function useGetSearch(
 
 /**
  * Generates Vue Query cache key for GET /search
+ * Uses $url() for type-safe key generation
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return ['/search', args] as const
+  return [client.search.$url(args).pathname] as const
 }
 
 /**
@@ -81,14 +72,13 @@ export function getGetSearchQueryKey(args: InferRequestType<typeof client.search
 export const getGetSearchQueryOptions = (
   args: InferRequestType<typeof client.search.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSearchQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetSearchQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.search.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * PUT /multi-step
@@ -96,36 +86,21 @@ export const getGetSearchQueryOptions = (
  * Multi-step object definition using allOf
  */
 export function usePutMultiStep(options?: {
-  mutation?: {
-    onSuccess?: (
-      data:
+  mutation?: Partial<
+    Omit<
+      UseMutationOptions<
         | Awaited<
             ReturnType<
               typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>
             >
           >
         | undefined,
-      variables: InferRequestType<(typeof client)['multi-step']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['multi-step']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-step']['$put']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['multi-step']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['multi-step']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+        Error,
+        InferRequestType<(typeof client)['multi-step']['$put']>
+      >,
+      'mutationFn'
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}

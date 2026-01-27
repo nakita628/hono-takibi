@@ -1,5 +1,6 @@
-import { createMutation, createQuery, queryOptions } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import { createQuery, createMutation } from '@tanstack/svelte-query'
+import type { CreateQueryOptions, CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/algolia'
 
@@ -13,17 +14,12 @@ import { client } from '../clients/algolia'
 export function createGetPath(
   args: InferRequestType<(typeof client)[':path']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$get']>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -33,9 +29,10 @@ export function createGetPath(
 
 /**
  * Generates Svelte Query cache key for GET /{path}
+ * Uses $url() for type-safe key generation
  */
 export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return ['/:path', args] as const
+  return [client[':path'].$url(args).pathname] as const
 }
 
 /**
@@ -46,14 +43,13 @@ export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path
 export const getGetPathQueryOptions = (
   args: InferRequestType<(typeof client)[':path']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetPathQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGetPathQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client[':path'].$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * PUT /{path}
@@ -63,27 +59,13 @@ export const getGetPathQueryOptions = (
  * This method lets you send requests to the Algolia REST API.
  */
 export function createPutPath(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
-      >,
-      variables: InferRequestType<(typeof client)[':path']['$put']>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<(typeof client)[':path']['$put']>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)[':path']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)[':path']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$put']>>>>
+    >,
+    Error,
+    InferRequestType<(typeof client)[':path']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -102,27 +84,13 @@ export function createPutPath(options?: {
  * This method lets you send requests to the Algolia REST API.
  */
 export function createPostPath(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
-      >,
-      variables: InferRequestType<(typeof client)[':path']['$post']>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<(typeof client)[':path']['$post']>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)[':path']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)[':path']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$post']>>>>
+    >,
+    Error,
+    InferRequestType<(typeof client)[':path']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -141,32 +109,13 @@ export function createPostPath(options?: {
  * This method lets you send requests to the Algolia REST API.
  */
 export function createDeletePath(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
-      >,
-      variables: InferRequestType<(typeof client)[':path']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)[':path']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)[':path']['$delete']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)[':path']['$delete']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$delete']>>>>
+    >,
+    Error,
+    InferRequestType<(typeof client)[':path']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -188,40 +137,17 @@ export function createDeletePath(options?: {
  * If you need more, use the [`browse` operation](https://www.algolia.com/doc/rest-api/search/browse) or increase the `paginatedLimitedTo` index setting.
  */
 export function createPost1IndexesIndexNameQuery(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -248,40 +174,17 @@ export function createPost1IndexesIndexNameQuery(options?: {
  * Use the helper `searchForHits` or `searchForFacets` to get the results in a more convenient format, if you already know the return type you want.
  */
 export function createPost1IndexesQueries(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes']['*']['queries']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -305,56 +208,23 @@ export function createPost1IndexesQueries(options?: {
  * - Searching for facet values doesn't work if you have **more than 65 searchable facets and searchable attributes combined**.
  */
 export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-              >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
             >
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -403,42 +273,17 @@ export function createPost1IndexesIndexNameFacetsFacetNameQuery(options?: {
  * If you send these parameters with your browse requests, they'll be ignored.
  */
 export function createPost1IndexesIndexNameBrowse(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -468,40 +313,17 @@ export function createPost1IndexesIndexNameBrowse(options?: {
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexName(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -527,40 +349,17 @@ export function createPost1IndexesIndexName(options?: {
  *   For more information, see [Delete replica indices](https://www.algolia.com/doc/guides/managing-results/refine-results/sorting/how-to/deleting-replicas).
  */
 export function createDelete1IndexesIndexName(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -584,17 +383,16 @@ export function createDelete1IndexesIndexName(options?: {
 export function createGet1IndexesIndexNameObjectID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -607,11 +405,12 @@ export function createGet1IndexesIndexNameObjectID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/{objectID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/:objectID', args] as const
+  return [client['1'].indexes[':indexName'][':objectID'].$url(args).pathname] as const
 }
 
 /**
@@ -622,17 +421,16 @@ export function getGet1IndexesIndexNameObjectIDQueryKey(
 export const getGet1IndexesIndexNameObjectIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].indexes[':indexName'][':objectID'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1IndexesIndexNameObjectIDQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].indexes[':indexName'][':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /1/indexes/{indexName}/{objectID}
@@ -647,50 +445,17 @@ export const getGet1IndexesIndexNameObjectIDQueryOptions = (
  * To add, update, or replace multiple records, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/batch).
  */
 export function createPut1IndexesIndexNameObjectID(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$put']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -713,52 +478,17 @@ export function createPut1IndexesIndexNameObjectID(options?: {
  * To delete records matching a query, use the [`deleteBy` operation](https://www.algolia.com/doc/rest-api/search/delete-by).
  */
 export function createDelete1IndexesIndexNameObjectID(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-            >
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -785,54 +515,19 @@ export function createDelete1IndexesIndexNameObjectID(options?: {
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexNameDeleteByQuery(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -855,40 +550,17 @@ export function createPost1IndexesIndexNameDeleteByQuery(options?: {
  * This operation is resource-intensive and subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexNameClear(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -934,56 +606,21 @@ export function createPost1IndexesIndexNameClear(options?: {
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexNameObjectIDPartial(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-              >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
             >
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1015,40 +652,17 @@ export function createPost1IndexesIndexNameObjectIDPartial(options?: {
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexNameBatch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1073,40 +687,17 @@ export function createPost1IndexesIndexNameBatch(options?: {
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesBatch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes']['*']['batch']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1128,40 +719,17 @@ export function createPost1IndexesBatch(options?: {
  * Records are returned in the same order as the requests.
  */
 export function createPost1IndexesObjects(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['indexes']['*']['objects']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1183,17 +751,16 @@ export function createPost1IndexesObjects(options?: {
 export function createGet1IndexesIndexNameSettings(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1206,11 +773,12 @@ export function createGet1IndexesIndexNameSettings(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/settings
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/settings', args] as const
+  return [client['1'].indexes[':indexName'].settings.$url(args).pathname] as const
 }
 
 /**
@@ -1221,17 +789,16 @@ export function getGet1IndexesIndexNameSettingsQueryKey(
 export const getGet1IndexesIndexNameSettingsQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].settings.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1IndexesIndexNameSettingsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].settings.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /1/indexes/{indexName}/settings
@@ -1246,50 +813,17 @@ export const getGet1IndexesIndexNameSettingsQueryOptions = (
  * For best performance, update the index settings before you add new records to your index.
  */
 export function createPut1IndexesIndexNameSettings(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['settings']['$put']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1315,17 +849,20 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
+              >
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1338,13 +875,14 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
+  return [client['1'].indexes[':indexName'].synonyms[':objectID'].$url(args).pathname] as const
 }
 
 /**
@@ -1357,17 +895,16 @@ export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1IndexesIndexNameSynonymsObjectIDQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /1/indexes/{indexName}/synonyms/{objectID}
@@ -1379,56 +916,21 @@ export const getGet1IndexesIndexNameSynonymsObjectIDQueryOptions = (
  * To add multiple synonyms in a single API request, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-synonyms).
  */
 export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-              >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
             >
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1454,56 +956,23 @@ export function createPut1IndexesIndexNameSynonymsObjectID(options?: {
  * To find the object IDs of your synonyms, use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-synonyms).
  */
 export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-              >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
             >
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+    >
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1531,56 +1000,19 @@ export function createDelete1IndexesIndexNameSynonymsObjectID(options?: {
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexNameSynonymsBatch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-              >
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1602,56 +1034,19 @@ export function createPost1IndexesIndexNameSynonymsBatch(options?: {
  * Deletes all synonyms from the index.
  */
 export function createPost1IndexesIndexNameSynonymsClear(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-              >
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1673,56 +1068,19 @@ export function createPost1IndexesIndexNameSynonymsClear(options?: {
  * Searches for synonyms in your index.
  */
 export function createPost1IndexesIndexNameSynonymsSearch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-              >
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1745,17 +1103,12 @@ export function createPost1IndexesIndexNameSynonymsSearch(options?: {
  * Lists all API keys associated with your Algolia application, including their permissions and restrictions.
  */
 export function createGet1Keys(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$get']>>>>
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -1764,9 +1117,10 @@ export function createGet1Keys(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /1/keys
+ * Uses $url() for type-safe key generation
  */
 export function getGet1KeysQueryKey() {
-  return ['/1/keys'] as const
+  return [client['1'].keys.$url().pathname] as const
 }
 
 /**
@@ -1774,17 +1128,16 @@ export function getGet1KeysQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGet1KeysQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].keys.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1KeysQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].keys.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /1/keys
@@ -1794,32 +1147,13 @@ export const getGet1KeysQueryOptions = (clientOptions?: ClientRequestOptions) =>
  * Creates a new API key with specific permissions and restrictions.
  */
 export function createPost1Keys(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
-      >,
-      variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['keys']['$post']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['1']['keys']['$post']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$post']>>>>
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['keys']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1844,17 +1178,14 @@ export function createPost1Keys(options?: {
 export function createGet1KeysKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -1867,11 +1198,12 @@ export function createGet1KeysKey(
 
 /**
  * Generates Svelte Query cache key for GET /1/keys/{key}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1KeysKeyQueryKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return ['/1/keys/:key', args] as const
+  return [client['1'].keys[':key'].$url(args).pathname] as const
 }
 
 /**
@@ -1882,17 +1214,16 @@ export function getGet1KeysKeyQueryKey(
 export const getGet1KeysKeyQueryOptions = (
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1KeysKeyQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].keys[':key'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1KeysKeyQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].keys[':key'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /1/keys/{key}
@@ -1904,36 +1235,15 @@ export const getGet1KeysKeyQueryOptions = (
  * Any unspecified attribute resets that attribute to its default value.
  */
 export function createPut1KeysKey(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>,
-    ) => void
-    onMutate?: (variables: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$put']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['keys'][':key']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -1952,38 +1262,15 @@ export function createPut1KeysKey(options?: {
  * Deletes the API key.
  */
 export function createDelete1KeysKey(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>>
-        >
-      >,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys'][':key']['$delete']>>>
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2007,40 +1294,17 @@ export function createDelete1KeysKey(options?: {
  * If you create more, the oldest API keys are deleted and can't be restored.
  */
 export function createPost1KeysKeyRestore(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['keys'][':key']['restore']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2065,17 +1329,20 @@ export function createGet1IndexesIndexNameRulesObjectID(
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<
+                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
+              >
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2088,13 +1355,14 @@ export function createGet1IndexesIndexNameRulesObjectID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return ['/1/indexes/:indexName/rules/:objectID', args] as const
+  return [client['1'].indexes[':indexName'].rules[':objectID'].$url(args).pathname] as const
 }
 
 /**
@@ -2107,17 +1375,16 @@ export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1IndexesIndexNameRulesObjectIDQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].rules[':objectID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /1/indexes/{indexName}/rules/{objectID}
@@ -2130,56 +1397,19 @@ export const getGet1IndexesIndexNameRulesObjectIDQueryOptions = (
  * To create or update more than one rule, use the [`batch` operation](https://www.algolia.com/doc/rest-api/search/save-rules).
  */
 export function createPut1IndexesIndexNameRulesObjectID(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-              >
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2204,56 +1434,21 @@ export function createPut1IndexesIndexNameRulesObjectID(options?: {
  * use the [`search` operation](https://www.algolia.com/doc/rest-api/search/search-rules).
  */
 export function createDelete1IndexesIndexNameRulesObjectID(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<
-                (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-              >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<
+              (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
             >
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2283,54 +1478,19 @@ export function createDelete1IndexesIndexNameRulesObjectID(options?: {
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexNameRulesBatch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2352,54 +1512,19 @@ export function createPost1IndexesIndexNameRulesBatch(options?: {
  * Deletes all rules from the index.
  */
 export function createPost1IndexesIndexNameRulesClear(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2421,54 +1546,19 @@ export function createPost1IndexesIndexNameRulesClear(options?: {
  * Searches for rules in your index.
  */
 export function createPost1IndexesIndexNameRulesSearch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2490,54 +1580,19 @@ export function createPost1IndexesIndexNameRulesSearch(options?: {
  * Adds or deletes multiple entries from your plurals, segmentation, or stop word dictionaries.
  */
 export function createPost1DictionariesDictionaryNameBatch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2560,54 +1615,19 @@ export function createPost1DictionariesDictionaryNameBatch(options?: {
  * Searches for standard and custom dictionary entries.
  */
 export function createPost1DictionariesDictionaryNameSearch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<
-              ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
-            >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<
+            ReturnType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
           >
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<
-                    (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-                  >
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2630,17 +1650,16 @@ export function createPost1DictionariesDictionaryNameSearch(options?: {
  * Retrieves the languages for which standard dictionary entries are turned off.
  */
 export function createGet1DictionariesSettings(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2652,9 +1671,10 @@ export function createGet1DictionariesSettings(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /1/dictionaries/* /settings
+ * Uses $url() for type-safe key generation
  */
 export function getGet1DictionariesSettingsQueryKey() {
-  return ['/1/dictionaries/*/settings'] as const
+  return [client['1'].dictionaries['*'].settings.$url().pathname] as const
 }
 
 /**
@@ -2662,17 +1682,16 @@ export function getGet1DictionariesSettingsQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGet1DictionariesSettingsQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].dictionaries['*'].settings.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesSettingsQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].dictionaries['*'].settings.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /1/dictionaries/[*]/settings
@@ -2682,40 +1701,17 @@ export const getGet1DictionariesSettingsQueryOptions = (clientOptions?: ClientRe
  * Turns standard stop word dictionary entries on or off for a given language.
  */
 export function createPut1DictionariesSettings(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2735,17 +1731,16 @@ export function createPut1DictionariesSettings(options?: {
  * Lists supported languages with their supported dictionary types and number of custom entries.
  */
 export function createGet1DictionariesLanguages(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2757,9 +1752,10 @@ export function createGet1DictionariesLanguages(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /1/dictionaries/* /languages
+ * Uses $url() for type-safe key generation
  */
 export function getGet1DictionariesLanguagesQueryKey() {
-  return ['/1/dictionaries/*/languages'] as const
+  return [client['1'].dictionaries['*'].languages.$url().pathname] as const
 }
 
 /**
@@ -2767,17 +1763,16 @@ export function getGet1DictionariesLanguagesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGet1DictionariesLanguagesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].dictionaries['*'].languages.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1DictionariesLanguagesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].dictionaries['*'].languages.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/clusters/mapping
@@ -2792,17 +1787,16 @@ export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientR
 export function createGet1ClustersMapping(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -2815,11 +1809,12 @@ export function createGet1ClustersMapping(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return ['/1/clusters/mapping', args] as const
+  return [client['1'].clusters.mapping.$url(args).pathname] as const
 }
 
 /**
@@ -2830,17 +1825,16 @@ export function getGet1ClustersMappingQueryKey(
 export const getGet1ClustersMappingQueryOptions = (
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1ClustersMappingQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].clusters.mapping.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1ClustersMappingQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].clusters.mapping.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /1/clusters/mapping
@@ -2852,40 +1846,17 @@ export const getGet1ClustersMappingQueryOptions = (
  * The time it takes to move a user is proportional to the amount of data linked to the user ID.
  */
 export function createPost1ClustersMapping(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2907,40 +1878,17 @@ export function createPost1ClustersMapping(options?: {
  * **You can't move users with this operation**.
  */
 export function createPost1ClustersMappingBatch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -2963,17 +1911,16 @@ export function createPost1ClustersMappingBatch(options?: {
  * the response isn't real-time.
  */
 export function createGet1ClustersMappingTop(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['top']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -2985,9 +1932,10 @@ export function createGet1ClustersMappingTop(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/top
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingTopQueryKey() {
-  return ['/1/clusters/mapping/top'] as const
+  return [client['1'].clusters.mapping.top.$url().pathname] as const
 }
 
 /**
@@ -2995,17 +1943,16 @@ export function getGet1ClustersMappingTopQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGet1ClustersMappingTopQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].clusters.mapping.top.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersMappingTopQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].clusters.mapping.top.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/clusters/mapping/{userID}
@@ -3020,17 +1967,16 @@ export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequ
 export function createGet1ClustersMappingUserID(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3043,11 +1989,12 @@ export function createGet1ClustersMappingUserID(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/{userID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingUserIDQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return ['/1/clusters/mapping/:userID', args] as const
+  return [client['1'].clusters.mapping[':userID'].$url(args).pathname] as const
 }
 
 /**
@@ -3058,17 +2005,16 @@ export function getGet1ClustersMappingUserIDQueryKey(
 export const getGet1ClustersMappingUserIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1ClustersMappingUserIDQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].clusters.mapping[':userID'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1ClustersMappingUserIDQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].clusters.mapping[':userID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * DELETE /1/clusters/mapping/{userID}
@@ -3078,50 +2024,17 @@ export const getGet1ClustersMappingUserIDQueryOptions = (
  * Deletes a user ID and its associated data from the clusters.
  */
 export function createDelete1ClustersMappingUserID(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['clusters']['mapping'][':userID']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3141,17 +2054,14 @@ export function createDelete1ClustersMappingUserID(options?: {
  * Lists the available clusters in a multi-cluster setup.
  */
 export function createGet1Clusters(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['clusters']['$get']>>>
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -3160,9 +2070,10 @@ export function createGet1Clusters(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersQueryKey() {
-  return ['/1/clusters'] as const
+  return [client['1'].clusters.$url().pathname] as const
 }
 
 /**
@@ -3170,17 +2081,16 @@ export function getGet1ClustersQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGet1ClustersQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].clusters.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1ClustersQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].clusters.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /1/clusters/mapping/search
@@ -3193,40 +2103,17 @@ export const getGet1ClustersQueryOptions = (clientOptions?: ClientRequestOptions
  * To ensure rapid updates, the user IDs index isn't built at the same time as the mapping. Instead, it's built every 12 hours, at the same time as the update of user ID usage. For example, if you add or move a user ID, the search will show an old value until the next time the mapping is rebuilt (every 12 hours).
  */
 export function createPost1ClustersMappingSearch(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['search']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3248,17 +2135,16 @@ export function createPost1ClustersMappingSearch(options?: {
 export function createGet1ClustersMappingPending(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3271,11 +2157,12 @@ export function createGet1ClustersMappingPending(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/pending
+ * Uses $url() for type-safe key generation
  */
 export function getGet1ClustersMappingPendingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return ['/1/clusters/mapping/pending', args] as const
+  return [client['1'].clusters.mapping.pending.$url(args).pathname] as const
 }
 
 /**
@@ -3286,17 +2173,16 @@ export function getGet1ClustersMappingPendingQueryKey(
 export const getGet1ClustersMappingPendingQueryOptions = (
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1ClustersMappingPendingQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].clusters.mapping.pending.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1ClustersMappingPendingQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].clusters.mapping.pending.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/security/sources
@@ -3306,17 +2192,16 @@ export const getGet1ClustersMappingPendingQueryOptions = (
  * Retrieves all allowed IP addresses with access to your application.
  */
 export function createGet1SecuritySources(options?: {
-  query?: {
-    enabled?: boolean
-    staleTime?: number
-    gcTime?: number
-    refetchInterval?: number | false
-    refetchOnWindowFocus?: boolean
-    refetchOnMount?: boolean
-    refetchOnReconnect?: boolean
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  query?: CreateQueryOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['$get']>>
+        >
+      >
+    >,
+    Error
+  >
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
@@ -3328,9 +2213,10 @@ export function createGet1SecuritySources(options?: {
 
 /**
  * Generates Svelte Query cache key for GET /1/security/sources
+ * Uses $url() for type-safe key generation
  */
 export function getGet1SecuritySourcesQueryKey() {
-  return ['/1/security/sources'] as const
+  return [client['1'].security.sources.$url().pathname] as const
 }
 
 /**
@@ -3338,17 +2224,16 @@ export function getGet1SecuritySourcesQueryKey() {
  *
  * Use with prefetchQuery, ensureQueryData, or directly with useQuery.
  */
-export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) =>
-  queryOptions({
-    queryKey: getGet1SecuritySourcesQueryKey(),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].security.sources.$get(undefined, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequestOptions) => ({
+  queryKey: getGet1SecuritySourcesQueryKey(),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].security.sources.$get(undefined, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * PUT /1/security/sources
@@ -3358,40 +2243,17 @@ export const getGet1SecuritySourcesQueryOptions = (clientOptions?: ClientRequest
  * Replaces the list of allowed sources.
  */
 export function createPut1SecuritySources(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['security']['sources']['$put']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['$put']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['security']['sources']['$put']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3411,40 +2273,17 @@ export function createPut1SecuritySources(options?: {
  * Adds a source to the list of allowed sources.
  */
 export function createPost1SecuritySourcesAppend(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client)['1']['security']['sources']['append']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3464,50 +2303,17 @@ export function createPost1SecuritySourcesAppend(options?: {
  * Deletes a source from the list of allowed sources.
  */
 export function createDelete1SecuritySourcesSource(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['security']['sources'][':source']['$delete']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['security']['sources'][':source']['$delete']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client)['1']['security']['sources'][':source']['$delete']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['security']['sources'][':source']['$delete']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['security']['sources'][':source']['$delete']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3533,17 +2339,12 @@ export function createDelete1SecuritySourcesSource(options?: {
 export function createGet1Logs(
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['logs']['$get']>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3553,9 +2354,10 @@ export function createGet1Logs(
 
 /**
  * Generates Svelte Query cache key for GET /1/logs
+ * Uses $url() for type-safe key generation
  */
 export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return ['/1/logs', args] as const
+  return [client['1'].logs.$url(args).pathname] as const
 }
 
 /**
@@ -3566,14 +2368,13 @@ export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1'][
 export const getGet1LogsQueryOptions = (
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1LogsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
-      ),
-  })
+) => ({
+  queryKey: getGet1LogsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].logs.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /1/task/{taskID}
@@ -3585,17 +2386,14 @@ export const getGet1LogsQueryOptions = (
 export function createGet1TaskTaskID(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['task'][':taskID']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3608,11 +2406,12 @@ export function createGet1TaskTaskID(
 
 /**
  * Generates Svelte Query cache key for GET /1/task/{taskID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1TaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/task/:taskID', args] as const
+  return [client['1'].task[':taskID'].$url(args).pathname] as const
 }
 
 /**
@@ -3623,17 +2422,16 @@ export function getGet1TaskTaskIDQueryKey(
 export const getGet1TaskTaskIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1TaskTaskIDQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].task[':taskID'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1TaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].task[':taskID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /1/indexes/{indexName}/task/{taskID}
@@ -3651,17 +2449,18 @@ export const getGet1TaskTaskIDQueryOptions = (
 export function createGet1IndexesIndexNameTaskTaskID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<
+              ReturnType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>
+            >
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3674,11 +2473,12 @@ export function createGet1IndexesIndexNameTaskTaskID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/task/{taskID}
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return ['/1/indexes/:indexName/task/:taskID', args] as const
+  return [client['1'].indexes[':indexName'].task[':taskID'].$url(args).pathname] as const
 }
 
 /**
@@ -3689,17 +2489,16 @@ export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
 export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1IndexesIndexNameTaskTaskIDQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].task[':taskID'].$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /1/indexes/{indexName}/operation
@@ -3732,50 +2531,17 @@ export const getGet1IndexesIndexNameTaskTaskIDQueryOptions = (
  * This operation is subject to [indexing rate limits](https://support.algolia.com/hc/articles/4406975251089-Is-there-a-rate-limit-for-indexing-on-Algolia).
  */
 export function createPost1IndexesIndexNameOperation(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>>
         >
-      >,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
-      >,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
-      >,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<
-                  ReturnType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
-                >
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
-      >,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<
-        (typeof client)['1']['indexes'][':indexName']['operation']['$post']
-      >,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -3799,17 +2565,14 @@ export function createPost1IndexesIndexNameOperation(options?: {
 export function createGet1Indexes(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['indexes']['$get']>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3822,11 +2585,12 @@ export function createGet1Indexes(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes
+ * Uses $url() for type-safe key generation
  */
 export function getGet1IndexesQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  return ['/1/indexes', args] as const
+  return [client['1'].indexes.$url(args).pathname] as const
 }
 
 /**
@@ -3837,17 +2601,16 @@ export function getGet1IndexesQueryKey(
 export const getGet1IndexesQueryOptions = (
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGet1IndexesQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client['1'].indexes.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGet1IndexesQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client['1'].indexes.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /waitForApiKey
@@ -3859,17 +2622,12 @@ export const getGet1IndexesQueryOptions = (
 export function createGetWaitForApiKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForApiKey.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3882,11 +2640,12 @@ export function createGetWaitForApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /waitForApiKey
+ * Uses $url() for type-safe key generation
  */
 export function getGetWaitForApiKeyQueryKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return ['/waitForApiKey', args] as const
+  return [client.waitForApiKey.$url(args).pathname] as const
 }
 
 /**
@@ -3897,17 +2656,16 @@ export function getGetWaitForApiKeyQueryKey(
 export const getGetWaitForApiKeyQueryOptions = (
   args: InferRequestType<typeof client.waitForApiKey.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetWaitForApiKeyQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.waitForApiKey.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetWaitForApiKeyQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.waitForApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /waitForTask
@@ -3921,17 +2679,12 @@ export const getGetWaitForApiKeyQueryOptions = (
 export function createGetWaitForTask(
   args: InferRequestType<typeof client.waitForTask.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForTask.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -3944,9 +2697,10 @@ export function createGetWaitForTask(
 
 /**
  * Generates Svelte Query cache key for GET /waitForTask
+ * Uses $url() for type-safe key generation
  */
 export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return ['/waitForTask', args] as const
+  return [client.waitForTask.$url(args).pathname] as const
 }
 
 /**
@@ -3957,17 +2711,13 @@ export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.w
 export const getGetWaitForTaskQueryOptions = (
   args: InferRequestType<typeof client.waitForTask.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetWaitForTaskQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.waitForTask.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetWaitForTaskQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.waitForTask.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /waitForAppTask
@@ -3979,17 +2729,12 @@ export const getGetWaitForTaskQueryOptions = (
 export function createGetWaitForAppTask(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForAppTask.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4002,11 +2747,12 @@ export function createGetWaitForAppTask(
 
 /**
  * Generates Svelte Query cache key for GET /waitForAppTask
+ * Uses $url() for type-safe key generation
  */
 export function getGetWaitForAppTaskQueryKey(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  return ['/waitForAppTask', args] as const
+  return [client.waitForAppTask.$url(args).pathname] as const
 }
 
 /**
@@ -4017,17 +2763,16 @@ export function getGetWaitForAppTaskQueryKey(
 export const getGetWaitForAppTaskQueryOptions = (
   args: InferRequestType<typeof client.waitForAppTask.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetWaitForAppTaskQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.waitForAppTask.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetWaitForAppTaskQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.waitForAppTask.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /browseObjects
@@ -4043,17 +2788,12 @@ export const getGetWaitForAppTaskQueryOptions = (
 export function createGetBrowseObjects(
   args: InferRequestType<typeof client.browseObjects.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.browseObjects.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4066,11 +2806,12 @@ export function createGetBrowseObjects(
 
 /**
  * Generates Svelte Query cache key for GET /browseObjects
+ * Uses $url() for type-safe key generation
  */
 export function getGetBrowseObjectsQueryKey(
   args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return ['/browseObjects', args] as const
+  return [client.browseObjects.$url(args).pathname] as const
 }
 
 /**
@@ -4081,17 +2822,16 @@ export function getGetBrowseObjectsQueryKey(
 export const getGetBrowseObjectsQueryOptions = (
   args: InferRequestType<typeof client.browseObjects.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetBrowseObjectsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.browseObjects.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetBrowseObjectsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.browseObjects.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /generateSecuredApiKey
@@ -4115,17 +2855,14 @@ export const getGetBrowseObjectsQueryOptions = (
 export function createGetGenerateSecuredApiKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.generateSecuredApiKey.$get>>>
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4138,11 +2875,12 @@ export function createGetGenerateSecuredApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /generateSecuredApiKey
+ * Uses $url() for type-safe key generation
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return ['/generateSecuredApiKey', args] as const
+  return [client.generateSecuredApiKey.$url(args).pathname] as const
 }
 
 /**
@@ -4153,17 +2891,16 @@ export function getGetGenerateSecuredApiKeyQueryKey(
 export const getGetGenerateSecuredApiKeyQueryOptions = (
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.generateSecuredApiKey.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetGenerateSecuredApiKeyQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.generateSecuredApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /accountCopyIndex
@@ -4175,17 +2912,12 @@ export const getGetGenerateSecuredApiKeyQueryOptions = (
 export function createGetAccountCopyIndex(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.accountCopyIndex.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4198,11 +2930,12 @@ export function createGetAccountCopyIndex(
 
 /**
  * Generates Svelte Query cache key for GET /accountCopyIndex
+ * Uses $url() for type-safe key generation
  */
 export function getGetAccountCopyIndexQueryKey(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return ['/accountCopyIndex', args] as const
+  return [client.accountCopyIndex.$url(args).pathname] as const
 }
 
 /**
@@ -4213,17 +2946,16 @@ export function getGetAccountCopyIndexQueryKey(
 export const getGetAccountCopyIndexQueryOptions = (
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetAccountCopyIndexQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.accountCopyIndex.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetAccountCopyIndexQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.accountCopyIndex.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /replaceAllObjects
@@ -4250,17 +2982,12 @@ export const getGetAccountCopyIndexQueryOptions = (
 export function createGetReplaceAllObjects(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.replaceAllObjects.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4273,11 +3000,12 @@ export function createGetReplaceAllObjects(
 
 /**
  * Generates Svelte Query cache key for GET /replaceAllObjects
+ * Uses $url() for type-safe key generation
  */
 export function getGetReplaceAllObjectsQueryKey(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return ['/replaceAllObjects', args] as const
+  return [client.replaceAllObjects.$url(args).pathname] as const
 }
 
 /**
@@ -4288,17 +3016,16 @@ export function getGetReplaceAllObjectsQueryKey(
 export const getGetReplaceAllObjectsQueryOptions = (
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetReplaceAllObjectsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.replaceAllObjects.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetReplaceAllObjectsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.replaceAllObjects.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /replaceAllObjectsWithTransformation
@@ -4322,17 +3049,16 @@ export const getGetReplaceAllObjectsQueryOptions = (
 export function createGetReplaceAllObjectsWithTransformation(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.replaceAllObjectsWithTransformation.$get>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4345,11 +3071,12 @@ export function createGetReplaceAllObjectsWithTransformation(
 
 /**
  * Generates Svelte Query cache key for GET /replaceAllObjectsWithTransformation
+ * Uses $url() for type-safe key generation
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return ['/replaceAllObjectsWithTransformation', args] as const
+  return [client.replaceAllObjectsWithTransformation.$url(args).pathname] as const
 }
 
 /**
@@ -4360,17 +3087,16 @@ export function getGetReplaceAllObjectsWithTransformationQueryKey(
 export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.replaceAllObjectsWithTransformation.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetReplaceAllObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.replaceAllObjectsWithTransformation.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /chunkedBatch
@@ -4382,17 +3108,12 @@ export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
 export function createGetChunkedBatch(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.chunkedBatch.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4405,11 +3126,12 @@ export function createGetChunkedBatch(
 
 /**
  * Generates Svelte Query cache key for GET /chunkedBatch
+ * Uses $url() for type-safe key generation
  */
 export function getGetChunkedBatchQueryKey(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return ['/chunkedBatch', args] as const
+  return [client.chunkedBatch.$url(args).pathname] as const
 }
 
 /**
@@ -4420,17 +3142,16 @@ export function getGetChunkedBatchQueryKey(
 export const getGetChunkedBatchQueryOptions = (
   args: InferRequestType<typeof client.chunkedBatch.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetChunkedBatchQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.chunkedBatch.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetChunkedBatchQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.chunkedBatch.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * GET /saveObjects
@@ -4442,17 +3163,12 @@ export const getGetChunkedBatchQueryOptions = (
 export function createGetSaveObjects(
   args: InferRequestType<typeof client.saveObjects.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saveObjects.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4465,9 +3181,10 @@ export function createGetSaveObjects(
 
 /**
  * Generates Svelte Query cache key for GET /saveObjects
+ * Uses $url() for type-safe key generation
  */
 export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return ['/saveObjects', args] as const
+  return [client.saveObjects.$url(args).pathname] as const
 }
 
 /**
@@ -4478,17 +3195,13 @@ export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.s
 export const getGetSaveObjectsQueryOptions = (
   args: InferRequestType<typeof client.saveObjects.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSaveObjectsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.saveObjects.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSaveObjectsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.saveObjects.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /saveObjectsWithTransformation
@@ -4500,17 +3213,16 @@ export const getGetSaveObjectsQueryOptions = (
 export function createGetSaveObjectsWithTransformation(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<typeof client.saveObjectsWithTransformation.$get>>
+          >
+        >
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4523,11 +3235,12 @@ export function createGetSaveObjectsWithTransformation(
 
 /**
  * Generates Svelte Query cache key for GET /saveObjectsWithTransformation
+ * Uses $url() for type-safe key generation
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return ['/saveObjectsWithTransformation', args] as const
+  return [client.saveObjectsWithTransformation.$url(args).pathname] as const
 }
 
 /**
@@ -4538,17 +3251,16 @@ export function getGetSaveObjectsWithTransformationQueryKey(
 export const getGetSaveObjectsWithTransformationQueryOptions = (
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.saveObjectsWithTransformation.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSaveObjectsWithTransformationQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.saveObjectsWithTransformation.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})
 
 /**
  * POST /deleteObjects
@@ -4558,27 +3270,13 @@ export const getGetSaveObjectsWithTransformationQueryOptions = (
  * Helper: Deletes every records for the given objectIDs. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objectIDs in it.
  */
 export function createPostDeleteObjects(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.deleteObjects.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.deleteObjects.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.deleteObjects.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.deleteObjects.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.deleteObjects.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.deleteObjects.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -4597,34 +3295,15 @@ export function createPostDeleteObjects(options?: {
  * Helper: Replaces object content of all the given objects according to their respective `objectID` field. The `chunkedBatch` helper is used under the hood, which creates a `batch` requests with at most 1000 objects in it.
  */
 export function createPostPartialUpdateObjects(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
-        >
-      >,
-      variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.partialUpdateObjects.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.partialUpdateObjects.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<Awaited<ReturnType<typeof client.partialUpdateObjects.$post>>>
+      >
+    >,
+    Error,
+    InferRequestType<typeof client.partialUpdateObjects.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -4643,40 +3322,17 @@ export function createPostPartialUpdateObjects(options?: {
  * Helper: Similar to the `partialUpdateObjects` method but requires a Push connector (https://www.algolia.com/doc/guides/sending-and-managing-data/send-and-update-your-data/connectors/push) to be created first, in order to transform records before indexing them to Algolia. The `region` must have been passed to the client instantiation method.
  */
 export function createPostPartialUpdateObjectsWithTransformation(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
         >
-      >,
-      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<typeof client.partialUpdateObjectsWithTransformation.$post>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -4698,17 +3354,12 @@ export function createPostPartialUpdateObjectsWithTransformation(options?: {
 export function createGetIndexExists(
   args: InferRequestType<typeof client.indexExists.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.indexExists.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4721,9 +3372,10 @@ export function createGetIndexExists(
 
 /**
  * Generates Svelte Query cache key for GET /indexExists
+ * Uses $url() for type-safe key generation
  */
 export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return ['/indexExists', args] as const
+  return [client.indexExists.$url(args).pathname] as const
 }
 
 /**
@@ -4734,17 +3386,13 @@ export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.i
 export const getGetIndexExistsQueryOptions = (
   args: InferRequestType<typeof client.indexExists.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetIndexExistsQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.indexExists.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetIndexExistsQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.indexExists.$get(args, { ...clientOptions, init: { ...clientOptions?.init, signal } }),
+    ),
+})
 
 /**
  * GET /setClientApiKey
@@ -4756,17 +3404,12 @@ export const getGetIndexExistsQueryOptions = (
 export function createGetSetClientApiKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
   options?: {
-    query?: {
-      enabled?: boolean
-      staleTime?: number
-      gcTime?: number
-      refetchInterval?: number | false
-      refetchOnWindowFocus?: boolean
-      refetchOnMount?: boolean
-      refetchOnReconnect?: boolean
-      retry?: boolean | number
-      retryDelay?: number
-    }
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.setClientApiKey.$get>>>>
+      >,
+      Error
+    >
     client?: ClientRequestOptions
   },
 ) {
@@ -4779,11 +3422,12 @@ export function createGetSetClientApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /setClientApiKey
+ * Uses $url() for type-safe key generation
  */
 export function getGetSetClientApiKeyQueryKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return ['/setClientApiKey', args] as const
+  return [client.setClientApiKey.$url(args).pathname] as const
 }
 
 /**
@@ -4794,14 +3438,13 @@ export function getGetSetClientApiKeyQueryKey(
 export const getGetSetClientApiKeyQueryOptions = (
   args: InferRequestType<typeof client.setClientApiKey.$get>,
   clientOptions?: ClientRequestOptions,
-) =>
-  queryOptions({
-    queryKey: getGetSetClientApiKeyQueryKey(args),
-    queryFn: ({ signal }) =>
-      parseResponse(
-        client.setClientApiKey.$get(args, {
-          ...clientOptions,
-          init: { ...clientOptions?.init, signal },
-        }),
-      ),
-  })
+) => ({
+  queryKey: getGetSetClientApiKeyQueryKey(args),
+  queryFn: ({ signal }: { signal: AbortSignal }) =>
+    parseResponse(
+      client.setClientApiKey.$get(args, {
+        ...clientOptions,
+        init: { ...clientOptions?.init, signal },
+      }),
+    ),
+})

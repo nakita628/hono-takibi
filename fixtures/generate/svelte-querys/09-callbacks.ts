@@ -1,5 +1,6 @@
 import { createMutation } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType } from 'hono/client'
+import type { CreateMutationOptions } from '@tanstack/svelte-query'
+import type { InferRequestType, ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
@@ -9,27 +10,11 @@ import { client } from '../clients/09-callbacks'
  * Register a webhook endpoint
  */
 export function createPostWebhooks(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.webhooks.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.webhooks.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.webhooks.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.webhooks.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.webhooks.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -46,27 +31,13 @@ export function createPostWebhooks(options?: {
  * Create a subscription with payment callbacks
  */
 export function createPostSubscriptions(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.subscriptions.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.subscriptions.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.subscriptions.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.subscriptions.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.subscriptions.$post>>>>
+    >,
+    Error,
+    InferRequestType<typeof client.subscriptions.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -83,25 +54,11 @@ export function createPostSubscriptions(options?: {
  * Create an async job with progress callbacks
  */
 export function createPostJobs(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>
-      >,
-      variables: InferRequestType<typeof client.jobs.$post>,
-    ) => void
-    onError?: (error: Error, variables: InferRequestType<typeof client.jobs.$post>) => void
-    onSettled?: (
-      data:
-        | Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<typeof client.jobs.$post>,
-    ) => void
-    onMutate?: (variables: InferRequestType<typeof client.jobs.$post>) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+  mutation?: CreateMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.jobs.$post>>>>>,
+    Error,
+    InferRequestType<typeof client.jobs.$post>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
@@ -118,40 +75,17 @@ export function createPostJobs(options?: {
  * Trigger data sync with callbacks
  */
 export function createPostIntegrationsIntegrationIdSync(options?: {
-  mutation?: {
-    onSuccess?: (
-      data: Awaited<
-        ReturnType<
-          typeof parseResponse<
-            Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
-          >
+  mutation?: CreateMutationOptions<
+    Awaited<
+      ReturnType<
+        typeof parseResponse<
+          Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
         >
-      >,
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    onError?: (
-      error: Error,
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    onSettled?: (
-      data:
-        | Awaited<
-            ReturnType<
-              typeof parseResponse<
-                Awaited<ReturnType<(typeof client.integrations)[':integrationId']['sync']['$post']>>
-              >
-            >
-          >
-        | undefined,
-      error: Error | null,
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    onMutate?: (
-      variables: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
-    ) => void
-    retry?: boolean | number
-    retryDelay?: number
-  }
+      >
+    >,
+    Error,
+    InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
+  >
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
