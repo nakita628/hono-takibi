@@ -12,9 +12,4 @@ export default defineConfig({
     import: '@/lib',
     client: 'client',
   },
-  rpc: {
-    output: 'src/rpc/index.ts',
-    import: '@/lib',
-    client: 'client',
-  },
 })

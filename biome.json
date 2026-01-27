@@ -19,7 +19,9 @@
       "!fixtures/generate/openapi",
       "!**/fixtures/vite/src/handlers",
       "!**/fixtures/vite/src/rpcs",
-      "!**/fixtures/type/*.ts"
+      "!**/fixtures/type/*.ts",
+      "!**/routeTree.gen.ts",
+      "!**/orval"
     ]
   },
   "formatter": {

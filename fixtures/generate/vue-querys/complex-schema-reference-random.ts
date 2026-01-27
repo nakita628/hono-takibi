@@ -2,8 +2,6 @@ import type { QueryFunctionContext, UseQueryOptions } from '@tanstack/vue-query'
 import { useQuery } from '@tanstack/vue-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import type { MaybeRef } from 'vue'
-import { unref } from 'vue'
 import { client } from '../clients/complex-schema-reference-random'
 
 /**

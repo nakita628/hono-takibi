@@ -607,6 +607,7 @@ function makeHeader(
     useMutationOptionsType: string
     isVueQuery?: boolean
   },
+  hasQueryWithArgs = false,
 ): string {
   const queryImports = [
     ...(hasQuery ? [config.queryFn] : []),
@@ -627,6 +628,10 @@ function makeHeader(
     'ClientRequestOptions',
   ]
 
+  // Vue Query needs MaybeRef type and unref from 'vue' only when query has args
+  // (used in makeQueryKeyGetterCode for args:MaybeRef<...> and unref(args))
+  const needsVueImports = config.isVueQuery && hasQueryWithArgs
+
   const lines = [
     ...(queryImports.length > 0
       ? [`import{${queryImports.join(',')}}from'${config.packageName}'`]
@@ -634,10 +639,8 @@ function makeHeader(
     ...(typeImports.length > 0
       ? [`import type{${typeImports.join(',')}}from'${config.packageName}'`]
       : []),
-    // Vue Query needs MaybeRef type and unref from 'vue' for queryKey generation
-    ...(config.isVueQuery && hasQuery
-      ? ["import{unref}from'vue'", "import type{MaybeRef}from'vue'"]
-      : []),
+    // Vue Query needs MaybeRef type and unref from 'vue' for queryKey generation (only when query has args)
+    ...(needsVueImports ? ["import{unref}from'vue'", "import type{MaybeRef}from'vue'"] : []),
     `import type{${honoTypeImportParts.join(',')}}from'hono/client'`,
     "import{parseResponse}from'hono/client'",
     `import{${clientName}}from'${importPath}'`,
@@ -724,6 +727,7 @@ export async function makeQueryHooks(
     const hasQuery = hookCodes.some(({ isQuery }) => isQuery)
     const hasMutation = hookCodes.some(({ isQuery }) => !isQuery)
     const needsInferRequestType = hookCodes.some(({ hasArgs }) => hasArgs)
+    const hasQueryWithArgs = hookCodes.some(({ isQuery, hasArgs }) => isQuery && hasArgs)
     const header = makeHeader(
       importPath,
       hasQuery,
@@ -731,6 +735,7 @@ export async function makeQueryHooks(
       needsInferRequestType,
       clientName,
       config,
+      hasQueryWithArgs,
     )
     const code = `${header}${body}${hookCodes.length ? '\n' : ''}`
     const coreResult = await core(code, path.dirname(output), output)
@@ -751,7 +756,16 @@ export async function makeQueryHooks(
 
   const allResults = await Promise.all([
     ...hookCodes.map(({ hookName, code, isQuery, hasArgs }) => {
-      const header = makeHeader(importPath, isQuery, !isQuery, hasArgs, clientName, config)
+      const hasQueryWithArgs = isQuery && hasArgs
+      const header = makeHeader(
+        importPath,
+        isQuery,
+        !isQuery,
+        hasArgs,
+        clientName,
+        config,
+        hasQueryWithArgs,
+      )
       const fileSrc = `${header}${code}\n`
       const filePath = path.join(outDir, `${hookName}.ts`)
       return core(fileSrc, path.dirname(filePath), filePath)

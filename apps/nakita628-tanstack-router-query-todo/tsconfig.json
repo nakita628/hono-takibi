@@ -13,6 +13,5 @@
       "@/*": ["./src/*"]
     },
     "types": ["vite/client", "@cloudflare/workers-types"]
-  },
-  "exclude": ["vite.config.ts"]
+  }
 }
