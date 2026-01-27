@@ -31,11 +31,10 @@ export function useGetPosts(
 
 /**
  * Generates Vue Query cache key for GET /posts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  const u = client.posts.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts', args] as const
 }
 
 /**
@@ -111,13 +110,12 @@ export function useGetPostsPostId(
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  const u = client.posts[':postId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId', args] as const
 }
 
 /**
@@ -231,13 +229,12 @@ export function useGetPostsSlugSlug(
 
 /**
  * Generates Vue Query cache key for GET /posts/slug/{slug}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsSlugSlugQueryKey(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
 ) {
-  const u = client.posts.slug[':slug'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/slug/:slug', args] as const
 }
 
 /**
@@ -361,13 +358,12 @@ export function useGetPostsPostIdComments(
 
 /**
  * Generates Vue Query cache key for GET /posts/{postId}/comments
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdCommentsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
 ) {
-  const u = client.posts[':postId'].comments.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId/comments', args] as const
 }
 
 /**
@@ -514,10 +510,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates Vue Query cache key for GET /categories
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCategoriesQueryKey() {
-  return [client.categories.$url().pathname] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -600,13 +596,12 @@ export function useGetCategoriesCategoryId(
 
 /**
  * Generates Vue Query cache key for GET /categories/{categoryId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
 ) {
-  const u = client.categories[':categoryId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/categories/:categoryId', args] as const
 }
 
 /**
@@ -721,11 +716,10 @@ export function useGetTags(
 
 /**
  * Generates Vue Query cache key for GET /tags
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTagsQueryKey(args: InferRequestType<typeof client.tags.$get>) {
-  const u = client.tags.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/tags', args] as const
 }
 
 /**
@@ -797,11 +791,10 @@ export function useGetMedia(
 
 /**
  * Generates Vue Query cache key for GET /media
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMediaQueryKey(args: InferRequestType<typeof client.media.$get>) {
-  const u = client.media.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/media', args] as const
 }
 
 /**
@@ -877,13 +870,12 @@ export function useGetMediaMediaId(
 
 /**
  * Generates Vue Query cache key for GET /media/{mediaId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  const u = client.media[':mediaId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/media/:mediaId', args] as const
 }
 
 /**
@@ -992,10 +984,10 @@ export function useGetAuthors(options?: {
 
 /**
  * Generates Vue Query cache key for GET /authors
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAuthorsQueryKey() {
-  return [client.authors.$url().pathname] as const
+  return ['/authors'] as const
 }
 
 /**
@@ -1050,13 +1042,12 @@ export function useGetAuthorsAuthorId(
 
 /**
  * Generates Vue Query cache key for GET /authors/{authorId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAuthorsAuthorIdQueryKey(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
 ) {
-  const u = client.authors[':authorId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/authors/:authorId', args] as const
 }
 
 /**

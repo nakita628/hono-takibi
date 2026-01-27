@@ -24,11 +24,10 @@ export function useGetItems(
 
 /**
  * Generates TanStack Query cache key for GET /items
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetItemsQueryKey(args: InferRequestType<typeof client.items.$get>) {
-  const u = client.items.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/items', args] as const
 }
 
 /**
@@ -71,13 +70,12 @@ export function useGetItemsItemId(
 
 /**
  * Generates TanStack Query cache key for GET /items/{itemId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  const u = client.items[':itemId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/items/:itemId', args] as const
 }
 
 /**

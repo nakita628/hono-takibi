@@ -32,13 +32,12 @@ export function createGetUsersUserId(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -93,13 +92,12 @@ export function createGetUsersByUsernameUsername(
 
 /**
  * Generates Svelte Query cache key for GET /users/by/username/{username}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersByUsernameUsernameQueryKey(
   args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
 ) {
-  const u = client.users.by.username[':username'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/by/username/:username', args] as const
 }
 
 /**
@@ -147,11 +145,10 @@ export function createGetUsersSearch(
 
 /**
  * Generates Svelte Query cache key for GET /users/search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersSearchQueryKey(args: InferRequestType<typeof client.users.search.$get>) {
-  const u = client.users.search.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/search', args] as const
 }
 
 /**
@@ -199,11 +196,10 @@ export function createGetUsersLookup(
 
 /**
  * Generates Svelte Query cache key for GET /users/lookup
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersLookupQueryKey(args: InferRequestType<typeof client.users.lookup.$get>) {
-  const u = client.users.lookup.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/lookup', args] as const
 }
 
 /**
@@ -248,10 +244,10 @@ export function createGetMe(
 
 /**
  * Generates Svelte Query cache key for GET /me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMeQueryKey() {
-  return [client.me.$url().pathname] as const
+  return ['/me'] as const
 }
 
 /**
@@ -465,13 +461,12 @@ export function createGetUsersUserIdFollowers(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}/followers
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdFollowersQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
 ) {
-  const u = client.users[':userId'].followers.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId/followers', args] as const
 }
 
 /**
@@ -526,13 +521,12 @@ export function createGetUsersUserIdFollowing(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}/following
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdFollowingQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
 ) {
-  const u = client.users[':userId'].following.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId/following', args] as const
 }
 
 /**
@@ -613,13 +607,12 @@ export function createGetRelationships(
 
 /**
  * Generates Svelte Query cache key for GET /relationships
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetRelationshipsQueryKey(
   args: InferRequestType<typeof client.relationships.$get>,
 ) {
-  const u = client.relationships.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/relationships', args] as const
 }
 
 /**
@@ -674,13 +667,12 @@ export function createGetFollowRequests(
 
 /**
  * Generates Svelte Query cache key for GET /follow-requests
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFollowRequestsQueryKey(
   args: InferRequestType<(typeof client)['follow-requests']['$get']>,
 ) {
-  const u = client['follow-requests'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/follow-requests', args] as const
 }
 
 /**
@@ -891,11 +883,10 @@ export function createGetBlocks(
 
 /**
  * Generates Svelte Query cache key for GET /blocks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBlocksQueryKey(args: InferRequestType<typeof client.blocks.$get>) {
-  const u = client.blocks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/blocks', args] as const
 }
 
 /**
@@ -938,11 +929,10 @@ export function createGetMutes(
 
 /**
  * Generates Svelte Query cache key for GET /mutes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMutesQueryKey(args: InferRequestType<typeof client.mutes.$get>) {
-  const u = client.mutes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/mutes', args] as const
 }
 
 /**
@@ -984,10 +974,10 @@ export function createGetLists(
 
 /**
  * Generates Svelte Query cache key for GET /lists
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetListsQueryKey() {
-  return [client.lists.$url().pathname] as const
+  return ['/lists'] as const
 }
 
 /**
@@ -1052,13 +1042,12 @@ export function createGetListsListId(
 
 /**
  * Generates Svelte Query cache key for GET /lists/{listId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetListsListIdQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
 ) {
-  const u = client.lists[':listId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/lists/:listId', args] as const
 }
 
 /**
@@ -1164,13 +1153,12 @@ export function createGetListsListIdMembers(
 
 /**
  * Generates Svelte Query cache key for GET /lists/{listId}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetListsListIdMembersQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
 ) {
-  const u = client.lists[':listId'].members.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/lists/:listId/members', args] as const
 }
 
 /**
@@ -1282,13 +1270,12 @@ export function createGetListsListIdTimeline(
 
 /**
  * Generates Svelte Query cache key for GET /lists/{listId}/timeline
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetListsListIdTimelineQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
 ) {
-  const u = client.lists[':listId'].timeline.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/lists/:listId/timeline', args] as const
 }
 
 /**
@@ -1343,13 +1330,12 @@ export function createGetUsersUserIdLists(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}/lists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdListsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
 ) {
-  const u = client.users[':userId'].lists.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId/lists', args] as const
 }
 
 /**

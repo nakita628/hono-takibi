@@ -47,13 +47,12 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates TanStack Query cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  const u = client.orders[':orderId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -127,13 +126,12 @@ export function useGetOrdersOrderIdItems(
 
 /**
  * Generates TanStack Query cache key for GET /orders/{orderId}/items
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOrdersOrderIdItemsQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
 ) {
-  const u = client.orders[':orderId'].items.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/orders/:orderId/items', args] as const
 }
 
 /**
@@ -184,13 +182,12 @@ export function useGetCustomersCustomerId(
 
 /**
  * Generates TanStack Query cache key for GET /customers/{customerId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetCustomersCustomerIdQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
 ) {
-  const u = client.customers[':customerId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/customers/:customerId', args] as const
 }
 
 /**
@@ -241,13 +238,12 @@ export function useGetCustomersCustomerIdOrders(
 
 /**
  * Generates TanStack Query cache key for GET /customers/{customerId}/orders
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetCustomersCustomerIdOrdersQueryKey(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
 ) {
-  const u = client.customers[':customerId'].orders.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/customers/:customerId/orders', args] as const
 }
 
 /**
@@ -296,13 +292,12 @@ export function useGetPaymentsPaymentId(
 
 /**
  * Generates TanStack Query cache key for GET /payments/{paymentId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPaymentsPaymentIdQueryKey(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
 ) {
-  const u = client.payments[':paymentId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/payments/:paymentId', args] as const
 }
 
 /**

@@ -79,34 +79,42 @@ const toMutationKeyGetterName = (method: string, pathStr: string): string => {
 }
 
 /**
- * Generates SWR key getter function code using $url() for type-safe keys.
- * @see https://hono.dev/docs/guides/rpc#url
+ * Generates SWR key getter function code using structured keys.
+ *
+ * Uses static template path as prefix (no runtime $url() call),
+ * combined with args object for structured key pattern.
+ * This enables:
+ * - Filter-based invalidation: mutate((key) => key[0] === '/pet/:petId', ...)
+ * - No query string order issues
+ * - No runtime overhead (path is string literal)
+ *
+ * @see https://swr.vercel.app/docs/arguments
  */
 const makeKeyGetterCode = (
   keyGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
   honoPath: string,
-  clientPath: string,
+  _clientPath: string,
 ): string => {
   // Add space between * and / to prevent early comment termination (* / instead of */)
   const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
   const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
-  // Use $url() for type-safe key generation
-  // Returns pathname + search (query string) to avoid cache collisions
-  // e.g., /pet/findByStatus?status=available vs ?status=sold
+  // Use structured key: [templatePath, args]
+  // - templatePath: static string literal (e.g., '/pet/:petId')
+  // - args: enables SWR's serialization for cache comparison
   if (hasArgs) {
     return `/**
  * Generates SWR cache key for GET ${safeCommentPath}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for filter-based invalidation
  */
-export function ${keyGetterName}(args:${inferRequestType}){const u=${clientPath}.$url(args);return u.pathname+u.search}`
+export function ${keyGetterName}(args:${inferRequestType}){return['${honoPath}',args]as const}`
   }
   return `/**
  * Generates SWR cache key for GET ${safeCommentPathNoParam}
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for filter-based invalidation
  */
-export function ${keyGetterName}(){return ${clientPath}.$url().pathname}`
+export function ${keyGetterName}(){return['${honoPath}']as const}`
 }
 
 /* ─────────────────────────────── Single-hook generator ─────────────────────────────── */
@@ -194,13 +202,13 @@ ${keyGetterCode}`
     // Safe comment path for JSDoc
     const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
 
-    // Key is always fixed template - $url() without args gives template pathname
+    // Key is static template - no runtime $url() call needed
     const mutationKeyGetterCode = `/**
  * Generates SWR mutation key for ${methodUpper} ${safeCommentPath}
  * Returns fixed template key (path params are NOT resolved)
  * All args should be passed via trigger's { arg } object
  */
-export function ${mutationKeyGetterName}(){return\`${methodUpper} \${${clientPath}.$url().pathname}\`}`
+export function ${mutationKeyGetterName}(){return'${methodUpper} ${honoPath}'}`
 
     if (hasArgs) {
       const clientCall = `${clientPath}.$${method}(arg,clientOptions)`

@@ -30,11 +30,10 @@ export function createGetApiKeys(
 
 /**
  * Generates Svelte Query cache key for GET /api-keys
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  const u = client['api-keys'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/api-keys', args] as const
 }
 
 /**
@@ -104,13 +103,12 @@ export function createGetApiKeysKeyId(
 
 /**
  * Generates Svelte Query cache key for GET /api-keys/{keyId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  const u = client['api-keys'][':keyId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/api-keys/:keyId', args] as const
 }
 
 /**
@@ -274,13 +272,12 @@ export function createGetApiKeysKeyIdUsage(
 
 /**
  * Generates Svelte Query cache key for GET /api-keys/{keyId}/usage
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  const u = client['api-keys'][':keyId'].usage.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/api-keys/:keyId/usage', args] as const
 }
 
 /**
@@ -337,13 +334,12 @@ export function createGetApiKeysKeyIdRateLimitCurrent(
 
 /**
  * Generates Svelte Query cache key for GET /api-keys/{keyId}/rate-limit/current
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  const u = client['api-keys'][':keyId']['rate-limit'].current.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/api-keys/:keyId/rate-limit/current', args] as const
 }
 
 /**
@@ -413,10 +409,10 @@ export function createGetScopes(
 
 /**
  * Generates Svelte Query cache key for GET /scopes
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetScopesQueryKey() {
-  return [client.scopes.$url().pathname] as const
+  return ['/scopes'] as const
 }
 
 /**

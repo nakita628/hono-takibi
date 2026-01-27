@@ -28,10 +28,10 @@ export function useGetSample(options?: {
 
 /**
  * Generates Vue Query cache key for GET /sample
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSampleQueryKey() {
-  return [client.sample.$url().pathname] as const
+  return ['/sample'] as const
 }
 
 /**

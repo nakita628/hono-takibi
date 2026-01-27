@@ -26,11 +26,10 @@ export function useGetProjects(
 
 /**
  * Generates TanStack Query cache key for GET /projects
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  const u = client.projects.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/projects', args] as const
 }
 
 /**
@@ -99,13 +98,12 @@ export function useGetProjectsProjectId(
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProjectsProjectIdQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  const u = client.projects[':projectId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/projects/:projectId', args] as const
 }
 
 /**
@@ -211,13 +209,12 @@ export function useGetProjectsProjectIdMembers(
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProjectsProjectIdMembersQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  const u = client.projects[':projectId'].members.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/projects/:projectId/members', args] as const
 }
 
 /**
@@ -298,13 +295,12 @@ export function useGetProjectsProjectIdTasks(
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}/tasks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProjectsProjectIdTasksQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  const u = client.projects[':projectId'].tasks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/projects/:projectId/tasks', args] as const
 }
 
 /**
@@ -380,13 +376,12 @@ export function useGetTasksTaskId(
 
 /**
  * Generates TanStack Query cache key for GET /tasks/{taskId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTasksTaskIdQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  const u = client.tasks[':taskId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/tasks/:taskId', args] as const
 }
 
 /**
@@ -518,13 +513,12 @@ export function useGetTasksTaskIdComments(
 
 /**
  * Generates TanStack Query cache key for GET /tasks/{taskId}/comments
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTasksTaskIdCommentsQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  const u = client.tasks[':taskId'].comments.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/tasks/:taskId/comments', args] as const
 }
 
 /**
@@ -605,13 +599,12 @@ export function useGetTasksTaskIdTimeEntries(
 
 /**
  * Generates TanStack Query cache key for GET /tasks/{taskId}/time-entries
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  const u = client.tasks[':taskId']['time-entries'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/tasks/:taskId/time-entries', args] as const
 }
 
 /**
@@ -692,13 +685,12 @@ export function useGetProjectsProjectIdMilestones(
 
 /**
  * Generates TanStack Query cache key for GET /projects/{projectId}/milestones
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  const u = client.projects[':projectId'].milestones.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/projects/:projectId/milestones', args] as const
 }
 
 /**
@@ -767,10 +759,10 @@ export function useGetTeams(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /teams
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetTeamsQueryKey() {
-  return [client.teams.$url().pathname] as const
+  return ['/teams'] as const
 }
 
 /**

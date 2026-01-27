@@ -30,11 +30,10 @@ export function createGetPosts(
 
 /**
  * Generates Svelte Query cache key for GET /posts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  const u = client.posts.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts', args] as const
 }
 
 /**
@@ -102,13 +101,12 @@ export function createGetPostsPostId(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  const u = client.posts[':postId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId', args] as const
 }
 
 /**
@@ -191,13 +189,12 @@ export function createGetPostsPostIdThread(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/thread
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdThreadQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  const u = client.posts[':postId'].thread.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId/thread', args] as const
 }
 
 /**
@@ -254,13 +251,12 @@ export function createGetPostsPostIdContext(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/context
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdContextQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  const u = client.posts[':postId'].context.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId/context', args] as const
 }
 
 /**
@@ -310,13 +306,12 @@ export function createGetTimelineHome(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/home
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTimelineHomeQueryKey(
   args: InferRequestType<typeof client.timeline.home.$get>,
 ) {
-  const u = client.timeline.home.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/timeline/home', args] as const
 }
 
 /**
@@ -371,13 +366,12 @@ export function createGetTimelineForYou(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/for-you
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTimelineForYouQueryKey(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  const u = client.timeline['for-you'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/timeline/for-you', args] as const
 }
 
 /**
@@ -432,13 +426,12 @@ export function createGetTimelineUserUserId(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/user/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTimelineUserUserIdQueryKey(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  const u = client.timeline.user[':userId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/timeline/user/:userId', args] as const
 }
 
 /**
@@ -493,13 +486,12 @@ export function createGetTimelineHashtagHashtag(
 
 /**
  * Generates Svelte Query cache key for GET /timeline/hashtag/{hashtag}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTimelineHashtagHashtagQueryKey(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  const u = client.timeline.hashtag[':hashtag'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/timeline/hashtag/:hashtag', args] as const
 }
 
 /**
@@ -738,11 +730,10 @@ export function createGetBookmarks(
 
 /**
  * Generates Svelte Query cache key for GET /bookmarks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  const u = client.bookmarks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/bookmarks', args] as const
 }
 
 /**
@@ -794,13 +785,12 @@ export function createGetPostsPostIdLikes(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/likes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdLikesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  const u = client.posts[':postId'].likes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId/likes', args] as const
 }
 
 /**
@@ -855,13 +845,12 @@ export function createGetPostsPostIdReposts(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/reposts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdRepostsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  const u = client.posts[':postId'].reposts.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId/reposts', args] as const
 }
 
 /**
@@ -916,13 +905,12 @@ export function createGetPostsPostIdQuotes(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/quotes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdQuotesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  const u = client.posts[':postId'].quotes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId/quotes', args] as const
 }
 
 /**
@@ -977,13 +965,12 @@ export function createGetPostsPostIdReplies(
 
 /**
  * Generates Svelte Query cache key for GET /posts/{postId}/replies
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsPostIdRepliesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  const u = client.posts[':postId'].replies.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts/:postId/replies', args] as const
 }
 
 /**
@@ -1084,13 +1071,12 @@ export function createGetMediaMediaId(
 
 /**
  * Generates Svelte Query cache key for GET /media/{mediaId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  const u = client.media[':mediaId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/media/:mediaId', args] as const
 }
 
 /**

@@ -25,10 +25,10 @@ export function createGetProducts(
 
 /**
  * Generates Svelte Query cache key for GET /products
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetProductsQueryKey() {
-  return [client.products.$url().pathname] as const
+  return ['/products'] as const
 }
 
 /**
@@ -95,13 +95,12 @@ export function createGetProductsProductId(
 
 /**
  * Generates Svelte Query cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  const u = client.products[':productId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/products/:productId', args] as const
 }
 
 /**

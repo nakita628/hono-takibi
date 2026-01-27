@@ -176,11 +176,10 @@ export function createGetUsers(
 
 /**
  * Generates Svelte Query cache key for GET /users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  const u = client.users.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users', args] as const
 }
 
 /**
@@ -227,13 +226,12 @@ export function createGetUsersUserId(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -329,10 +327,10 @@ export function createGetUsersMe(
 
 /**
  * Generates Svelte Query cache key for GET /users/me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetUsersMeQueryKey() {
-  return [client.users.me.$url().pathname] as const
+  return ['/users/me'] as const
 }
 
 /**

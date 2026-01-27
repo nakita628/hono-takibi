@@ -39,13 +39,12 @@ export function createGet20100401AccountsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsJsonQueryKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
 ) {
-  const u = client['2010-04-01']['Accounts.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts.json', args] as const
 }
 
 /**
@@ -132,13 +131,12 @@ export function createGet20100401AccountsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsSidJsonQueryKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
 ) {
-  const u = client['2010-04-01'].Accounts[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:Sid.json', args] as const
 }
 
 /**
@@ -225,15 +223,14 @@ export function createGet20100401AccountsAccountSidAddressesJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Addresses.json', args] as const
 }
 
 /**
@@ -329,15 +326,14 @@ export function createGet20100401AccountsAccountSidAddressesSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json', args] as const
 }
 
 /**
@@ -481,15 +477,14 @@ export function createGet20100401AccountsAccountSidApplicationsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Applications.json', args] as const
 }
 
 /**
@@ -596,15 +591,14 @@ export function createGet20100401AccountsAccountSidApplicationsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json', args] as const
 }
 
 /**
@@ -759,18 +753,17 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsConnectA
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[':ConnectAppSid.json'].$url(
-      args,
-    )
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps/:ConnectAppSid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -832,15 +825,14 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/AuthorizedConnectApps.json', args] as const
 }
 
 /**
@@ -899,15 +891,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers.json', args] as const
 }
 
 /**
@@ -969,18 +960,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode.json'].$url(
-      args,
-    )
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode.json', args] as const
 }
 
 /**
@@ -1042,18 +1029,17 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-      'Local.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Local.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1116,18 +1102,17 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-      'MachineToMachine.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/MachineToMachine.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1192,18 +1177,17 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-      'Mobile.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Mobile.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1266,18 +1250,17 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-      'National.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/National.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1340,18 +1323,17 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-      'SharedCost.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/SharedCost.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1414,18 +1396,17 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-      'TollFree.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/TollFree.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1488,18 +1469,17 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-      'Voip.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/AvailablePhoneNumbers/:CountryCode/Voip.json',
+    args,
+  ] as const
 }
 
 /**
@@ -1563,15 +1543,14 @@ export function createGet20100401AccountsAccountSidBalanceJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Balance.json', args] as const
 }
 
 /**
@@ -1634,15 +1613,14 @@ export function createGet20100401AccountsAccountSidCallsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls.json', args] as const
 }
 
 /**
@@ -1746,15 +1724,14 @@ export function createGet20100401AccountsAccountSidCallsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json', args] as const
 }
 
 /**
@@ -1903,15 +1880,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidEventsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Events.json', args] as const
 }
 
 /**
@@ -1973,18 +1949,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsSidJ
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[':Sid.json'].$url(
-      args,
-    )
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications/:Sid.json', args] as const
 }
 
 /**
@@ -2042,16 +2014,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsJson
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Notifications.json', args] as const
 }
 
 /**
@@ -2114,16 +2084,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json', args] as const
 }
 
 /**
@@ -2230,18 +2198,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$url(
-      args,
-    )
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json', args] as const
 }
 
 /**
@@ -2391,15 +2355,14 @@ export function createGet20100401AccountsAccountSidConferencesSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json', args] as const
 }
 
 /**
@@ -2502,15 +2465,14 @@ export function createGet20100401AccountsAccountSidConferencesJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Conferences.json', args] as const
 }
 
 /**
@@ -2576,18 +2538,17 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-      'Recordings.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2652,18 +2613,17 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-      ':Sid.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -2814,15 +2774,14 @@ export function createGet20100401AccountsAccountSidConnectAppsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json', args] as const
 }
 
 /**
@@ -2974,15 +2933,14 @@ export function createGet20100401AccountsAccountSidConnectAppsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps.json', args] as const
 }
 
 /**
@@ -3044,18 +3002,17 @@ export function createGet20100401AccountsAccountSidAddressesAddressSidDependentP
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
-      'DependentPhoneNumbers.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Addresses/:AddressSid/DependentPhoneNumbers.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3119,16 +3076,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json', args] as const
 }
 
 /**
@@ -3280,15 +3235,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json', args] as const
 }
 
 /**
@@ -3398,18 +3352,17 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-      ':ResourceSid'
-    ].AssignedAddOns[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3525,18 +3478,17 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-      'AssignedAddOns.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3648,18 +3600,17 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-      ':ResourceSid'
-    ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3731,18 +3682,17 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-      ':ResourceSid'
-    ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:AssignedAddOnSid/Extensions.json',
+    args,
+  ] as const
 }
 
 /**
@@ -3807,16 +3757,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json', args] as const
 }
 
 /**
@@ -3915,16 +3863,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJso
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json', args] as const
 }
 
 /**
@@ -4026,16 +3972,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJ
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json', args] as const
 }
 
 /**
@@ -4134,15 +4078,14 @@ export function createGet20100401AccountsAccountSidKeysSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json', args] as const
 }
 
 /**
@@ -4276,15 +4219,14 @@ export function createGet20100401AccountsAccountSidKeysJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Keys.json', args] as const
 }
 
 /**
@@ -4382,18 +4324,14 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaSidJso
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[':Sid.json'].$url(
-      args,
-    )
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json', args] as const
 }
 
 /**
@@ -4500,16 +4438,14 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media.json', args] as const
 }
 
 /**
@@ -4575,18 +4511,14 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJ
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[':CallSid.json'].$url(
-      args,
-    )
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json', args] as const
 }
 
 /**
@@ -4691,16 +4623,14 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members.json', args] as const
 }
 
 /**
@@ -4763,15 +4693,14 @@ export function createGet20100401AccountsAccountSidMessagesJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages.json', args] as const
 }
 
 /**
@@ -4875,15 +4804,14 @@ export function createGet20100401AccountsAccountSidMessagesSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json', args] as const
 }
 
 /**
@@ -5075,15 +5003,14 @@ export function createGet20100401AccountsAccountSidSigningKeysJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys.json', args] as const
 }
 
 /**
@@ -5187,15 +5114,14 @@ export function createGet20100401AccountsAccountSidNotificationsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Notifications/:Sid.json', args] as const
 }
 
 /**
@@ -5258,15 +5184,14 @@ export function createGet20100401AccountsAccountSidNotificationsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Notifications.json', args] as const
 }
 
 /**
@@ -5329,15 +5254,14 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json', args] as const
 }
 
 /**
@@ -5489,15 +5413,14 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json', args] as const
 }
 
 /**
@@ -5603,18 +5526,17 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-      ':CallSid.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5768,18 +5690,17 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-      'Participants.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
+    args,
+  ] as const
 }
 
 /**
@@ -5970,15 +5891,14 @@ export function createGet20100401AccountsAccountSidQueuesSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json', args] as const
 }
 
 /**
@@ -6127,15 +6047,14 @@ export function createGet20100401AccountsAccountSidQueuesJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Queues.json', args] as const
 }
 
 /**
@@ -6326,15 +6245,14 @@ export function createGet20100401AccountsAccountSidRecordingsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json', args] as const
 }
 
 /**
@@ -6442,15 +6360,14 @@ export function createGet20100401AccountsAccountSidRecordingsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Recordings.json', args] as const
 }
 
 /**
@@ -6516,18 +6433,17 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-      ':Sid.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6638,18 +6554,17 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
-      'AddOnResults.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6714,18 +6629,17 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-      ':AddOnResultSid'
-    ].Payloads[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6841,18 +6755,17 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-      ':AddOnResultSid'
-    ]['Payloads.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads.json',
+    args,
+  ] as const
 }
 
 /**
@@ -6924,18 +6837,17 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-      ':AddOnResultSid'
-    ].Payloads[':PayloadSid']['Data.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:PayloadSid/Data.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7003,18 +6915,17 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-      ':Sid.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7117,18 +7028,17 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
-      'Transcriptions.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7192,15 +7102,14 @@ export function createGet20100401AccountsAccountSidSMSShortCodesSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json', args] as const
 }
 
 /**
@@ -7307,15 +7216,14 @@ export function createGet20100401AccountsAccountSidSMSShortCodesJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes.json', args] as const
 }
 
 /**
@@ -7374,15 +7282,14 @@ export function createGet20100401AccountsAccountSidSigningKeysSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json', args] as const
 }
 
 /**
@@ -7529,18 +7436,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-      'CredentialListMappings.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7652,18 +7558,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-      ':DomainSid'
-    ].Auth.Calls.CredentialListMappings[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7779,18 +7684,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-      'IpAccessControlListMappings.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -7902,18 +7806,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-      ':DomainSid'
-    ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8029,18 +7932,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-      'CredentialListMappings.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8152,18 +8054,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-      ':DomainSid'
-    ].Auth.Registrations.CredentialListMappings[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8279,18 +8180,17 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-      'Credentials.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8402,18 +8302,17 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-      ':CredentialListSid'
-    ].Credentials[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8569,15 +8468,14 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json', args] as const
 }
 
 /**
@@ -8684,15 +8582,14 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json', args] as const
 }
 
 /**
@@ -8847,18 +8744,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-      'CredentialListMappings.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -8968,18 +8864,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].CredentialListMappings[
-      ':Sid.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -9092,15 +8987,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains.json', args] as const
 }
 
 /**
@@ -9204,15 +9098,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json', args] as const
 }
 
 /**
@@ -9364,15 +9257,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json', args] as const
 }
 
 /**
@@ -9479,16 +9371,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsSidJso
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json', args] as const
 }
 
 /**
@@ -9643,18 +9533,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-      ':DomainSid'
-    ].IpAccessControlListMappings[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -9770,18 +9659,17 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-      'IpAccessControlListMappings.json'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
+    args,
+  ] as const
 }
 
 /**
@@ -9893,18 +9781,17 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-      ':IpAccessControlListSid'
-    ]['IpAddresses.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10019,18 +9906,17 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
 ) {
-  const u =
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-      ':IpAccessControlListSid'
-    ].IpAddresses[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
+    args,
+  ] as const
 }
 
 /**
@@ -10403,15 +10289,14 @@ export function createGet20100401AccountsAccountSidTranscriptionsSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json', args] as const
 }
 
 /**
@@ -10519,15 +10404,14 @@ export function createGet20100401AccountsAccountSidTranscriptionsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions.json', args] as const
 }
 
 /**
@@ -10590,15 +10474,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records.json', args] as const
 }
 
 /**
@@ -10657,15 +10540,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/AllTime.json', args] as const
 }
 
 /**
@@ -10724,15 +10606,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsDailyJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Daily.json', args] as const
 }
 
 /**
@@ -10791,15 +10672,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/LastMonth.json', args] as const
 }
 
 /**
@@ -10858,15 +10738,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Monthly.json', args] as const
 }
 
 /**
@@ -10925,15 +10804,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/ThisMonth.json', args] as const
 }
 
 /**
@@ -10992,15 +10870,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsTodayJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Today.json', args] as const
 }
 
 /**
@@ -11059,15 +10936,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsYearlyJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Yearly.json', args] as const
 }
 
 /**
@@ -11126,15 +11002,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Records/Yesterday.json', args] as const
 }
 
 /**
@@ -11197,15 +11072,14 @@ export function createGet20100401AccountsAccountSidUsageTriggersSidJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json', args] as const
 }
 
 /**
@@ -11353,15 +11227,14 @@ export function createGet20100401AccountsAccountSidUsageTriggersJson(
 
 /**
  * Generates Svelte Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
 ) {
-  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json', args] as const
 }
 
 /**

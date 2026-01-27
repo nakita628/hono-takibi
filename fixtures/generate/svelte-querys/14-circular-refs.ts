@@ -25,10 +25,10 @@ export function createGetTrees(
 
 /**
  * Generates Svelte Query cache key for GET /trees
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetTreesQueryKey() {
-  return [client.trees.$url().pathname] as const
+  return ['/trees'] as const
 }
 
 /**
@@ -84,10 +84,10 @@ export function createGetGraphs(
 
 /**
  * Generates Svelte Query cache key for GET /graphs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetGraphsQueryKey() {
-  return [client.graphs.$url().pathname] as const
+  return ['/graphs'] as const
 }
 
 /**
@@ -128,10 +128,10 @@ export function createGetLinkedLists(
 
 /**
  * Generates Svelte Query cache key for GET /linked-lists
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetLinkedListsQueryKey() {
-  return [client['linked-lists'].$url().pathname] as const
+  return ['/linked-lists'] as const
 }
 
 /**
@@ -175,10 +175,10 @@ export function createGetSocialNetwork(
 
 /**
  * Generates Svelte Query cache key for GET /social-network
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSocialNetworkQueryKey() {
-  return [client['social-network'].$url().pathname] as const
+  return ['/social-network'] as const
 }
 
 /**
@@ -222,10 +222,10 @@ export function createGetFileSystem(
 
 /**
  * Generates Svelte Query cache key for GET /file-system
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetFileSystemQueryKey() {
-  return [client['file-system'].$url().pathname] as const
+  return ['/file-system'] as const
 }
 
 /**
@@ -265,10 +265,10 @@ export function createGetComments(
 
 /**
  * Generates Svelte Query cache key for GET /comments
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCommentsQueryKey() {
-  return [client.comments.$url().pathname] as const
+  return ['/comments'] as const
 }
 
 /**
@@ -310,10 +310,10 @@ export function createGetPolymorphic(
 
 /**
  * Generates Svelte Query cache key for GET /polymorphic
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPolymorphicQueryKey() {
-  return [client.polymorphic.$url().pathname] as const
+  return ['/polymorphic'] as const
 }
 
 /**
@@ -353,10 +353,10 @@ export function createGetCategories(
 
 /**
  * Generates Svelte Query cache key for GET /categories
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCategoriesQueryKey() {
-  return [client.categories.$url().pathname] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -396,10 +396,10 @@ export function createGetWorkflow(
 
 /**
  * Generates Svelte Query cache key for GET /workflow
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWorkflowQueryKey() {
-  return [client.workflow.$url().pathname] as const
+  return ['/workflow'] as const
 }
 
 /**

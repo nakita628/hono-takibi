@@ -166,10 +166,10 @@ export function useGetWebauthnCredentials(options?: {
 
 /**
  * Generates Vue Query cache key for GET /webauthn/credentials
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWebauthnCredentialsQueryKey() {
-  return [client.webauthn.credentials.$url().pathname] as const
+  return ['/webauthn/credentials'] as const
 }
 
 /**
@@ -224,13 +224,12 @@ export function useGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates Vue Query cache key for GET /webauthn/credentials/{credentialId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  const u = client.webauthn.credentials[':credentialId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/webauthn/credentials/:credentialId', args] as const
 }
 
 /**
@@ -355,10 +354,10 @@ export function useGetWebauthnSettings(options?: {
 
 /**
  * Generates Vue Query cache key for GET /webauthn/settings
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWebauthnSettingsQueryKey() {
-  return [client.webauthn.settings.$url().pathname] as const
+  return ['/webauthn/settings'] as const
 }
 
 /**
@@ -405,10 +404,10 @@ export function useGetWebauthnSettingsRp(options?: {
 
 /**
  * Generates Vue Query cache key for GET /webauthn/settings/rp
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWebauthnSettingsRpQueryKey() {
-  return [client.webauthn.settings.rp.$url().pathname] as const
+  return ['/webauthn/settings/rp'] as const
 }
 
 /**
@@ -488,10 +487,10 @@ export function useGetWebauthnAuthenticators(options?: {
 
 /**
  * Generates Vue Query cache key for GET /webauthn/authenticators
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWebauthnAuthenticatorsQueryKey() {
-  return [client.webauthn.authenticators.$url().pathname] as const
+  return ['/webauthn/authenticators'] as const
 }
 
 /**

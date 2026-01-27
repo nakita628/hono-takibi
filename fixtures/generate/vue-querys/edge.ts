@@ -59,11 +59,10 @@ export function useGetSearch(
 
 /**
  * Generates Vue Query cache key for GET /search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  const u = client.search.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/search', args] as const
 }
 
 /**

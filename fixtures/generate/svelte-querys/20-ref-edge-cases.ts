@@ -26,11 +26,10 @@ export function createGetTest(
 
 /**
  * Generates Svelte Query cache key for GET /test
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
-  const u = client.test.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/test', args] as const
 }
 
 /**
@@ -72,10 +71,10 @@ export function createGetEmptyRefs(
 
 /**
  * Generates Svelte Query cache key for GET /empty-refs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetEmptyRefsQueryKey() {
-  return [client['empty-refs'].$url().pathname] as const
+  return ['/empty-refs'] as const
 }
 
 /**
@@ -119,10 +118,10 @@ export function createGetUnicodeRefs(
 
 /**
  * Generates Svelte Query cache key for GET /unicode-refs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetUnicodeRefsQueryKey() {
-  return [client['unicode-refs'].$url().pathname] as const
+  return ['/unicode-refs'] as const
 }
 
 /**
@@ -166,10 +165,10 @@ export function createGetSpecialChars(
 
 /**
  * Generates Svelte Query cache key for GET /special-chars
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSpecialCharsQueryKey() {
-  return [client['special-chars'].$url().pathname] as const
+  return ['/special-chars'] as const
 }
 
 /**
@@ -213,10 +212,10 @@ export function createGetNumericStart(
 
 /**
  * Generates Svelte Query cache key for GET /numeric-start
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetNumericStartQueryKey() {
-  return [client['numeric-start'].$url().pathname] as const
+  return ['/numeric-start'] as const
 }
 
 /**
@@ -260,10 +259,10 @@ export function createGetRefInAllof(
 
 /**
  * Generates Svelte Query cache key for GET /ref-in-allof
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetRefInAllofQueryKey() {
-  return [client['ref-in-allof'].$url().pathname] as const
+  return ['/ref-in-allof'] as const
 }
 
 /**
@@ -307,10 +306,10 @@ export function createGetDeeplyNested(
 
 /**
  * Generates Svelte Query cache key for GET /deeply-nested
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetDeeplyNestedQueryKey() {
-  return [client['deeply-nested'].$url().pathname] as const
+  return ['/deeply-nested'] as const
 }
 
 /**
@@ -358,10 +357,10 @@ export function createGetSameNameDiffContext(
 
 /**
  * Generates Svelte Query cache key for GET /same-name-diff-context
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSameNameDiffContextQueryKey() {
-  return [client['same-name-diff-context'].$url().pathname] as const
+  return ['/same-name-diff-context'] as const
 }
 
 /**

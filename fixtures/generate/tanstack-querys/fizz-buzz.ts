@@ -28,11 +28,10 @@ export function useGetFizzbuzz(
 
 /**
  * Generates TanStack Query cache key for GET /fizzbuzz
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFizzbuzzQueryKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  const u = client.fizzbuzz.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/fizzbuzz', args] as const
 }
 
 /**

@@ -24,11 +24,10 @@ export function useGetUsers(
 
 /**
  * Generates TanStack Query cache key for GET /users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  const u = client.users.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users', args] as const
 }
 
 /**
@@ -90,13 +89,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -166,13 +164,12 @@ export function useGetProductsProductIdVariants(
 
 /**
  * Generates TanStack Query cache key for GET /products/{productId}/variants
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProductsProductIdVariantsQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['variants']['$get']>,
 ) {
-  const u = client.products[':productId'].variants.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/products/:productId/variants', args] as const
 }
 
 /**

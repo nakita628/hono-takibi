@@ -28,11 +28,10 @@ export function useGetSamlSso(
 
 /**
  * Generates TanStack Query cache key for GET /saml/sso
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  const u = client.saml.sso.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/saml/sso', args] as const
 }
 
 /**
@@ -98,11 +97,10 @@ export function useGetSamlSlo(
 
 /**
  * Generates TanStack Query cache key for GET /saml/slo
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  const u = client.saml.slo.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/saml/slo', args] as const
 }
 
 /**
@@ -190,10 +188,10 @@ export function useGetSamlMetadata(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /saml/metadata
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSamlMetadataQueryKey() {
-  return [client.saml.metadata.$url().pathname] as const
+  return ['/saml/metadata'] as const
 }
 
 /**
@@ -241,13 +239,12 @@ export function useGetServiceProviders(
 
 /**
  * Generates TanStack Query cache key for GET /service-providers
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetServiceProvidersQueryKey(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  const u = client['service-providers'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/service-providers', args] as const
 }
 
 /**
@@ -325,13 +322,12 @@ export function useGetServiceProvidersSpId(
 
 /**
  * Generates TanStack Query cache key for GET /service-providers/{spId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetServiceProvidersSpIdQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  const u = client['service-providers'][':spId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/service-providers/:spId', args] as const
 }
 
 /**
@@ -441,13 +437,12 @@ export function useGetServiceProvidersSpIdMetadata(
 
 /**
  * Generates TanStack Query cache key for GET /service-providers/{spId}/metadata
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  const u = client['service-providers'][':spId'].metadata.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/service-providers/:spId/metadata', args] as const
 }
 
 /**
@@ -528,13 +523,12 @@ export function useGetServiceProvidersSpIdAttributes(
 
 /**
  * Generates TanStack Query cache key for GET /service-providers/{spId}/attributes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  const u = client['service-providers'][':spId'].attributes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/service-providers/:spId/attributes', args] as const
 }
 
 /**
@@ -603,10 +597,10 @@ export function useGetAttributes(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /attributes
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAttributesQueryKey() {
-  return [client.attributes.$url().pathname] as const
+  return ['/attributes'] as const
 }
 
 /**
@@ -644,10 +638,10 @@ export function useGetCertificates(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /certificates
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCertificatesQueryKey() {
-  return [client.certificates.$url().pathname] as const
+  return ['/certificates'] as const
 }
 
 /**
@@ -768,11 +762,10 @@ export function useGetSessions(
 
 /**
  * Generates TanStack Query cache key for GET /sessions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  const u = client.sessions.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/sessions', args] as const
 }
 
 /**
@@ -843,13 +836,12 @@ export function useGetAuditLogs(
 
 /**
  * Generates TanStack Query cache key for GET /audit-logs
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAuditLogsQueryKey(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
 ) {
-  const u = client['audit-logs'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/audit-logs', args] as const
 }
 
 /**

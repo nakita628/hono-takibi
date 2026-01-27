@@ -28,10 +28,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates Vue Query cache key for GET /categories
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCategoriesQueryKey() {
-  return [client.categories.$url().pathname] as const
+  return ['/categories'] as const
 }
 
 /**

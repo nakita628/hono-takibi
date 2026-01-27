@@ -39,16 +39,14 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates Svelte Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  const u =
-    client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members', args] as const
 }
 
 /**
@@ -141,10 +139,10 @@ export function createGetReportsOrganizationSummary(
 
 /**
  * Generates Svelte Query cache key for GET /reports/organization-summary
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetReportsOrganizationSummaryQueryKey() {
-  return [client.reports['organization-summary'].$url().pathname] as const
+  return ['/reports/organization-summary'] as const
 }
 
 /**

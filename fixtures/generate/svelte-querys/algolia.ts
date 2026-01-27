@@ -32,11 +32,10 @@ export function createGetPath(
 
 /**
  * Generates Svelte Query cache key for GET /{path}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  const u = client[':path'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/:path', args] as const
 }
 
 /**
@@ -412,13 +411,12 @@ export function createGet1IndexesIndexNameObjectID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/{objectID}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  const u = client['1'].indexes[':indexName'][':objectID'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/indexes/:indexName/:objectID', args] as const
 }
 
 /**
@@ -784,13 +782,12 @@ export function createGet1IndexesIndexNameSettings(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/settings
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  const u = client['1'].indexes[':indexName'].settings.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/indexes/:indexName/settings', args] as const
 }
 
 /**
@@ -888,15 +885,14 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  const u = client['1'].indexes[':indexName'].synonyms[':objectID'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/indexes/:indexName/synonyms/:objectID', args] as const
 }
 
 /**
@@ -1136,10 +1132,10 @@ export function createGet1Keys(
 
 /**
  * Generates Svelte Query cache key for GET /1/keys
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGet1KeysQueryKey() {
-  return [client['1'].keys.$url().pathname] as const
+  return ['/1/keys'] as const
 }
 
 /**
@@ -1217,13 +1213,12 @@ export function createGet1KeysKey(
 
 /**
  * Generates Svelte Query cache key for GET /1/keys/{key}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1KeysKeyQueryKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  const u = client['1'].keys[':key'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/keys/:key', args] as const
 }
 
 /**
@@ -1378,15 +1373,14 @@ export function createGet1IndexesIndexNameRulesObjectID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  const u = client['1'].indexes[':indexName'].rules[':objectID'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/indexes/:indexName/rules/:objectID', args] as const
 }
 
 /**
@@ -1699,10 +1693,10 @@ export function createGet1DictionariesSettings(
 
 /**
  * Generates Svelte Query cache key for GET /1/dictionaries/* /settings
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGet1DictionariesSettingsQueryKey() {
-  return [client['1'].dictionaries['*'].settings.$url().pathname] as const
+  return ['/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -1784,10 +1778,10 @@ export function createGet1DictionariesLanguages(
 
 /**
  * Generates Svelte Query cache key for GET /1/dictionaries/* /languages
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGet1DictionariesLanguagesQueryKey() {
-  return [client['1'].dictionaries['*'].languages.$url().pathname] as const
+  return ['/1/dictionaries/*/languages'] as const
 }
 
 /**
@@ -1844,13 +1838,12 @@ export function createGet1ClustersMapping(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1ClustersMappingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  const u = client['1'].clusters.mapping.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/clusters/mapping', args] as const
 }
 
 /**
@@ -1972,10 +1965,10 @@ export function createGet1ClustersMappingTop(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/top
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGet1ClustersMappingTopQueryKey() {
-  return [client['1'].clusters.mapping.top.$url().pathname] as const
+  return ['/1/clusters/mapping/top'] as const
 }
 
 /**
@@ -2032,13 +2025,12 @@ export function createGet1ClustersMappingUserID(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/{userID}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1ClustersMappingUserIDQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  const u = client['1'].clusters.mapping[':userID'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/clusters/mapping/:userID', args] as const
 }
 
 /**
@@ -2119,10 +2111,10 @@ export function createGet1Clusters(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGet1ClustersQueryKey() {
-  return [client['1'].clusters.$url().pathname] as const
+  return ['/1/clusters'] as const
 }
 
 /**
@@ -2209,13 +2201,12 @@ export function createGet1ClustersMappingPending(
 
 /**
  * Generates Svelte Query cache key for GET /1/clusters/mapping/pending
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1ClustersMappingPendingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  const u = client['1'].clusters.mapping.pending.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/clusters/mapping/pending', args] as const
 }
 
 /**
@@ -2268,10 +2259,10 @@ export function createGet1SecuritySources(
 
 /**
  * Generates Svelte Query cache key for GET /1/security/sources
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGet1SecuritySourcesQueryKey() {
-  return [client['1'].security.sources.$url().pathname] as const
+  return ['/1/security/sources'] as const
 }
 
 /**
@@ -2412,11 +2403,10 @@ export function createGet1Logs(
 
 /**
  * Generates Svelte Query cache key for GET /1/logs
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  const u = client['1'].logs.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/logs', args] as const
 }
 
 /**
@@ -2465,13 +2455,12 @@ export function createGet1TaskTaskID(
 
 /**
  * Generates Svelte Query cache key for GET /1/task/{taskID}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1TaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  const u = client['1'].task[':taskID'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/task/:taskID', args] as const
 }
 
 /**
@@ -2536,13 +2525,12 @@ export function createGet1IndexesIndexNameTaskTaskID(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes/{indexName}/task/{taskID}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  const u = client['1'].indexes[':indexName'].task[':taskID'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/indexes/:indexName/task/:taskID', args] as const
 }
 
 /**
@@ -2649,13 +2637,12 @@ export function createGet1Indexes(
 
 /**
  * Generates Svelte Query cache key for GET /1/indexes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGet1IndexesQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  const u = client['1'].indexes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/1/indexes', args] as const
 }
 
 /**
@@ -2708,13 +2695,12 @@ export function createGetWaitForApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /waitForApiKey
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWaitForApiKeyQueryKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  const u = client.waitForApiKey.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/waitForApiKey', args] as const
 }
 
 /**
@@ -2766,11 +2752,10 @@ export function createGetWaitForTask(
 
 /**
  * Generates Svelte Query cache key for GET /waitForTask
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  const u = client.waitForTask.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/waitForTask', args] as const
 }
 
 /**
@@ -2820,13 +2805,12 @@ export function createGetWaitForAppTask(
 
 /**
  * Generates Svelte Query cache key for GET /waitForAppTask
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWaitForAppTaskQueryKey(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  const u = client.waitForAppTask.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/waitForAppTask', args] as const
 }
 
 /**
@@ -2883,13 +2867,12 @@ export function createGetBrowseObjects(
 
 /**
  * Generates Svelte Query cache key for GET /browseObjects
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBrowseObjectsQueryKey(
   args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  const u = client.browseObjects.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/browseObjects', args] as const
 }
 
 /**
@@ -2956,13 +2939,12 @@ export function createGetGenerateSecuredApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /generateSecuredApiKey
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  const u = client.generateSecuredApiKey.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/generateSecuredApiKey', args] as const
 }
 
 /**
@@ -3015,13 +2997,12 @@ export function createGetAccountCopyIndex(
 
 /**
  * Generates Svelte Query cache key for GET /accountCopyIndex
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAccountCopyIndexQueryKey(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  const u = client.accountCopyIndex.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/accountCopyIndex', args] as const
 }
 
 /**
@@ -3089,13 +3070,12 @@ export function createGetReplaceAllObjects(
 
 /**
  * Generates Svelte Query cache key for GET /replaceAllObjects
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetReplaceAllObjectsQueryKey(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  const u = client.replaceAllObjects.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/replaceAllObjects', args] as const
 }
 
 /**
@@ -3162,13 +3142,12 @@ export function createGetReplaceAllObjectsWithTransformation(
 
 /**
  * Generates Svelte Query cache key for GET /replaceAllObjectsWithTransformation
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  const u = client.replaceAllObjectsWithTransformation.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/replaceAllObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3218,13 +3197,12 @@ export function createGetChunkedBatch(
 
 /**
  * Generates Svelte Query cache key for GET /chunkedBatch
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChunkedBatchQueryKey(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  const u = client.chunkedBatch.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/chunkedBatch', args] as const
 }
 
 /**
@@ -3274,11 +3252,10 @@ export function createGetSaveObjects(
 
 /**
  * Generates Svelte Query cache key for GET /saveObjects
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  const u = client.saveObjects.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/saveObjects', args] as const
 }
 
 /**
@@ -3332,13 +3309,12 @@ export function createGetSaveObjectsWithTransformation(
 
 /**
  * Generates Svelte Query cache key for GET /saveObjectsWithTransformation
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  const u = client.saveObjectsWithTransformation.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/saveObjectsWithTransformation', args] as const
 }
 
 /**
@@ -3470,11 +3446,10 @@ export function createGetIndexExists(
 
 /**
  * Generates Svelte Query cache key for GET /indexExists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  const u = client.indexExists.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/indexExists', args] as const
 }
 
 /**
@@ -3524,13 +3499,12 @@ export function createGetSetClientApiKey(
 
 /**
  * Generates Svelte Query cache key for GET /setClientApiKey
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSetClientApiKeyQueryKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  const u = client.setClientApiKey.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/setClientApiKey', args] as const
 }
 
 /**

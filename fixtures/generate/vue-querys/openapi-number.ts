@@ -30,10 +30,10 @@ export function useGetNumber(options?: {
 
 /**
  * Generates Vue Query cache key for GET /number
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetNumberQueryKey() {
-  return [client.number.$url().pathname] as const
+  return ['/number'] as const
 }
 
 /**

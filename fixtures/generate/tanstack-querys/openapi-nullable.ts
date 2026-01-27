@@ -25,10 +25,10 @@ export function useGetNullable(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /nullable
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetNullableQueryKey() {
-  return [client.nullable.$url().pathname] as const
+  return ['/nullable'] as const
 }
 
 /**

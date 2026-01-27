@@ -66,13 +66,12 @@ export function useGetContentNegotiation(
 
 /**
  * Generates Vue Query cache key for GET /content-negotiation
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetContentNegotiationQueryKey(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  const u = client['content-negotiation'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/content-negotiation', args] as const
 }
 
 /**
@@ -146,10 +145,10 @@ export function useGetStreaming(options?: {
 
 /**
  * Generates Vue Query cache key for GET /streaming
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetStreamingQueryKey() {
-  return [client.streaming.$url().pathname] as const
+  return ['/streaming'] as const
 }
 
 /**
@@ -250,10 +249,10 @@ export function useGetResponseEncoding(options?: {
 
 /**
  * Generates Vue Query cache key for GET /response-encoding
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetResponseEncodingQueryKey() {
-  return [client['response-encoding'].$url().pathname] as const
+  return ['/response-encoding'] as const
 }
 
 /**

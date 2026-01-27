@@ -23,10 +23,10 @@ export function useGetUsers(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /users
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetUsersQueryKey() {
-  return [client.users.$url().pathname] as const
+  return ['/users'] as const
 }
 
 /**
@@ -89,13 +89,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -187,10 +186,10 @@ export function useGetOrders(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /orders
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOrdersQueryKey() {
-  return [client.orders.$url().pathname] as const
+  return ['/orders'] as const
 }
 
 /**

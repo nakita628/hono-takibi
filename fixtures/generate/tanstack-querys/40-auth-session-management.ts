@@ -28,11 +28,10 @@ export function useGetSessions(
 
 /**
  * Generates TanStack Query cache key for GET /sessions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  const u = client.sessions.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/sessions', args] as const
 }
 
 /**
@@ -95,10 +94,10 @@ export function useGetSessionsCurrent(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /sessions/current
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSessionsCurrentQueryKey() {
-  return [client.sessions.current.$url().pathname] as const
+  return ['/sessions/current'] as const
 }
 
 /**
@@ -253,13 +252,12 @@ export function useGetSessionsSessionId(
 
 /**
  * Generates TanStack Query cache key for GET /sessions/{sessionId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSessionsSessionIdQueryKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  const u = client.sessions[':sessionId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/sessions/:sessionId', args] as const
 }
 
 /**
@@ -390,13 +388,12 @@ export function useGetSessionsHistory(
 
 /**
  * Generates TanStack Query cache key for GET /sessions/history
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSessionsHistoryQueryKey(
   args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  const u = client.sessions.history.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/sessions/history', args] as const
 }
 
 /**
@@ -451,13 +448,12 @@ export function useGetSessionsSecurityEvents(
 
 /**
  * Generates TanStack Query cache key for GET /sessions/security-events
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSessionsSecurityEventsQueryKey(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  const u = client.sessions['security-events'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/sessions/security-events', args] as const
 }
 
 /**
@@ -500,10 +496,10 @@ export function useGetSessionsPolicies(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /sessions/policies
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSessionsPoliciesQueryKey() {
-  return [client.sessions.policies.$url().pathname] as const
+  return ['/sessions/policies'] as const
 }
 
 /**
@@ -571,10 +567,10 @@ export function useGetSessionsTrustedDevices(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /sessions/trusted-devices
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSessionsTrustedDevicesQueryKey() {
-  return [client.sessions['trusted-devices'].$url().pathname] as const
+  return ['/sessions/trusted-devices'] as const
 }
 
 /**

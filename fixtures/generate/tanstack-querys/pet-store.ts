@@ -79,13 +79,12 @@ export function useGetPetFindByStatus(
 
 /**
  * Generates TanStack Query cache key for GET /pet/findByStatus
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPetFindByStatusQueryKey(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  const u = client.pet.findByStatus.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/pet/findByStatus', args] as const
 }
 
 /**
@@ -133,13 +132,12 @@ export function useGetPetFindByTags(
 
 /**
  * Generates TanStack Query cache key for GET /pet/findByTags
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPetFindByTagsQueryKey(
   args: InferRequestType<typeof client.pet.findByTags.$get>,
 ) {
-  const u = client.pet.findByTags.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/pet/findByTags', args] as const
 }
 
 /**
@@ -187,13 +185,12 @@ export function useGetPetPetId(
 
 /**
  * Generates TanStack Query cache key for GET /pet/{petId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPetPetIdQueryKey(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
 ) {
-  const u = client.pet[':petId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/pet/:petId', args] as const
 }
 
 /**
@@ -316,10 +313,10 @@ export function useGetStoreInventory(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /store/inventory
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetStoreInventoryQueryKey() {
-  return [client.store.inventory.$url().pathname] as const
+  return ['/store/inventory'] as const
 }
 
 /**
@@ -392,13 +389,12 @@ export function useGetStoreOrderOrderId(
 
 /**
  * Generates TanStack Query cache key for GET /store/order/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetStoreOrderOrderIdQueryKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  const u = client.store.order[':orderId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/store/order/:orderId', args] as const
 }
 
 /**
@@ -520,11 +516,10 @@ export function useGetUserLogin(
 
 /**
  * Generates TanStack Query cache key for GET /user/login
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.user.login.$get>) {
-  const u = client.user.login.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/user/login', args] as const
 }
 
 /**
@@ -562,10 +557,10 @@ export function useGetUserLogout(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /user/logout
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetUserLogoutQueryKey() {
-  return [client.user.logout.$url().pathname] as const
+  return ['/user/logout'] as const
 }
 
 /**
@@ -610,13 +605,12 @@ export function useGetUserUsername(
 
 /**
  * Generates TanStack Query cache key for GET /user/{username}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUserUsernameQueryKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  const u = client.user[':username'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/user/:username', args] as const
 }
 
 /**

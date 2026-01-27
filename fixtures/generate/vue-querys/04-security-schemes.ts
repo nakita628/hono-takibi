@@ -26,10 +26,10 @@ export function useGetPublic(options?: {
 
 /**
  * Generates Vue Query cache key for GET /public
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPublicQueryKey() {
-  return [client.public.$url().pathname] as const
+  return ['/public'] as const
 }
 
 /**
@@ -69,10 +69,10 @@ export function useGetProtected(options?: {
 
 /**
  * Generates Vue Query cache key for GET /protected
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetProtectedQueryKey() {
-  return [client.protected.$url().pathname] as const
+  return ['/protected'] as const
 }
 
 /**
@@ -113,10 +113,10 @@ export function useGetAdmin(options?: {
 
 /**
  * Generates Vue Query cache key for GET /admin
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAdminQueryKey() {
-  return [client.admin.$url().pathname] as const
+  return ['/admin'] as const
 }
 
 /**
@@ -158,10 +158,10 @@ export function useGetOauthResource(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth-resource
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauthResourceQueryKey() {
-  return [client['oauth-resource'].$url().pathname] as const
+  return ['/oauth-resource'] as const
 }
 
 /**
@@ -206,10 +206,10 @@ export function useGetMultiAuth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /multi-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMultiAuthQueryKey() {
-  return [client['multi-auth'].$url().pathname] as const
+  return ['/multi-auth'] as const
 }
 
 /**

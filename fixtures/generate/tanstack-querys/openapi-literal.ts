@@ -25,10 +25,10 @@ export function useGetPrimitive(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /primitive
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPrimitiveQueryKey() {
-  return [client.primitive.$url().pathname] as const
+  return ['/primitive'] as const
 }
 
 /**

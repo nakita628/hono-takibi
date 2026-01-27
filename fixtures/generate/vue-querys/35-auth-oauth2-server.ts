@@ -41,13 +41,12 @@ export function useGetOauthAuthorize(
 
 /**
  * Generates Vue Query cache key for GET /oauth/authorize
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOauthAuthorizeQueryKey(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  const u = client.oauth.authorize.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/oauth/authorize', args] as const
 }
 
 /**
@@ -222,10 +221,10 @@ export function useGetOauthUserinfo(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth/userinfo
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauthUserinfoQueryKey() {
-  return [client.oauth.userinfo.$url().pathname] as const
+  return ['/oauth/userinfo'] as const
 }
 
 /**
@@ -277,10 +276,10 @@ export function useGetWellKnownOpenidConfiguration(options?: {
 
 /**
  * Generates Vue Query cache key for GET /.well-known/openid-configuration
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWellKnownOpenidConfigurationQueryKey() {
-  return [client['.well-known']['openid-configuration'].$url().pathname] as const
+  return ['/.well-known/openid-configuration'] as const
 }
 
 /**
@@ -333,10 +332,10 @@ export function useGetWellKnownJwksJson(options?: {
 
 /**
  * Generates Vue Query cache key for GET /.well-known/jwks.json
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWellKnownJwksJsonQueryKey() {
-  return [client['.well-known']['jwks.json'].$url().pathname] as const
+  return ['/.well-known/jwks.json'] as const
 }
 
 /**
@@ -381,10 +380,10 @@ export function useGetOauthClients(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth/clients
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauthClientsQueryKey() {
-  return [client.oauth.clients.$url().pathname] as const
+  return ['/oauth/clients'] as const
 }
 
 /**
@@ -467,13 +466,12 @@ export function useGetOauthClientsClientId(
 
 /**
  * Generates Vue Query cache key for GET /oauth/clients/{clientId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  const u = client.oauth.clients[':clientId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/oauth/clients/:clientId', args] as const
 }
 
 /**
@@ -623,10 +621,10 @@ export function useGetOauthConsents(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth/consents
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauthConsentsQueryKey() {
-  return [client.oauth.consents.$url().pathname] as const
+  return ['/oauth/consents'] as const
 }
 
 /**

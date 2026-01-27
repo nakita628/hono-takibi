@@ -29,10 +29,10 @@ export function createGetHono(
 
 /**
  * Generates Svelte Query cache key for GET /hono
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetHonoQueryKey() {
-  return [client.hono.$url().pathname] as const
+  return ['/hono'] as const
 }
 
 /**
@@ -75,10 +75,10 @@ export function createGetHonoX(
 
 /**
  * Generates Svelte Query cache key for GET /hono-x
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetHonoXQueryKey() {
-  return [client['hono-x'].$url().pathname] as const
+  return ['/hono-x'] as const
 }
 
 /**
@@ -126,10 +126,10 @@ export function createGetZodOpenapiHono(
 
 /**
  * Generates Svelte Query cache key for GET /zod-openapi-hono
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetZodOpenapiHonoQueryKey() {
-  return [client['zod-openapi-hono'].$url().pathname] as const
+  return ['/zod-openapi-hono'] as const
 }
 
 /**

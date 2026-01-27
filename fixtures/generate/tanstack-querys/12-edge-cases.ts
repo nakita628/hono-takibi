@@ -23,10 +23,10 @@ export function useGetAllMethods(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /all-methods
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAllMethodsQueryKey() {
-  return [client['all-methods'].$url().pathname] as const
+  return ['/all-methods'] as const
 }
 
 /**
@@ -226,15 +226,14 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
   args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  const u = client.users[':userId'].posts[':postId'].comments[':commentId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId/posts/:postId/comments/:commentId', args] as const
 }
 
 /**
@@ -287,13 +286,12 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates TanStack Query cache key for GET /params-test/{pathParam}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetParamsTestPathParamQueryKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  const u = client['params-test'][':pathParam'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/params-test/:pathParam', args] as const
 }
 
 /**
@@ -359,10 +357,10 @@ export function useGetMultiContent(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /multi-content
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMultiContentQueryKey() {
-  return [client['multi-content'].$url().pathname] as const
+  return ['/multi-content'] as const
 }
 
 /**
@@ -425,10 +423,10 @@ export function useGetResponseRanges(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /response-ranges
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetResponseRangesQueryKey() {
-  return [client['response-ranges'].$url().pathname] as const
+  return ['/response-ranges'] as const
 }
 
 /**
@@ -466,10 +464,10 @@ export function useGetDeprecated(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /deprecated
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetDeprecatedQueryKey() {
-  return [client.deprecated.$url().pathname] as const
+  return ['/deprecated'] as const
 }
 
 /**
@@ -511,10 +509,10 @@ export function useGetNoOperationId(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /no-operation-id
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetNoOperationIdQueryKey() {
-  return [client['no-operation-id'].$url().pathname] as const
+  return ['/no-operation-id'] as const
 }
 
 /**
@@ -571,10 +569,10 @@ export function useGetCircular(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /circular
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCircularQueryKey() {
-  return [client.circular.$url().pathname] as const
+  return ['/circular'] as const
 }
 
 /**
@@ -612,10 +610,10 @@ export function useGetDeepNesting(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /deep-nesting
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetDeepNestingQueryKey() {
-  return [client['deep-nesting'].$url().pathname] as const
+  return ['/deep-nesting'] as const
 }
 
 /**
@@ -658,13 +656,12 @@ export function useGetArrayParams(
 
 /**
  * Generates TanStack Query cache key for GET /array-params
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetArrayParamsQueryKey(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  const u = client['array-params'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/array-params', args] as const
 }
 
 /**
@@ -710,13 +707,12 @@ export function useGetObjectParam(
 
 /**
  * Generates TanStack Query cache key for GET /object-param
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetObjectParamQueryKey(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  const u = client['object-param'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/object-param', args] as const
 }
 
 /**

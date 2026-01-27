@@ -29,10 +29,10 @@ export function createGet(
 
 /**
  * Generates Svelte Query cache key for GET /
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetQueryKey() {
-  return [client.index.$url().pathname] as const
+  return ['/'] as const
 }
 
 /**
@@ -74,11 +74,10 @@ export function createGetProjects(
 
 /**
  * Generates Svelte Query cache key for GET /projects
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  const u = client.projects.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/projects', args] as const
 }
 
 /**

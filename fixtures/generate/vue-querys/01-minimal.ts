@@ -26,10 +26,10 @@ export function useGetHealth(options?: {
 
 /**
  * Generates Vue Query cache key for GET /health
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetHealthQueryKey() {
-  return [client.health.$url().pathname] as const
+  return ['/health'] as const
 }
 
 /**

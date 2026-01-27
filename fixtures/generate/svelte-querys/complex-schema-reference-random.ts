@@ -27,10 +27,10 @@ export function createGetTest(
 
 /**
  * Generates Svelte Query cache key for GET /test
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetTestQueryKey() {
-  return [client.test.$url().pathname] as const
+  return ['/test'] as const
 }
 
 /**

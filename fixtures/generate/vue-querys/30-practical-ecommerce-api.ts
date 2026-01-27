@@ -33,11 +33,10 @@ export function useGetProducts(
 
 /**
  * Generates Vue Query cache key for GET /products
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  const u = client.products.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/products', args] as const
 }
 
 /**
@@ -120,13 +119,12 @@ export function useGetProductsProductId(
 
 /**
  * Generates Vue Query cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  const u = client.products[':productId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/products/:productId', args] as const
 }
 
 /**
@@ -272,10 +270,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates Vue Query cache key for GET /categories
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCategoriesQueryKey() {
-  return [client.categories.$url().pathname] as const
+  return ['/categories'] as const
 }
 
 /**
@@ -346,10 +344,10 @@ export function useGetCart(options?: {
 
 /**
  * Generates Vue Query cache key for GET /cart
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCartQueryKey() {
-  return [client.cart.$url().pathname] as const
+  return ['/cart'] as const
 }
 
 /**
@@ -508,11 +506,10 @@ export function useGetOrders(
 
 /**
  * Generates Vue Query cache key for GET /orders
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  const u = client.orders.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/orders', args] as const
 }
 
 /**
@@ -590,13 +587,12 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates Vue Query cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  const u = client.orders[':orderId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -687,13 +683,12 @@ export function useGetInventoryProductId(
 
 /**
  * Generates Vue Query cache key for GET /inventory/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetInventoryProductIdQueryKey(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
 ) {
-  const u = client.inventory[':productId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/inventory/:productId', args] as const
 }
 
 /**

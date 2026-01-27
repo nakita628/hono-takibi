@@ -23,10 +23,10 @@ export function useGetMfaStatus(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /mfa/status
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMfaStatusQueryKey() {
-  return [client.mfa.status.$url().pathname] as const
+  return ['/mfa/status'] as const
 }
 
 /**
@@ -64,10 +64,10 @@ export function useGetMfaMethods(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /mfa/methods
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMfaMethodsQueryKey() {
-  return [client.mfa.methods.$url().pathname] as const
+  return ['/mfa/methods'] as const
 }
 
 /**
@@ -377,10 +377,10 @@ export function useGetMfaWebauthnCredentials(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /mfa/webauthn/credentials
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMfaWebauthnCredentialsQueryKey() {
-  return [client.mfa.webauthn.credentials.$url().pathname] as const
+  return ['/mfa/webauthn/credentials'] as const
 }
 
 /**
@@ -516,10 +516,10 @@ export function useGetMfaBackupCodesStatus(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /mfa/backup-codes/status
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMfaBackupCodesStatusQueryKey() {
-  return [client.mfa['backup-codes'].status.$url().pathname] as const
+  return ['/mfa/backup-codes/status'] as const
 }
 
 /**

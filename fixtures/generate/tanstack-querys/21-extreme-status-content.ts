@@ -25,10 +25,10 @@ export function useGetExtremeResponses(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /extreme-responses
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetExtremeResponsesQueryKey() {
-  return [client['extreme-responses'].$url().pathname] as const
+  return ['/extreme-responses'] as const
 }
 
 /**

@@ -31,11 +31,10 @@ export function useGetEntities(
 
 /**
  * Generates Vue Query cache key for GET /entities
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
-  const u = client.entities.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/entities', args] as const
 }
 
 /**
@@ -114,13 +113,12 @@ export function useGetEntitiesEntityId(
 
 /**
  * Generates Vue Query cache key for GET /entities/{entityId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  const u = client.entities[':entityId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/entities/:entityId', args] as const
 }
 
 /**
@@ -235,13 +233,12 @@ export function useGetEntitiesEntityIdRelationships(
 
 /**
  * Generates Vue Query cache key for GET /entities/{entityId}/relationships
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  const u = client.entities[':entityId'].relationships.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/entities/:entityId/relationships', args] as const
 }
 
 /**

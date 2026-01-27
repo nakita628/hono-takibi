@@ -25,10 +25,10 @@ export function createGetClass(
 
 /**
  * Generates Svelte Query cache key for GET /class
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetClassQueryKey() {
-  return [client.class.$url().pathname] as const
+  return ['/class'] as const
 }
 
 /**
@@ -65,10 +65,10 @@ export function createGetInterface(
 
 /**
  * Generates Svelte Query cache key for GET /interface
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetInterfaceQueryKey() {
-  return [client.interface.$url().pathname] as const
+  return ['/interface'] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function createGetType(
 
 /**
  * Generates Svelte Query cache key for GET /type
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetTypeQueryKey() {
-  return [client.type.$url().pathname] as const
+  return ['/type'] as const
 }
 
 /**
@@ -166,10 +166,10 @@ export function createGetReturn(
 
 /**
  * Generates Svelte Query cache key for GET /return
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetReturnQueryKey() {
-  return [client.return.$url().pathname] as const
+  return ['/return'] as const
 }
 
 /**
@@ -206,10 +206,10 @@ export function createGetImport(
 
 /**
  * Generates Svelte Query cache key for GET /import
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetImportQueryKey() {
-  return [client.import.$url().pathname] as const
+  return ['/import'] as const
 }
 
 /**
@@ -246,10 +246,10 @@ export function createGetExport(
 
 /**
  * Generates Svelte Query cache key for GET /export
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetExportQueryKey() {
-  return [client.export.$url().pathname] as const
+  return ['/export'] as const
 }
 
 /**
@@ -286,10 +286,10 @@ export function createGetDefault(
 
 /**
  * Generates Svelte Query cache key for GET /default
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetDefaultQueryKey() {
-  return [client.default.$url().pathname] as const
+  return ['/default'] as const
 }
 
 /**
@@ -365,10 +365,10 @@ export function createGetVoid(
 
 /**
  * Generates Svelte Query cache key for GET /void
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetVoidQueryKey() {
-  return [client.void.$url().pathname] as const
+  return ['/void'] as const
 }
 
 /**
@@ -405,10 +405,10 @@ export function createGetNull(
 
 /**
  * Generates Svelte Query cache key for GET /null
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetNullQueryKey() {
-  return [client.null.$url().pathname] as const
+  return ['/null'] as const
 }
 
 /**
@@ -445,10 +445,10 @@ export function createGetTrue(
 
 /**
  * Generates Svelte Query cache key for GET /true
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetTrueQueryKey() {
-  return [client.true.$url().pathname] as const
+  return ['/true'] as const
 }
 
 /**
@@ -485,10 +485,10 @@ export function createGetFalse(
 
 /**
  * Generates Svelte Query cache key for GET /false
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetFalseQueryKey() {
-  return [client.false.$url().pathname] as const
+  return ['/false'] as const
 }
 
 /**
@@ -525,10 +525,10 @@ export function createGetIf(
 
 /**
  * Generates Svelte Query cache key for GET /if
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetIfQueryKey() {
-  return [client.if.$url().pathname] as const
+  return ['/if'] as const
 }
 
 /**
@@ -565,10 +565,10 @@ export function createGetElse(
 
 /**
  * Generates Svelte Query cache key for GET /else
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetElseQueryKey() {
-  return [client.else.$url().pathname] as const
+  return ['/else'] as const
 }
 
 /**
@@ -605,10 +605,10 @@ export function createGetFor(
 
 /**
  * Generates Svelte Query cache key for GET /for
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetForQueryKey() {
-  return [client.for.$url().pathname] as const
+  return ['/for'] as const
 }
 
 /**
@@ -645,10 +645,10 @@ export function createGetWhile(
 
 /**
  * Generates Svelte Query cache key for GET /while
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWhileQueryKey() {
-  return [client.while.$url().pathname] as const
+  return ['/while'] as const
 }
 
 /**
@@ -685,10 +685,10 @@ export function createGetSwitch(
 
 /**
  * Generates Svelte Query cache key for GET /switch
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSwitchQueryKey() {
-  return [client.switch.$url().pathname] as const
+  return ['/switch'] as const
 }
 
 /**
@@ -725,10 +725,10 @@ export function createGetCase(
 
 /**
  * Generates Svelte Query cache key for GET /case
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCaseQueryKey() {
-  return [client.case.$url().pathname] as const
+  return ['/case'] as const
 }
 
 /**
@@ -765,10 +765,10 @@ export function createGetBreak(
 
 /**
  * Generates Svelte Query cache key for GET /break
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetBreakQueryKey() {
-  return [client.break.$url().pathname] as const
+  return ['/break'] as const
 }
 
 /**
@@ -805,10 +805,10 @@ export function createGetContinue(
 
 /**
  * Generates Svelte Query cache key for GET /continue
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetContinueQueryKey() {
-  return [client.continue.$url().pathname] as const
+  return ['/continue'] as const
 }
 
 /**
@@ -848,10 +848,10 @@ export function createGetTry(
 
 /**
  * Generates Svelte Query cache key for GET /try
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetTryQueryKey() {
-  return [client.try.$url().pathname] as const
+  return ['/try'] as const
 }
 
 /**
@@ -888,10 +888,10 @@ export function createGetCatch(
 
 /**
  * Generates Svelte Query cache key for GET /catch
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetCatchQueryKey() {
-  return [client.catch.$url().pathname] as const
+  return ['/catch'] as const
 }
 
 /**
@@ -928,10 +928,10 @@ export function createGetFinally(
 
 /**
  * Generates Svelte Query cache key for GET /finally
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetFinallyQueryKey() {
-  return [client.finally.$url().pathname] as const
+  return ['/finally'] as const
 }
 
 /**
@@ -971,10 +971,10 @@ export function createGetThrow(
 
 /**
  * Generates Svelte Query cache key for GET /throw
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetThrowQueryKey() {
-  return [client.throw.$url().pathname] as const
+  return ['/throw'] as const
 }
 
 /**
@@ -1011,10 +1011,10 @@ export function createGetAsync(
 
 /**
  * Generates Svelte Query cache key for GET /async
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAsyncQueryKey() {
-  return [client.async.$url().pathname] as const
+  return ['/async'] as const
 }
 
 /**
@@ -1051,10 +1051,10 @@ export function createGetAwait(
 
 /**
  * Generates Svelte Query cache key for GET /await
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAwaitQueryKey() {
-  return [client.await.$url().pathname] as const
+  return ['/await'] as const
 }
 
 /**
@@ -1091,10 +1091,10 @@ export function createGetYield(
 
 /**
  * Generates Svelte Query cache key for GET /yield
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetYieldQueryKey() {
-  return [client.yield.$url().pathname] as const
+  return ['/yield'] as const
 }
 
 /**
@@ -1131,10 +1131,10 @@ export function createGetStatic(
 
 /**
  * Generates Svelte Query cache key for GET /static
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetStaticQueryKey() {
-  return [client.static.$url().pathname] as const
+  return ['/static'] as const
 }
 
 /**
@@ -1171,10 +1171,10 @@ export function createGetPublic(
 
 /**
  * Generates Svelte Query cache key for GET /public
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPublicQueryKey() {
-  return [client.public.$url().pathname] as const
+  return ['/public'] as const
 }
 
 /**
@@ -1211,10 +1211,10 @@ export function createGetPrivate(
 
 /**
  * Generates Svelte Query cache key for GET /private
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPrivateQueryKey() {
-  return [client.private.$url().pathname] as const
+  return ['/private'] as const
 }
 
 /**
@@ -1254,10 +1254,10 @@ export function createGetProtected(
 
 /**
  * Generates Svelte Query cache key for GET /protected
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetProtectedQueryKey() {
-  return [client.protected.$url().pathname] as const
+  return ['/protected'] as const
 }
 
 /**
@@ -1297,10 +1297,10 @@ export function createGetAbstract(
 
 /**
  * Generates Svelte Query cache key for GET /abstract
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAbstractQueryKey() {
-  return [client.abstract.$url().pathname] as const
+  return ['/abstract'] as const
 }
 
 /**
@@ -1340,10 +1340,10 @@ export function createGetFinal(
 
 /**
  * Generates Svelte Query cache key for GET /final
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetFinalQueryKey() {
-  return [client.final.$url().pathname] as const
+  return ['/final'] as const
 }
 
 /**
@@ -1380,10 +1380,10 @@ export function createGetExtends(
 
 /**
  * Generates Svelte Query cache key for GET /extends
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetExtendsQueryKey() {
-  return [client.extends.$url().pathname] as const
+  return ['/extends'] as const
 }
 
 /**
@@ -1423,10 +1423,10 @@ export function createGetImplements(
 
 /**
  * Generates Svelte Query cache key for GET /implements
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetImplementsQueryKey() {
-  return [client.implements.$url().pathname] as const
+  return ['/implements'] as const
 }
 
 /**
@@ -1466,10 +1466,10 @@ export function createGetPackage(
 
 /**
  * Generates Svelte Query cache key for GET /package
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPackageQueryKey() {
-  return [client.package.$url().pathname] as const
+  return ['/package'] as const
 }
 
 /**
@@ -1509,10 +1509,10 @@ export function createGetEnum(
 
 /**
  * Generates Svelte Query cache key for GET /enum
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetEnumQueryKey() {
-  return [client.enum.$url().pathname] as const
+  return ['/enum'] as const
 }
 
 /**
@@ -1549,10 +1549,10 @@ export function createGetConst(
 
 /**
  * Generates Svelte Query cache key for GET /const
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetConstQueryKey() {
-  return [client.const.$url().pathname] as const
+  return ['/const'] as const
 }
 
 /**
@@ -1589,10 +1589,10 @@ export function createGetLet(
 
 /**
  * Generates Svelte Query cache key for GET /let
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetLetQueryKey() {
-  return [client.let.$url().pathname] as const
+  return ['/let'] as const
 }
 
 /**
@@ -1629,10 +1629,10 @@ export function createGetVar(
 
 /**
  * Generates Svelte Query cache key for GET /var
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetVarQueryKey() {
-  return [client.var.$url().pathname] as const
+  return ['/var'] as const
 }
 
 /**
@@ -1669,10 +1669,10 @@ export function createGetThis(
 
 /**
  * Generates Svelte Query cache key for GET /this
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetThisQueryKey() {
-  return [client.this.$url().pathname] as const
+  return ['/this'] as const
 }
 
 /**
@@ -1709,10 +1709,10 @@ export function createGetSuper(
 
 /**
  * Generates Svelte Query cache key for GET /super
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSuperQueryKey() {
-  return [client.super.$url().pathname] as const
+  return ['/super'] as const
 }
 
 /**
@@ -1749,10 +1749,10 @@ export function createGetSelf(
 
 /**
  * Generates Svelte Query cache key for GET /self
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSelfQueryKey() {
-  return [client.self.$url().pathname] as const
+  return ['/self'] as const
 }
 
 /**
@@ -1791,10 +1791,10 @@ export function createGetConstructor(
 
 /**
  * Generates Svelte Query cache key for GET /constructor
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetConstructorQueryKey() {
-  return [client.constructor.$url().pathname] as const
+  return ['/constructor'] as const
 }
 
 /**
@@ -1834,10 +1834,10 @@ export function createGetPrototype(
 
 /**
  * Generates Svelte Query cache key for GET /prototype
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPrototypeQueryKey() {
-  return [client.prototype.$url().pathname] as const
+  return ['/prototype'] as const
 }
 
 /**
@@ -1877,10 +1877,10 @@ export function createGetToString(
 
 /**
  * Generates Svelte Query cache key for GET /toString
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetToStringQueryKey() {
-  return [client.toString.$url().pathname] as const
+  return ['/toString'] as const
 }
 
 /**
@@ -1920,10 +1920,10 @@ export function createGetValueOf(
 
 /**
  * Generates Svelte Query cache key for GET /valueOf
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetValueOfQueryKey() {
-  return [client.valueOf.$url().pathname] as const
+  return ['/valueOf'] as const
 }
 
 /**
@@ -1965,10 +1965,10 @@ export function createGetHasOwnProperty(
 
 /**
  * Generates Svelte Query cache key for GET /hasOwnProperty
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetHasOwnPropertyQueryKey() {
-  return [client.hasOwnProperty.$url().pathname] as const
+  return ['/hasOwnProperty'] as const
 }
 
 /**
@@ -2012,10 +2012,10 @@ export function createGetNameCollisions(
 
 /**
  * Generates Svelte Query cache key for GET /name-collisions
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetNameCollisionsQueryKey() {
-  return [client['name-collisions'].$url().pathname] as const
+  return ['/name-collisions'] as const
 }
 
 /**

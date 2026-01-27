@@ -30,10 +30,10 @@ export function useGetApplicationsMe(options?: {
 
 /**
  * Generates Vue Query cache key for GET /applications/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetApplicationsMeQueryKey() {
-  return [client.applications['@me'].$url().pathname] as const
+  return ['/applications/@me'] as const
 }
 
 /**
@@ -114,13 +114,12 @@ export function useGetApplicationsApplicationId(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
 ) {
-  const u = client.applications[':application_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id', args] as const
 }
 
 /**
@@ -211,15 +210,14 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id']['activity-instances'][':instance_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/activity-instances/:instance_id', args] as const
 }
 
 /**
@@ -315,13 +313,12 @@ export function useGetApplicationsApplicationIdCommands(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/commands
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
 ) {
-  const u = client.applications[':application_id'].commands.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/commands', args] as const
 }
 
 /**
@@ -447,15 +444,14 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/commands/{command_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].commands[':command_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/commands/:command_id', args] as const
 }
 
 /**
@@ -600,13 +596,12 @@ export function useGetApplicationsApplicationIdEmojis(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/emojis
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
 ) {
-  const u = client.applications[':application_id'].emojis.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/emojis', args] as const
 }
 
 /**
@@ -699,15 +694,14 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].emojis[':emoji_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -852,13 +846,12 @@ export function useGetApplicationsApplicationIdEntitlements(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
 ) {
-  const u = client.applications[':application_id'].entitlements.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -954,15 +947,14 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].entitlements[':entitlement_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/entitlements/:entitlement_id', args] as const
 }
 
 /**
@@ -1116,15 +1108,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
 ) {
-  const u = client.applications[':application_id'].guilds[':guild_id'].commands.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands', args] as const
 }
 
 /**
@@ -1276,16 +1267,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
 ) {
-  const u =
-    client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands/permissions', args] as const
 }
 
 /**
@@ -1347,16 +1336,14 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
-  const u =
-    client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id', args] as const
 }
 
 /**
@@ -1512,18 +1499,17 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
 ) {
-  const u =
-    client.applications[':application_id'].guilds[':guild_id'].commands[
-      ':command_id'
-    ].permissions.$url(args)
-  return [u.pathname + u.search] as const
+  return [
+    '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
+    args,
+  ] as const
 }
 
 /**
@@ -1630,15 +1616,14 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
 
 /**
  * Generates Vue Query cache key for GET /applications/{application_id}/role-connections/metadata
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
 ) {
-  const u = client.applications[':application_id']['role-connections'].metadata.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/applications/:application_id/role-connections/metadata', args] as const
 }
 
 /**
@@ -1741,13 +1726,12 @@ export function useGetChannelsChannelId(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id', args] as const
 }
 
 /**
@@ -1895,13 +1879,12 @@ export function useGetChannelsChannelIdInvites(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/invites
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].invites.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/invites', args] as const
 }
 
 /**
@@ -1989,13 +1972,12 @@ export function useGetChannelsChannelIdMessages(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].messages.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/messages', args] as const
 }
 
 /**
@@ -2127,13 +2109,12 @@ export function useGetChannelsChannelIdMessagesPins(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages/pins
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].messages.pins.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/messages/pins', args] as const
 }
 
 /**
@@ -2279,15 +2260,14 @@ export function useGetChannelsChannelIdMessagesMessageId(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].messages[':message_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/messages/:message_id', args] as const
 }
 
 /**
@@ -2522,16 +2502,14 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
 ) {
-  const u =
-    client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name', args] as const
 }
 
 /**
@@ -2899,13 +2877,12 @@ export function useGetChannelsChannelIdPins(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/pins
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].pins.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/pins', args] as const
 }
 
 /**
@@ -3043,15 +3020,14 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/polls/:message_id/answers/:answer_id', args] as const
 }
 
 /**
@@ -3278,13 +3254,12 @@ export function useGetChannelsChannelIdThreadMembers(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
 ) {
-  const u = client.channels[':channel_id']['thread-members'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/thread-members', args] as const
 }
 
 /**
@@ -3428,15 +3403,14 @@ export function useGetChannelsChannelIdThreadMembersUserId(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id']['thread-members'][':user_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/thread-members/:user_id', args] as const
 }
 
 /**
@@ -3615,15 +3589,14 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/private
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].threads.archived.private.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/threads/archived/private', args] as const
 }
 
 /**
@@ -3685,15 +3658,14 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/threads/archived/public
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].threads.archived.public.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/threads/archived/public', args] as const
 }
 
 /**
@@ -3753,13 +3725,12 @@ export function useGetChannelsChannelIdThreadsSearch(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/threads/search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].threads.search.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/threads/search', args] as const
 }
 
 /**
@@ -3851,15 +3822,14 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
 ) {
-  const u = client.channels[':channel_id'].users['@me'].threads.archived.private.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/users/@me/threads/archived/private', args] as const
 }
 
 /**
@@ -3917,13 +3887,12 @@ export function useGetChannelsChannelIdWebhooks(
 
 /**
  * Generates Vue Query cache key for GET /channels/{channel_id}/webhooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  const u = client.channels[':channel_id'].webhooks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/channels/:channel_id/webhooks', args] as const
 }
 
 /**
@@ -3998,10 +3967,10 @@ export function useGetGateway(options?: {
 
 /**
  * Generates Vue Query cache key for GET /gateway
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetGatewayQueryKey() {
-  return [client.gateway.$url().pathname] as const
+  return ['/gateway'] as const
 }
 
 /**
@@ -4044,10 +4013,10 @@ export function useGetGatewayBot(options?: {
 
 /**
  * Generates Vue Query cache key for GET /gateway/bot
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetGatewayBotQueryKey() {
-  return [client.gateway.bot.$url().pathname] as const
+  return ['/gateway/bot'] as const
 }
 
 /**
@@ -4100,13 +4069,12 @@ export function useGetGuildsTemplatesCode(
 
 /**
  * Generates Vue Query cache key for GET /guilds/templates/{code}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsTemplatesCodeQueryKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
 ) {
-  const u = client.guilds.templates[':code'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/templates/:code', args] as const
 }
 
 /**
@@ -4157,13 +4125,12 @@ export function useGetGuildsGuildId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id', args] as const
 }
 
 /**
@@ -4247,13 +4214,12 @@ export function useGetGuildsGuildIdAuditLogs(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/audit-logs
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['audit-logs'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/audit-logs', args] as const
 }
 
 /**
@@ -4313,13 +4279,12 @@ export function useGetGuildsGuildIdAutoModerationRules(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['auto-moderation'].rules.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/auto-moderation/rules', args] as const
 }
 
 /**
@@ -4415,15 +4380,14 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
 ) {
-  const u = client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id', args] as const
 }
 
 /**
@@ -4569,13 +4533,12 @@ export function useGetGuildsGuildIdBans(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/bans
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdBansQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].bans.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/bans', args] as const
 }
 
 /**
@@ -4631,13 +4594,12 @@ export function useGetGuildsGuildIdBansUserId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/bans/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].bans[':user_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/bans/:user_id', args] as const
 }
 
 /**
@@ -4790,13 +4752,12 @@ export function useGetGuildsGuildIdChannels(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/channels
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].channels.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/channels', args] as const
 }
 
 /**
@@ -4915,13 +4876,12 @@ export function useGetGuildsGuildIdEmojis(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].emojis.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/emojis', args] as const
 }
 
 /**
@@ -5010,13 +4970,12 @@ export function useGetGuildsGuildIdEmojisEmojiId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].emojis[':emoji_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/emojis/:emoji_id', args] as const
 }
 
 /**
@@ -5139,13 +5098,12 @@ export function useGetGuildsGuildIdIntegrations(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/integrations
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].integrations.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/integrations', args] as const
 }
 
 /**
@@ -5244,13 +5202,12 @@ export function useGetGuildsGuildIdInvites(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/invites
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].invites.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/invites', args] as const
 }
 
 /**
@@ -5306,13 +5263,12 @@ export function useGetGuildsGuildIdMembers(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/members
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdMembersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].members.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/members', args] as const
 }
 
 /**
@@ -5401,13 +5357,12 @@ export function useGetGuildsGuildIdMembersSearch(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/members/search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].members.search.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/members/search', args] as const
 }
 
 /**
@@ -5465,13 +5420,12 @@ export function useGetGuildsGuildIdMembersUserId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/members/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].members[':user_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/members/:user_id', args] as const
 }
 
 /**
@@ -5720,13 +5674,12 @@ export function useGetGuildsGuildIdMessagesSearch(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/messages/search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdMessagesSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['messages']['search']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].messages.search.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/messages/search', args] as const
 }
 
 /**
@@ -5784,13 +5737,12 @@ export function useGetGuildsGuildIdNewMemberWelcome(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/new-member-welcome
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['new-member-welcome'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/new-member-welcome', args] as const
 }
 
 /**
@@ -5846,13 +5798,12 @@ export function useGetGuildsGuildIdOnboarding(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/onboarding
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].onboarding.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/onboarding', args] as const
 }
 
 /**
@@ -5939,13 +5890,12 @@ export function useGetGuildsGuildIdPreview(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/preview
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].preview.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/preview', args] as const
 }
 
 /**
@@ -6001,13 +5951,12 @@ export function useGetGuildsGuildIdPrune(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/prune
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdPruneQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].prune.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/prune', args] as const
 }
 
 /**
@@ -6094,13 +6043,12 @@ export function useGetGuildsGuildIdRegions(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/regions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].regions.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/regions', args] as const
 }
 
 /**
@@ -6156,13 +6104,12 @@ export function useGetGuildsGuildIdRoles(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/roles
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdRolesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].roles.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/roles', args] as const
 }
 
 /**
@@ -6282,13 +6229,12 @@ export function useGetGuildsGuildIdRolesMemberCounts(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/roles/member-counts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdRolesMemberCountsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['member-counts']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].roles['member-counts'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/roles/member-counts', args] as const
 }
 
 /**
@@ -6346,13 +6292,12 @@ export function useGetGuildsGuildIdRolesRoleId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/roles/{role_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].roles[':role_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/roles/:role_id', args] as const
 }
 
 /**
@@ -6475,13 +6420,12 @@ export function useGetGuildsGuildIdScheduledEvents(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['scheduled-events'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/scheduled-events', args] as const
 }
 
 /**
@@ -6572,15 +6516,14 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
 ) {
-  const u = client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id', args] as const
 }
 
 /**
@@ -6733,16 +6676,14 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
 ) {
-  const u =
-    client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id/users', args] as const
 }
 
 /**
@@ -6802,13 +6743,12 @@ export function useGetGuildsGuildIdSoundboardSounds(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['soundboard-sounds'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/soundboard-sounds', args] as const
 }
 
 /**
@@ -6899,15 +6839,14 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
 ) {
-  const u = client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/soundboard-sounds/:sound_id', args] as const
 }
 
 /**
@@ -7050,13 +6989,12 @@ export function useGetGuildsGuildIdStickers(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdStickersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].stickers.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/stickers', args] as const
 }
 
 /**
@@ -7145,13 +7083,12 @@ export function useGetGuildsGuildIdStickersStickerId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].stickers[':sticker_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -7284,13 +7221,12 @@ export function useGetGuildsGuildIdTemplates(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/templates
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].templates.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/templates', args] as const
 }
 
 /**
@@ -7476,13 +7412,12 @@ export function useGetGuildsGuildIdThreadsActive(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/threads/active
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].threads.active.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/threads/active', args] as const
 }
 
 /**
@@ -7538,13 +7473,12 @@ export function useGetGuildsGuildIdVanityUrl(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/vanity-url
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['vanity-url'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/vanity-url', args] as const
 }
 
 /**
@@ -7602,13 +7536,12 @@ export function useGetGuildsGuildIdVoiceStatesMe(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/@me
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['voice-states']['@me'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/voice-states/@me', args] as const
 }
 
 /**
@@ -7703,13 +7636,12 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['voice-states'][':user_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/voice-states/:user_id', args] as const
 }
 
 /**
@@ -7806,13 +7738,12 @@ export function useGetGuildsGuildIdWebhooks(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/webhooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].webhooks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/webhooks', args] as const
 }
 
 /**
@@ -7868,13 +7799,12 @@ export function useGetGuildsGuildIdWelcomeScreen(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/welcome-screen
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['welcome-screen'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/welcome-screen', args] as const
 }
 
 /**
@@ -7961,13 +7891,12 @@ export function useGetGuildsGuildIdWidget(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/widget
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
 ) {
-  const u = client.guilds[':guild_id'].widget.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/widget', args] as const
 }
 
 /**
@@ -8054,13 +7983,12 @@ export function useGetGuildsGuildIdWidgetJson(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.json
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['widget.json'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/widget.json', args] as const
 }
 
 /**
@@ -8116,13 +8044,12 @@ export function useGetGuildsGuildIdWidgetPng(
 
 /**
  * Generates Vue Query cache key for GET /guilds/{guild_id}/widget.png
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  const u = client.guilds[':guild_id']['widget.png'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/guilds/:guild_id/widget.png', args] as const
 }
 
 /**
@@ -8219,13 +8146,12 @@ export function useGetInvitesCode(
 
 /**
  * Generates Vue Query cache key for GET /invites/{code}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetInvitesCodeQueryKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
 ) {
-  const u = client.invites[':code'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/invites/:code', args] as const
 }
 
 /**
@@ -8357,13 +8283,12 @@ export function useGetLobbiesLobbyId(
 
 /**
  * Generates Vue Query cache key for GET /lobbies/{lobby_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetLobbiesLobbyIdQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
 ) {
-  const u = client.lobbies[':lobby_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/lobbies/:lobby_id', args] as const
 }
 
 /**
@@ -8695,13 +8620,12 @@ export function useGetLobbiesLobbyIdMessages(
 
 /**
  * Generates Vue Query cache key for GET /lobbies/{lobby_id}/messages
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
 ) {
-  const u = client.lobbies[':lobby_id'].messages.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/lobbies/:lobby_id/messages', args] as const
 }
 
 /**
@@ -8780,10 +8704,10 @@ export function useGetOauth2Me(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth2/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauth2MeQueryKey() {
-  return [client.oauth2['@me'].$url().pathname] as const
+  return ['/oauth2/@me'] as const
 }
 
 /**
@@ -8831,10 +8755,10 @@ export function useGetOauth2ApplicationsMe(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth2/applications/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauth2ApplicationsMeQueryKey() {
-  return [client.oauth2.applications['@me'].$url().pathname] as const
+  return ['/oauth2/applications/@me'] as const
 }
 
 /**
@@ -8877,10 +8801,10 @@ export function useGetOauth2Keys(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth2/keys
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauth2KeysQueryKey() {
-  return [client.oauth2.keys.$url().pathname] as const
+  return ['/oauth2/keys'] as const
 }
 
 /**
@@ -8923,10 +8847,10 @@ export function useGetOauth2Userinfo(options?: {
 
 /**
  * Generates Vue Query cache key for GET /oauth2/userinfo
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOauth2UserinfoQueryKey() {
-  return [client.oauth2.userinfo.$url().pathname] as const
+  return ['/oauth2/userinfo'] as const
 }
 
 /**
@@ -9119,10 +9043,10 @@ export function useGetSoundboardDefaultSounds(options?: {
 
 /**
  * Generates Vue Query cache key for GET /soundboard-default-sounds
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSoundboardDefaultSoundsQueryKey() {
-  return [client['soundboard-default-sounds'].$url().pathname] as const
+  return ['/soundboard-default-sounds'] as const
 }
 
 /**
@@ -9205,13 +9129,12 @@ export function useGetStageInstancesChannelId(
 
 /**
  * Generates Vue Query cache key for GET /stage-instances/{channel_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetStageInstancesChannelIdQueryKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
 ) {
-  const u = client['stage-instances'][':channel_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/stage-instances/:channel_id', args] as const
 }
 
 /**
@@ -9322,10 +9245,10 @@ export function useGetStickerPacks(options?: {
 
 /**
  * Generates Vue Query cache key for GET /sticker-packs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetStickerPacksQueryKey() {
-  return [client['sticker-packs'].$url().pathname] as const
+  return ['/sticker-packs'] as const
 }
 
 /**
@@ -9378,13 +9301,12 @@ export function useGetStickerPacksPackId(
 
 /**
  * Generates Vue Query cache key for GET /sticker-packs/{pack_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetStickerPacksPackIdQueryKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
 ) {
-  const u = client['sticker-packs'][':pack_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/sticker-packs/:pack_id', args] as const
 }
 
 /**
@@ -9440,13 +9362,12 @@ export function useGetStickersStickerId(
 
 /**
  * Generates Vue Query cache key for GET /stickers/{sticker_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  const u = client.stickers[':sticker_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/stickers/:sticker_id', args] as const
 }
 
 /**
@@ -9494,10 +9415,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates Vue Query cache key for GET /users/@me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetUsersMeQueryKey() {
-  return [client.users['@me'].$url().pathname] as const
+  return ['/users/@me'] as const
 }
 
 /**
@@ -9582,15 +9503,14 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
 
 /**
  * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
 ) {
-  const u = client.users['@me'].applications[':application_id'].entitlements.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/@me/applications/:application_id/entitlements', args] as const
 }
 
 /**
@@ -9652,15 +9572,14 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
 
 /**
  * Generates Vue Query cache key for GET /users/@me/applications/{application_id}/role-connection
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  const u = client.users['@me'].applications[':application_id']['role-connection'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/@me/applications/:application_id/role-connection', args] as const
 }
 
 /**
@@ -9833,10 +9752,10 @@ export function useGetUsersMeConnections(options?: {
 
 /**
  * Generates Vue Query cache key for GET /users/@me/connections
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetUsersMeConnectionsQueryKey() {
-  return [client.users['@me'].connections.$url().pathname] as const
+  return ['/users/@me/connections'] as const
 }
 
 /**
@@ -9886,13 +9805,12 @@ export function useGetUsersMeGuilds(
 
 /**
  * Generates Vue Query cache key for GET /users/@me/guilds
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersMeGuildsQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
 ) {
-  const u = client.users['@me'].guilds.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/@me/guilds', args] as const
 }
 
 /**
@@ -9982,13 +9900,12 @@ export function useGetUsersMeGuildsGuildIdMember(
 
 /**
  * Generates Vue Query cache key for GET /users/@me/guilds/{guild_id}/member
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
 ) {
-  const u = client.users['@me'].guilds[':guild_id'].member.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/@me/guilds/:guild_id/member', args] as const
 }
 
 /**
@@ -10039,13 +9956,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates Vue Query cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  const u = client.users[':user_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -10091,10 +10007,10 @@ export function useGetVoiceRegions(options?: {
 
 /**
  * Generates Vue Query cache key for GET /voice/regions
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetVoiceRegionsQueryKey() {
-  return [client.voice.regions.$url().pathname] as const
+  return ['/voice/regions'] as const
 }
 
 /**
@@ -10147,13 +10063,12 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
 ) {
-  const u = client.webhooks[':webhook_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/webhooks/:webhook_id', args] as const
 }
 
 /**
@@ -10273,13 +10188,12 @@ export function useGetWebhooksWebhookIdWebhookToken(
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
 ) {
-  const u = client.webhooks[':webhook_id'][':webhook_token'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/webhooks/:webhook_id/:webhook_token', args] as const
 }
 
 /**
@@ -10485,15 +10399,14 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
 ) {
-  const u = client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/webhooks/:webhook_id/:webhook_token/messages/@original', args] as const
 }
 
 /**
@@ -10646,15 +10559,14 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
 ) {
-  const u = client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id', args] as const
 }
 
 /**

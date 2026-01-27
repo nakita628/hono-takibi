@@ -30,10 +30,10 @@ export function useGetString(options?: {
 
 /**
  * Generates Vue Query cache key for GET /string
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetStringQueryKey() {
-  return [client.string.$url().pathname] as const
+  return ['/string'] as const
 }
 
 /**

@@ -63,10 +63,10 @@ export function createGetConfigs(
 
 /**
  * Generates Svelte Query cache key for GET /configs
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetConfigsQueryKey() {
-  return [client.configs.$url().pathname] as const
+  return ['/configs'] as const
 }
 
 /**

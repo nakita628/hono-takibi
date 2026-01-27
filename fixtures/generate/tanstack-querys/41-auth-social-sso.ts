@@ -37,13 +37,12 @@ export function useGetSocialAuthorizeProvider(
 
 /**
  * Generates TanStack Query cache key for GET /social/authorize/{provider}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSocialAuthorizeProviderQueryKey(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  const u = client.social.authorize[':provider'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/social/authorize/:provider', args] as const
 }
 
 /**
@@ -98,13 +97,12 @@ export function useGetSocialCallbackProvider(
 
 /**
  * Generates TanStack Query cache key for GET /social/callback/{provider}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSocialCallbackProviderQueryKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  const u = client.social.callback[':provider'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/social/callback/:provider', args] as const
 }
 
 /**
@@ -195,10 +193,10 @@ export function useGetProviders(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /providers
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetProvidersQueryKey() {
-  return [client.providers.$url().pathname] as const
+  return ['/providers'] as const
 }
 
 /**
@@ -238,10 +236,10 @@ export function useGetProvidersAdmin(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /providers/admin
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetProvidersAdminQueryKey() {
-  return [client.providers.admin.$url().pathname] as const
+  return ['/providers/admin'] as const
 }
 
 /**
@@ -314,13 +312,12 @@ export function useGetProvidersProviderId(
 
 /**
  * Generates TanStack Query cache key for GET /providers/{providerId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProvidersProviderIdQueryKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  const u = client.providers[':providerId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/providers/:providerId', args] as const
 }
 
 /**
@@ -445,10 +442,10 @@ export function useGetAccountLinked(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /account/linked
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAccountLinkedQueryKey() {
-  return [client.account.linked.$url().pathname] as const
+  return ['/account/linked'] as const
 }
 
 /**
@@ -547,10 +544,10 @@ export function useGetEnterpriseSso(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetEnterpriseSsoQueryKey() {
-  return [client.enterprise.sso.$url().pathname] as const
+  return ['/enterprise/sso'] as const
 }
 
 /**
@@ -623,13 +620,12 @@ export function useGetEnterpriseSsoConfigId(
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  const u = client.enterprise.sso[':configId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/enterprise/sso/:configId', args] as const
 }
 
 /**
@@ -739,13 +735,12 @@ export function useGetEnterpriseSsoDomainLookup(
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso/domain-lookup
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEnterpriseSsoDomainLookupQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  const u = client.enterprise.sso['domain-lookup'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/enterprise/sso/domain-lookup', args] as const
 }
 
 /**
@@ -800,13 +795,12 @@ export function useGetEnterpriseSsoConfigIdMetadata(
 
 /**
  * Generates TanStack Query cache key for GET /enterprise/sso/{configId}/metadata
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  const u = client.enterprise.sso[':configId'].metadata.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/enterprise/sso/:configId/metadata', args] as const
 }
 
 /**

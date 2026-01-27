@@ -27,10 +27,10 @@ export function createGetPublic(
 
 /**
  * Generates Svelte Query cache key for GET /public
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPublicQueryKey() {
-  return [client.public.$url().pathname] as const
+  return ['/public'] as const
 }
 
 /**
@@ -73,10 +73,10 @@ export function createGetSingleAuth(
 
 /**
  * Generates Svelte Query cache key for GET /single-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSingleAuthQueryKey() {
-  return [client['single-auth'].$url().pathname] as const
+  return ['/single-auth'] as const
 }
 
 /**
@@ -120,10 +120,10 @@ export function createGetAnyAuth(
 
 /**
  * Generates Svelte Query cache key for GET /any-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAnyAuthQueryKey() {
-  return [client['any-auth'].$url().pathname] as const
+  return ['/any-auth'] as const
 }
 
 /**
@@ -167,10 +167,10 @@ export function createGetAllAuth(
 
 /**
  * Generates Svelte Query cache key for GET /all-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetAllAuthQueryKey() {
-  return [client['all-auth'].$url().pathname] as const
+  return ['/all-auth'] as const
 }
 
 /**
@@ -216,10 +216,10 @@ export function createGetComplexAuth(
 
 /**
  * Generates Svelte Query cache key for GET /complex-auth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetComplexAuthQueryKey() {
-  return [client['complex-auth'].$url().pathname] as const
+  return ['/complex-auth'] as const
 }
 
 /**
@@ -265,10 +265,10 @@ export function createGetScopedOauth(
 
 /**
  * Generates Svelte Query cache key for GET /scoped-oauth
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetScopedOauthQueryKey() {
-  return [client['scoped-oauth'].$url().pathname] as const
+  return ['/scoped-oauth'] as const
 }
 
 /**
@@ -314,10 +314,10 @@ export function createGetMixedLevelSecurity(
 
 /**
  * Generates Svelte Query cache key for GET /mixed-level-security
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMixedLevelSecurityQueryKey() {
-  return [client['mixed-level-security'].$url().pathname] as const
+  return ['/mixed-level-security'] as const
 }
 
 /**
@@ -441,10 +441,10 @@ export function createGetOverrideGlobal(
 
 /**
  * Generates Svelte Query cache key for GET /override-global
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOverrideGlobalQueryKey() {
-  return [client['override-global'].$url().pathname] as const
+  return ['/override-global'] as const
 }
 
 /**
@@ -490,10 +490,10 @@ export function createGetOptionalEnhanced(
 
 /**
  * Generates Svelte Query cache key for GET /optional-enhanced
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetOptionalEnhancedQueryKey() {
-  return [client['optional-enhanced'].$url().pathname] as const
+  return ['/optional-enhanced'] as const
 }
 
 /**
@@ -539,10 +539,10 @@ export function createGetMultiTenant(
 
 /**
  * Generates Svelte Query cache key for GET /multi-tenant
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMultiTenantQueryKey() {
-  return [client['multi-tenant'].$url().pathname] as const
+  return ['/multi-tenant'] as const
 }
 
 /**

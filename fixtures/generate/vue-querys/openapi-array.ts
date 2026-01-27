@@ -30,10 +30,10 @@ export function useGetArray(options?: {
 
 /**
  * Generates Vue Query cache key for GET /array
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetArrayQueryKey() {
-  return [client.array.$url().pathname] as const
+  return ['/array'] as const
 }
 
 /**

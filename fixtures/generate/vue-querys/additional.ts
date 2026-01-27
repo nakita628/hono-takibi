@@ -32,10 +32,10 @@ export function useGetPassthrough(options?: {
 
 /**
  * Generates Vue Query cache key for GET /passthrough
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetPassthroughQueryKey() {
-  return [client.passthrough.$url().pathname] as const
+  return ['/passthrough'] as const
 }
 
 /**

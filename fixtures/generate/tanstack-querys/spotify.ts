@@ -28,11 +28,10 @@ export function useGetAlbums(
 
 /**
  * Generates TanStack Query cache key for GET /albums
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
-  const u = client.albums.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/albums', args] as const
 }
 
 /**
@@ -77,13 +76,12 @@ export function useGetAlbumsId(
 
 /**
  * Generates TanStack Query cache key for GET /albums/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  const u = client.albums[':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/albums/:id', args] as const
 }
 
 /**
@@ -137,13 +135,12 @@ export function useGetAlbumsIdTracks(
 
 /**
  * Generates TanStack Query cache key for GET /albums/{id}/tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAlbumsIdTracksQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  const u = client.albums[':id'].tracks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/albums/:id/tracks', args] as const
 }
 
 /**
@@ -189,11 +186,10 @@ export function useGetArtists(
 
 /**
  * Generates TanStack Query cache key for GET /artists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
-  const u = client.artists.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/artists', args] as const
 }
 
 /**
@@ -240,13 +236,12 @@ export function useGetArtistsId(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetArtistsIdQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  const u = client.artists[':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/artists/:id', args] as const
 }
 
 /**
@@ -301,13 +296,12 @@ export function useGetArtistsIdAlbums(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}/albums
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  const u = client.artists[':id'].albums.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/artists/:id/albums', args] as const
 }
 
 /**
@@ -362,13 +356,12 @@ export function useGetArtistsIdRelatedArtists(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}/related-artists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  const u = client.artists[':id']['related-artists'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/artists/:id/related-artists', args] as const
 }
 
 /**
@@ -423,13 +416,12 @@ export function useGetArtistsIdTopTracks(
 
 /**
  * Generates TanStack Query cache key for GET /artists/{id}/top-tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  const u = client.artists[':id']['top-tracks'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/artists/:id/top-tracks', args] as const
 }
 
 /**
@@ -484,13 +476,12 @@ export function useGetAudioAnalysisId(
 
 /**
  * Generates TanStack Query cache key for GET /audio-analysis/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAudioAnalysisIdQueryKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  const u = client['audio-analysis'][':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/audio-analysis/:id', args] as const
 }
 
 /**
@@ -540,13 +531,12 @@ export function useGetAudioFeatures(
 
 /**
  * Generates TanStack Query cache key for GET /audio-features
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAudioFeaturesQueryKey(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  const u = client['audio-features'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/audio-features', args] as const
 }
 
 /**
@@ -602,13 +592,12 @@ export function useGetAudioFeaturesId(
 
 /**
  * Generates TanStack Query cache key for GET /audio-features/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAudioFeaturesIdQueryKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  const u = client['audio-features'][':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/audio-features/:id', args] as const
 }
 
 /**
@@ -655,11 +644,10 @@ export function useGetAudiobooks(
 
 /**
  * Generates TanStack Query cache key for GET /audiobooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  const u = client.audiobooks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/audiobooks', args] as const
 }
 
 /**
@@ -707,13 +695,12 @@ export function useGetAudiobooksId(
 
 /**
  * Generates TanStack Query cache key for GET /audiobooks/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAudiobooksIdQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  const u = client.audiobooks[':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/audiobooks/:id', args] as const
 }
 
 /**
@@ -769,13 +756,12 @@ export function useGetAudiobooksIdChapters(
 
 /**
  * Generates TanStack Query cache key for GET /audiobooks/{id}/chapters
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAudiobooksIdChaptersQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  const u = client.audiobooks[':id'].chapters.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/audiobooks/:id/chapters', args] as const
 }
 
 /**
@@ -826,13 +812,12 @@ export function useGetBrowseCategories(
 
 /**
  * Generates TanStack Query cache key for GET /browse/categories
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBrowseCategoriesQueryKey(
   args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  const u = client.browse.categories.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/browse/categories', args] as const
 }
 
 /**
@@ -887,13 +872,12 @@ export function useGetBrowseCategoriesCategoryId(
 
 /**
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  const u = client.browse.categories[':category_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/browse/categories/:category_id', args] as const
 }
 
 /**
@@ -948,13 +932,12 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
 
 /**
  * Generates TanStack Query cache key for GET /browse/categories/{category_id}/playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  const u = client.browse.categories[':category_id'].playlists.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/browse/categories/:category_id/playlists', args] as const
 }
 
 /**
@@ -1009,13 +992,12 @@ export function useGetBrowseFeaturedPlaylists(
 
 /**
  * Generates TanStack Query cache key for GET /browse/featured-playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  const u = client.browse['featured-playlists'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/browse/featured-playlists', args] as const
 }
 
 /**
@@ -1068,13 +1050,12 @@ export function useGetBrowseNewReleases(
 
 /**
  * Generates TanStack Query cache key for GET /browse/new-releases
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetBrowseNewReleasesQueryKey(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  const u = client.browse['new-releases'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/browse/new-releases', args] as const
 }
 
 /**
@@ -1121,11 +1102,10 @@ export function useGetChapters(
 
 /**
  * Generates TanStack Query cache key for GET /chapters
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
-  const u = client.chapters.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/chapters', args] as const
 }
 
 /**
@@ -1173,13 +1153,12 @@ export function useGetChaptersId(
 
 /**
  * Generates TanStack Query cache key for GET /chapters/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetChaptersIdQueryKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  const u = client.chapters[':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/chapters/:id', args] as const
 }
 
 /**
@@ -1225,11 +1204,10 @@ export function useGetEpisodes(
 
 /**
  * Generates TanStack Query cache key for GET /episodes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
-  const u = client.episodes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/episodes', args] as const
 }
 
 /**
@@ -1277,13 +1255,12 @@ export function useGetEpisodesId(
 
 /**
  * Generates TanStack Query cache key for GET /episodes/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetEpisodesIdQueryKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  const u = client.episodes[':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/episodes/:id', args] as const
 }
 
 /**
@@ -1326,10 +1303,10 @@ export function useGetMarkets(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /markets
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMarketsQueryKey() {
-  return [client.markets.$url().pathname] as const
+  return ['/markets'] as const
 }
 
 /**
@@ -1370,10 +1347,10 @@ export function useGetMe(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /me
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMeQueryKey() {
-  return [client.me.$url().pathname] as const
+  return ['/me'] as const
 }
 
 /**
@@ -1413,11 +1390,10 @@ export function useGetMeAlbums(
 
 /**
  * Generates TanStack Query cache key for GET /me/albums
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  const u = client.me.albums.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/albums', args] as const
 }
 
 /**
@@ -1511,13 +1487,12 @@ export function useGetMeAlbumsContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/albums/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeAlbumsContainsQueryKey(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  const u = client.me.albums.contains.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/albums/contains', args] as const
 }
 
 /**
@@ -1565,13 +1540,12 @@ export function useGetMeAudiobooks(
 
 /**
  * Generates TanStack Query cache key for GET /me/audiobooks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeAudiobooksQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  const u = client.me.audiobooks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/audiobooks', args] as const
 }
 
 /**
@@ -1674,13 +1648,12 @@ export function useGetMeAudiobooksContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/audiobooks/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeAudiobooksContainsQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  const u = client.me.audiobooks.contains.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/audiobooks/contains', args] as const
 }
 
 /**
@@ -1729,11 +1702,10 @@ export function useGetMeEpisodes(
 
 /**
  * Generates TanStack Query cache key for GET /me/episodes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  const u = client.me.episodes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/episodes', args] as const
 }
 
 /**
@@ -1834,13 +1806,12 @@ export function useGetMeEpisodesContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/episodes/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeEpisodesContainsQueryKey(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  const u = client.me.episodes.contains.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/episodes/contains', args] as const
 }
 
 /**
@@ -1888,11 +1859,10 @@ export function useGetMeFollowing(
 
 /**
  * Generates TanStack Query cache key for GET /me/following
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
-  const u = client.me.following.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/following', args] as const
 }
 
 /**
@@ -1996,13 +1966,12 @@ export function useGetMeFollowingContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/following/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeFollowingContainsQueryKey(
   args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  const u = client.me.following.contains.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/following/contains', args] as const
 }
 
 /**
@@ -2048,11 +2017,10 @@ export function useGetMePlayer(
 
 /**
  * Generates TanStack Query cache key for GET /me/player
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
-  const u = client.me.player.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/player', args] as const
 }
 
 /**
@@ -2128,13 +2096,12 @@ export function useGetMePlayerCurrentlyPlaying(
 
 /**
  * Generates TanStack Query cache key for GET /me/player/currently-playing
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  const u = client.me.player['currently-playing'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/player/currently-playing', args] as const
 }
 
 /**
@@ -2179,10 +2146,10 @@ export function useGetMePlayerDevices(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /me/player/devices
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMePlayerDevicesQueryKey() {
-  return [client.me.player.devices.$url().pathname] as const
+  return ['/me/player/devices'] as const
 }
 
 /**
@@ -2330,10 +2297,10 @@ export function useGetMePlayerQueue(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /me/player/queue
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetMePlayerQueueQueryKey() {
-  return [client.me.player.queue.$url().pathname] as const
+  return ['/me/player/queue'] as const
 }
 
 /**
@@ -2412,13 +2379,12 @@ export function useGetMePlayerRecentlyPlayed(
 
 /**
  * Generates TanStack Query cache key for GET /me/player/recently-played
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  const u = client.me.player['recently-played'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/player/recently-played', args] as const
 }
 
 /**
@@ -2572,11 +2538,10 @@ export function useGetMePlaylists(
 
 /**
  * Generates TanStack Query cache key for GET /me/playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  const u = client.me.playlists.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/playlists', args] as const
 }
 
 /**
@@ -2622,11 +2587,10 @@ export function useGetMeShows(
 
 /**
  * Generates TanStack Query cache key for GET /me/shows
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  const u = client.me.shows.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/shows', args] as const
 }
 
 /**
@@ -2720,13 +2684,12 @@ export function useGetMeShowsContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/shows/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeShowsContainsQueryKey(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  const u = client.me.shows.contains.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/shows/contains', args] as const
 }
 
 /**
@@ -2776,13 +2739,12 @@ export function useGetMeTopType(
 
 /**
  * Generates TanStack Query cache key for GET /me/top/{type}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeTopTypeQueryKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  const u = client.me.top[':type'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/top/:type', args] as const
 }
 
 /**
@@ -2828,11 +2790,10 @@ export function useGetMeTracks(
 
 /**
  * Generates TanStack Query cache key for GET /me/tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  const u = client.me.tracks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/tracks', args] as const
 }
 
 /**
@@ -2926,13 +2887,12 @@ export function useGetMeTracksContains(
 
 /**
  * Generates TanStack Query cache key for GET /me/tracks/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMeTracksContainsQueryKey(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  const u = client.me.tracks.contains.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/me/tracks/contains', args] as const
 }
 
 /**
@@ -2987,13 +2947,12 @@ export function useGetPlaylistsPlaylistId(
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  const u = client.playlists[':playlist_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/playlists/:playlist_id', args] as const
 }
 
 /**
@@ -3138,15 +3097,14 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/followers/contains
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  const u = client.playlists[':playlist_id'].followers.contains.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/playlists/:playlist_id/followers/contains', args] as const
 }
 
 /**
@@ -3203,13 +3161,12 @@ export function useGetPlaylistsPlaylistIdImages(
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/images
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  const u = client.playlists[':playlist_id'].images.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/playlists/:playlist_id/images', args] as const
 }
 
 /**
@@ -3294,13 +3251,12 @@ export function useGetPlaylistsPlaylistIdTracks(
 
 /**
  * Generates TanStack Query cache key for GET /playlists/{playlist_id}/tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  const u = client.playlists[':playlist_id'].tracks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/playlists/:playlist_id/tracks', args] as const
 }
 
 /**
@@ -3449,13 +3405,12 @@ export function useGetRecommendations(
 
 /**
  * Generates TanStack Query cache key for GET /recommendations
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetRecommendationsQueryKey(
   args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  const u = client.recommendations.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/recommendations', args] as const
 }
 
 /**
@@ -3505,10 +3460,10 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /recommendations/available-genre-seeds
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetRecommendationsAvailableGenreSeedsQueryKey() {
-  return [client.recommendations['available-genre-seeds'].$url().pathname] as const
+  return ['/recommendations/available-genre-seeds'] as const
 }
 
 /**
@@ -3555,11 +3510,10 @@ export function useGetSearch(
 
 /**
  * Generates TanStack Query cache key for GET /search
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  const u = client.search.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/search', args] as const
 }
 
 /**
@@ -3602,11 +3556,10 @@ export function useGetShows(
 
 /**
  * Generates TanStack Query cache key for GET /shows
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
-  const u = client.shows.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/shows', args] as const
 }
 
 /**
@@ -3652,13 +3605,12 @@ export function useGetShowsId(
 
 /**
  * Generates TanStack Query cache key for GET /shows/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetShowsIdQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  const u = client.shows[':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/shows/:id', args] as const
 }
 
 /**
@@ -3713,13 +3665,12 @@ export function useGetShowsIdEpisodes(
 
 /**
  * Generates TanStack Query cache key for GET /shows/{id}/episodes
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetShowsIdEpisodesQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  const u = client.shows[':id'].episodes.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/shows/:id/episodes', args] as const
 }
 
 /**
@@ -3765,11 +3716,10 @@ export function useGetTracks(
 
 /**
  * Generates TanStack Query cache key for GET /tracks
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
-  const u = client.tracks.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/tracks', args] as const
 }
 
 /**
@@ -3815,13 +3765,12 @@ export function useGetTracksId(
 
 /**
  * Generates TanStack Query cache key for GET /tracks/{id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTracksIdQueryKey(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  const u = client.tracks[':id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/tracks/:id', args] as const
 }
 
 /**
@@ -3871,13 +3820,12 @@ export function useGetUsersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  const u = client.users[':user_id'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:user_id', args] as const
 }
 
 /**
@@ -3932,13 +3880,12 @@ export function useGetUsersUserIdPlaylists(
 
 /**
  * Generates TanStack Query cache key for GET /users/{user_id}/playlists
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  const u = client.users[':user_id'].playlists.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:user_id/playlists', args] as const
 }
 
 /**

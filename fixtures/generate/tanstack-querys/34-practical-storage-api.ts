@@ -26,11 +26,10 @@ export function useGetFiles(
 
 /**
  * Generates TanStack Query cache key for GET /files
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
-  const u = client.files.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files', args] as const
 }
 
 /**
@@ -186,13 +185,12 @@ export function useGetFilesFileId(
 
 /**
  * Generates TanStack Query cache key for GET /files/{fileId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  const u = client.files[':fileId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files/:fileId', args] as const
 }
 
 /**
@@ -296,13 +294,12 @@ export function useGetFilesFileIdDownload(
 
 /**
  * Generates TanStack Query cache key for GET /files/{fileId}/download
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  const u = client.files[':fileId'].download.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files/:fileId/download', args] as const
 }
 
 /**
@@ -355,13 +352,12 @@ export function useGetFilesFileIdDownloadUrl(
 
 /**
  * Generates TanStack Query cache key for GET /files/{fileId}/download-url
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  const u = client.files[':fileId']['download-url'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files/:fileId/download-url', args] as const
 }
 
 /**
@@ -464,13 +460,12 @@ export function useGetFilesFileIdThumbnail(
 
 /**
  * Generates TanStack Query cache key for GET /files/{fileId}/thumbnail
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  const u = client.files[':fileId'].thumbnail.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files/:fileId/thumbnail', args] as const
 }
 
 /**
@@ -542,13 +537,12 @@ export function useGetFoldersFolderId(
 
 /**
  * Generates TanStack Query cache key for GET /folders/{folderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  const u = client.folders[':folderId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/folders/:folderId', args] as const
 }
 
 /**
@@ -652,13 +646,12 @@ export function useGetFilesFileIdShare(
 
 /**
  * Generates TanStack Query cache key for GET /files/{fileId}/share
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  const u = client.files[':fileId'].share.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files/:fileId/share', args] as const
 }
 
 /**
@@ -796,13 +789,12 @@ export function useGetFilesFileIdVersions(
 
 /**
  * Generates TanStack Query cache key for GET /files/{fileId}/versions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  const u = client.files[':fileId'].versions.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files/:fileId/versions', args] as const
 }
 
 /**
@@ -883,11 +875,10 @@ export function useGetTrash(
 
 /**
  * Generates TanStack Query cache key for GET /trash
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
-  const u = client.trash.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/trash', args] as const
 }
 
 /**
@@ -976,10 +967,10 @@ export function useGetStorageUsage(options?: {
 
 /**
  * Generates TanStack Query cache key for GET /storage/usage
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetStorageUsageQueryKey() {
-  return [client.storage.usage.$url().pathname] as const
+  return ['/storage/usage'] as const
 }
 
 /**

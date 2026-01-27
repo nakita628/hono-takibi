@@ -39,18 +39,14 @@ export function useGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 
 /**
  * Generates TanStack Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
   args: InferRequestType<
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
 ) {
-  const u =
-    client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
-      ':p10'
-    ].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/a/:p1/b/:p2/c/:p3/d/:p4/e/:p5/f/:p6/g/:p7/h/:p8/i/:p9/j/:p10', args] as const
 }
 
 /**
@@ -97,13 +93,12 @@ export function useGetQueryStyles(
 
 /**
  * Generates TanStack Query cache key for GET /query-styles
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetQueryStylesQueryKey(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  const u = client['query-styles'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/query-styles', args] as const
 }
 
 /**
@@ -156,13 +151,12 @@ export function useGetPathStylesSimpleLabelMatrix(
 
 /**
  * Generates TanStack Query cache key for GET /path-styles/{simple}/{label}/{matrix}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPathStylesSimpleLabelMatrixQueryKey(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  const u = client['path-styles'][':simple'][':label'][':matrix'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/path-styles/:simple/:label/:matrix', args] as const
 }
 
 /**
@@ -208,13 +202,12 @@ export function useGetHeaderStyles(
 
 /**
  * Generates TanStack Query cache key for GET /header-styles
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetHeaderStylesQueryKey(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  const u = client['header-styles'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/header-styles', args] as const
 }
 
 /**
@@ -260,13 +253,12 @@ export function useGetCookieStyles(
 
 /**
  * Generates TanStack Query cache key for GET /cookie-styles
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetCookieStylesQueryKey(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  const u = client['cookie-styles'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/cookie-styles', args] as const
 }
 
 /**
@@ -315,13 +307,12 @@ export function useGetManyQueryParams(
 
 /**
  * Generates TanStack Query cache key for GET /many-query-params
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetManyQueryParamsQueryKey(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  const u = client['many-query-params'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/many-query-params', args] as const
 }
 
 /**
@@ -370,13 +361,12 @@ export function useGetParameterContent(
 
 /**
  * Generates TanStack Query cache key for GET /parameter-content
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetParameterContentQueryKey(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  const u = client['parameter-content'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/parameter-content', args] as const
 }
 
 /**
@@ -425,13 +415,12 @@ export function useGetDeprecatedParams(
 
 /**
  * Generates TanStack Query cache key for GET /deprecated-params
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetDeprecatedParamsQueryKey(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  const u = client['deprecated-params'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/deprecated-params', args] as const
 }
 
 /**
@@ -480,13 +469,12 @@ export function useGetExamplesParams(
 
 /**
  * Generates TanStack Query cache key for GET /examples-params
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetExamplesParamsQueryKey(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  const u = client['examples-params'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/examples-params', args] as const
 }
 
 /**

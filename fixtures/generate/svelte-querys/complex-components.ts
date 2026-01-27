@@ -49,11 +49,10 @@ export function createGetUsers(
 
 /**
  * Generates Svelte Query cache key for GET /users
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  const u = client.users.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users', args] as const
 }
 
 /**
@@ -121,13 +120,12 @@ export function createGetUsersUserId(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  const u = client.users[':userId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId', args] as const
 }
 
 /**
@@ -205,13 +203,12 @@ export function createGetCompaniesCompanyId(
 
 /**
  * Generates Svelte Query cache key for GET /companies/{companyId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetCompaniesCompanyIdQueryKey(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
 ) {
-  const u = client.companies[':companyId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/companies/:companyId', args] as const
 }
 
 /**
@@ -257,11 +254,10 @@ export function createGetOrders(
 
 /**
  * Generates Svelte Query cache key for GET /orders
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  const u = client.orders.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/orders', args] as const
 }
 
 /**
@@ -332,13 +328,12 @@ export function createGetOrdersOrderId(
 
 /**
  * Generates Svelte Query cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  const u = client.orders[':orderId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/orders/:orderId', args] as const
 }
 
 /**
@@ -388,13 +383,12 @@ export function createGetFilesFileId(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  const u = client.files[':fileId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/files/:fileId', args] as const
 }
 
 /**

@@ -27,10 +27,10 @@ export function createGetStream(
 
 /**
  * Generates Svelte Query cache key for GET /stream
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetStreamQueryKey() {
-  return [client.stream.$url().pathname] as const
+  return ['/stream'] as const
 }
 
 /**
@@ -123,10 +123,10 @@ export function createGetDeprecatedEndpoint(
 
 /**
  * Generates Svelte Query cache key for GET /deprecated-endpoint
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetDeprecatedEndpointQueryKey() {
-  return [client['deprecated-endpoint'].$url().pathname] as const
+  return ['/deprecated-endpoint'] as const
 }
 
 /**

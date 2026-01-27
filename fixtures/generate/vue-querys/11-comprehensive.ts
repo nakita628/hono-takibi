@@ -35,11 +35,10 @@ export function useGetProducts(
 
 /**
  * Generates Vue Query cache key for GET /products
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  const u = client.products.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/products', args] as const
 }
 
 /**
@@ -122,13 +121,12 @@ export function useGetProductsProductId(
 
 /**
  * Generates Vue Query cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  const u = client.products[':productId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/products/:productId', args] as const
 }
 
 /**

@@ -30,10 +30,10 @@ export function useGetSettingsAccount(options?: {
 
 /**
  * Generates Vue Query cache key for GET /settings/account
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSettingsAccountQueryKey() {
-  return [client.settings.account.$url().pathname] as const
+  return ['/settings/account'] as const
 }
 
 /**
@@ -114,13 +114,12 @@ export function useGetSettingsUsernameCheck(
 
 /**
  * Generates Vue Query cache key for GET /settings/username/check
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSettingsUsernameCheckQueryKey(
   args: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  const u = client.settings.username.check.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/settings/username/check', args] as const
 }
 
 /**
@@ -168,10 +167,10 @@ export function useGetSettingsPrivacy(options?: {
 
 /**
  * Generates Vue Query cache key for GET /settings/privacy
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSettingsPrivacyQueryKey() {
-  return [client.settings.privacy.$url().pathname] as const
+  return ['/settings/privacy'] as const
 }
 
 /**
@@ -249,10 +248,10 @@ export function useGetSettingsContentPreferences(options?: {
 
 /**
  * Generates Vue Query cache key for GET /settings/content-preferences
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSettingsContentPreferencesQueryKey() {
-  return [client.settings['content-preferences'].$url().pathname] as const
+  return ['/settings/content-preferences'] as const
 }
 
 /**
@@ -336,10 +335,10 @@ export function useGetSettingsMutedWords(options?: {
 
 /**
  * Generates Vue Query cache key for GET /settings/muted-words
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSettingsMutedWordsQueryKey() {
-  return [client.settings['muted-words'].$url().pathname] as const
+  return ['/settings/muted-words'] as const
 }
 
 /**
@@ -452,10 +451,10 @@ export function useGetSettingsSessions(options?: {
 
 /**
  * Generates Vue Query cache key for GET /settings/sessions
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSettingsSessionsQueryKey() {
-  return [client.settings.sessions.$url().pathname] as const
+  return ['/settings/sessions'] as const
 }
 
 /**
@@ -539,10 +538,10 @@ export function useGetSettingsConnectedApps(options?: {
 
 /**
  * Generates Vue Query cache key for GET /settings/connected-apps
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetSettingsConnectedAppsQueryKey() {
-  return [client.settings['connected-apps'].$url().pathname] as const
+  return ['/settings/connected-apps'] as const
 }
 
 /**
@@ -663,13 +662,12 @@ export function useGetSettingsDataExportRequestId(
 
 /**
  * Generates Vue Query cache key for GET /settings/data-export/{requestId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetSettingsDataExportRequestIdQueryKey(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  const u = client.settings['data-export'][':requestId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/settings/data-export/:requestId', args] as const
 }
 
 /**
@@ -783,13 +781,12 @@ export function useGetReportsReportId(
 
 /**
  * Generates Vue Query cache key for GET /reports/{reportId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetReportsReportIdQueryKey(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  const u = client.reports[':reportId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/reports/:reportId', args] as const
 }
 
 /**
@@ -847,13 +844,12 @@ export function useGetModerationQueue(
 
 /**
  * Generates Vue Query cache key for GET /moderation/queue
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetModerationQueueQueryKey(
   args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  const u = client.moderation.queue.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/moderation/queue', args] as const
 }
 
 /**
@@ -911,13 +907,12 @@ export function useGetModerationItemsItemId(
 
 /**
  * Generates Vue Query cache key for GET /moderation/items/{itemId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetModerationItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  const u = client.moderation.items[':itemId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/moderation/items/:itemId', args] as const
 }
 
 /**
@@ -1008,13 +1003,12 @@ export function useGetModerationUsersUserIdHistory(
 
 /**
  * Generates Vue Query cache key for GET /moderation/users/{userId}/history
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetModerationUsersUserIdHistoryQueryKey(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  const u = client.moderation.users[':userId'].history.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/moderation/users/:userId/history', args] as const
 }
 
 /**
@@ -1138,13 +1132,12 @@ export function useGetAnalyticsPostsPostId(
 
 /**
  * Generates Vue Query cache key for GET /analytics/posts/{postId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAnalyticsPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  const u = client.analytics.posts[':postId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/analytics/posts/:postId', args] as const
 }
 
 /**
@@ -1200,13 +1193,12 @@ export function useGetAnalyticsAccount(
 
 /**
  * Generates Vue Query cache key for GET /analytics/account
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAnalyticsAccountQueryKey(
   args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  const u = client.analytics.account.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/analytics/account', args] as const
 }
 
 /**
@@ -1262,13 +1254,12 @@ export function useGetAnalyticsFollowers(
 
 /**
  * Generates Vue Query cache key for GET /analytics/followers
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAnalyticsFollowersQueryKey(
   args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  const u = client.analytics.followers.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/analytics/followers', args] as const
 }
 
 /**
@@ -1326,13 +1317,12 @@ export function useGetAnalyticsTopPosts(
 
 /**
  * Generates Vue Query cache key for GET /analytics/top-posts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetAnalyticsTopPostsQueryKey(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  const u = client.analytics['top-posts'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/analytics/top-posts', args] as const
 }
 
 /**

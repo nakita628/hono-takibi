@@ -29,10 +29,10 @@ export function createGet(
 
 /**
  * Generates Svelte Query cache key for GET /
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetQueryKey() {
-  return [client.index.$url().pathname] as const
+  return ['/'] as const
 }
 
 /**
@@ -74,11 +74,10 @@ export function createGetPosts(
 
 /**
  * Generates Svelte Query cache key for GET /posts
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  const u = client.posts.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/posts', args] as const
 }
 
 /**

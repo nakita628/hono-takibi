@@ -26,11 +26,10 @@ export function createGetDocuments(
 
 /**
  * Generates Svelte Query cache key for GET /documents
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
-  const u = client.documents.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/documents', args] as const
 }
 
 /**
@@ -99,13 +98,12 @@ export function createGetDocumentsDocumentId(
 
 /**
  * Generates Svelte Query cache key for GET /documents/{documentId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetDocumentsDocumentIdQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  const u = client.documents[':documentId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/documents/:documentId', args] as const
 }
 
 /**
@@ -181,13 +179,12 @@ export function createGetDocumentsDocumentIdVersions(
 
 /**
  * Generates Svelte Query cache key for GET /documents/{documentId}/versions
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  const u = client.documents[':documentId'].versions.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/documents/:documentId/versions', args] as const
 }
 
 /**
@@ -266,13 +263,12 @@ export function createGetUsersUserIdDocuments(
 
 /**
  * Generates Svelte Query cache key for GET /users/{userId}/documents
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetUsersUserIdDocumentsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  const u = client.users[':userId'].documents.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/users/:userId/documents', args] as const
 }
 
 /**
@@ -334,10 +330,10 @@ export function createGetTemplates(
 
 /**
  * Generates Svelte Query cache key for GET /templates
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetTemplatesQueryKey() {
-  return [client.templates.$url().pathname] as const
+  return ['/templates'] as const
 }
 
 /**

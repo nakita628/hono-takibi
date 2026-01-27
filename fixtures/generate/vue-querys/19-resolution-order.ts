@@ -26,10 +26,10 @@ export function useGetEntities(options?: {
 
 /**
  * Generates Vue Query cache key for GET /entities
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetEntitiesQueryKey() {
-  return [client.entities.$url().pathname] as const
+  return ['/entities'] as const
 }
 
 /**
@@ -94,10 +94,10 @@ export function useGetGraph(options?: {
 
 /**
  * Generates Vue Query cache key for GET /graph
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetGraphQueryKey() {
-  return [client.graph.$url().pathname] as const
+  return ['/graph'] as const
 }
 
 /**

@@ -101,45 +101,49 @@ function makeQueryOptionsGetterName(method: string, pathStr: string): string {
 }
 
 /**
- * Generates query key getter function code using $url() for type-safe keys.
+ * Generates query key getter function code using structured keys.
  *
- * Uses Hono RPC's $url() method to generate resolved URL paths as cache keys.
- * This avoids potential issues with complex args objects and shallow comparison.
+ * Uses static template path as prefix (no runtime $url() call),
+ * combined with args object for TanStack Query's structured key pattern.
+ * This enables:
+ * - Partial invalidation: invalidateQueries({ queryKey: ['/pet/:petId'] })
+ * - No query string order issues (TanStack Query normalizes object keys)
+ * - No runtime overhead (path is string literal)
  *
  * @param keyGetterName - Function name for key getter
  * @param hasArgs - Whether the operation has arguments
  * @param inferRequestType - TypeScript type for request
  * @param honoPath - Hono-style path (with :param)
- * @param clientPath - Client path expression
+ * @param clientPath - Client path expression (unused, kept for signature compatibility)
  * @param config - Framework configuration
  * @returns Query key getter function code
- * @see https://hono.dev/docs/guides/rpc#url
+ * @see https://tanstack.com/query/latest/docs/framework/react/guides/query-keys
  */
 function makeQueryKeyGetterCode(
   keyGetterName: string,
   hasArgs: boolean,
   inferRequestType: string,
   honoPath: string,
-  clientPath: string,
+  _clientPath: string,
   config: { frameworkName: string },
 ): string {
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
-  // Use $url() for type-safe key generation
-  // Returns resolved URL path + search (query string) as a stable cache key
-  // pathname alone would cause cache collisions for different query parameters
+  // Use structured key: [templatePath, args]
+  // - templatePath: static string literal (e.g., '/pet/:petId')
+  // - args: enables TanStack Query's deep object comparison
   if (hasArgs) {
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
-export function ${keyGetterName}(args:${inferRequestType}){const u=${clientPath}.$url(args);return[u.pathname+u.search]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){return['${honoPath}',args]as const}`
   }
   return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
-export function ${keyGetterName}(){return[${clientPath}.$url().pathname]as const}`
+export function ${keyGetterName}(){return['${honoPath}']as const}`
 }
 
 /**

@@ -27,10 +27,10 @@ export function createGetExample(
 
 /**
  * Generates Svelte Query cache key for GET /example
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetExampleQueryKey() {
-  return [client.example.$url().pathname] as const
+  return ['/example'] as const
 }
 
 /**

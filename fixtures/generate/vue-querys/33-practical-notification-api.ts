@@ -33,13 +33,12 @@ export function useGetNotifications(
 
 /**
  * Generates Vue Query cache key for GET /notifications
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetNotificationsQueryKey(
   args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  const u = client.notifications.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/notifications', args] as const
 }
 
 /**
@@ -97,13 +96,12 @@ export function useGetNotificationsNotificationId(
 
 /**
  * Generates Vue Query cache key for GET /notifications/{notificationId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetNotificationsNotificationIdQueryKey(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
-  const u = client.notifications[':notificationId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/notifications/:notificationId', args] as const
 }
 
 /**
@@ -255,10 +253,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates Vue Query cache key for GET /notifications/unread-count
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetNotificationsUnreadCountQueryKey() {
-  return [client.notifications['unread-count'].$url().pathname] as const
+  return ['/notifications/unread-count'] as const
 }
 
 /**
@@ -377,13 +375,12 @@ export function useGetMessagesMessageId(
 
 /**
  * Generates Vue Query cache key for GET /messages/{messageId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetMessagesMessageIdQueryKey(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
 ) {
-  const u = client.messages[':messageId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/messages/:messageId', args] as const
 }
 
 /**
@@ -434,11 +431,10 @@ export function useGetTemplates(
 
 /**
  * Generates Vue Query cache key for GET /templates
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.templates.$get>) {
-  const u = client.templates.$url(args)
-  return [u.pathname + u.search] as const
+  return ['/templates', args] as const
 }
 
 /**
@@ -521,13 +517,12 @@ export function useGetTemplatesTemplateId(
 
 /**
  * Generates Vue Query cache key for GET /templates/{templateId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetTemplatesTemplateIdQueryKey(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
-  const u = client.templates[':templateId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/templates/:templateId', args] as const
 }
 
 /**
@@ -676,10 +671,10 @@ export function useGetChannelsPreferences(options?: {
 
 /**
  * Generates Vue Query cache key for GET /channels/preferences
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetChannelsPreferencesQueryKey() {
-  return [client.channels.preferences.$url().pathname] as const
+  return ['/channels/preferences'] as const
 }
 
 /**
@@ -754,10 +749,10 @@ export function useGetChannelsDevices(options?: {
 
 /**
  * Generates Vue Query cache key for GET /channels/devices
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetChannelsDevicesQueryKey() {
-  return [client.channels.devices.$url().pathname] as const
+  return ['/channels/devices'] as const
 }
 
 /**
@@ -864,10 +859,10 @@ export function useGetWebhooks(options?: {
 
 /**
  * Generates Vue Query cache key for GET /webhooks
- * Uses $url() for type-safe key generation
+ * Returns structured key [templatePath] for partial invalidation support
  */
 export function getGetWebhooksQueryKey() {
-  return [client.webhooks.$url().pathname] as const
+  return ['/webhooks'] as const
 }
 
 /**
@@ -950,13 +945,12 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhookId}
- * Uses $url() for type-safe key generation (includes query string)
+ * Returns structured key [templatePath, args] for partial invalidation support
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
-  const u = client.webhooks[':webhookId'].$url(args)
-  return [u.pathname + u.search] as const
+  return ['/webhooks/:webhookId', args] as const
 }
 
 /**
