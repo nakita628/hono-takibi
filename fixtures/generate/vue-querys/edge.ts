@@ -53,7 +53,8 @@ export function useGetSearch(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSearchQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

@@ -18,7 +18,8 @@ export function useGetTest(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTestQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetTestQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -59,7 +60,8 @@ export function useGetEmptyRefs(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetEmptyRefsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetEmptyRefsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -99,7 +101,8 @@ export function useGetUnicodeRefs(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetUnicodeRefsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetUnicodeRefsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -141,7 +144,8 @@ export function useGetSpecialChars(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSpecialCharsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSpecialCharsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -183,7 +187,8 @@ export function useGetNumericStart(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNumericStartQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetNumericStartQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -223,7 +228,8 @@ export function useGetRefInAllof(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetRefInAllofQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetRefInAllofQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -265,7 +271,8 @@ export function useGetDeeplyNested(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetDeeplyNestedQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetDeeplyNestedQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -307,7 +314,8 @@ export function useGetSameNameDiffContext(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSameNameDiffContextQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSameNameDiffContextQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

@@ -25,7 +25,8 @@ export function useGetEntities(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetEntitiesQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetEntitiesQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -104,7 +105,11 @@ export function useGetEntitiesEntityId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetEntitiesEntityIdQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetEntitiesEntityIdQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -221,10 +226,11 @@ export function useGetEntitiesEntityIdRelationships(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGetEntitiesEntityIdRelationshipsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } = getGetEntitiesEntityIdRelationshipsQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

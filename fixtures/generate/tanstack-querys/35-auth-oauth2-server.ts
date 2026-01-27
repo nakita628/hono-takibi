@@ -25,7 +25,11 @@ export function useGetOauthAuthorize(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOauthAuthorizeQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthAuthorizeQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -174,7 +178,8 @@ export function useGetOauthUserinfo(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOauthUserinfoQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthUserinfoQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -222,10 +227,9 @@ export function useGetWellKnownOpenidConfiguration(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGetWellKnownOpenidConfigurationQueryOptions(clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetWellKnownOpenidConfigurationQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -275,7 +279,8 @@ export function useGetWellKnownJwksJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetWellKnownJwksJsonQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetWellKnownJwksJsonQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -317,7 +322,8 @@ export function useGetOauthClients(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOauthClientsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthClientsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -389,10 +395,11 @@ export function useGetOauthClientsClientId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGetOauthClientsClientIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthClientsClientIdQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -527,7 +534,8 @@ export function useGetOauthConsents(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOauthConsentsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthConsentsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

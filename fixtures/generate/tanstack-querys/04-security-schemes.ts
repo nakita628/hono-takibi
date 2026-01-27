@@ -15,7 +15,8 @@ export function useGetPublic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -50,7 +51,8 @@ export function useGetProtected(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetProtectedQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetProtectedQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -88,7 +90,8 @@ export function useGetAdmin(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAdminQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetAdminQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -127,7 +130,8 @@ export function useGetOauthResource(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetOauthResourceQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetOauthResourceQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -167,7 +171,8 @@ export function useGetMultiAuth(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetMultiAuthQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetMultiAuthQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

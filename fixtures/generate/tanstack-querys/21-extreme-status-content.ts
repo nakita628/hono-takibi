@@ -19,7 +19,8 @@ export function useGetExtremeResponses(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetExtremeResponsesQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetExtremeResponsesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

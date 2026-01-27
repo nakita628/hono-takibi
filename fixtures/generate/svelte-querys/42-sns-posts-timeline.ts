@@ -13,7 +13,7 @@ import { client } from '../clients/42-sns-posts-timeline'
  */
 export function createGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>>,
       Error
@@ -21,8 +21,10 @@ export function createGetPosts(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -78,7 +80,7 @@ export function createPostPosts(options?: {
  */
 export function createGetPostsPostId(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -90,11 +92,13 @@ export function createGetPostsPostId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -162,7 +166,7 @@ export function createDeletePostsPostId(options?: {
  */
 export function createGetPostsPostIdThread(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -176,11 +180,13 @@ export function createGetPostsPostIdThread(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdThreadQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdThreadQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -222,7 +228,7 @@ export const getGetPostsPostIdThreadQueryOptions = (
  */
 export function createGetPostsPostIdContext(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -236,11 +242,13 @@ export function createGetPostsPostIdContext(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdContextQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdContextQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -282,7 +290,7 @@ export const getGetPostsPostIdContextQueryOptions = (
  */
 export function createGetTimelineHome(
   args: InferRequestType<typeof client.timeline.home.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.timeline.home.$get>>>>
@@ -292,11 +300,13 @@ export function createGetTimelineHome(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTimelineHomeQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTimelineHomeQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -338,7 +348,7 @@ export const getGetTimelineHomeQueryOptions = (
  */
 export function createGetTimelineForYou(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -350,11 +360,13 @@ export function createGetTimelineForYou(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTimelineForYouQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTimelineForYouQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -394,7 +406,7 @@ export const getGetTimelineForYouQueryOptions = (
  */
 export function createGetTimelineUserUserId(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -408,11 +420,13 @@ export function createGetTimelineUserUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTimelineUserUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTimelineUserUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -452,7 +466,7 @@ export const getGetTimelineUserUserIdQueryOptions = (
  */
 export function createGetTimelineHashtagHashtag(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -466,11 +480,13 @@ export function createGetTimelineHashtagHashtag(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTimelineHashtagHashtagQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTimelineHashtagHashtagQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -703,7 +719,7 @@ export function createDeletePostsPostIdBookmark(options?: {
  */
 export function createGetBookmarks(
   args: InferRequestType<typeof client.bookmarks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.bookmarks.$get>>>>>,
       Error
@@ -711,11 +727,13 @@ export function createGetBookmarks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetBookmarksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetBookmarksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -750,7 +768,7 @@ export const getGetBookmarksQueryOptions = (
  */
 export function createGetPostsPostIdLikes(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -764,11 +782,13 @@ export function createGetPostsPostIdLikes(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdLikesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdLikesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -808,7 +828,7 @@ export const getGetPostsPostIdLikesQueryOptions = (
  */
 export function createGetPostsPostIdReposts(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -822,11 +842,13 @@ export function createGetPostsPostIdReposts(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdRepostsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdRepostsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -866,7 +888,7 @@ export const getGetPostsPostIdRepostsQueryOptions = (
  */
 export function createGetPostsPostIdQuotes(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -880,11 +902,13 @@ export function createGetPostsPostIdQuotes(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdQuotesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdQuotesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -924,7 +948,7 @@ export const getGetPostsPostIdQuotesQueryOptions = (
  */
 export function createGetPostsPostIdReplies(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -938,11 +962,13 @@ export function createGetPostsPostIdReplies(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdRepliesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdRepliesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1033,7 +1059,7 @@ export function createPostMediaUpload(options?: {
  */
 export function createGetMediaMediaId(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1045,11 +1071,13 @@ export function createGetMediaMediaId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMediaMediaIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMediaMediaIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

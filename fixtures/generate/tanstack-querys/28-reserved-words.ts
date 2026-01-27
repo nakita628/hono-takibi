@@ -15,7 +15,8 @@ export function useGetClass(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetClassQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetClassQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -50,7 +51,8 @@ export function useGetInterface(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetInterfaceQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetInterfaceQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -88,7 +90,8 @@ export function useGetType(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTypeQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetTypeQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -141,7 +144,8 @@ export function useGetReturn(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetReturnQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetReturnQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -176,7 +180,8 @@ export function useGetImport(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetImportQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetImportQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -211,7 +216,8 @@ export function useGetExport(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetExportQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetExportQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -246,7 +252,8 @@ export function useGetDefault(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetDefaultQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetDefaultQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -320,7 +327,8 @@ export function useGetVoid(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetVoidQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetVoidQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -355,7 +363,8 @@ export function useGetNull(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNullQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetNullQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -390,7 +399,8 @@ export function useGetTrue(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTrueQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetTrueQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -425,7 +435,8 @@ export function useGetFalse(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetFalseQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetFalseQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -460,7 +471,8 @@ export function useGetIf(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetIfQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetIfQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -495,7 +507,8 @@ export function useGetElse(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetElseQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetElseQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -530,7 +543,8 @@ export function useGetFor(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetForQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetForQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -565,7 +579,8 @@ export function useGetWhile(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetWhileQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetWhileQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -600,7 +615,8 @@ export function useGetSwitch(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSwitchQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSwitchQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -635,7 +651,8 @@ export function useGetCase(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetCaseQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetCaseQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -670,7 +687,8 @@ export function useGetBreak(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetBreakQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetBreakQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -705,7 +723,8 @@ export function useGetContinue(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetContinueQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetContinueQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -743,7 +762,8 @@ export function useGetTry(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetTryQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetTryQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -778,7 +798,8 @@ export function useGetCatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetCatchQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetCatchQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -813,7 +834,8 @@ export function useGetFinally(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetFinallyQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetFinallyQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -851,7 +873,8 @@ export function useGetThrow(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetThrowQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetThrowQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -886,7 +909,8 @@ export function useGetAsync(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAsyncQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetAsyncQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -921,7 +945,8 @@ export function useGetAwait(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAwaitQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetAwaitQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -956,7 +981,8 @@ export function useGetYield(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetYieldQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetYieldQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -991,7 +1017,8 @@ export function useGetStatic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetStaticQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetStaticQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1026,7 +1053,8 @@ export function useGetPublic(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1061,7 +1089,8 @@ export function useGetPrivate(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPrivateQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetPrivateQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1099,7 +1128,8 @@ export function useGetProtected(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetProtectedQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetProtectedQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1137,7 +1167,8 @@ export function useGetAbstract(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetAbstractQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetAbstractQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1175,7 +1206,8 @@ export function useGetFinal(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetFinalQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetFinalQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1210,7 +1242,8 @@ export function useGetExtends(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetExtendsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetExtendsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1248,7 +1281,8 @@ export function useGetImplements(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetImplementsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetImplementsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1286,7 +1320,8 @@ export function useGetPackage(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPackageQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetPackageQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1324,7 +1359,8 @@ export function useGetEnum(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetEnumQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetEnumQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1359,7 +1395,8 @@ export function useGetConst(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetConstQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetConstQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1394,7 +1431,8 @@ export function useGetLet(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetLetQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetLetQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1429,7 +1467,8 @@ export function useGetVar(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetVarQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetVarQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1464,7 +1503,8 @@ export function useGetThis(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetThisQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetThisQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1499,7 +1539,8 @@ export function useGetSuper(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSuperQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSuperQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1534,7 +1575,8 @@ export function useGetSelf(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSelfQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSelfQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1569,7 +1611,8 @@ export function useGetConstructor(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetConstructorQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetConstructorQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1607,7 +1650,8 @@ export function useGetPrototype(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetPrototypeQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetPrototypeQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1645,7 +1689,8 @@ export function useGetToString(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetToStringQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetToStringQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1683,7 +1728,8 @@ export function useGetValueOf(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetValueOfQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetValueOfQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1723,7 +1769,8 @@ export function useGetHasOwnProperty(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetHasOwnPropertyQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetHasOwnPropertyQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1765,7 +1812,8 @@ export function useGetNameCollisions(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetNameCollisionsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetNameCollisionsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

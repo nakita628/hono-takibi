@@ -32,7 +32,7 @@ export function createPostEncodingTest(options?: {
  */
 export function createGetContentNegotiation(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -44,11 +44,13 @@ export function createGetContentNegotiation(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetContentNegotiationQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetContentNegotiationQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -107,15 +109,19 @@ export function createPostBinaryVariations(options?: {
 /**
  * GET /streaming
  */
-export function createGetStreaming(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetStreamingQueryOptions(clientOptions), ...queryOptions }))
+export function createGetStreaming(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.streaming.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetStreamingQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -187,22 +193,25 @@ export function createPostUrlEncodedComplex(options?: {
 /**
  * GET /response-encoding
  */
-export function createGetResponseEncoding(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['response-encoding']['$get']>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetResponseEncodingQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetResponseEncoding(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['response-encoding']['$get']>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetResponseEncodingQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

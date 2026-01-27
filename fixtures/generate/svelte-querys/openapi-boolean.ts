@@ -11,15 +11,19 @@ import { client } from '../clients/openapi-boolean'
  *
  * zod boolean
  */
-export function createGetBoolean(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.boolean.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetBooleanQueryOptions(clientOptions), ...queryOptions }))
+export function createGetBoolean(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.boolean.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetBooleanQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

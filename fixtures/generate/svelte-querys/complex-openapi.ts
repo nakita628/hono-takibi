@@ -9,15 +9,19 @@ import { client } from '../clients/complex-openapi'
  *
  * List all users
  */
-export function createGetUsers(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetUsersQueryOptions(clientOptions), ...queryOptions }))
+export function createGetUsers(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -69,7 +73,7 @@ export function createPostUsers(options?: {
  */
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -81,11 +85,13 @@ export function createGetUsersUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -174,15 +180,19 @@ export function createDeleteUsersUserId(options?: {
  *
  * List all orders
  */
-export function createGetOrders(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetOrdersQueryOptions(clientOptions), ...queryOptions }))
+export function createGetOrders(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOrdersQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

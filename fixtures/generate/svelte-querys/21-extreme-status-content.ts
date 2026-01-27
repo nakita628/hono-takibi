@@ -7,22 +7,25 @@ import { client } from '../clients/21-extreme-status-content'
 /**
  * GET /extreme-responses
  */
-export function createGetExtremeResponses(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['extreme-responses']['$get']>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetExtremeResponsesQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetExtremeResponses(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['extreme-responses']['$get']>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetExtremeResponsesQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

@@ -9,15 +9,19 @@ import { client } from '../clients/schema-reference'
  *
  * Sample Endpoint
  */
-export function createGetExample(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.example.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetExampleQueryOptions(clientOptions), ...queryOptions }))
+export function createGetExample(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.example.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetExampleQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

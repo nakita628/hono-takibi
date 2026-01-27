@@ -11,7 +11,7 @@ import { client } from '../clients/33-practical-notification-api'
  */
 export function createGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$get>>>>
@@ -21,11 +21,13 @@ export function createGetNotifications(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetNotificationsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetNotificationsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -65,7 +67,7 @@ export const getGetNotificationsQueryOptions = (
  */
 export function createGetNotificationsNotificationId(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -79,11 +81,13 @@ export function createGetNotificationsNotificationId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetNotificationsNotificationIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetNotificationsNotificationIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -205,24 +209,27 @@ export function createPostNotificationsReadAll(options?: {
  *
  * 未読件数取得
  */
-export function createGetNotificationsUnreadCount(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.notifications)['unread-count']['$get']>>
+export function createGetNotificationsUnreadCount(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.notifications)['unread-count']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetNotificationsUnreadCountQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetNotificationsUnreadCountQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -308,7 +315,7 @@ export function createPostMessagesSendBatch(options?: {
  */
 export function createGetMessagesMessageId(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -320,11 +327,13 @@ export function createGetMessagesMessageId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMessagesMessageIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMessagesMessageIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -364,7 +373,7 @@ export const getGetMessagesMessageIdQueryOptions = (
  */
 export function createGetTemplates(
   args: InferRequestType<typeof client.templates.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.templates.$get>>>>>,
       Error
@@ -372,11 +381,13 @@ export function createGetTemplates(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTemplatesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTemplatesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -432,7 +443,7 @@ export function createPostTemplates(options?: {
  */
 export function createGetTemplatesTemplateId(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -446,11 +457,13 @@ export function createGetTemplatesTemplateId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTemplatesTemplateIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTemplatesTemplateIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -570,20 +583,25 @@ export function createPostTemplatesTemplateIdPreview(options?: {
  *
  * チャンネル設定取得
  */
-export function createGetChannelsPreferences(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.channels.preferences.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsPreferencesQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetChannelsPreferences(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.channels.preferences.$get>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsPreferencesQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -638,20 +656,23 @@ export function createPutChannelsPreferences(options?: {
  *
  * デバイス一覧取得
  */
-export function createGetChannelsDevices(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.channels.devices.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsDevicesQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetChannelsDevices(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.channels.devices.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsDevicesQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -735,15 +756,19 @@ export function createDeleteChannelsDevicesDeviceId(options?: {
  *
  * Webhook一覧取得
  */
-export function createGetWebhooks(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetWebhooksQueryOptions(clientOptions), ...queryOptions }))
+export function createGetWebhooks(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webhooks.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebhooksQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -798,7 +823,7 @@ export function createPostWebhooks(options?: {
  */
 export function createGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -810,11 +835,13 @@ export function createGetWebhooksWebhookId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebhooksWebhookIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebhooksWebhookIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

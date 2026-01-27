@@ -22,7 +22,8 @@ export function useGetSessions(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSessionsQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -88,7 +89,8 @@ export function useGetSessionsCurrent(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSessionsCurrentQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsCurrentQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -242,7 +244,11 @@ export function useGetSessionsSessionId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSessionsSessionIdQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsSessionIdQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -375,7 +381,11 @@ export function useGetSessionsHistory(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSessionsHistoryQueryOptions(args, clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsHistoryQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -432,10 +442,11 @@ export function useGetSessionsSecurityEvents(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGetSessionsSecurityEventsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsSecurityEventsQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -483,7 +494,8 @@ export function useGetSessionsPolicies(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSessionsPoliciesQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetSessionsPoliciesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -552,7 +564,9 @@ export function useGetSessionsTrustedDevices(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetSessionsTrustedDevicesQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetSessionsTrustedDevicesQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

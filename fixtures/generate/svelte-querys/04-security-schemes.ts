@@ -7,15 +7,19 @@ import { client } from '../clients/04-security-schemes'
 /**
  * GET /public
  */
-export function createGetPublic(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetPublicQueryOptions(clientOptions), ...queryOptions }))
+export function createGetPublic(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.public.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPublicQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -42,15 +46,19 @@ export const getGetPublicQueryOptions = (clientOptions?: ClientRequestOptions) =
 /**
  * GET /protected
  */
-export function createGetProtected(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.protected.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetProtectedQueryOptions(clientOptions), ...queryOptions }))
+export function createGetProtected(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.protected.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetProtectedQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -80,15 +88,19 @@ export const getGetProtectedQueryOptions = (clientOptions?: ClientRequestOptions
 /**
  * GET /admin
  */
-export function createGetAdmin(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.admin.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetAdminQueryOptions(clientOptions), ...queryOptions }))
+export function createGetAdmin(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.admin.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAdminQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -115,19 +127,25 @@ export const getGetAdminQueryOptions = (clientOptions?: ClientRequestOptions) =>
 /**
  * GET /oauth-resource
  */
-export function createGetOauthResource(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-resource']['$get']>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetOauthResourceQueryOptions(clientOptions), ...queryOptions }))
+export function createGetOauthResource(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['oauth-resource']['$get']>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOauthResourceQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -157,17 +175,21 @@ export const getGetOauthResourceQueryOptions = (clientOptions?: ClientRequestOpt
 /**
  * GET /multi-auth
  */
-export function createGetMultiAuth(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetMultiAuthQueryOptions(clientOptions), ...queryOptions }))
+export function createGetMultiAuth(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['multi-auth']['$get']>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMultiAuthQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

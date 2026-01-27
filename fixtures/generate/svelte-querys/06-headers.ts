@@ -9,7 +9,7 @@ import { client } from '../clients/06-headers'
  */
 export function createGetResources(
   args: InferRequestType<typeof client.resources.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.resources.$get>>>>>,
       Error
@@ -17,11 +17,13 @@ export function createGetResources(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetResourcesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetResourcesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -54,7 +56,7 @@ export const getGetResourcesQueryOptions = (
  */
 export function createGetResourcesId(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -66,11 +68,13 @@ export function createGetResourcesId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetResourcesIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetResourcesIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -131,7 +135,7 @@ export function createPutResourcesId(options?: {
  */
 export function createGetDownloadId(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -143,11 +147,13 @@ export function createGetDownloadId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetDownloadIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetDownloadIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

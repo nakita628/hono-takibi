@@ -13,7 +13,7 @@ import { client } from '../clients/41-auth-social-sso'
  */
 export function createGetSocialAuthorizeProvider(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -27,11 +27,13 @@ export function createGetSocialAuthorizeProvider(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSocialAuthorizeProviderQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSocialAuthorizeProviderQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -73,7 +75,7 @@ export const getGetSocialAuthorizeProviderQueryOptions = (
  */
 export function createGetSocialCallbackProvider(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -87,11 +89,13 @@ export function createGetSocialCallbackProvider(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSocialCallbackProviderQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSocialCallbackProviderQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -179,15 +183,19 @@ export function createPostSocialTokenNative(options?: {
  *
  * 有効なプロバイダー一覧
  */
-export function createGetProviders(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.providers.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetProvidersQueryOptions(clientOptions), ...queryOptions }))
+export function createGetProviders(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.providers.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetProvidersQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -219,20 +227,23 @@ export const getGetProvidersQueryOptions = (clientOptions?: ClientRequestOptions
  *
  * 全プロバイダー一覧（管理用）
  */
-export function createGetProvidersAdmin(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.providers.admin.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetProvidersAdminQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetProvidersAdmin(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.providers.admin.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetProvidersAdminQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -289,7 +300,7 @@ export function createPostProvidersAdmin(options?: {
  */
 export function createGetProvidersProviderId(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -303,11 +314,13 @@ export function createGetProvidersProviderId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetProvidersProviderIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetProvidersProviderIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -427,17 +440,23 @@ export function createPostProvidersProviderIdTest(options?: {
  *
  * 連携アカウント一覧
  */
-export function createGetAccountLinked(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.account.linked.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetAccountLinkedQueryOptions(clientOptions), ...queryOptions }))
+export function createGetAccountLinked(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.account.linked.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAccountLinkedQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -528,17 +547,23 @@ export function createDeleteAccountLinkProvider(options?: {
  *
  * エンタープライズSSO設定一覧
  */
-export function createGetEnterpriseSso(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.enterprise.sso.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetEnterpriseSsoQueryOptions(clientOptions), ...queryOptions }))
+export function createGetEnterpriseSso(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.enterprise.sso.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -595,7 +620,7 @@ export function createPostEnterpriseSso(options?: {
  */
 export function createGetEnterpriseSsoConfigId(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -609,11 +634,13 @@ export function createGetEnterpriseSsoConfigId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetEnterpriseSsoConfigIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoConfigIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -710,7 +737,7 @@ export function createDeleteEnterpriseSsoConfigId(options?: {
  */
 export function createGetEnterpriseSsoDomainLookup(
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -724,11 +751,13 @@ export function createGetEnterpriseSsoDomainLookup(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetEnterpriseSsoDomainLookupQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoDomainLookupQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -770,7 +799,7 @@ export const getGetEnterpriseSsoDomainLookupQueryOptions = (
  */
 export function createGetEnterpriseSsoConfigIdMetadata(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -784,11 +813,13 @@ export function createGetEnterpriseSsoConfigIdMetadata(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetEnterpriseSsoConfigIdMetadataQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoConfigIdMetadataQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

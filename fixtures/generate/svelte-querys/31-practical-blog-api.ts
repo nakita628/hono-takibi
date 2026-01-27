@@ -11,7 +11,7 @@ import { client } from '../clients/31-practical-blog-api'
  */
 export function createGetPosts(
   args: InferRequestType<typeof client.posts.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.posts.$get>>>>>,
       Error
@@ -19,8 +19,10 @@ export function createGetPosts(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetPostsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -76,7 +78,7 @@ export function createPostPosts(options?: {
  */
 export function createGetPostsPostId(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -88,11 +90,13 @@ export function createGetPostsPostId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -183,7 +187,7 @@ export function createDeletePostsPostId(options?: {
  */
 export function createGetPostsSlugSlug(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -195,11 +199,13 @@ export function createGetPostsSlugSlug(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsSlugSlugQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsSlugSlugQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -295,7 +301,7 @@ export function createPostPostsPostIdUnpublish(options?: {
  */
 export function createGetPostsPostIdComments(
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -309,11 +315,13 @@ export function createGetPostsPostIdComments(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPostsPostIdCommentsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdCommentsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -435,15 +443,19 @@ export function createPostCommentsCommentIdApprove(options?: {
  *
  * カテゴリ一覧取得
  */
-export function createGetCategories(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetCategoriesQueryOptions(clientOptions), ...queryOptions }))
+export function createGetCategories(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.categories.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetCategoriesQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -498,7 +510,7 @@ export function createPostCategories(options?: {
  */
 export function createGetCategoriesCategoryId(
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -512,11 +524,13 @@ export function createGetCategoriesCategoryId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetCategoriesCategoryIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetCategoriesCategoryIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -610,7 +624,7 @@ export function createDeleteCategoriesCategoryId(options?: {
  */
 export function createGetTags(
   args: InferRequestType<typeof client.tags.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tags.$get>>>>>,
       Error
@@ -618,8 +632,10 @@ export function createGetTags(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetTagsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTagsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -675,7 +691,7 @@ export function createPostTags(options?: {
  */
 export function createGetMedia(
   args: InferRequestType<typeof client.media.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.media.$get>>>>>,
       Error
@@ -683,8 +699,10 @@ export function createGetMedia(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetMediaQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMediaQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -740,7 +758,7 @@ export function createPostMedia(options?: {
  */
 export function createGetMediaMediaId(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -752,11 +770,13 @@ export function createGetMediaMediaId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMediaMediaIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMediaMediaIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -845,15 +865,19 @@ export function createDeleteMediaMediaId(options?: {
  *
  * 著者一覧取得
  */
-export function createGetAuthors(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.authors.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetAuthorsQueryOptions(clientOptions), ...queryOptions }))
+export function createGetAuthors(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.authors.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAuthorsQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -887,7 +911,7 @@ export const getGetAuthorsQueryOptions = (clientOptions?: ClientRequestOptions) 
  */
 export function createGetAuthorsAuthorId(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -899,11 +923,13 @@ export function createGetAuthorsAuthorId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAuthorsAuthorIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAuthorsAuthorIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

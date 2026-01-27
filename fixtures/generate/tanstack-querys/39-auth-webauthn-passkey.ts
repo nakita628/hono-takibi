@@ -129,7 +129,8 @@ export function useGetWebauthnCredentials(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetWebauthnCredentialsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnCredentialsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -178,10 +179,11 @@ export function useGetWebauthnCredentialsCredentialId(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGetWebauthnCredentialsCredentialIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnCredentialsCredentialIdQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -292,7 +294,8 @@ export function useGetWebauthnSettings(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetWebauthnSettingsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnSettingsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -334,7 +337,8 @@ export function useGetWebauthnSettingsRp(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetWebauthnSettingsRpQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } = getGetWebauthnSettingsRpQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -403,7 +407,9 @@ export function useGetWebauthnAuthenticators(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({ ...getGetWebauthnAuthenticatorsQueryOptions(clientOptions), ...queryOptions })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetWebauthnAuthenticatorsQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

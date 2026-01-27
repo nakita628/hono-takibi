@@ -32,7 +32,7 @@ export function createPostAuthToken(options?: {
  */
 export function createGetUsers(
   args: InferRequestType<typeof client.users.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.users.$get>>>>>,
       Error
@@ -40,8 +40,10 @@ export function createGetUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetUsersQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -97,7 +99,7 @@ export function createPostUsers(options?: {
  */
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -109,11 +111,13 @@ export function createGetUsersUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -178,7 +182,7 @@ export function createPatchUsersUserId(options?: {
  */
 export function createGetCompaniesCompanyId(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -190,11 +194,13 @@ export function createGetCompaniesCompanyId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetCompaniesCompanyIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetCompaniesCompanyIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -234,7 +240,7 @@ export const getGetCompaniesCompanyIdQueryOptions = (
  */
 export function createGetOrders(
   args: InferRequestType<typeof client.orders.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.orders.$get>>>>>,
       Error
@@ -242,8 +248,13 @@ export function createGetOrders(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetOrdersQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOrdersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -299,7 +310,7 @@ export function createPostOrders(options?: {
  */
 export function createGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -311,11 +322,13 @@ export function createGetOrdersOrderId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetOrdersOrderIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOrdersOrderIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -355,7 +368,7 @@ export const getGetOrdersOrderIdQueryOptions = (
  */
 export function createGetFilesFileId(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -367,11 +380,13 @@ export function createGetFilesFileId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetFilesFileIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetFilesFileIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

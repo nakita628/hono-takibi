@@ -7,22 +7,25 @@ import { client } from '../clients/discord-api-spec-openapi_preview'
 /**
  * GET /applications/@me
  */
-export function createGetApplicationsMe(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.applications)['@me']['$get']>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsMeQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetApplicationsMe(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.applications)['@me']['$get']>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetApplicationsMeQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -77,7 +80,7 @@ export function createPatchApplicationsMe(options?: {
  */
 export function createGetApplicationsApplicationId(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -91,11 +94,13 @@ export function createGetApplicationsApplicationId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetApplicationsApplicationIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -161,7 +166,7 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -179,11 +184,14 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -256,7 +264,7 @@ export function createPostApplicationsApplicationIdAttachment(options?: {
  */
 export function createGetApplicationsApplicationIdCommands(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -270,11 +278,11 @@ export function createGetApplicationsApplicationIdCommands(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdCommandsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdCommandsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -366,7 +374,7 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -384,11 +392,11 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdCommandsCommandIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdCommandsCommandIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -505,7 +513,7 @@ export function createPatchApplicationsApplicationIdCommandsCommandId(options?: 
  */
 export function createGetApplicationsApplicationIdEmojis(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -519,11 +527,13 @@ export function createGetApplicationsApplicationIdEmojis(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdEmojisQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetApplicationsApplicationIdEmojisQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -589,7 +599,7 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -607,11 +617,11 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdEmojisEmojiIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdEmojisEmojiIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -728,7 +738,7 @@ export function createPatchApplicationsApplicationIdEmojisEmojiId(options?: {
  */
 export function createGetApplicationsApplicationIdEntitlements(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -744,11 +754,11 @@ export function createGetApplicationsApplicationIdEntitlements(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdEntitlementsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdEntitlementsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -819,7 +829,7 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -837,11 +847,14 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -967,7 +980,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -985,11 +998,11 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1113,7 +1126,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1131,14 +1144,14 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsPermissio
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1183,7 +1196,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1201,14 +1214,14 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1334,7 +1347,7 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1352,14 +1365,14 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1446,7 +1459,7 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1464,11 +1477,11 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetApplicationsApplicationIdRoleConnectionsMetadataQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetApplicationsApplicationIdRoleConnectionsMetadataQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1550,7 +1563,7 @@ export function createPutApplicationsApplicationIdRoleConnectionsMetadata(option
  */
 export function createGetChannelsChannelId(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1562,11 +1575,13 @@ export function createGetChannelsChannelId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1679,7 +1694,7 @@ export function createPostChannelsChannelIdFollowers(options?: {
  */
 export function createGetChannelsChannelIdInvites(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1693,11 +1708,13 @@ export function createGetChannelsChannelIdInvites(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdInvitesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdInvitesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1762,7 +1779,7 @@ export function createPostChannelsChannelIdInvites(options?: {
  */
 export function createGetChannelsChannelIdMessages(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1776,11 +1793,13 @@ export function createGetChannelsChannelIdMessages(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdMessagesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdMessagesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1880,7 +1899,7 @@ export function createPostChannelsChannelIdMessagesBulkDelete(options?: {
  */
 export function createGetChannelsChannelIdMessagesPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1894,11 +1913,13 @@ export function createGetChannelsChannelIdMessagesPins(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdMessagesPinsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdMessagesPinsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2014,7 +2035,7 @@ export function createGetChannelsChannelIdMessagesMessageId(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2030,11 +2051,11 @@ export function createGetChannelsChannelIdMessagesMessageId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdMessagesMessageIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetChannelsChannelIdMessagesMessageIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2225,7 +2246,7 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2243,11 +2264,14 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2565,7 +2589,7 @@ export function createDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
  */
 export function createGetChannelsChannelIdPins(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2579,11 +2603,13 @@ export function createGetChannelsChannelIdPins(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdPinsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdPinsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2689,7 +2715,7 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2707,11 +2733,11 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2894,7 +2920,7 @@ export function createPostChannelsChannelIdSendSoundboardSound(options?: {
  */
 export function createGetChannelsChannelIdThreadMembers(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2908,11 +2934,13 @@ export function createGetChannelsChannelIdThreadMembers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdThreadMembersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdThreadMembersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3022,7 +3050,7 @@ export function createGetChannelsChannelIdThreadMembersUserId(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3040,11 +3068,11 @@ export function createGetChannelsChannelIdThreadMembersUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdThreadMembersUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetChannelsChannelIdThreadMembersUserIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3188,7 +3216,7 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3206,11 +3234,11 @@ export function createGetChannelsChannelIdThreadsArchivedPrivate(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdThreadsArchivedPrivateQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetChannelsChannelIdThreadsArchivedPrivateQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3254,7 +3282,7 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3272,11 +3300,11 @@ export function createGetChannelsChannelIdThreadsArchivedPublic(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdThreadsArchivedPublicQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetChannelsChannelIdThreadsArchivedPublicQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3318,7 +3346,7 @@ export const getGetChannelsChannelIdThreadsArchivedPublicQueryOptions = (
  */
 export function createGetChannelsChannelIdThreadsSearch(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3334,11 +3362,13 @@ export function createGetChannelsChannelIdThreadsSearch(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdThreadsSearchQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdThreadsSearchQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3405,7 +3435,7 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3423,11 +3453,11 @@ export function createGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3469,7 +3499,7 @@ export const getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryOptions = 
  */
 export function createGetChannelsChannelIdWebhooks(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3483,11 +3513,13 @@ export function createGetChannelsChannelIdWebhooks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChannelsChannelIdWebhooksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChannelsChannelIdWebhooksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3549,15 +3581,19 @@ export function createPostChannelsChannelIdWebhooks(options?: {
 /**
  * GET /gateway
  */
-export function createGetGateway(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.gateway.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetGatewayQueryOptions(clientOptions), ...queryOptions }))
+export function createGetGateway(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.gateway.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGatewayQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3587,15 +3623,21 @@ export const getGetGatewayQueryOptions = (clientOptions?: ClientRequestOptions) 
 /**
  * GET /gateway/bot
  */
-export function createGetGatewayBot(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.gateway.bot.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetGatewayBotQueryOptions(clientOptions), ...queryOptions }))
+export function createGetGatewayBot(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.gateway.bot.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGatewayBotQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3627,7 +3669,7 @@ export const getGetGatewayBotQueryOptions = (clientOptions?: ClientRequestOption
  */
 export function createGetGuildsTemplatesCode(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3641,11 +3683,13 @@ export function createGetGuildsTemplatesCode(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsTemplatesCodeQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsTemplatesCodeQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3683,7 +3727,7 @@ export const getGetGuildsTemplatesCodeQueryOptions = (
  */
 export function createGetGuildsGuildId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3695,11 +3739,13 @@ export function createGetGuildsGuildId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3760,7 +3806,7 @@ export function createPatchGuildsGuildId(options?: {
  */
 export function createGetGuildsGuildIdAuditLogs(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3774,11 +3820,13 @@ export function createGetGuildsGuildIdAuditLogs(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdAuditLogsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdAuditLogsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3816,7 +3864,7 @@ export const getGetGuildsGuildIdAuditLogsQueryOptions = (
  */
 export function createGetGuildsGuildIdAutoModerationRules(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3832,11 +3880,11 @@ export function createGetGuildsGuildIdAutoModerationRules(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdAutoModerationRulesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetGuildsGuildIdAutoModerationRulesQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3907,7 +3955,7 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3925,11 +3973,11 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdAutoModerationRulesRuleIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetGuildsGuildIdAutoModerationRulesRuleIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4049,7 +4097,7 @@ export function createPatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
  */
 export function createGetGuildsGuildIdBans(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4063,11 +4111,13 @@ export function createGetGuildsGuildIdBans(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdBansQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdBansQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4105,7 +4155,7 @@ export const getGetGuildsGuildIdBansQueryOptions = (
  */
 export function createGetGuildsGuildIdBansUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4119,11 +4169,13 @@ export function createGetGuildsGuildIdBansUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdBansUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdBansUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4241,7 +4293,7 @@ export function createPostGuildsGuildIdBulkBan(options?: {
  */
 export function createGetGuildsGuildIdChannels(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4255,11 +4307,13 @@ export function createGetGuildsGuildIdChannels(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdChannelsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdChannelsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4350,7 +4404,7 @@ export function createPatchGuildsGuildIdChannels(options?: {
  */
 export function createGetGuildsGuildIdEmojis(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4364,11 +4418,13 @@ export function createGetGuildsGuildIdEmojis(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdEmojisQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdEmojisQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4432,7 +4488,7 @@ export function createPostGuildsGuildIdEmojis(options?: {
  */
 export function createGetGuildsGuildIdEmojisEmojiId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4446,11 +4502,13 @@ export function createGetGuildsGuildIdEmojisEmojiId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdEmojisEmojiIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdEmojisEmojiIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4543,7 +4601,7 @@ export function createPatchGuildsGuildIdEmojisEmojiId(options?: {
  */
 export function createGetGuildsGuildIdIntegrations(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4557,11 +4615,13 @@ export function createGetGuildsGuildIdIntegrations(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdIntegrationsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdIntegrationsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4637,7 +4697,7 @@ export function createDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
  */
 export function createGetGuildsGuildIdInvites(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4651,11 +4711,13 @@ export function createGetGuildsGuildIdInvites(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdInvitesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdInvitesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4693,7 +4755,7 @@ export const getGetGuildsGuildIdInvitesQueryOptions = (
  */
 export function createGetGuildsGuildIdMembers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4707,11 +4769,13 @@ export function createGetGuildsGuildIdMembers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdMembersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdMembersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4775,7 +4839,7 @@ export function createPatchGuildsGuildIdMembersMe(options?: {
  */
 export function createGetGuildsGuildIdMembersSearch(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4789,11 +4853,13 @@ export function createGetGuildsGuildIdMembersSearch(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdMembersSearchQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdMembersSearchQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4831,7 +4897,7 @@ export const getGetGuildsGuildIdMembersSearchQueryOptions = (
  */
 export function createGetGuildsGuildIdMembersUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4845,11 +4911,13 @@ export function createGetGuildsGuildIdMembersUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdMembersUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdMembersUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5051,7 +5119,7 @@ export function createDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
  */
 export function createGetGuildsGuildIdMessagesSearch(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['messages']['search']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5065,11 +5133,13 @@ export function createGetGuildsGuildIdMessagesSearch(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdMessagesSearchQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdMessagesSearchQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5107,7 +5177,7 @@ export const getGetGuildsGuildIdMessagesSearchQueryOptions = (
  */
 export function createGetGuildsGuildIdNewMemberWelcome(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5121,11 +5191,13 @@ export function createGetGuildsGuildIdNewMemberWelcome(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdNewMemberWelcomeQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdNewMemberWelcomeQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5163,7 +5235,7 @@ export const getGetGuildsGuildIdNewMemberWelcomeQueryOptions = (
  */
 export function createGetGuildsGuildIdOnboarding(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5177,11 +5249,13 @@ export function createGetGuildsGuildIdOnboarding(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdOnboardingQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdOnboardingQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5245,7 +5319,7 @@ export function createPutGuildsGuildIdOnboarding(options?: {
  */
 export function createGetGuildsGuildIdPreview(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5259,11 +5333,13 @@ export function createGetGuildsGuildIdPreview(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdPreviewQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdPreviewQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5301,7 +5377,7 @@ export const getGetGuildsGuildIdPreviewQueryOptions = (
  */
 export function createGetGuildsGuildIdPrune(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5315,11 +5391,13 @@ export function createGetGuildsGuildIdPrune(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdPruneQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdPruneQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5383,7 +5461,7 @@ export function createPostGuildsGuildIdPrune(options?: {
  */
 export function createGetGuildsGuildIdRegions(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5397,11 +5475,13 @@ export function createGetGuildsGuildIdRegions(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdRegionsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdRegionsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5439,7 +5519,7 @@ export const getGetGuildsGuildIdRegionsQueryOptions = (
  */
 export function createGetGuildsGuildIdRoles(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5453,11 +5533,13 @@ export function createGetGuildsGuildIdRoles(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdRolesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdRolesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5547,7 +5629,7 @@ export function createPatchGuildsGuildIdRoles(options?: {
  */
 export function createGetGuildsGuildIdRolesMemberCounts(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['member-counts']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5563,11 +5645,13 @@ export function createGetGuildsGuildIdRolesMemberCounts(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdRolesMemberCountsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdRolesMemberCountsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5605,7 +5689,7 @@ export const getGetGuildsGuildIdRolesMemberCountsQueryOptions = (
  */
 export function createGetGuildsGuildIdRolesRoleId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5619,11 +5703,13 @@ export function createGetGuildsGuildIdRolesRoleId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdRolesRoleIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdRolesRoleIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5714,7 +5800,7 @@ export function createPatchGuildsGuildIdRolesRoleId(options?: {
  */
 export function createGetGuildsGuildIdScheduledEvents(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5728,11 +5814,13 @@ export function createGetGuildsGuildIdScheduledEvents(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdScheduledEventsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdScheduledEventsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5798,7 +5886,7 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5816,11 +5904,11 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5945,7 +6033,7 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5963,14 +6051,14 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6013,7 +6101,7 @@ export const getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryOp
  */
 export function createGetGuildsGuildIdSoundboardSounds(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6027,11 +6115,13 @@ export function createGetGuildsGuildIdSoundboardSounds(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdSoundboardSoundsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdSoundboardSoundsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6097,7 +6187,7 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6115,11 +6205,11 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdSoundboardSoundsSoundIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetGuildsGuildIdSoundboardSoundsSoundIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6236,7 +6326,7 @@ export function createPatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
  */
 export function createGetGuildsGuildIdStickers(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6250,11 +6340,13 @@ export function createGetGuildsGuildIdStickers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdStickersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdStickersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6318,7 +6410,7 @@ export function createPostGuildsGuildIdStickers(options?: {
  */
 export function createGetGuildsGuildIdStickersStickerId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6334,11 +6426,13 @@ export function createGetGuildsGuildIdStickersStickerId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdStickersStickerIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdStickersStickerIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6441,7 +6535,7 @@ export function createPatchGuildsGuildIdStickersStickerId(options?: {
  */
 export function createGetGuildsGuildIdTemplates(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6455,11 +6549,13 @@ export function createGetGuildsGuildIdTemplates(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdTemplatesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdTemplatesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6601,7 +6697,7 @@ export function createPatchGuildsGuildIdTemplatesCode(options?: {
  */
 export function createGetGuildsGuildIdThreadsActive(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6615,11 +6711,13 @@ export function createGetGuildsGuildIdThreadsActive(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdThreadsActiveQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdThreadsActiveQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6657,7 +6755,7 @@ export const getGetGuildsGuildIdThreadsActiveQueryOptions = (
  */
 export function createGetGuildsGuildIdVanityUrl(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6671,11 +6769,13 @@ export function createGetGuildsGuildIdVanityUrl(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdVanityUrlQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdVanityUrlQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6713,7 +6813,7 @@ export const getGetGuildsGuildIdVanityUrlQueryOptions = (
  */
 export function createGetGuildsGuildIdVoiceStatesMe(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6727,11 +6827,13 @@ export function createGetGuildsGuildIdVoiceStatesMe(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdVoiceStatesMeQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdVoiceStatesMeQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6799,7 +6901,7 @@ export function createPatchGuildsGuildIdVoiceStatesMe(options?: {
  */
 export function createGetGuildsGuildIdVoiceStatesUserId(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6815,11 +6917,13 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdVoiceStatesUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdVoiceStatesUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6891,7 +6995,7 @@ export function createPatchGuildsGuildIdVoiceStatesUserId(options?: {
  */
 export function createGetGuildsGuildIdWebhooks(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6905,11 +7009,13 @@ export function createGetGuildsGuildIdWebhooks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdWebhooksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWebhooksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6947,7 +7053,7 @@ export const getGetGuildsGuildIdWebhooksQueryOptions = (
  */
 export function createGetGuildsGuildIdWelcomeScreen(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6961,11 +7067,13 @@ export function createGetGuildsGuildIdWelcomeScreen(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdWelcomeScreenQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWelcomeScreenQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7029,7 +7137,7 @@ export function createPatchGuildsGuildIdWelcomeScreen(options?: {
  */
 export function createGetGuildsGuildIdWidget(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7043,11 +7151,13 @@ export function createGetGuildsGuildIdWidget(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdWidgetQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWidgetQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7111,7 +7221,7 @@ export function createPatchGuildsGuildIdWidget(options?: {
  */
 export function createGetGuildsGuildIdWidgetJson(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7125,11 +7235,13 @@ export function createGetGuildsGuildIdWidgetJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdWidgetJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWidgetJsonQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7167,7 +7279,7 @@ export const getGetGuildsGuildIdWidgetJsonQueryOptions = (
  */
 export function createGetGuildsGuildIdWidgetPng(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7181,11 +7293,13 @@ export function createGetGuildsGuildIdWidgetPng(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGuildsGuildIdWidgetPngQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGuildsGuildIdWidgetPngQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7264,7 +7378,7 @@ export function createPostInteractionsInteractionIdInteractionTokenCallback(opti
  */
 export function createGetInvitesCode(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7276,11 +7390,13 @@ export function createGetInvitesCode(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetInvitesCodeQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetInvitesCodeQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7379,7 +7495,7 @@ export function createPostLobbies(options?: {
  */
 export function createGetLobbiesLobbyId(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7391,11 +7507,13 @@ export function createGetLobbiesLobbyId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetLobbiesLobbyIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetLobbiesLobbyIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7661,7 +7779,7 @@ export function createPostLobbiesLobbyIdMembersUserIdInvites(options?: {
  */
 export function createGetLobbiesLobbyIdMessages(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7675,11 +7793,13 @@ export function createGetLobbiesLobbyIdMessages(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetLobbiesLobbyIdMessagesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetLobbiesLobbyIdMessagesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7741,17 +7861,21 @@ export function createPostLobbiesLobbyIdMessages(options?: {
 /**
  * GET /oauth2/@me
  */
-export function createGetOauth2Me(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.oauth2)['@me']['$get']>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetOauth2MeQueryOptions(clientOptions), ...queryOptions }))
+export function createGetOauth2Me(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.oauth2)['@me']['$get']>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOauth2MeQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7781,24 +7905,27 @@ export const getGetOauth2MeQueryOptions = (clientOptions?: ClientRequestOptions)
 /**
  * GET /oauth2/applications/@me
  */
-export function createGetOauth2ApplicationsMe(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.oauth2.applications)['@me']['$get']>>
+export function createGetOauth2ApplicationsMe(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.oauth2.applications)['@me']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetOauth2ApplicationsMeQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOauth2ApplicationsMeQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7828,15 +7955,21 @@ export const getGetOauth2ApplicationsMeQueryOptions = (clientOptions?: ClientReq
 /**
  * GET /oauth2/keys
  */
-export function createGetOauth2Keys(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth2.keys.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetOauth2KeysQueryOptions(clientOptions), ...queryOptions }))
+export function createGetOauth2Keys(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth2.keys.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOauth2KeysQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7866,20 +7999,23 @@ export const getGetOauth2KeysQueryOptions = (clientOptions?: ClientRequestOption
 /**
  * GET /oauth2/userinfo
  */
-export function createGetOauth2Userinfo(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth2.userinfo.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetOauth2UserinfoQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetOauth2Userinfo(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.oauth2.userinfo.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOauth2UserinfoQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8030,24 +8166,27 @@ export function createPostPartnerSdkTokenBot(options?: {
 /**
  * GET /soundboard-default-sounds
  */
-export function createGetSoundboardDefaultSounds(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['soundboard-default-sounds']['$get']>>
+export function createGetSoundboardDefaultSounds(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['soundboard-default-sounds']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSoundboardDefaultSoundsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSoundboardDefaultSoundsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8104,7 +8243,7 @@ export function createPostStageInstances(options?: {
  */
 export function createGetStageInstancesChannelId(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8118,11 +8257,13 @@ export function createGetStageInstancesChannelId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetStageInstancesChannelIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetStageInstancesChannelIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8211,19 +8352,25 @@ export function createPatchStageInstancesChannelId(options?: {
 /**
  * GET /sticker-packs
  */
-export function createGetStickerPacks(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['sticker-packs']['$get']>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetStickerPacksQueryOptions(clientOptions), ...queryOptions }))
+export function createGetStickerPacks(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['sticker-packs']['$get']>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetStickerPacksQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8255,7 +8402,7 @@ export const getGetStickerPacksQueryOptions = (clientOptions?: ClientRequestOpti
  */
 export function createGetStickerPacksPackId(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8269,11 +8416,13 @@ export function createGetStickerPacksPackId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetStickerPacksPackIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetStickerPacksPackIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8311,7 +8460,7 @@ export const getGetStickerPacksPackIdQueryOptions = (
  */
 export function createGetStickersStickerId(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8323,11 +8472,13 @@ export function createGetStickersStickerId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetStickersStickerIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetStickersStickerIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8363,17 +8514,21 @@ export const getGetStickersStickerIdQueryOptions = (
 /**
  * GET /users/@me
  */
-export function createGetUsersMe(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)['@me']['$get']>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetUsersMeQueryOptions(clientOptions), ...queryOptions }))
+export function createGetUsersMe(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.users)['@me']['$get']>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8428,7 +8583,7 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8446,11 +8601,11 @@ export function createGetUsersMeApplicationsApplicationIdEntitlements(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersMeApplicationsApplicationIdEntitlementsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetUsersMeApplicationsApplicationIdEntitlementsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8494,7 +8649,7 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8512,11 +8667,11 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersMeApplicationsApplicationIdRoleConnectionQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetUsersMeApplicationsApplicationIdRoleConnectionQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8660,24 +8815,27 @@ export function createPostUsersMeChannels(options?: {
 /**
  * GET /users/@me/connections
  */
-export function createGetUsersMeConnections(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.users)['@me']['connections']['$get']>>
+export function createGetUsersMeConnections(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.users)['@me']['connections']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersMeConnectionsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeConnectionsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8709,7 +8867,7 @@ export const getGetUsersMeConnectionsQueryOptions = (clientOptions?: ClientReque
  */
 export function createGetUsersMeGuilds(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8721,11 +8879,13 @@ export function createGetUsersMeGuilds(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersMeGuildsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeGuildsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8790,7 +8950,7 @@ export function createDeleteUsersMeGuildsGuildId(options?: {
  */
 export function createGetUsersMeGuildsGuildIdMember(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8806,11 +8966,13 @@ export function createGetUsersMeGuildsGuildIdMember(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersMeGuildsGuildIdMemberQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersMeGuildsGuildIdMemberQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8848,7 +9010,7 @@ export const getGetUsersMeGuildsGuildIdMemberQueryOptions = (
  */
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8860,11 +9022,13 @@ export function createGetUsersUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8900,17 +9064,23 @@ export const getGetUsersUserIdQueryOptions = (
 /**
  * GET /voice/regions
  */
-export function createGetVoiceRegions(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.voice.regions.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetVoiceRegionsQueryOptions(clientOptions), ...queryOptions }))
+export function createGetVoiceRegions(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.voice.regions.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetVoiceRegionsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8942,7 +9112,7 @@ export const getGetVoiceRegionsQueryOptions = (clientOptions?: ClientRequestOpti
  */
 export function createGetWebhooksWebhookId(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8954,11 +9124,13 @@ export function createGetWebhooksWebhookId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebhooksWebhookIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebhooksWebhookIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9046,7 +9218,7 @@ export function createPatchWebhooksWebhookId(options?: {
  */
 export function createGetWebhooksWebhookIdWebhookToken(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9060,11 +9232,13 @@ export function createGetWebhooksWebhookIdWebhookToken(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebhooksWebhookIdWebhookTokenQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebhooksWebhookIdWebhookTokenQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9224,7 +9398,7 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9242,11 +9416,11 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9371,7 +9545,7 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9389,11 +9563,11 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

@@ -11,7 +11,7 @@ import { client } from '../clients/44-sns-notifications-dm-search'
  */
 export function createGetNotifications(
   args: InferRequestType<typeof client.notifications.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.notifications.$get>>>>
@@ -21,11 +21,13 @@ export function createGetNotifications(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetNotificationsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetNotificationsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -63,24 +65,27 @@ export const getGetNotificationsQueryOptions = (
  *
  * 未読通知数取得
  */
-export function createGetNotificationsUnreadCount(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.notifications)['unread-count']['$get']>>
+export function createGetNotificationsUnreadCount(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.notifications)['unread-count']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetNotificationsUnreadCountQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetNotificationsUnreadCountQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -142,22 +147,25 @@ export function createPostNotificationsMarkRead(options?: {
  *
  * 通知設定取得
  */
-export function createGetNotificationsSettings(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$get>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetNotificationsSettingsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetNotificationsSettings(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.notifications.settings.$get>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetNotificationsSettingsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -216,7 +224,7 @@ export function createPutNotificationsSettings(options?: {
  */
 export function createGetDmConversations(
   args: InferRequestType<typeof client.dm.conversations.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.dm.conversations.$get>>>>
@@ -226,11 +234,13 @@ export function createGetDmConversations(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetDmConversationsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetDmConversationsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -293,7 +303,7 @@ export function createPostDmConversations(options?: {
  */
 export function createGetDmConversationsConversationId(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -307,11 +317,13 @@ export function createGetDmConversationsConversationId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetDmConversationsConversationIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetDmConversationsConversationIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -380,7 +392,7 @@ export function createDeleteDmConversationsConversationId(options?: {
  */
 export function createGetDmConversationsConversationIdMessages(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -396,11 +408,11 @@ export function createGetDmConversationsConversationIdMessages(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetDmConversationsConversationIdMessagesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetDmConversationsConversationIdMessagesQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -617,19 +629,25 @@ export function createDeleteDmMessagesMessageIdReactions(options?: {
  *
  * 未読メッセージ数取得
  */
-export function createGetDmUnreadCount(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client.dm)['unread-count']['$get']>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetDmUnreadCountQueryOptions(clientOptions), ...queryOptions }))
+export function createGetDmUnreadCount(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client.dm)['unread-count']['$get']>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetDmUnreadCountQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -663,7 +681,7 @@ export const getGetDmUnreadCountQueryOptions = (clientOptions?: ClientRequestOpt
  */
 export function createGetSearchPosts(
   args: InferRequestType<typeof client.search.posts.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.posts.$get>>>>
@@ -673,11 +691,13 @@ export function createGetSearchPosts(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSearchPostsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSearchPostsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -715,7 +735,7 @@ export const getGetSearchPostsQueryOptions = (
  */
 export function createGetSearchUsers(
   args: InferRequestType<typeof client.search.users.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.users.$get>>>>
@@ -725,11 +745,13 @@ export function createGetSearchUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSearchUsersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSearchUsersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -767,7 +789,7 @@ export const getGetSearchUsersQueryOptions = (
  */
 export function createGetSearchHashtags(
   args: InferRequestType<typeof client.search.hashtags.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.hashtags.$get>>>>
@@ -777,11 +799,13 @@ export function createGetSearchHashtags(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSearchHashtagsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSearchHashtagsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -819,17 +843,23 @@ export const getGetSearchHashtagsQueryOptions = (
  *
  * 最近の検索履歴
  */
-export function createGetSearchRecent(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetSearchRecentQueryOptions(clientOptions), ...queryOptions }))
+export function createGetSearchRecent(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.recent.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSearchRecentQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -886,7 +916,7 @@ export function createDeleteSearchRecent(options?: {
  */
 export function createGetTrends(
   args: InferRequestType<typeof client.trends.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trends.$get>>>>>,
       Error
@@ -894,8 +924,13 @@ export function createGetTrends(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetTrendsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTrendsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -928,20 +963,23 @@ export const getGetTrendsQueryOptions = (
  *
  * トレンド対応地域一覧
  */
-export function createGetTrendsLocations(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trends.locations.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTrendsLocationsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetTrendsLocations(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.trends.locations.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTrendsLocationsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -975,7 +1013,7 @@ export const getGetTrendsLocationsQueryOptions = (clientOptions?: ClientRequestO
  */
 export function createGetSuggestionsUsers(
   args: InferRequestType<typeof client.suggestions.users.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.suggestions.users.$get>>>>
@@ -985,11 +1023,13 @@ export function createGetSuggestionsUsers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSuggestionsUsersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSuggestionsUsersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1055,20 +1095,23 @@ export function createPostSuggestionsUsersUserIdHide(options?: {
  *
  * おすすめトピック取得
  */
-export function createGetSuggestionsTopics(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.suggestions.topics.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSuggestionsTopicsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetSuggestionsTopics(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.suggestions.topics.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSuggestionsTopicsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

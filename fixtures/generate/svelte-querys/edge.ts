@@ -32,7 +32,7 @@ export function createPostPolymorphic(options?: {
  */
 export function createGetSearch(
   args: InferRequestType<typeof client.search.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.$get>>>>>,
       Error
@@ -40,8 +40,13 @@ export function createGetSearch(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSearchQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

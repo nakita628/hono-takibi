@@ -13,7 +13,7 @@ import { client } from '../clients/spotify'
  */
 export function createGetAlbums(
   args: InferRequestType<typeof client.albums.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.albums.$get>>>>>,
       Error
@@ -21,8 +21,13 @@ export function createGetAlbums(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetAlbumsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAlbumsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -59,7 +64,7 @@ export const getGetAlbumsQueryOptions = (
  */
 export function createGetAlbumsId(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.albums)[':id']['$get']>>>>
@@ -69,11 +74,13 @@ export function createGetAlbumsId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAlbumsIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAlbumsIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -116,7 +123,7 @@ export const getGetAlbumsIdQueryOptions = (
  */
 export function createGetAlbumsIdTracks(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -128,11 +135,13 @@ export function createGetAlbumsIdTracks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAlbumsIdTracksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAlbumsIdTracksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -174,7 +183,7 @@ export const getGetAlbumsIdTracksQueryOptions = (
  */
 export function createGetArtists(
   args: InferRequestType<typeof client.artists.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.artists.$get>>>>>,
       Error
@@ -182,8 +191,13 @@ export function createGetArtists(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetArtistsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -220,7 +234,7 @@ export const getGetArtistsQueryOptions = (
  */
 export function createGetArtistsId(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -232,11 +246,13 @@ export function createGetArtistsId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetArtistsIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -278,7 +294,7 @@ export const getGetArtistsIdQueryOptions = (
  */
 export function createGetArtistsIdAlbums(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -292,11 +308,13 @@ export function createGetArtistsIdAlbums(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetArtistsIdAlbumsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdAlbumsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -338,7 +356,7 @@ export const getGetArtistsIdAlbumsQueryOptions = (
  */
 export function createGetArtistsIdRelatedArtists(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -352,11 +370,13 @@ export function createGetArtistsIdRelatedArtists(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetArtistsIdRelatedArtistsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdRelatedArtistsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -398,7 +418,7 @@ export const getGetArtistsIdRelatedArtistsQueryOptions = (
  */
 export function createGetArtistsIdTopTracks(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -412,11 +432,13 @@ export function createGetArtistsIdTopTracks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetArtistsIdTopTracksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetArtistsIdTopTracksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -458,7 +480,7 @@ export const getGetArtistsIdTopTracksQueryOptions = (
  */
 export function createGetAudioAnalysisId(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -472,11 +494,13 @@ export function createGetAudioAnalysisId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAudioAnalysisIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAudioAnalysisIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -518,7 +542,7 @@ export const getGetAudioAnalysisIdQueryOptions = (
  */
 export function createGetAudioFeatures(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -530,11 +554,13 @@ export function createGetAudioFeatures(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAudioFeaturesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAudioFeaturesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -577,7 +603,7 @@ export const getGetAudioFeaturesQueryOptions = (
  */
 export function createGetAudioFeaturesId(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -591,11 +617,13 @@ export function createGetAudioFeaturesId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAudioFeaturesIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAudioFeaturesIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -638,7 +666,7 @@ export const getGetAudioFeaturesIdQueryOptions = (
  */
 export function createGetAudiobooks(
   args: InferRequestType<typeof client.audiobooks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.audiobooks.$get>>>>>,
       Error
@@ -646,11 +674,13 @@ export function createGetAudiobooks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAudiobooksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAudiobooksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -688,7 +718,7 @@ export const getGetAudiobooksQueryOptions = (
  */
 export function createGetAudiobooksId(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -700,11 +730,13 @@ export function createGetAudiobooksId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAudiobooksIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAudiobooksIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -747,7 +779,7 @@ export const getGetAudiobooksIdQueryOptions = (
  */
 export function createGetAudiobooksIdChapters(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -761,11 +793,13 @@ export function createGetAudiobooksIdChapters(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAudiobooksIdChaptersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAudiobooksIdChaptersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -807,7 +841,7 @@ export const getGetAudiobooksIdChaptersQueryOptions = (
  */
 export function createGetBrowseCategories(
   args: InferRequestType<typeof client.browse.categories.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.browse.categories.$get>>>>
@@ -817,11 +851,13 @@ export function createGetBrowseCategories(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetBrowseCategoriesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseCategoriesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -863,7 +899,7 @@ export const getGetBrowseCategoriesQueryOptions = (
  */
 export function createGetBrowseCategoriesCategoryId(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -877,11 +913,13 @@ export function createGetBrowseCategoriesCategoryId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetBrowseCategoriesCategoryIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseCategoriesCategoryIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -923,7 +961,7 @@ export const getGetBrowseCategoriesCategoryIdQueryOptions = (
  */
 export function createGetBrowseCategoriesCategoryIdPlaylists(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -939,11 +977,11 @@ export function createGetBrowseCategoriesCategoryIdPlaylists(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -985,7 +1023,7 @@ export const getGetBrowseCategoriesCategoryIdPlaylistsQueryOptions = (
  */
 export function createGetBrowseFeaturedPlaylists(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -999,11 +1037,13 @@ export function createGetBrowseFeaturedPlaylists(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetBrowseFeaturedPlaylistsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseFeaturedPlaylistsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1045,7 +1085,7 @@ export const getGetBrowseFeaturedPlaylistsQueryOptions = (
  */
 export function createGetBrowseNewReleases(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1057,11 +1097,13 @@ export function createGetBrowseNewReleases(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetBrowseNewReleasesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseNewReleasesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1104,7 +1146,7 @@ export const getGetBrowseNewReleasesQueryOptions = (
  */
 export function createGetChapters(
   args: InferRequestType<typeof client.chapters.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.chapters.$get>>>>>,
       Error
@@ -1112,11 +1154,13 @@ export function createGetChapters(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChaptersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChaptersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1154,7 +1198,7 @@ export const getGetChaptersQueryOptions = (
  */
 export function createGetChaptersId(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1166,11 +1210,13 @@ export function createGetChaptersId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChaptersIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChaptersIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1212,7 +1258,7 @@ export const getGetChaptersIdQueryOptions = (
  */
 export function createGetEpisodes(
   args: InferRequestType<typeof client.episodes.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.episodes.$get>>>>>,
       Error
@@ -1220,11 +1266,13 @@ export function createGetEpisodes(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetEpisodesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetEpisodesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1262,7 +1310,7 @@ export const getGetEpisodesQueryOptions = (
  */
 export function createGetEpisodesId(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1274,11 +1322,13 @@ export function createGetEpisodesId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetEpisodesIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetEpisodesIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1318,15 +1368,19 @@ export const getGetEpisodesIdQueryOptions = (
  *
  * Get the list of markets where Spotify is available.
  */
-export function createGetMarkets(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.markets.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetMarketsQueryOptions(clientOptions), ...queryOptions }))
+export function createGetMarkets(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.markets.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMarketsQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1361,15 +1415,19 @@ export const getGetMarketsQueryOptions = (clientOptions?: ClientRequestOptions) 
  * Get detailed profile information about the current user (including the
  * current user's username).
  */
-export function createGetMe(options?: {
-  query?: CreateQueryOptions<
-    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.$get>>>>>,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetMeQueryOptions(clientOptions), ...queryOptions }))
+export function createGetMe(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.$get>>>>>,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1402,7 +1460,7 @@ export const getGetMeQueryOptions = (clientOptions?: ClientRequestOptions) => ({
  */
 export function createGetMeAlbums(
   args: InferRequestType<typeof client.me.albums.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.$get>>>>>,
       Error
@@ -1410,11 +1468,13 @@ export function createGetMeAlbums(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeAlbumsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAlbumsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1497,7 +1557,7 @@ export function createDeleteMeAlbums(options?: {
  */
 export function createGetMeAlbumsContains(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.albums.contains.$get>>>>
@@ -1507,11 +1567,13 @@ export function createGetMeAlbumsContains(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeAlbumsContainsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAlbumsContainsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1553,7 +1615,7 @@ export const getGetMeAlbumsContainsQueryOptions = (
  */
 export function createGetMeAudiobooks(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.audiobooks.$get>>>>
@@ -1563,11 +1625,13 @@ export function createGetMeAudiobooks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeAudiobooksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAudiobooksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1659,7 +1723,7 @@ export function createDeleteMeAudiobooks(options?: {
  */
 export function createGetMeAudiobooksContains(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1671,11 +1735,13 @@ export function createGetMeAudiobooksContains(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeAudiobooksContainsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeAudiobooksContainsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1718,7 +1784,7 @@ export const getGetMeAudiobooksContainsQueryOptions = (
  */
 export function createGetMeEpisodes(
   args: InferRequestType<typeof client.me.episodes.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.episodes.$get>>>>
@@ -1728,11 +1794,13 @@ export function createGetMeEpisodes(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeEpisodesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeEpisodesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1820,7 +1888,7 @@ export function createDeleteMeEpisodes(options?: {
  */
 export function createGetMeEpisodesContains(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1832,11 +1900,13 @@ export function createGetMeEpisodesContains(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeEpisodesContainsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeEpisodesContainsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1878,7 +1948,7 @@ export const getGetMeEpisodesContainsQueryOptions = (
  */
 export function createGetMeFollowing(
   args: InferRequestType<typeof client.me.following.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.following.$get>>>>
@@ -1888,11 +1958,13 @@ export function createGetMeFollowing(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeFollowingQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeFollowingQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1983,7 +2055,7 @@ export function createDeleteMeFollowing(options?: {
  */
 export function createGetMeFollowingContains(
   args: InferRequestType<typeof client.me.following.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1995,11 +2067,13 @@ export function createGetMeFollowingContains(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeFollowingContainsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeFollowingContainsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2041,7 +2115,7 @@ export const getGetMeFollowingContainsQueryOptions = (
  */
 export function createGetMePlayer(
   args: InferRequestType<typeof client.me.player.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.$get>>>>>,
       Error
@@ -2049,11 +2123,13 @@ export function createGetMePlayer(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMePlayerQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2114,7 +2190,7 @@ export function createPutMePlayer(options?: {
  */
 export function createGetMePlayerCurrentlyPlaying(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2128,11 +2204,13 @@ export function createGetMePlayerCurrentlyPlaying(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMePlayerCurrentlyPlayingQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerCurrentlyPlayingQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2172,20 +2250,23 @@ export const getGetMePlayerCurrentlyPlayingQueryOptions = (
  *
  * Get information about a user’s available devices.
  */
-export function createGetMePlayerDevices(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.devices.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMePlayerDevicesQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetMePlayerDevices(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.devices.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerDevicesQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2325,17 +2406,23 @@ export function createPostMePlayerPrevious(options?: {
  *
  * Get the list of objects that make up the user's queue.
  */
-export function createGetMePlayerQueue(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetMePlayerQueueQueryOptions(clientOptions), ...queryOptions }))
+export function createGetMePlayerQueue(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.player.queue.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerQueueQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2398,7 +2485,7 @@ export function createPostMePlayerQueue(options?: {
  */
 export function createGetMePlayerRecentlyPlayed(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2412,11 +2499,13 @@ export function createGetMePlayerRecentlyPlayed(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMePlayerRecentlyPlayedQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlayerRecentlyPlayedQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2564,7 +2653,7 @@ export function createPutMePlayerVolume(options?: {
  */
 export function createGetMePlaylists(
   args: InferRequestType<typeof client.me.playlists.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.playlists.$get>>>>
@@ -2574,11 +2663,13 @@ export function createGetMePlaylists(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMePlaylistsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMePlaylistsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2618,7 +2709,7 @@ export const getGetMePlaylistsQueryOptions = (
  */
 export function createGetMeShows(
   args: InferRequestType<typeof client.me.shows.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.$get>>>>>,
       Error
@@ -2626,8 +2717,13 @@ export function createGetMeShows(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetMeShowsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeShowsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2710,7 +2806,7 @@ export function createDeleteMeShows(options?: {
  */
 export function createGetMeShowsContains(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.shows.contains.$get>>>>
@@ -2720,11 +2816,13 @@ export function createGetMeShowsContains(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeShowsContainsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeShowsContainsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2766,7 +2864,7 @@ export const getGetMeShowsContainsQueryOptions = (
  */
 export function createGetMeTopType(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2778,11 +2876,13 @@ export function createGetMeTopType(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeTopTypeQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeTopTypeQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2824,7 +2924,7 @@ export const getGetMeTopTypeQueryOptions = (
  */
 export function createGetMeTracks(
   args: InferRequestType<typeof client.me.tracks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.$get>>>>>,
       Error
@@ -2832,11 +2932,13 @@ export function createGetMeTracks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeTracksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeTracksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2919,7 +3021,7 @@ export function createDeleteMeTracks(options?: {
  */
 export function createGetMeTracksContains(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.me.tracks.contains.$get>>>>
@@ -2929,11 +3031,13 @@ export function createGetMeTracksContains(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetMeTracksContainsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetMeTracksContainsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2975,7 +3079,7 @@ export const getGetMeTracksContainsQueryOptions = (
  */
 export function createGetPlaylistsPlaylistId(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2989,11 +3093,13 @@ export function createGetPlaylistsPlaylistId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPlaylistsPlaylistIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPlaylistsPlaylistIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3125,7 +3231,7 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3141,11 +3247,11 @@ export function createGetPlaylistsPlaylistIdFollowersContains(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPlaylistsPlaylistIdFollowersContainsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetPlaylistsPlaylistIdFollowersContainsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3191,7 +3297,7 @@ export const getGetPlaylistsPlaylistIdFollowersContainsQueryOptions = (
  */
 export function createGetPlaylistsPlaylistIdImages(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3205,11 +3311,13 @@ export function createGetPlaylistsPlaylistIdImages(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPlaylistsPlaylistIdImagesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPlaylistsPlaylistIdImagesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3281,7 +3389,7 @@ export function createPutPlaylistsPlaylistIdImages(options?: {
  */
 export function createGetPlaylistsPlaylistIdTracks(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3295,11 +3403,13 @@ export function createGetPlaylistsPlaylistIdTracks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPlaylistsPlaylistIdTracksQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPlaylistsPlaylistIdTracksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3439,7 +3549,7 @@ export function createDeletePlaylistsPlaylistIdTracks(options?: {
  */
 export function createGetRecommendations(
   args: InferRequestType<typeof client.recommendations.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.recommendations.$get>>>>
@@ -3449,11 +3559,13 @@ export function createGetRecommendations(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetRecommendationsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetRecommendationsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3493,24 +3605,26 @@ export const getGetRecommendationsQueryOptions = (
  *
  * Retrieve a list of available genres seed parameter values for [recommendations](/documentation/web-api/reference/get-recommendations).
  */
-export function createGetRecommendationsAvailableGenreSeeds(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.recommendations)['available-genre-seeds']['$get']>>
+export function createGetRecommendationsAvailableGenreSeeds(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.recommendations)['available-genre-seeds']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetRecommendationsAvailableGenreSeedsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetRecommendationsAvailableGenreSeedsQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3550,7 +3664,7 @@ export const getGetRecommendationsAvailableGenreSeedsQueryOptions = (
  */
 export function createGetSearch(
   args: InferRequestType<typeof client.search.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.search.$get>>>>>,
       Error
@@ -3558,8 +3672,13 @@ export function createGetSearch(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetSearchQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSearchQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3596,7 +3715,7 @@ export const getGetSearchQueryOptions = (
  */
 export function createGetShows(
   args: InferRequestType<typeof client.shows.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.shows.$get>>>>>,
       Error
@@ -3604,8 +3723,10 @@ export function createGetShows(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetShowsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetShowsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3643,7 +3764,7 @@ export const getGetShowsQueryOptions = (
  */
 export function createGetShowsId(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.shows)[':id']['$get']>>>>
@@ -3653,8 +3774,13 @@ export function createGetShowsId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetShowsIdQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetShowsIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3696,7 +3822,7 @@ export const getGetShowsIdQueryOptions = (
  */
 export function createGetShowsIdEpisodes(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3710,11 +3836,13 @@ export function createGetShowsIdEpisodes(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetShowsIdEpisodesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetShowsIdEpisodesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3756,7 +3884,7 @@ export const getGetShowsIdEpisodesQueryOptions = (
  */
 export function createGetTracks(
   args: InferRequestType<typeof client.tracks.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.tracks.$get>>>>>,
       Error
@@ -3764,8 +3892,13 @@ export function createGetTracks(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetTracksQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTracksQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3803,7 +3936,7 @@ export const getGetTracksQueryOptions = (
  */
 export function createGetTracksId(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client.tracks)[':id']['$get']>>>>
@@ -3813,11 +3946,13 @@ export function createGetTracksId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetTracksIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetTracksIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3859,7 +3994,7 @@ export const getGetTracksIdQueryOptions = (
  */
 export function createGetUsersUserId(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3871,11 +4006,13 @@ export function createGetUsersUserId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersUserIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3917,7 +4054,7 @@ export const getGetUsersUserIdQueryOptions = (
  */
 export function createGetUsersUserIdPlaylists(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3931,11 +4068,13 @@ export function createGetUsersUserIdPlaylists(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetUsersUserIdPlaylistsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdPlaylistsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

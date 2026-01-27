@@ -119,20 +119,25 @@ export function createPostWebauthnAuthenticateVerify(options?: {
  *
  * ユーザーに登録されているパスキー一覧を取得
  */
-export function createGetWebauthnCredentials(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.credentials.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebauthnCredentialsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetWebauthnCredentials(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.credentials.$get>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebauthnCredentialsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -166,7 +171,7 @@ export const getGetWebauthnCredentialsQueryOptions = (clientOptions?: ClientRequ
  */
 export function createGetWebauthnCredentialsCredentialId(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -180,11 +185,13 @@ export function createGetWebauthnCredentialsCredentialId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebauthnCredentialsCredentialIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebauthnCredentialsCredentialIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -285,20 +292,23 @@ export function createPatchWebauthnCredentialsCredentialId(options?: {
  *
  * リライングパーティの設定情報を取得
  */
-export function createGetWebauthnSettings(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebauthnSettingsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetWebauthnSettings(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.$get>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebauthnSettingsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -330,20 +340,25 @@ export const getGetWebauthnSettingsQueryOptions = (clientOptions?: ClientRequest
  *
  * リライングパーティ情報取得
  */
-export function createGetWebauthnSettingsRp(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$get>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebauthnSettingsRpQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetWebauthnSettingsRp(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.settings.rp.$get>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebauthnSettingsRpQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -400,22 +415,25 @@ export function createPutWebauthnSettingsRp(options?: {
  *
  * 許可されている認証器のAAGUID一覧
  */
-export function createGetWebauthnAuthenticators(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticators.$get>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWebauthnAuthenticatorsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+export function createGetWebauthnAuthenticators(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<typeof client.webauthn.authenticators.$get>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWebauthnAuthenticatorsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

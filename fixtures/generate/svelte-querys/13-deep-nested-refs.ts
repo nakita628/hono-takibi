@@ -11,7 +11,7 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -29,11 +29,14 @@ export function createGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -114,24 +117,27 @@ export function createPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 /**
  * GET /reports/organization-summary
  */
-export function createGetReportsOrganizationSummary(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client.reports)['organization-summary']['$get']>>
+export function createGetReportsOrganizationSummary(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client.reports)['organization-summary']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetReportsOrganizationSummaryQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetReportsOrganizationSummaryQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

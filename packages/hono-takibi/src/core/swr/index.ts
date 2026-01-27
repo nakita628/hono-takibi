@@ -93,13 +93,14 @@ const makeKeyGetterCode = (
   const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
   const safeCommentPathNoParam = honoPath.replace(/\*\//g, '* /')
   // Use $url() for type-safe key generation
-  // This resolves args into actual URL, avoiding cache issues with complex args
+  // Returns pathname + search (query string) to avoid cache collisions
+  // e.g., /pet/findByStatus?status=available vs ?status=sold
   if (hasArgs) {
     return `/**
  * Generates SWR cache key for GET ${safeCommentPath}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
-export function ${keyGetterName}(args:${inferRequestType}){return ${clientPath}.$url(args).pathname}`
+export function ${keyGetterName}(args:${inferRequestType}){const u=${clientPath}.$url(args);return u.pathname+u.search}`
   }
   return `/**
  * Generates SWR cache key for GET ${safeCommentPathNoParam}
@@ -168,11 +169,16 @@ const makeHookCode = (
     const fetcherBody = buildFetcher(clientCall)
 
     hookCode = `${docs}
-export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const isEnabled=swrOptions?.enabled!==false;const swrKey=swrOptions?.swrKey??(isEnabled?${keyCall}:null);return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},swrOptions)}}
+export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client:clientOptions}=options??{};const{swrKey:customKey,enabled,...restSwrOptions}=swrOptions??{};const isEnabled=enabled!==false;const swrKey=customKey??(isEnabled?${keyCall}:null);return{swrKey,...useSWR(swrKey,async()=>${fetcherBody},restSwrOptions)}}
 
 ${keyGetterCode}`
   } else {
     // useSWRMutation hook for POST/PUT/DELETE/PATCH
+    // Option A: Simple template key pattern
+    // - Key is always fixed template (e.g., "DELETE /pet/:petId")
+    // - Hook does NOT accept args as first argument
+    // - All args are passed via trigger's { arg } object
+    // This ensures consistency and avoids the "trap" of mixed patterns
     const methodUpper = method.toUpperCase()
     const variablesType = hasArgs ? inferRequestType : 'undefined'
 
@@ -188,11 +194,11 @@ ${keyGetterCode}`
     // Safe comment path for JSDoc
     const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
 
-    // Generate MutationKey function using $url() for type-safe key
-    // Format: "METHOD /path" for uniqueness (e.g., "POST /pet")
+    // Key is always fixed template - $url() without args gives template pathname
     const mutationKeyGetterCode = `/**
  * Generates SWR mutation key for ${methodUpper} ${safeCommentPath}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function ${mutationKeyGetterName}(){return\`${methodUpper} \${${clientPath}.$url().pathname}\`}`
 
@@ -202,16 +208,17 @@ export function ${mutationKeyGetterName}(){return\`${methodUpper} \${${clientPat
 
       const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const swrKey=mutationOptions?.swrKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${inferRequestType}})=>${fetcherBody},mutationOptions)}}
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async(_:Key,{arg}:{arg:${inferRequestType}})=>${fetcherBody},restMutationOptions)}}
 
 ${mutationKeyGetterCode}`
     } else {
+      // No args - key is fixed
       const clientCall = `${clientPath}.$${method}(undefined,clientOptions)`
       const fetcherBody = buildFetcher(clientCall)
 
       const optionsSig = `options?:{mutation?:${mutationConfigType}&{swrKey?:Key};client?:ClientRequestOptions}`
       hookCode = `${docs}
-export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const swrKey=mutationOptions?.swrKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${fetcherBody},mutationOptions)}}
+export function ${hookName}(${optionsSig}){const{mutation:mutationOptions,client:clientOptions}=options??{};const{swrKey:customKey,...restMutationOptions}=mutationOptions??{};const swrKey=customKey??${mutationKeyGetterName}();return{swrKey,...useSWRMutation(swrKey,async()=>${fetcherBody},restMutationOptions)}}
 
 ${mutationKeyGetterCode}`
     }

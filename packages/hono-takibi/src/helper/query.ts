@@ -126,13 +126,14 @@ function makeQueryKeyGetterCode(
   const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
   const safeCommentPathNoParam = escapeCommentEnd(honoPath)
   // Use $url() for type-safe key generation
-  // Returns resolved URL path as a stable cache key
+  // Returns resolved URL path + search (query string) as a stable cache key
+  // pathname alone would cause cache collisions for different query parameters
   if (hasArgs) {
     return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPath}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
-export function ${keyGetterName}(args:${inferRequestType}){return[${clientPath}.$url(args).pathname]as const}`
+export function ${keyGetterName}(args:${inferRequestType}){const u=${clientPath}.$url(args);return[u.pathname+u.search]as const}`
   }
   return `/**
  * Generates ${config.frameworkName} cache key for GET ${safeCommentPathNoParam}
@@ -213,28 +214,35 @@ function makeQueryHookCode(
   config: { queryFn: string; useThunk?: boolean; useQueryOptionsType: string; usePartialOmit?: boolean },
 ): string {
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
-  // Get base options from getter (no override options)
-  const optionsGetterCall = hasArgs
-    ? `${optionsGetterName}(args,clientOptions)`
-    : `${optionsGetterName}(clientOptions)`
 
   // Use official TanStack Query options type
   // Vue Query needs Partial<Omit<...>> due to QueryKey type conflicts with MaybeRefOrGetter
+  // React/Svelte use runtime protection instead of type-level Omit
   // @see https://tanstack.com/query/latest/docs/framework/react/guides/query-options
   const queryOptionsType = config.usePartialOmit
     ? `Partial<Omit<${config.useQueryOptionsType}<${parseResponseType},Error>,'queryKey'|'queryFn'>>`
     : `${config.useQueryOptionsType}<${parseResponseType},Error>`
   const optionsType = `{query?:${queryOptionsType};client?:ClientRequestOptions}`
 
-  // Spread at useQuery level to override options
-  // queryOptions() returns DataTag-branded options, spread preserves type safety
+  // All frameworks use runtime protection - destructure queryKey/queryFn and spread them last
+  // This ensures queryKey/queryFn cannot be overridden while allowing staleTime, gcTime, etc. override
+  // Vue Query additionally has type-level protection with Omit (usePartialOmit: true)
+
   // Svelte Query v5+ requires thunk pattern: createQuery(() => options)
-  const optionsExpr = `{...${optionsGetterCall},...queryOptions}`
-  const queryCall = config.useThunk
-    ? `${config.queryFn}(()=>(${optionsExpr}))`
-    : `${config.queryFn}(${optionsExpr})`
+  if (config.useThunk) {
+    const optionsGetterCall = hasArgs
+      ? `${optionsGetterName}(args,options?.()?.client)`
+      : `${optionsGetterName}(options?.()?.client)`
+    return `${docs}
+export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${config.queryFn}(()=>{const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return{...baseOptions,...options?.()?.query,queryKey,queryFn}})}`
+  }
+
+  // React TanStack Query / Vue Query: runtime protection
+  const optionsGetterCall = hasArgs
+    ? `${optionsGetterName}(args,clientOptions)`
+    : `${optionsGetterName}(clientOptions)`
   return `${docs}
-export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};return ${queryCall}}`
+export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return ${config.queryFn}({...baseOptions,...queryOptions,queryKey,queryFn})}`
 }
 
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */

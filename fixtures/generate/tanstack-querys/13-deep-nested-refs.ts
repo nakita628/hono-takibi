@@ -30,10 +30,9 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -128,10 +127,9 @@ export function useGetReportsOrganizationSummary(options?: {
   client?: ClientRequestOptions
 }) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGetReportsOrganizationSummaryQueryOptions(clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGetReportsOrganizationSummaryQueryOptions(clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

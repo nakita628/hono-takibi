@@ -28,7 +28,7 @@ export function createPostOrders(options?: {
  */
 export function createGetOrdersOrderId(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -40,11 +40,13 @@ export function createGetOrdersOrderId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetOrdersOrderIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOrdersOrderIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -105,7 +107,7 @@ export function createDeleteOrdersOrderId(options?: {
  */
 export function createGetOrdersOrderIdItems(
   args: InferRequestType<(typeof client.orders)[':orderId']['items']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -119,11 +121,13 @@ export function createGetOrdersOrderIdItems(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetOrdersOrderIdItemsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetOrdersOrderIdItemsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -161,7 +165,7 @@ export const getGetOrdersOrderIdItemsQueryOptions = (
  */
 export function createGetCustomersCustomerId(
   args: InferRequestType<(typeof client.customers)[':customerId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -175,11 +179,13 @@ export function createGetCustomersCustomerId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetCustomersCustomerIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetCustomersCustomerIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -217,7 +223,7 @@ export const getGetCustomersCustomerIdQueryOptions = (
  */
 export function createGetCustomersCustomerIdOrders(
   args: InferRequestType<(typeof client.customers)[':customerId']['orders']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -231,11 +237,13 @@ export function createGetCustomersCustomerIdOrders(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetCustomersCustomerIdOrdersQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetCustomersCustomerIdOrdersQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -273,7 +281,7 @@ export const getGetCustomersCustomerIdOrdersQueryOptions = (
  */
 export function createGetPaymentsPaymentId(
   args: InferRequestType<(typeof client.payments)[':paymentId']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -285,11 +293,13 @@ export function createGetPaymentsPaymentId(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetPaymentsPaymentIdQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPaymentsPaymentIdQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

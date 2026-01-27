@@ -13,7 +13,7 @@ import { client } from '../clients/twilio_api_v2010'
  */
 export function createGet20100401AccountsJson(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -27,11 +27,13 @@ export function createGet20100401AccountsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet20100401AccountsJsonQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -103,7 +105,7 @@ export function createPost20100401AccountsJson(options?: {
  */
 export function createGet20100401AccountsSidJson(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -117,11 +119,13 @@ export function createGet20100401AccountsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet20100401AccountsSidJsonQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -191,7 +195,7 @@ export function createGet20100401AccountsAccountSidAddressesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -209,11 +213,11 @@ export function createGet20100401AccountsAccountSidAddressesJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAddressesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAddressesJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -294,7 +298,7 @@ export function createGet20100401AccountsAccountSidAddressesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -312,11 +316,11 @@ export function createGet20100401AccountsAccountSidAddressesSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -445,7 +449,7 @@ export function createGet20100401AccountsAccountSidApplicationsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -463,11 +467,11 @@ export function createGet20100401AccountsAccountSidApplicationsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidApplicationsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidApplicationsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -559,7 +563,7 @@ export function createGet20100401AccountsAccountSidApplicationsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -577,11 +581,11 @@ export function createGet20100401AccountsAccountSidApplicationsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -718,7 +722,7 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsConnectA
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -736,14 +740,14 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsConnectA
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -793,7 +797,7 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -811,11 +815,14 @@ export function createGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -859,7 +866,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -877,11 +884,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -925,7 +935,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -943,14 +953,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -997,7 +1007,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1015,14 +1025,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1070,7 +1080,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1088,14 +1098,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1145,7 +1155,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1163,14 +1173,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1218,7 +1228,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1236,14 +1246,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1291,7 +1301,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1309,14 +1319,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1364,7 +1374,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1382,14 +1392,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1437,7 +1447,7 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1455,14 +1465,14 @@ export function createGet20100401AccountsAccountSidAvailablePhoneNumbersCountryC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1514,7 +1524,7 @@ export function createGet20100401AccountsAccountSidBalanceJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1532,11 +1542,11 @@ export function createGet20100401AccountsAccountSidBalanceJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidBalanceJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidBalanceJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1584,7 +1594,7 @@ export function createGet20100401AccountsAccountSidCallsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1602,11 +1612,11 @@ export function createGet20100401AccountsAccountSidCallsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidCallsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidCallsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1695,7 +1705,7 @@ export function createGet20100401AccountsAccountSidCallsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1713,11 +1723,11 @@ export function createGet20100401AccountsAccountSidCallsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidCallsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidCallsSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1851,7 +1861,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidEventsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1869,11 +1879,11 @@ export function createGet20100401AccountsAccountSidCallsCallSidEventsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1917,7 +1927,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsSidJ
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1935,14 +1945,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsSidJ
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1988,7 +1998,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsJson
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2006,14 +2016,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidNotificationsJson
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2062,7 +2072,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2080,11 +2090,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2177,7 +2190,7 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2195,14 +2208,14 @@ export function createGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2340,7 +2353,7 @@ export function createGet20100401AccountsAccountSidConferencesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2358,11 +2371,11 @@ export function createGet20100401AccountsAccountSidConferencesSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2450,7 +2463,7 @@ export function createGet20100401AccountsAccountSidConferencesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2468,11 +2481,11 @@ export function createGet20100401AccountsAccountSidConferencesJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConferencesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConferencesJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2520,7 +2533,7 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2538,14 +2551,14 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2595,7 +2608,7 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2613,14 +2626,14 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidRecor
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2759,7 +2772,7 @@ export function createGet20100401AccountsAccountSidConnectAppsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2777,11 +2790,11 @@ export function createGet20100401AccountsAccountSidConnectAppsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2918,7 +2931,7 @@ export function createGet20100401AccountsAccountSidConnectAppsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2936,11 +2949,11 @@ export function createGet20100401AccountsAccountSidConnectAppsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2984,7 +2997,7 @@ export function createGet20100401AccountsAccountSidAddressesAddressSidDependentP
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3002,14 +3015,14 @@ export function createGet20100401AccountsAccountSidAddressesAddressSidDependentP
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3061,7 +3074,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3079,11 +3092,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3221,7 +3237,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3239,11 +3255,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3335,7 +3354,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3353,14 +3372,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3461,7 +3480,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3479,14 +3498,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3583,7 +3602,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3601,14 +3620,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3665,7 +3684,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3683,14 +3702,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersResourceS
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3743,7 +3762,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3761,14 +3780,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3853,7 +3872,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJso
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3871,14 +3890,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJso
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3963,7 +3982,7 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJ
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3981,14 +4000,14 @@ export function createGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJ
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4073,7 +4092,7 @@ export function createGet20100401AccountsAccountSidKeysSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4091,11 +4110,11 @@ export function createGet20100401AccountsAccountSidKeysSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidKeysSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidKeysSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4214,7 +4233,7 @@ export function createGet20100401AccountsAccountSidKeysJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4232,11 +4251,11 @@ export function createGet20100401AccountsAccountSidKeysJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidKeysJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidKeysJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4319,7 +4338,7 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaSidJso
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4337,14 +4356,14 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaSidJso
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4439,7 +4458,7 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4457,11 +4476,14 @@ export function createGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4510,7 +4532,7 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJ
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4528,14 +4550,14 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJ
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4628,7 +4650,7 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4646,11 +4668,14 @@ export function createGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4699,7 +4724,7 @@ export function createGet20100401AccountsAccountSidMessagesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4717,11 +4742,11 @@ export function createGet20100401AccountsAccountSidMessagesJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidMessagesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidMessagesJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -4810,7 +4835,7 @@ export function createGet20100401AccountsAccountSidMessagesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -4828,11 +4853,11 @@ export function createGet20100401AccountsAccountSidMessagesSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5009,7 +5034,7 @@ export function createGet20100401AccountsAccountSidSigningKeysJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5027,11 +5052,11 @@ export function createGet20100401AccountsAccountSidSigningKeysJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5120,7 +5145,7 @@ export function createGet20100401AccountsAccountSidNotificationsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5138,11 +5163,11 @@ export function createGet20100401AccountsAccountSidNotificationsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5190,7 +5215,7 @@ export function createGet20100401AccountsAccountSidNotificationsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5208,11 +5233,11 @@ export function createGet20100401AccountsAccountSidNotificationsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidNotificationsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidNotificationsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5260,7 +5285,7 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5278,11 +5303,14 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5419,7 +5447,7 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5437,11 +5465,11 @@ export function createGet20100401AccountsAccountSidOutgoingCallerIdsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5529,7 +5557,7 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5547,14 +5575,14 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5693,7 +5721,7 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5711,14 +5739,14 @@ export function createGet20100401AccountsAccountSidConferencesConferenceSidParti
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -5897,7 +5925,7 @@ export function createGet20100401AccountsAccountSidQueuesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -5915,11 +5943,11 @@ export function createGet20100401AccountsAccountSidQueuesSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6053,7 +6081,7 @@ export function createGet20100401AccountsAccountSidQueuesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6071,11 +6099,11 @@ export function createGet20100401AccountsAccountSidQueuesJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidQueuesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidQueuesJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6251,7 +6279,7 @@ export function createGet20100401AccountsAccountSidRecordingsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6269,11 +6297,11 @@ export function createGet20100401AccountsAccountSidRecordingsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6366,7 +6394,7 @@ export function createGet20100401AccountsAccountSidRecordingsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6384,11 +6412,11 @@ export function createGet20100401AccountsAccountSidRecordingsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6436,7 +6464,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6454,14 +6482,14 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6557,7 +6585,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6575,14 +6603,14 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6632,7 +6660,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6650,14 +6678,14 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6758,7 +6786,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6776,14 +6804,14 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6840,7 +6868,7 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6858,14 +6886,14 @@ export function createGet20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -6918,7 +6946,7 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -6936,14 +6964,14 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7031,7 +7059,7 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7049,14 +7077,14 @@ export function createGet20100401AccountsAccountSidRecordingsRecordingSidTranscr
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7108,7 +7136,7 @@ export function createGet20100401AccountsAccountSidSMSShortCodesSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7126,11 +7154,11 @@ export function createGet20100401AccountsAccountSidSMSShortCodesSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7222,7 +7250,7 @@ export function createGet20100401AccountsAccountSidSMSShortCodesJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7240,11 +7268,11 @@ export function createGet20100401AccountsAccountSidSMSShortCodesJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7288,7 +7316,7 @@ export function createGet20100401AccountsAccountSidSigningKeysSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7306,11 +7334,11 @@ export function createGet20100401AccountsAccountSidSigningKeysSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7439,7 +7467,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7457,14 +7485,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7561,7 +7589,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7579,14 +7607,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7687,7 +7715,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7705,14 +7733,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7809,7 +7837,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7827,14 +7855,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -7935,7 +7963,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -7953,14 +7981,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8057,7 +8085,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8075,14 +8103,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8183,7 +8211,7 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8201,14 +8229,14 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8305,7 +8333,7 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8323,14 +8351,14 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsCredentialL
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8474,7 +8502,7 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8492,11 +8520,11 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8588,7 +8616,7 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8606,11 +8634,14 @@ export function createGet20100401AccountsAccountSidSIPCredentialListsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8747,7 +8778,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8765,14 +8796,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8867,7 +8898,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -8885,14 +8916,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidCredential
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -8993,7 +9024,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9011,11 +9042,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9104,7 +9135,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9122,11 +9153,11 @@ export function createGet20100401AccountsAccountSidSIPDomainsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9263,7 +9294,7 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9281,11 +9312,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9377,7 +9411,7 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsSidJso
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9395,14 +9429,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsSidJso
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9540,7 +9574,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9558,14 +9592,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9666,7 +9700,7 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9684,14 +9718,14 @@ export function createGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9788,7 +9822,7 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9806,14 +9840,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -9913,7 +9947,7 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -9931,14 +9965,14 @@ export function createGet20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10299,7 +10333,7 @@ export function createGet20100401AccountsAccountSidTranscriptionsSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10317,11 +10351,11 @@ export function createGet20100401AccountsAccountSidTranscriptionsSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10414,7 +10448,7 @@ export function createGet20100401AccountsAccountSidTranscriptionsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10432,11 +10466,11 @@ export function createGet20100401AccountsAccountSidTranscriptionsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10484,7 +10518,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10502,11 +10536,11 @@ export function createGet20100401AccountsAccountSidUsageRecordsJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10550,7 +10584,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10568,11 +10602,11 @@ export function createGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10616,7 +10650,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsDailyJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10634,11 +10668,11 @@ export function createGet20100401AccountsAccountSidUsageRecordsDailyJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10682,7 +10716,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10700,11 +10734,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10748,7 +10785,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10766,11 +10803,11 @@ export function createGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10814,7 +10851,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10832,11 +10869,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10880,7 +10920,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsTodayJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10898,11 +10938,11 @@ export function createGet20100401AccountsAccountSidUsageRecordsTodayJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -10946,7 +10986,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsYearlyJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -10964,11 +11004,11 @@ export function createGet20100401AccountsAccountSidUsageRecordsYearlyJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -11012,7 +11052,7 @@ export function createGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -11030,11 +11070,14 @@ export function createGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions(
+        args,
+        options?.()?.client,
+      )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -11082,7 +11125,7 @@ export function createGet20100401AccountsAccountSidUsageTriggersSidJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -11100,11 +11143,11 @@ export function createGet20100401AccountsAccountSidUsageTriggersSidJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -11237,7 +11280,7 @@ export function createGet20100401AccountsAccountSidUsageTriggersJson(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -11255,11 +11298,11 @@ export function createGet20100401AccountsAccountSidUsageTriggersJson(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**

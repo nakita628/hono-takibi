@@ -28,10 +28,11 @@ export function useGet20100401AccountsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } = getGet20100401AccountsJsonQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -118,10 +119,11 @@ export function useGet20100401AccountsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } = getGet20100401AccountsSidJsonQueryOptions(
+    args,
+    clientOptions,
+  )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -210,10 +212,9 @@ export function useGet20100401AccountsAccountSidAddressesJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAddressesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAddressesJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -313,10 +314,9 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAddressesSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -464,10 +464,9 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidApplicationsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidApplicationsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -578,10 +577,9 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidApplicationsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -737,13 +735,12 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -812,10 +809,9 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -878,10 +874,9 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -944,13 +939,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1016,13 +1010,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1089,13 +1082,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1164,13 +1156,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1237,13 +1228,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1310,13 +1300,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1383,13 +1372,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1456,13 +1444,12 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1533,10 +1520,9 @@ export function useGet20100401AccountsAccountSidBalanceJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidBalanceJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidBalanceJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1603,10 +1589,9 @@ export function useGet20100401AccountsAccountSidCallsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidCallsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidCallsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1714,10 +1699,9 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidCallsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidCallsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1870,10 +1854,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -1936,13 +1919,12 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2007,13 +1989,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2081,10 +2059,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2196,13 +2173,9 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2359,10 +2332,9 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2469,10 +2441,9 @@ export function useGet20100401AccountsAccountSidConferencesJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConferencesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConferencesJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2539,13 +2510,12 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2614,13 +2584,12 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2778,10 +2747,9 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConnectAppsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -2937,10 +2905,9 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConnectAppsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3003,13 +2970,12 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3080,10 +3046,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3240,10 +3205,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3354,13 +3318,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3480,13 +3443,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3602,13 +3564,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3684,13 +3645,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3762,13 +3722,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3872,13 +3828,9 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -3982,13 +3934,12 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4092,10 +4043,9 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidKeysSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidKeysSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4233,10 +4183,9 @@ export function useGet20100401AccountsAccountSidKeysJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidKeysJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidKeysJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4338,13 +4287,9 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4458,10 +4403,9 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4529,13 +4473,12 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4647,10 +4590,9 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4718,10 +4660,9 @@ export function useGet20100401AccountsAccountSidMessagesJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidMessagesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidMessagesJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -4829,10 +4770,9 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidMessagesSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5028,10 +4968,9 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5139,10 +5078,9 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidNotificationsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5209,10 +5147,9 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidNotificationsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidNotificationsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5279,10 +5216,9 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5438,10 +5374,9 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5548,13 +5483,12 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5712,13 +5646,12 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -5916,10 +5849,9 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidQueuesSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6072,10 +6004,9 @@ export function useGet20100401AccountsAccountSidQueuesJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidQueuesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidQueuesJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6270,10 +6201,9 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6385,10 +6315,9 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6455,13 +6384,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6576,13 +6504,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6651,13 +6578,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6777,13 +6703,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6859,13 +6784,12 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -6937,13 +6861,12 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7050,13 +6973,12 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7127,10 +7049,9 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7241,10 +7162,9 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSMSShortCodesJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7307,10 +7227,9 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSigningKeysSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7458,13 +7377,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7580,13 +7498,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7706,13 +7623,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7828,13 +7744,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -7954,13 +7869,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -8076,13 +7990,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -8202,13 +8115,12 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -8324,13 +8236,12 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -8493,10 +8404,9 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -8607,10 +8517,9 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -8766,13 +8675,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -8886,13 +8794,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9012,10 +8919,9 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9123,10 +9029,9 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9282,10 +9187,9 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9396,13 +9300,9 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions(
-      args,
-      clientOptions,
-    ),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9559,13 +9459,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9685,13 +9584,12 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9807,13 +9705,12 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -9932,13 +9829,12 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions(
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryOptions(
       args,
       clientOptions,
-    ),
-    ...queryOptions,
-  })
+    )
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10318,10 +10214,9 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10433,10 +10328,9 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidTranscriptionsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10503,10 +10397,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10569,10 +10462,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10635,10 +10527,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10701,10 +10592,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10767,10 +10657,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10833,10 +10722,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10899,10 +10787,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -10965,10 +10852,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -11031,10 +10917,9 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -11101,10 +10986,9 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**
@@ -11256,10 +11140,9 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
   },
 ) {
   const { query: queryOptions, client: clientOptions } = options ?? {}
-  return useQuery({
-    ...getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions(args, clientOptions),
-    ...queryOptions,
-  })
+  const { queryKey, queryFn, ...baseOptions } =
+    getGet20100401AccountsAccountSidUsageTriggersJsonQueryOptions(args, clientOptions)
+  return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
 
 /**

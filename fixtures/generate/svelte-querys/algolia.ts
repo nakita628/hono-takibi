@@ -13,7 +13,7 @@ import { client } from '../clients/algolia'
  */
 export function createGetPath(
   args: InferRequestType<(typeof client)[':path']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)[':path']['$get']>>>>
@@ -23,8 +23,10 @@ export function createGetPath(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGetPathQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetPathQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -383,7 +385,7 @@ export function createDelete1IndexesIndexName(options?: {
  */
 export function createGet1IndexesIndexNameObjectID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -397,11 +399,13 @@ export function createGet1IndexesIndexNameObjectID(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1IndexesIndexNameObjectIDQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameObjectIDQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -752,7 +756,7 @@ export function createPost1IndexesObjects(options?: {
  */
 export function createGet1IndexesIndexNameSettings(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -766,11 +770,13 @@ export function createGet1IndexesIndexNameSettings(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1IndexesIndexNameSettingsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameSettingsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -851,7 +857,7 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -869,11 +875,11 @@ export function createGet1IndexesIndexNameSynonymsObjectID(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1IndexesIndexNameSynonymsObjectIDQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGet1IndexesIndexNameSynonymsObjectIDQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1106,17 +1112,21 @@ export function createPost1IndexesIndexNameSynonymsSearch(options?: {
  *
  * Lists all API keys associated with your Algolia application, including their permissions and restrictions.
  */
-export function createGet1Keys(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$get']>>>>
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGet1KeysQueryOptions(clientOptions), ...queryOptions }))
+export function createGet1Keys(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['keys']['$get']>>>>
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1KeysQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1181,7 +1191,7 @@ export function createPost1Keys(options?: {
  */
 export function createGet1KeysKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1193,11 +1203,13 @@ export function createGet1KeysKey(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1KeysKeyQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1KeysKeyQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1333,7 +1345,7 @@ export function createGet1IndexesIndexNameRulesObjectID(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1351,11 +1363,13 @@ export function createGet1IndexesIndexNameRulesObjectID(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1IndexesIndexNameRulesObjectIDQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameRulesObjectIDQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1655,24 +1669,27 @@ export function createPost1DictionariesDictionaryNameSearch(options?: {
  *
  * Retrieves the languages for which standard dictionary entries are turned off.
  */
-export function createGet1DictionariesSettings(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>>
+export function createGet1DictionariesSettings(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['settings']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1DictionariesSettingsQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1DictionariesSettingsQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1736,24 +1753,27 @@ export function createPut1DictionariesSettings(options?: {
  *
  * Lists supported languages with their supported dictionary types and number of custom entries.
  */
-export function createGet1DictionariesLanguages(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>>
+export function createGet1DictionariesLanguages(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['dictionaries']['*']['languages']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1DictionariesLanguagesQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1DictionariesLanguagesQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1792,7 +1812,7 @@ export const getGet1DictionariesLanguagesQueryOptions = (clientOptions?: ClientR
  */
 export function createGet1ClustersMapping(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1806,11 +1826,13 @@ export function createGet1ClustersMapping(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1ClustersMappingQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1917,24 +1939,27 @@ export function createPost1ClustersMappingBatch(options?: {
  * Since it can take a few seconds to get the data from the different clusters,
  * the response isn't real-time.
  */
-export function createGet1ClustersMappingTop(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['top']['$get']>>
+export function createGet1ClustersMappingTop(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['clusters']['mapping']['top']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1ClustersMappingTopQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingTopQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -1973,7 +1998,7 @@ export const getGet1ClustersMappingTopQueryOptions = (clientOptions?: ClientRequ
  */
 export function createGet1ClustersMappingUserID(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -1987,11 +2012,13 @@ export function createGet1ClustersMappingUserID(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1ClustersMappingUserIDQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingUserIDQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2061,19 +2088,23 @@ export function createDelete1ClustersMappingUserID(options?: {
  *
  * Lists the available clusters in a multi-cluster setup.
  */
-export function createGet1Clusters(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['clusters']['$get']>>>
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGet1ClustersQueryOptions(clientOptions), ...queryOptions }))
+export function createGet1Clusters(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['clusters']['$get']>>>
+        >
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1ClustersQueryOptions(options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2142,7 +2173,7 @@ export function createPost1ClustersMappingSearch(options?: {
  */
 export function createGet1ClustersMappingPending(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2156,11 +2187,13 @@ export function createGet1ClustersMappingPending(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1ClustersMappingPendingQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1ClustersMappingPendingQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2200,24 +2233,27 @@ export const getGet1ClustersMappingPendingQueryOptions = (
  *
  * Retrieves all allowed IP addresses with access to your application.
  */
-export function createGet1SecuritySources(options?: {
-  query?: CreateQueryOptions<
-    Awaited<
-      ReturnType<
-        typeof parseResponse<
-          Awaited<ReturnType<(typeof client)['1']['security']['sources']['$get']>>
+export function createGet1SecuritySources(
+  options?: () => {
+    query?: CreateQueryOptions<
+      Awaited<
+        ReturnType<
+          typeof parseResponse<
+            Awaited<ReturnType<(typeof client)['1']['security']['sources']['$get']>>
+          >
         >
-      >
-    >,
-    Error
-  >
-  client?: ClientRequestOptions
-}) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1SecuritySourcesQueryOptions(clientOptions),
-    ...queryOptions,
-  }))
+      >,
+      Error
+    >
+    client?: ClientRequestOptions
+  },
+) {
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1SecuritySourcesQueryOptions(
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2347,7 +2383,7 @@ export function createDelete1SecuritySourcesSource(options?: {
  */
 export function createGet1Logs(
   args: InferRequestType<(typeof client)['1']['logs']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<(typeof client)['1']['logs']['$get']>>>>
@@ -2357,8 +2393,10 @@ export function createGet1Logs(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({ ...getGet1LogsQueryOptions(args, clientOptions), ...queryOptions }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1LogsQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2395,7 +2433,7 @@ export const getGet1LogsQueryOptions = (
  */
 export function createGet1TaskTaskID(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2407,11 +2445,13 @@ export function createGet1TaskTaskID(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1TaskTaskIDQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1TaskTaskIDQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2459,7 +2499,7 @@ export const getGet1TaskTaskIDQueryOptions = (
  */
 export function createGet1IndexesIndexNameTaskTaskID(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2475,11 +2515,13 @@ export function createGet1IndexesIndexNameTaskTaskID(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1IndexesIndexNameTaskTaskIDQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1IndexesIndexNameTaskTaskIDQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2576,7 +2618,7 @@ export function createPost1IndexesIndexNameOperation(options?: {
  */
 export function createGet1Indexes(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2588,11 +2630,13 @@ export function createGet1Indexes(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGet1IndexesQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGet1IndexesQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2634,7 +2678,7 @@ export const getGet1IndexesQueryOptions = (
  */
 export function createGetWaitForApiKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForApiKey.$get>>>>
@@ -2644,11 +2688,13 @@ export function createGetWaitForApiKey(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWaitForApiKeyQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWaitForApiKeyQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2692,7 +2738,7 @@ export const getGetWaitForApiKeyQueryOptions = (
  */
 export function createGetWaitForTask(
   args: InferRequestType<typeof client.waitForTask.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForTask.$get>>>>
@@ -2702,11 +2748,13 @@ export function createGetWaitForTask(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWaitForTaskQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWaitForTaskQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2743,7 +2791,7 @@ export const getGetWaitForTaskQueryOptions = (
  */
 export function createGetWaitForAppTask(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.waitForAppTask.$get>>>>
@@ -2753,11 +2801,13 @@ export function createGetWaitForAppTask(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetWaitForAppTaskQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetWaitForAppTaskQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2803,7 +2853,7 @@ export const getGetWaitForAppTaskQueryOptions = (
  */
 export function createGetBrowseObjects(
   args: InferRequestType<typeof client.browseObjects.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.browseObjects.$get>>>>
@@ -2813,11 +2863,13 @@ export function createGetBrowseObjects(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetBrowseObjectsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetBrowseObjectsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2871,7 +2923,7 @@ export const getGetBrowseObjectsQueryOptions = (
  */
 export function createGetGenerateSecuredApiKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -2883,11 +2935,13 @@ export function createGetGenerateSecuredApiKey(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetGenerateSecuredApiKeyQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetGenerateSecuredApiKeyQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -2929,7 +2983,7 @@ export const getGetGenerateSecuredApiKeyQueryOptions = (
  */
 export function createGetAccountCopyIndex(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.accountCopyIndex.$get>>>>
@@ -2939,11 +2993,13 @@ export function createGetAccountCopyIndex(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetAccountCopyIndexQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetAccountCopyIndexQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3000,7 +3056,7 @@ export const getGetAccountCopyIndexQueryOptions = (
  */
 export function createGetReplaceAllObjects(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.replaceAllObjects.$get>>>>
@@ -3010,11 +3066,13 @@ export function createGetReplaceAllObjects(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetReplaceAllObjectsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetReplaceAllObjectsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3068,7 +3126,7 @@ export const getGetReplaceAllObjectsQueryOptions = (
  */
 export function createGetReplaceAllObjectsWithTransformation(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3082,11 +3140,11 @@ export function createGetReplaceAllObjectsWithTransformation(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetReplaceAllObjectsWithTransformationQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } =
+      getGetReplaceAllObjectsWithTransformationQueryOptions(args, options?.()?.client)
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3128,7 +3186,7 @@ export const getGetReplaceAllObjectsWithTransformationQueryOptions = (
  */
 export function createGetChunkedBatch(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.chunkedBatch.$get>>>>
@@ -3138,11 +3196,13 @@ export function createGetChunkedBatch(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetChunkedBatchQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetChunkedBatchQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3184,7 +3244,7 @@ export const getGetChunkedBatchQueryOptions = (
  */
 export function createGetSaveObjects(
   args: InferRequestType<typeof client.saveObjects.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.saveObjects.$get>>>>
@@ -3194,11 +3254,13 @@ export function createGetSaveObjects(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSaveObjectsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSaveObjectsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3235,7 +3297,7 @@ export const getGetSaveObjectsQueryOptions = (
  */
 export function createGetSaveObjectsWithTransformation(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<
@@ -3249,11 +3311,13 @@ export function createGetSaveObjectsWithTransformation(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSaveObjectsWithTransformationQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSaveObjectsWithTransformationQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3377,7 +3441,7 @@ export function createPostPartialUpdateObjectsWithTransformation(options?: {
  */
 export function createGetIndexExists(
   args: InferRequestType<typeof client.indexExists.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.indexExists.$get>>>>
@@ -3387,11 +3451,13 @@ export function createGetIndexExists(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetIndexExistsQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetIndexExistsQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
@@ -3428,7 +3494,7 @@ export const getGetIndexExistsQueryOptions = (
  */
 export function createGetSetClientApiKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
-  options?: {
+  options?: () => {
     query?: CreateQueryOptions<
       Awaited<
         ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.setClientApiKey.$get>>>>
@@ -3438,11 +3504,13 @@ export function createGetSetClientApiKey(
     client?: ClientRequestOptions
   },
 ) {
-  const { query: queryOptions, client: clientOptions } = options ?? {}
-  return createQuery(() => ({
-    ...getGetSetClientApiKeyQueryOptions(args, clientOptions),
-    ...queryOptions,
-  }))
+  return createQuery(() => {
+    const { queryKey, queryFn, ...baseOptions } = getGetSetClientApiKeyQueryOptions(
+      args,
+      options?.()?.client,
+    )
+    return { ...baseOptions, ...options?.()?.query, queryKey, queryFn }
+  })
 }
 
 /**
