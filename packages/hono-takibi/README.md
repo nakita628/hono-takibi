@@ -110,12 +110,6 @@ Options:
   -h, --help                  display help for command
 ```
 
-### Example
-
-```bash
-npx hono-takibi path/to/input.{yaml,json,tsp} -o path/to/output.ts --export-schemas --export-schemas-types --template --base-path '/api/v1'
-```
-
 ## Configuration File (`hono-takibi.config.ts`)
 
 Config used by both the CLI and the Vite plugin.
@@ -202,40 +196,46 @@ export default defineConfig({
   },
   type: {
     output: './src/types.ts',
+    readonly: true,
   },
   rpc: {
     output: './src/rpc',
     import: '../client',
     split: true,
+    client: 'client',
   },
   // Client library integrations
   'tanstack-query': {
     output: './src/tanstack-query',
     import: '../client',
     split: true,
+    client: 'client',
   },
   'svelte-query': {
     output: './src/svelte-query',
     import: '../client',
     split: true,
+    client: 'client',
   },
   swr: {
     output: './src/swr',
     import: '../client',
     split: true,
+    client: 'client',
   },
   'vue-query': {
     output: './src/vue-query',
     import: '../client',
     split: true,
+    client: 'client',
   },
 })
 ```
 
-## Essentials
+### Essentials
 
 * Put **`hono-takibi.config.ts`** at repo root.
-* Default‑export with `defineConfig(...)`.
+* Default-export with `defineConfig(...)`.
 * `input`: **`openapi.yaml`** (recommended), or `*.json` / `*.tsp`.
 
 > **About `split`**
@@ -243,386 +243,74 @@ export default defineConfig({
 > * `split: true` → `output` is a **directory**; many files + `index.ts`.
 > * `split` **omitted** or `false` → `output` is a **single `*.ts` file** (one file only).
 
----
-
-## Schema Options
-
-### `readonly` Mode
-
-Enable `readonly: true` to generate immutable Zod schemas:
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/index.ts',
-    readonly: true,  // Enable immutable schemas
-    exportSchemas: true,
-  },
-})
-```
-
-**Without `readonly`** (from Pet Store):
-```ts
-const CategorySchema = z
-  .object({
-    id: z.int64().exactOptional().openapi({ example: 1 }),
-    name: z.string().exactOptional().openapi({ example: 'Dogs' }),
-  })
-  .openapi({ xml: { name: 'category' } })
-  .openapi('Category')
-
-const PetSchema = z
-  .object({
-    id: z.int64().exactOptional().openapi({ example: 10 }),
-    name: z.string().openapi({ example: 'doggie' }),
-    category: CategorySchema.exactOptional(),
-    photoUrls: z.array(z.string().openapi({ xml: { name: 'photoUrl' } })).openapi({ xml: { wrapped: true } }),
-    tags: z.array(TagSchema).exactOptional().openapi({ xml: { wrapped: true } }),
-    status: z.enum(['available', 'pending', 'sold']).exactOptional().openapi({ description: 'pet status in the store' }),
-  })
-  .openapi({ required: ['name', 'photoUrls'], xml: { name: 'pet' } })
-  .openapi('Pet')
-```
-
-**With `readonly: true`** (from Pet Store):
-```ts
-const CategorySchema = z
-  .object({
-    id: z.int64().exactOptional().openapi({ example: 1 }),
-    name: z.string().exactOptional().openapi({ example: 'Dogs' }),
-  })
-  .openapi({ xml: { name: 'category' } })
-  .readonly()  // Added
-  .openapi('Category')
-
-const PetSchema = z
-  .object({
-    id: z.int64().exactOptional().openapi({ example: 10 }),
-    name: z.string().openapi({ example: 'doggie' }),
-    category: CategorySchema.exactOptional(),
-    photoUrls: z.array(z.string().openapi({ xml: { name: 'photoUrl' } })).openapi({ xml: { wrapped: true } }),
-    tags: z.array(TagSchema).exactOptional().openapi({ xml: { wrapped: true } }),
-    status: z.enum(['available', 'pending', 'sold']).exactOptional().openapi({ description: 'pet status in the store' }),
-  })
-  .openapi({ required: ['name', 'photoUrls'], xml: { name: 'pet' } })
-  .readonly()  // Added
-  .openapi('Pet')
-
-// Route definitions also use `as const`
-export const getPetPetIdRoute = createRoute({
-  method: 'get',
-  path: '/pet/{petId}',
-  // ...
-} as const)  // Added
-```
-
----
-
-## Single‑file
-
-One file. Set top‑level `output` (don't define `components`/`routes`).
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': {
-    output: './src/index.ts',
-    exportSchemas: true,
-    exportSchemasTypes: true,
-  },
-})
-```
-
----
-
-## RPC (optional)
-
-Works with either pattern.
-
-* `split: true` → `output` is a **directory**; many files + `index.ts`.
-* `split` **omitted** or `false` → `output` is **one `*.ts` file**.
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true, exportSchemasTypes: true },
-  rpc: { output: './src/rpc', import: '../client', split: true },
-})
-```
-
----
-
 ## Client Library Integrations
 
-| Library | Package | Config Key |
-|---------|---------|------------|
-| [TanStack Query](https://tanstack.com/query/latest) (React) | `@tanstack/react-query` | `tanstack-query` |
-| [Svelte Query](https://tanstack.com/query/latest/docs/framework/svelte/overview) | `@tanstack/svelte-query` | `svelte-query` |
-| [SWR](https://swr.vercel.app/) | `swr` | `swr` |
-| [Vue Query](https://tanstack.com/query/latest/docs/framework/vue/overview) | `@tanstack/vue-query` | `vue-query` |
-
-### TanStack Query (React)
+### TanStack Query
 
 ```ts
-import { defineConfig } from 'hono-takibi/config'
-
 export default defineConfig({
   input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  'tanstack-query': { output: './src/hooks', import: '../client', split: true },
+  'zod-openapi': { output: './src/routes.ts', exportSchemas: true },
+  'tanstack-query': { output: './src/hooks', import: '../client', split: true, client: 'client' },
 })
 ```
 
-Generated code:
+Generated hooks (from Pet Store):
 
 ```ts
-import type { QueryClient, UseMutationOptions, UseQueryOptions } from '@tanstack/react-query'
+import type {
+  QueryFunctionContext,
+  UseMutationOptions,
+  UseQueryOptions,
+} from '@tanstack/react-query'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
-import { client } from '../client'
+import { client } from '../clients/pet-store'
 
-export function getGetPetFindByStatusQueryKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-) {
-  return ['GET', '/pet/findByStatus', args] as const
+/**
+ * Generates TanStack Query mutation key for PUT /pet
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getPutPetMutationKey() {
+  return ['pet', 'PUT', '/pet'] as const
 }
 
-export function useGetPetFindByStatus(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-  options?: {
-    query?: UseQueryOptions<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useQuery<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>(
-    {
-      queryKey: getGetPetFindByStatusQueryKey(args),
-      queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, options?.client)),
-      ...options?.query,
-    },
-    queryClient,
-  )
-}
-
-export function usePostPet(
-  options?: {
-    mutation?: UseMutationOptions<
-      InferResponseType<typeof client.pet.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return useMutation<
-    InferResponseType<typeof client.pet.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$post(args, options?.client)),
-    },
-    queryClient,
-  )
-}
-```
-
-### Svelte Query
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  'svelte-query': { output: './src/hooks', import: '../client', split: true },
+/**
+ * Returns TanStack Query mutation options for PUT /pet
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPetMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPetMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.pet.$put>) =>
+    parseResponse(client.pet.$put(args, clientOptions)),
 })
-```
 
-Generated code:
-
-```ts
-import type { CreateMutationOptions, CreateQueryOptions, QueryClient } from '@tanstack/svelte-query'
-import { createMutation, createQuery } from '@tanstack/svelte-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import { client } from '../client'
-
-export function getGetPetFindByStatusQueryKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-) {
-  return ['GET', '/pet/findByStatus', args] as const
-}
-
-export function createGetPetFindByStatus(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-  options?: {
-    query?: CreateQueryOptions<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return createQuery<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>(
-    {
-      queryKey: getGetPetFindByStatusQueryKey(args),
-      queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, options?.client)),
-      ...options?.query,
-    },
-    queryClient,
-  )
-}
-
-export function createPostPet(
-  options?: {
-    mutation?: CreateMutationOptions<
-      InferResponseType<typeof client.pet.$post> | undefined,
-      Error,
-      InferRequestType<typeof client.pet.$post>
-    >
-    client?: ClientRequestOptions
-  },
-  queryClient?: QueryClient,
-) {
-  return createMutation<
-    InferResponseType<typeof client.pet.$post> | undefined,
+/**
+ * PUT /pet
+ *
+ * Update an existing pet
+ *
+ * Update an existing pet by Id
+ */
+export function usePutPet(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.pet.$put>>>>>,
     Error,
-    InferRequestType<typeof client.pet.$post>
-  >(
-    {
-      ...options?.mutation,
-      mutationFn: async (args) => parseResponse(client.pet.$post(args, options?.client)),
-    },
-    queryClient,
-  )
-}
-```
-
-### SWR
-
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  swr: { output: './src/hooks', import: '../client', split: true },
-})
-```
-
-Generated code:
-
-```ts
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import type { Key, SWRConfiguration } from 'swr'
-import useSWR from 'swr'
-import type { SWRMutationConfiguration } from 'swr/mutation'
-import useSWRMutation from 'swr/mutation'
-import { client } from '../client'
-
-export function getGetPetFindByStatusKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-): Key {
-  return ['GET', '/pet/findByStatus', args] as const
-}
-
-export function useGetPetFindByStatus(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-  options?: {
-    swr?: SWRConfiguration<InferResponseType<typeof client.pet.findByStatus.$get>>
-    client?: ClientRequestOptions
-  },
-) {
-  return useSWR<InferResponseType<typeof client.pet.findByStatus.$get>>(
-    getGetPetFindByStatusKey(args),
-    async () => parseResponse(client.pet.findByStatus.$get(args, options?.client)),
-    options?.swr,
-  )
-}
-
-export function usePostPet(options?: {
-  swr?: SWRMutationConfiguration<
-    InferResponseType<typeof client.pet.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$post>
+    InferRequestType<typeof client.pet.$put>
   >
   client?: ClientRequestOptions
 }) {
-  return useSWRMutation<
-    InferResponseType<typeof client.pet.$post>,
-    Error,
-    string,
-    InferRequestType<typeof client.pet.$post>
-  >(
-    'POST /pet',
-    async (_, { arg }) => parseResponse(client.pet.$post(arg, options?.client)),
-    options?.swr,
-  )
+  const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { mutationKey, mutationFn, ...baseOptions } = getPutPetMutationOptions(clientOptions)
+  return useMutation({ ...baseOptions, ...mutationOptions, mutationKey, mutationFn })
 }
 ```
 
-### Vue Query
+## Vite Plugin
 
-```ts
-import { defineConfig } from 'hono-takibi/config'
-
-export default defineConfig({
-  input: 'openapi.yaml',
-  'zod-openapi': { output: './src/index.ts', exportSchemas: true },
-  'vue-query': { output: './src/hooks', import: '../client', split: true },
-})
-```
-
-Generated code:
-
-```ts
-import { useMutation, useQuery } from '@tanstack/vue-query'
-import type { ClientRequestOptions, InferRequestType, InferResponseType } from 'hono/client'
-import { parseResponse } from 'hono/client'
-import { client } from '../client'
-
-export function getGetPetFindByStatusQueryKey(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-) {
-  return ['GET', '/pet/findByStatus', args] as const
-}
-
-export function useGetPetFindByStatus(
-  args: InferRequestType<typeof client.pet.findByStatus.$get>,
-  clientOptions?: ClientRequestOptions,
-) {
-  return useQuery<InferResponseType<typeof client.pet.findByStatus.$get> | undefined>({
-    queryKey: getGetPetFindByStatusQueryKey(args),
-    queryFn: async () => parseResponse(client.pet.findByStatus.$get(args, clientOptions)),
-  })
-}
-
-export function usePostPet(clientOptions?: ClientRequestOptions) {
-  return useMutation<
-    InferResponseType<typeof client.pet.$post> | undefined,
-    Error,
-    InferRequestType<typeof client.pet.$post>
-  >({ mutationFn: async (args) => parseResponse(client.pet.$post(args, clientOptions)) })
-}
-```
-
----
-
-## Vite Plugin (`honoTakibiVite`)
-
-Auto‑regenerates on changes and reloads dev server.
+Auto-regenerate on file changes:
 
 ```ts
 // vite.config.ts
@@ -634,41 +322,34 @@ export default defineConfig({
 })
 ```
 
-**What it does**
-
-* **Watches**: the config, your `input`, and nearby `**/*.{yaml,json,tsp}`.
-* **Generates** outputs per your config (single‑file or split, plus `rpc`).
-* **Cleans** old generated files safely when paths or `split` change.
-
-That’s it — set `input`, choose one of the two patterns, and (optionally) add `rpc`. ✅
-
-### Demo (Vite + HMR)
-
 ![](https://raw.githubusercontent.com/nakita628/hono-takibi/refs/heads/main/assets/vite/hono-takibi-vite.gif)
 
-### ⚠️ WARNING: Potential Breaking Changes Without Notice
+## Limitations
 
 **This package is in active development and may introduce breaking changes without prior notice.**
-Specifically:
+
+- Not all OpenAPI features are supported
+- Complex schemas might not convert correctly
+- Some OpenAPI validations may not be perfectly converted to Zod
 - Schema generation logic might be updated
 - Output code structure could be modified
-- Example value handling might be altered
 
 We strongly recommend:
 - Pinning to exact versions in production
 - Testing thoroughly when updating versions
 - Reviewing generated code after updates
 
+## Contributing
+
 We welcome feedback and contributions to improve the tool!
 
-### Current Limitations
+If you find any issues with the generated code or have suggestions for improvements, please:
 
-  **OpenAPI Support**
-   - Not all OpenAPI features are supported
-   - Complex schemas might not convert correctly
-   - Limited support for certain response types
-   - Some OpenAPI validations may not be perfectly converted to Zod validations
+- Open an issue at [GitHub Issues](https://github.com/nakita628/hono-takibi/issues)
+- Submit a pull request with your improvements
+
+Your contributions help make this tool better for the community.
 
 ## License
 
-Distributed under the MIT License. See [LICENSE](https://github.com/nakita-Ypm/hono-takibi?tab=MIT-1-ov-file) for more information.
+Distributed under the MIT License. See [LICENSE](https://github.com/nakita628/hono-takibi?tab=MIT-1-ov-file) for more information.
