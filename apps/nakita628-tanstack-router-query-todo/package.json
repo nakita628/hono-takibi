@@ -10,7 +10,11 @@
     "deploy": "pnpm build && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "takibi": "hono-takibi",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "push": "drizzle-kit push",
+    "generate": "drizzle-kit generate",
+    "migrate": "drizzle-kit migrate",
+    "local-migrate": "wrangler d1 migrations apply DB --local"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260121.0",
@@ -32,9 +36,11 @@
   },
   "dependencies": {
     "@hono/zod-openapi": "^1.2.0",
+    "@libsql/client": "^0.17.0",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-query": "^5.62.16",
     "@tanstack/react-router": "^1.157.14",
+    "dotenv": "^17.2.3",
     "drizzle-orm": "^0.39.3",
     "hono": "^4.11.5",
     "neverthrow": "^8.2.0",

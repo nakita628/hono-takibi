@@ -7,6 +7,14 @@ import useSWRMutation from 'swr/mutation'
 import { client } from '@/lib'
 
 /**
+ * Generates SWR cache key for GET /todo
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetTodoKey(args: InferRequestType<typeof client.todo.$get>) {
+  return ['todo', 'GET', '/todo', args] as const
+}
+
+/**
  * GET /todo
  *
  * Retrieve a list of posts
@@ -19,19 +27,25 @@ export function useGetTodo(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTodoKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetTodoKey(args)) : null
   return {
     swrKey,
-    ...useSWR(swrKey, async () => parseResponse(client.todo.$get(args, clientOptions)), swrOptions),
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.todo.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
 /**
- * Generates SWR cache key for GET /todo
+ * Generates SWR mutation key for POST /todo
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetTodoKey(args?: InferRequestType<typeof client.todo.$get>) {
-  return ['/todo', ...(args ? [args] : [])] as const
+export function getPostTodoMutationKey() {
+  return ['todo', 'POST', '/todo'] as const
 }
 
 /**
@@ -43,18 +57,31 @@ export function usePostTodo(options?: {
   mutation?: SWRMutationConfiguration<
     Awaited<ReturnType<typeof parseResponse<Awaited<ReturnType<typeof client.todo.$post>>>>>,
     Error,
-    string,
+    Key,
     InferRequestType<typeof client.todo.$post>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'POST /todo',
-    async (_: string, { arg }: { arg: InferRequestType<typeof client.todo.$post> }) =>
-      parseResponse(client.todo.$post(arg, clientOptions)),
-    mutationOptions,
-  )
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTodoMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<typeof client.todo.$post> }) =>
+        parseResponse(client.todo.$post(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR cache key for GET /todo/{id}
+ * Returns structured key ['prefix', 'method', 'path', args] for filtering
+ */
+export function getGetTodoIdKey(args: InferRequestType<(typeof client.todo)[':id']['$get']>) {
+  return ['todo', 'GET', '/todo/:id', args] as const
 }
 
 /**
@@ -70,23 +97,25 @@ export function useGetTodoId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTodoIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = isEnabled ? (customKey ?? getGetTodoIdKey(args)) : null
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.todo[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
- * Generates SWR cache key for GET /todo/{id}
+ * Generates SWR mutation key for PUT /todo/{id}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
  */
-export function getGetTodoIdKey(args?: InferRequestType<(typeof client.todo)[':id']['$get']>) {
-  return ['/todo/:id', ...(args ? [args] : [])] as const
+export function getPutTodoIdMutationKey() {
+  return ['todo', 'PUT', '/todo/:id'] as const
 }
 
 /**
@@ -101,18 +130,31 @@ export function usePutTodoId(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.todo)[':id']['$put']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'PUT /todo/:id',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client.todo)[':id']['$put']> }) =>
-      parseResponse(client.todo[':id'].$put(arg, clientOptions)),
-    mutationOptions,
-  )
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutTodoIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client.todo)[':id']['$put']> }) =>
+        parseResponse(client.todo[':id'].$put(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
+}
+
+/**
+ * Generates SWR mutation key for DELETE /todo/{id}
+ * Returns key ['prefix', 'method', 'path'] for mutation state tracking
+ */
+export function getDeleteTodoIdMutationKey() {
+  return ['todo', 'DELETE', '/todo/:id'] as const
 }
 
 /**
@@ -129,16 +171,21 @@ export function useDeleteTodoId(options?: {
       >
     | undefined,
     Error,
-    string,
+    Key,
     InferRequestType<(typeof client.todo)[':id']['$delete']>
-  >
+  > & { swrKey?: Key }
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  return useSWRMutation(
-    'DELETE /todo/:id',
-    async (_: string, { arg }: { arg: InferRequestType<(typeof client.todo)[':id']['$delete']> }) =>
-      parseResponse(client.todo[':id'].$delete(arg, clientOptions)),
-    mutationOptions,
-  )
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteTodoIdMutationKey()
+  return {
+    swrKey,
+    ...useSWRMutation(
+      swrKey,
+      async (_: Key, { arg }: { arg: InferRequestType<(typeof client.todo)[':id']['$delete']> }) =>
+        parseResponse(client.todo[':id'].$delete(arg, clientOptions)),
+      restMutationOptions,
+    ),
+  }
 }

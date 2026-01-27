@@ -1,6 +1,6 @@
 import { createRoute, z } from '@hono/zod-openapi'
 
-const TodoSchema = z
+export const TodoSchema = z
   .object({
     id: z.uuid(),
     content: z.string().min(1).max(140),
@@ -20,30 +20,42 @@ const TodoSchema = z
   })
   .openapi('Todo')
 
-const NotFoundSchema = z
+export type Todo = z.infer<typeof TodoSchema>
+
+export const NotFoundSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'] })
   .openapi('NotFound')
 
-const UnprocessableContentSchema = z
+export type NotFound = z.infer<typeof NotFoundSchema>
+
+export const UnprocessableContentSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'] })
   .openapi('UnprocessableContent')
 
-const InternalServerErrorSchema = z
+export type UnprocessableContent = z.infer<typeof UnprocessableContentSchema>
+
+export const InternalServerErrorSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'] })
   .openapi('InternalServerError')
 
-const ServiceUnavailableSchema = z
+export type InternalServerError = z.infer<typeof InternalServerErrorSchema>
+
+export const ServiceUnavailableSchema = z
   .object({ message: z.string(), retryAfter: z.string().exactOptional() })
   .openapi({ required: ['message'] })
   .openapi('ServiceUnavailable')
 
-const CreatedSchema = z
+export type ServiceUnavailable = z.infer<typeof ServiceUnavailableSchema>
+
+export const CreatedSchema = z
   .object({ message: z.string() })
   .openapi({ required: ['message'], example: { status: 201, message: 'Created' } })
   .openapi('Created')
+
+export type Created = z.infer<typeof CreatedSchema>
 
 export const getTodoRoute = createRoute({
   method: 'get',

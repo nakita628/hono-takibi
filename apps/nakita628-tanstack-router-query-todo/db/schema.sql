@@ -1,12 +1,8 @@
--- Schema for Todo application (TanStack Router + TanStack Query + Drizzle)
-
+-- todos table
 CREATE TABLE IF NOT EXISTS todos (
-  id TEXT PRIMARY KEY,
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
   content TEXT NOT NULL,
-  completed INTEGER DEFAULT 0 NOT NULL,
-  created_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL,
-  updated_at TEXT DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')) NOT NULL
+  completed INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+  updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
 );
-
-CREATE INDEX IF NOT EXISTS idx_todos_completed ON todos(completed);
-CREATE INDEX IF NOT EXISTS idx_todos_created_at ON todos(created_at);

@@ -10,8 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TodosIdRouteImport } from './routes/todos/$id'
 import { Route as TodosIndexRouteImport } from './routes/todos/index'
+import { Route as TodosIdRouteImport } from './routes/todos/$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',

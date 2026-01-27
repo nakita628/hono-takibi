@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const todos = sqliteTable('todos', {
-  id: text('id').primaryKey(),
+  id: integer('id').primaryKey(),
   content: text('content').notNull(),
   completed: integer('completed').default(0).notNull(),
   createdAt: text('created_at').default(sql`(strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))`).notNull(),
