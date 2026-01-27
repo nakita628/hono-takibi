@@ -4,7 +4,6 @@
   "private": true,
   "scripts": {
     "vite": "vite --host",
-    "dev": "wrangler dev",
     "build": "rm -rf dist && rm -rf server-build && vite build --mode client && vite build",
     "preview": "wrangler dev",
     "deploy": "pnpm build && wrangler deploy",
@@ -14,9 +13,7 @@
     "push": "drizzle-kit push",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
-    "db:reset": "rm -rf .wrangler/state/v3/d1 && pnpm db:migrate",
-    "db:migrate": "wrangler d1 migrations apply DB --local",
-    "db:query": "wrangler d1 execute DB --local --command"
+    "local-migrate": "wrangler d1 migrations apply DB --local"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260121.0",

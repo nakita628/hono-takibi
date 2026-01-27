@@ -36,7 +36,6 @@ export const Route = createFileRoute('/todos/')({
   ),
 })
 
-/** TodoItem - メモ化されたリストアイテムコンポーネント */
 const TodoItem = memo(function TodoItem({
   todo,
   onToggle,
