@@ -32,10 +32,11 @@ export function useGetProjects(
 
 /**
  * Generates Vue Query cache key for GET /projects
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return [client.projects.$url(args).pathname] as const
+  const u = client.projects.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -114,12 +115,13 @@ export function useGetProjectsProjectId(
 
 /**
  * Generates Vue Query cache key for GET /projects/{projectId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return [client.projects[':projectId'].$url(args).pathname] as const
+  const u = client.projects[':projectId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -241,12 +243,13 @@ export function useGetProjectsProjectIdMembers(
 
 /**
  * Generates Vue Query cache key for GET /projects/{projectId}/members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdMembersQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return [client.projects[':projectId'].members.$url(args).pathname] as const
+  const u = client.projects[':projectId'].members.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -336,12 +339,13 @@ export function useGetProjectsProjectIdTasks(
 
 /**
  * Generates Vue Query cache key for GET /projects/{projectId}/tasks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdTasksQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return [client.projects[':projectId'].tasks.$url(args).pathname] as const
+  const u = client.projects[':projectId'].tasks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -426,12 +430,13 @@ export function useGetTasksTaskId(
 
 /**
  * Generates Vue Query cache key for GET /tasks/{taskId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTasksTaskIdQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return [client.tasks[':taskId'].$url(args).pathname] as const
+  const u = client.tasks[':taskId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -582,12 +587,13 @@ export function useGetTasksTaskIdComments(
 
 /**
  * Generates Vue Query cache key for GET /tasks/{taskId}/comments
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTasksTaskIdCommentsQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return [client.tasks[':taskId'].comments.$url(args).pathname] as const
+  const u = client.tasks[':taskId'].comments.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -677,12 +683,13 @@ export function useGetTasksTaskIdTimeEntries(
 
 /**
  * Generates Vue Query cache key for GET /tasks/{taskId}/time-entries
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTasksTaskIdTimeEntriesQueryKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return [client.tasks[':taskId']['time-entries'].$url(args).pathname] as const
+  const u = client.tasks[':taskId']['time-entries'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -772,12 +779,13 @@ export function useGetProjectsProjectIdMilestones(
 
 /**
  * Generates Vue Query cache key for GET /projects/{projectId}/milestones
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdMilestonesQueryKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return [client.projects[':projectId'].milestones.$url(args).pathname] as const
+  const u = client.projects[':projectId'].milestones.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

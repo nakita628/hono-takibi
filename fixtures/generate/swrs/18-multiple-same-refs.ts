@@ -17,24 +17,26 @@ export function useGetDocuments(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDocumentsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetDocumentsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.documents.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /documents
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDocumentsKey(args: InferRequestType<typeof client.documents.$get>) {
-  return client.documents.$url(args).pathname
+  const u = client.documents.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -50,21 +52,23 @@ export function usePostDocuments(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostDocumentsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostDocumentsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.documents.$post> }) =>
         parseResponse(client.documents.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /documents
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostDocumentsMutationKey() {
   return `POST ${client.documents.$url().pathname}`
@@ -81,26 +85,28 @@ export function useGetDocumentsDocumentId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDocumentsDocumentIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetDocumentsDocumentIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.documents[':documentId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /documents/{documentId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDocumentsDocumentIdKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return client.documents[':documentId'].$url(args).pathname
+  const u = client.documents[':documentId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -120,7 +126,8 @@ export function usePutDocumentsDocumentId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutDocumentsDocumentIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutDocumentsDocumentIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -129,14 +136,15 @@ export function usePutDocumentsDocumentId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.documents)[':documentId']['$put']> },
       ) => parseResponse(client.documents[':documentId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /documents/{documentId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutDocumentsDocumentIdMutationKey() {
   return `PUT ${client.documents[':documentId'].$url().pathname}`
@@ -153,27 +161,28 @@ export function useGetDocumentsDocumentIdVersions(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetDocumentsDocumentIdVersionsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetDocumentsDocumentIdVersionsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.documents[':documentId'].versions.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /documents/{documentId}/versions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDocumentsDocumentIdVersionsKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return client.documents[':documentId'].versions.$url(args).pathname
+  const u = client.documents[':documentId'].versions.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -195,7 +204,8 @@ export function usePostDocumentsDocumentIdShare(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostDocumentsDocumentIdShareMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostDocumentsDocumentIdShareMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -206,14 +216,15 @@ export function usePostDocumentsDocumentIdShare(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']> },
       ) => parseResponse(client.documents[':documentId'].share.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /documents/{documentId}/share
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostDocumentsDocumentIdShareMutationKey() {
   return `POST ${client.documents[':documentId'].share.$url().pathname}`
@@ -230,26 +241,28 @@ export function useGetUsersUserIdDocuments(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdDocumentsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdDocumentsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.users[':userId'].documents.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/{userId}/documents
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdDocumentsKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return client.users[':userId'].documents.$url(args).pathname
+  const u = client.users[':userId'].documents.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -265,21 +278,23 @@ export function usePostCompare(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostCompareMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostCompareMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.compare.$post> }) =>
         parseResponse(client.compare.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /compare
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostCompareMutationKey() {
   return `POST ${client.compare.$url().pathname}`
@@ -293,14 +308,15 @@ export function useGetTemplates(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTemplatesKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTemplatesKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.templates.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -326,21 +342,23 @@ export function usePostTemplates(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostTemplatesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTemplatesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.templates.$post> }) =>
         parseResponse(client.templates.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /templates
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostTemplatesMutationKey() {
   return `POST ${client.templates.$url().pathname}`
@@ -359,21 +377,23 @@ export function usePostWorkflows(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostWorkflowsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostWorkflowsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.workflows.$post> }) =>
         parseResponse(client.workflows.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /workflows
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostWorkflowsMutationKey() {
   return `POST ${client.workflows.$url().pathname}`

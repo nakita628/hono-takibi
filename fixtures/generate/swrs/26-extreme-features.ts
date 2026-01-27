@@ -16,14 +16,15 @@ export function useGetStream(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStreamKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetStreamKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.stream.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -51,21 +52,23 @@ export function usePostGraphql(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGraphqlMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGraphqlMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.graphql.$post> }) =>
         parseResponse(client.graphql.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /graphql
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGraphqlMutationKey() {
   return `POST ${client.graphql.$url().pathname}`
@@ -90,7 +93,8 @@ export function usePostGrpcGateway(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGrpcGatewayMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGrpcGatewayMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -99,14 +103,15 @@ export function usePostGrpcGateway(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['grpc-gateway']['$post']> },
       ) => parseResponse(client['grpc-gateway'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /grpc-gateway
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGrpcGatewayMutationKey() {
   return `POST ${client['grpc-gateway'].$url().pathname}`
@@ -126,14 +131,15 @@ export function useGetDeprecatedEndpoint(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDeprecatedEndpointKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetDeprecatedEndpointKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['deprecated-endpoint'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }

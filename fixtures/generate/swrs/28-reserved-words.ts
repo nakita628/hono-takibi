@@ -14,14 +14,15 @@ export function useGetClass(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetClassKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetClassKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.class.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -42,14 +43,15 @@ export function useGetInterface(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetInterfaceKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetInterfaceKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.interface.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -70,14 +72,15 @@ export function useGetType(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTypeKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTypeKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.type.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -103,20 +106,22 @@ export function usePostFunction(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostFunctionMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostFunctionMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async () => parseResponse(client.function.$post(undefined, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /function
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostFunctionMutationKey() {
   return `POST ${client.function.$url().pathname}`
@@ -130,14 +135,15 @@ export function useGetReturn(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetReturnKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetReturnKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.return.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -158,14 +164,15 @@ export function useGetImport(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetImportKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetImportKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.import.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -186,14 +193,15 @@ export function useGetExport(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExportKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetExportKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.export.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -214,14 +222,15 @@ export function useGetDefault(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDefaultKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetDefaultKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.default.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -247,20 +256,22 @@ export function usePostNew(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostNewMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostNewMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async () => parseResponse(client.new.$post(undefined, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /new
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostNewMutationKey() {
   return `POST ${client.new.$url().pathname}`
@@ -279,20 +290,22 @@ export function useDeleteDelete(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteDeleteMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteDeleteMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /delete
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteDeleteMutationKey() {
   return `DELETE ${client.delete.$url().pathname}`
@@ -306,14 +319,15 @@ export function useGetVoid(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetVoidKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetVoidKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.void.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -334,14 +348,15 @@ export function useGetNull(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetNullKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetNullKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.null.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -362,14 +377,15 @@ export function useGetTrue(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTrueKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTrueKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.true.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -390,14 +406,15 @@ export function useGetFalse(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFalseKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetFalseKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.false.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -418,14 +435,15 @@ export function useGetIf(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetIfKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetIfKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.if.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -446,14 +464,15 @@ export function useGetElse(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetElseKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetElseKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.else.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -474,14 +493,15 @@ export function useGetFor(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetForKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetForKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.for.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -502,14 +522,15 @@ export function useGetWhile(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWhileKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetWhileKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.while.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -530,14 +551,15 @@ export function useGetSwitch(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSwitchKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSwitchKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.switch.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -558,14 +580,15 @@ export function useGetCase(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCaseKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetCaseKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.case.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -586,14 +609,15 @@ export function useGetBreak(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetBreakKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetBreakKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.break.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -614,14 +638,15 @@ export function useGetContinue(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetContinueKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetContinueKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.continue.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -642,14 +667,15 @@ export function useGetTry(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTryKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTryKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.try.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -670,14 +696,15 @@ export function useGetCatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCatchKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetCatchKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.catch.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -698,14 +725,15 @@ export function useGetFinally(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFinallyKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetFinallyKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.finally.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -726,14 +754,15 @@ export function useGetThrow(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetThrowKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetThrowKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.throw.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -754,14 +783,15 @@ export function useGetAsync(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAsyncKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAsyncKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.async.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -782,14 +812,15 @@ export function useGetAwait(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAwaitKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAwaitKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.await.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -810,14 +841,15 @@ export function useGetYield(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetYieldKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetYieldKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.yield.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -838,14 +870,15 @@ export function useGetStatic(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStaticKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetStaticKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.static.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -866,14 +899,15 @@ export function useGetPublic(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPublicKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPublicKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.public.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -894,14 +928,15 @@ export function useGetPrivate(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPrivateKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPrivateKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.private.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -922,14 +957,15 @@ export function useGetProtected(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProtectedKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProtectedKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.protected.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -950,14 +986,15 @@ export function useGetAbstract(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAbstractKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAbstractKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.abstract.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -978,14 +1015,15 @@ export function useGetFinal(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFinalKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetFinalKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.final.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1006,14 +1044,15 @@ export function useGetExtends(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExtendsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetExtendsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.extends.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1034,14 +1073,15 @@ export function useGetImplements(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetImplementsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetImplementsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.implements.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1062,14 +1102,15 @@ export function useGetPackage(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPackageKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPackageKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.package.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1090,14 +1131,15 @@ export function useGetEnum(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEnumKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetEnumKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.enum.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1118,14 +1160,15 @@ export function useGetConst(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetConstKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetConstKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.const.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1146,14 +1189,15 @@ export function useGetLet(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetLetKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetLetKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.let.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1174,14 +1218,15 @@ export function useGetVar(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetVarKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetVarKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.var.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1202,14 +1247,15 @@ export function useGetThis(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetThisKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetThisKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.this.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1230,14 +1276,15 @@ export function useGetSuper(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSuperKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSuperKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.super.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1258,14 +1305,15 @@ export function useGetSelf(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSelfKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSelfKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.self.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1286,14 +1334,15 @@ export function useGetConstructor(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetConstructorKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetConstructorKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.constructor.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1314,14 +1363,15 @@ export function useGetPrototype(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPrototypeKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPrototypeKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.prototype.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1342,14 +1392,15 @@ export function useGetToString(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetToStringKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetToStringKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.toString.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1370,14 +1421,15 @@ export function useGetValueOf(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetValueOfKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetValueOfKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.valueOf.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1398,14 +1450,15 @@ export function useGetHasOwnProperty(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetHasOwnPropertyKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetHasOwnPropertyKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.hasOwnProperty.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1426,14 +1479,15 @@ export function useGetNameCollisions(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetNameCollisionsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetNameCollisionsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['name-collisions'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }

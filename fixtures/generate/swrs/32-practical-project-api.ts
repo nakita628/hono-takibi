@@ -19,24 +19,26 @@ export function useGetProjects(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProjectsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.projects.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /projects
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsKey(args: InferRequestType<typeof client.projects.$get>) {
-  return client.projects.$url(args).pathname
+  const u = client.projects.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -54,21 +56,23 @@ export function usePostProjects(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostProjectsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostProjectsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.projects.$post> }) =>
         parseResponse(client.projects.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /projects
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsMutationKey() {
   return `POST ${client.projects.$url().pathname}`
@@ -87,26 +91,28 @@ export function useGetProjectsProjectId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.projects[':projectId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['$get']>,
 ) {
-  return client.projects[':projectId'].$url(args).pathname
+  const u = client.projects[':projectId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -128,7 +134,8 @@ export function usePutProjectsProjectId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutProjectsProjectIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutProjectsProjectIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -137,14 +144,15 @@ export function usePutProjectsProjectId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.projects)[':projectId']['$put']> },
       ) => parseResponse(client.projects[':projectId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /projects/{projectId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutProjectsProjectIdMutationKey() {
   return `PUT ${client.projects[':projectId'].$url().pathname}`
@@ -172,7 +180,8 @@ export function useDeleteProjectsProjectId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteProjectsProjectIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteProjectsProjectIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -181,14 +190,15 @@ export function useDeleteProjectsProjectId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.projects)[':projectId']['$delete']> },
       ) => parseResponse(client.projects[':projectId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /projects/{projectId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteProjectsProjectIdMutationKey() {
   return `DELETE ${client.projects[':projectId'].$url().pathname}`
@@ -207,26 +217,28 @@ export function useGetProjectsProjectIdMembers(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdMembersKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdMembersKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.projects[':projectId'].members.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdMembersKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['members']['$get']>,
 ) {
-  return client.projects[':projectId'].members.$url(args).pathname
+  const u = client.projects[':projectId'].members.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -250,7 +262,8 @@ export function usePostProjectsProjectIdMembers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostProjectsProjectIdMembersMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostProjectsProjectIdMembersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -261,14 +274,15 @@ export function usePostProjectsProjectIdMembers(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']> },
       ) => parseResponse(client.projects[':projectId'].members.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/members
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsProjectIdMembersMutationKey() {
   return `POST ${client.projects[':projectId'].members.$url().pathname}`
@@ -287,26 +301,28 @@ export function useGetProjectsProjectIdTasks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdTasksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdTasksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.projects[':projectId'].tasks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/tasks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdTasksKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$get']>,
 ) {
-  return client.projects[':projectId'].tasks.$url(args).pathname
+  const u = client.projects[':projectId'].tasks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -330,7 +346,8 @@ export function usePostProjectsProjectIdTasks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostProjectsProjectIdTasksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostProjectsProjectIdTasksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -341,14 +358,15 @@ export function usePostProjectsProjectIdTasks(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']> },
       ) => parseResponse(client.projects[':projectId'].tasks.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/tasks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsProjectIdTasksMutationKey() {
   return `POST ${client.projects[':projectId'].tasks.$url().pathname}`
@@ -367,26 +385,28 @@ export function useGetTasksTaskId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTasksTaskIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTasksTaskIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.tasks[':taskId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTasksTaskIdKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['$get']>,
 ) {
-  return client.tasks[':taskId'].$url(args).pathname
+  const u = client.tasks[':taskId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -408,7 +428,8 @@ export function usePutTasksTaskId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutTasksTaskIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutTasksTaskIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -417,14 +438,15 @@ export function usePutTasksTaskId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['$put']> },
       ) => parseResponse(client.tasks[':taskId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /tasks/{taskId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutTasksTaskIdMutationKey() {
   return `PUT ${client.tasks[':taskId'].$url().pathname}`
@@ -450,7 +472,8 @@ export function useDeleteTasksTaskId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteTasksTaskIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteTasksTaskIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -459,14 +482,15 @@ export function useDeleteTasksTaskId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['$delete']> },
       ) => parseResponse(client.tasks[':taskId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /tasks/{taskId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteTasksTaskIdMutationKey() {
   return `DELETE ${client.tasks[':taskId'].$url().pathname}`
@@ -493,7 +517,8 @@ export function usePatchTasksTaskIdStatus(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchTasksTaskIdStatusMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchTasksTaskIdStatusMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -502,14 +527,15 @@ export function usePatchTasksTaskIdStatus(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']> },
       ) => parseResponse(client.tasks[':taskId'].status.$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /tasks/{taskId}/status
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchTasksTaskIdStatusMutationKey() {
   return `PATCH ${client.tasks[':taskId'].status.$url().pathname}`
@@ -528,26 +554,28 @@ export function useGetTasksTaskIdComments(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTasksTaskIdCommentsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTasksTaskIdCommentsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.tasks[':taskId'].comments.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}/comments
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTasksTaskIdCommentsKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$get']>,
 ) {
-  return client.tasks[':taskId'].comments.$url(args).pathname
+  const u = client.tasks[':taskId'].comments.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -571,7 +599,8 @@ export function usePostTasksTaskIdComments(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostTasksTaskIdCommentsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTasksTaskIdCommentsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -580,14 +609,15 @@ export function usePostTasksTaskIdComments(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']> },
       ) => parseResponse(client.tasks[':taskId'].comments.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /tasks/{taskId}/comments
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostTasksTaskIdCommentsMutationKey() {
   return `POST ${client.tasks[':taskId'].comments.$url().pathname}`
@@ -606,26 +636,28 @@ export function useGetTasksTaskIdTimeEntries(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTasksTaskIdTimeEntriesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTasksTaskIdTimeEntriesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.tasks[':taskId']['time-entries'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /tasks/{taskId}/time-entries
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTasksTaskIdTimeEntriesKey(
   args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$get']>,
 ) {
-  return client.tasks[':taskId']['time-entries'].$url(args).pathname
+  const u = client.tasks[':taskId']['time-entries'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -649,7 +681,8 @@ export function usePostTasksTaskIdTimeEntries(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostTasksTaskIdTimeEntriesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTasksTaskIdTimeEntriesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -660,14 +693,15 @@ export function usePostTasksTaskIdTimeEntries(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']> },
       ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /tasks/{taskId}/time-entries
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostTasksTaskIdTimeEntriesMutationKey() {
   return `POST ${client.tasks[':taskId']['time-entries'].$url().pathname}`
@@ -686,27 +720,28 @@ export function useGetProjectsProjectIdMilestones(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetProjectsProjectIdMilestonesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProjectsProjectIdMilestonesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.projects[':projectId'].milestones.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /projects/{projectId}/milestones
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsProjectIdMilestonesKey(
   args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$get']>,
 ) {
-  return client.projects[':projectId'].milestones.$url(args).pathname
+  const u = client.projects[':projectId'].milestones.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -730,7 +765,8 @@ export function usePostProjectsProjectIdMilestones(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostProjectsProjectIdMilestonesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostProjectsProjectIdMilestonesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -741,14 +777,15 @@ export function usePostProjectsProjectIdMilestones(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']> },
       ) => parseResponse(client.projects[':projectId'].milestones.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/milestones
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostProjectsProjectIdMilestonesMutationKey() {
   return `POST ${client.projects[':projectId'].milestones.$url().pathname}`
@@ -764,14 +801,15 @@ export function useGetTeams(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTeamsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTeamsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.teams.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -799,21 +837,23 @@ export function usePostTeams(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostTeamsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTeamsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.teams.$post> }) =>
         parseResponse(client.teams.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /teams
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostTeamsMutationKey() {
   return `POST ${client.teams.$url().pathname}`

@@ -58,10 +58,11 @@ export function useGetUsers(
 
 /**
  * Generates Vue Query cache key for GET /users
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersQueryKey(args: InferRequestType<typeof client.users.$get>) {
-  return [client.users.$url(args).pathname] as const
+  const u = client.users.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -136,12 +137,13 @@ export function useGetUsersUserId(
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return [client.users[':userId'].$url(args).pathname] as const
+  const u = client.users[':userId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -225,12 +227,13 @@ export function useGetCompaniesCompanyId(
 
 /**
  * Generates Vue Query cache key for GET /companies/{companyId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetCompaniesCompanyIdQueryKey(
   args: InferRequestType<(typeof client.companies)[':companyId']['$get']>,
 ) {
-  return [client.companies[':companyId'].$url(args).pathname] as const
+  const u = client.companies[':companyId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -278,10 +281,11 @@ export function useGetOrders(
 
 /**
  * Generates Vue Query cache key for GET /orders
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  return [client.orders.$url(args).pathname] as const
+  const u = client.orders.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -356,12 +360,13 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates Vue Query cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return [client.orders[':orderId'].$url(args).pathname] as const
+  const u = client.orders[':orderId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -413,12 +418,13 @@ export function useGetFilesFileId(
 
 /**
  * Generates Vue Query cache key for GET /files/{fileId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return [client.files[':fileId'].$url(args).pathname] as const
+  const u = client.files[':fileId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

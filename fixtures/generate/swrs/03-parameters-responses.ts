@@ -17,24 +17,26 @@ export function useGetItems(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetItemsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetItemsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.items.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /items
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetItemsKey(args: InferRequestType<typeof client.items.$get>) {
-  return client.items.$url(args).pathname
+  const u = client.items.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -48,26 +50,28 @@ export function useGetItemsItemId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetItemsItemIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetItemsItemIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.items[':itemId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /items/{itemId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetItemsItemIdKey(
   args: InferRequestType<(typeof client.items)[':itemId']['$get']>,
 ) {
-  return client.items[':itemId'].$url(args).pathname
+  const u = client.items[':itemId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -88,7 +92,8 @@ export function useDeleteItemsItemId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteItemsItemIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteItemsItemIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -97,14 +102,15 @@ export function useDeleteItemsItemId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.items)[':itemId']['$delete']> },
       ) => parseResponse(client.items[':itemId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /items/{itemId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteItemsItemIdMutationKey() {
   return `DELETE ${client.items[':itemId'].$url().pathname}`

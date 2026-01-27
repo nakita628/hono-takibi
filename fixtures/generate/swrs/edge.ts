@@ -21,21 +21,23 @@ export function usePostPolymorphic(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPolymorphicMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPolymorphicMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.polymorphic.$post> }) =>
         parseResponse(client.polymorphic.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /polymorphic
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPolymorphicMutationKey() {
   return `POST ${client.polymorphic.$url().pathname}`
@@ -54,24 +56,26 @@ export function useGetSearch(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSearchKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSearchKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.search.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  return client.search.$url(args).pathname
+  const u = client.search.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -92,21 +96,23 @@ export function usePutMultiStep(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMultiStepMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMultiStepMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<(typeof client)['multi-step']['$put']> }) =>
         parseResponse(client['multi-step'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /multi-step
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMultiStepMutationKey() {
   return `PUT ${client['multi-step'].$url().pathname}`

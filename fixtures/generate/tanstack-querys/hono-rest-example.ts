@@ -66,10 +66,11 @@ export function useGetPosts(
 
 /**
  * Generates TanStack Query cache key for GET /posts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return [client.posts.$url(args).pathname] as const
+  const u = client.posts.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

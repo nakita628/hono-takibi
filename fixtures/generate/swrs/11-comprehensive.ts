@@ -21,24 +21,26 @@ export function useGetProducts(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProductsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProductsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.products.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /products
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProductsKey(args: InferRequestType<typeof client.products.$get>) {
-  return client.products.$url(args).pathname
+  const u = client.products.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -56,21 +58,23 @@ export function usePostProducts(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostProductsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostProductsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.products.$post> }) =>
         parseResponse(client.products.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /products
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostProductsMutationKey() {
   return `POST ${client.products.$url().pathname}`
@@ -89,26 +93,28 @@ export function useGetProductsProductId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetProductsProductIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetProductsProductIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.products[':productId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProductsProductIdKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return client.products[':productId'].$url(args).pathname
+  const u = client.products[':productId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -130,7 +136,8 @@ export function usePutProductsProductId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutProductsProductIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutProductsProductIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -139,14 +146,15 @@ export function usePutProductsProductId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$put']> },
       ) => parseResponse(client.products[':productId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /products/{productId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutProductsProductIdMutationKey() {
   return `PUT ${client.products[':productId'].$url().pathname}`
@@ -174,7 +182,8 @@ export function useDeleteProductsProductId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteProductsProductIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteProductsProductIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -183,14 +192,15 @@ export function useDeleteProductsProductId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.products)[':productId']['$delete']> },
       ) => parseResponse(client.products[':productId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /products/{productId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteProductsProductIdMutationKey() {
   return `DELETE ${client.products[':productId'].$url().pathname}`
@@ -211,21 +221,23 @@ export function usePostOrders(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostOrdersMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostOrdersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.orders.$post> }) =>
         parseResponse(client.orders.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /orders
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostOrdersMutationKey() {
   return `POST ${client.orders.$url().pathname}`
@@ -246,21 +258,23 @@ export function usePostWebhooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostWebhooksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostWebhooksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
         parseResponse(client.webhooks.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /webhooks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksMutationKey() {
   return `POST ${client.webhooks.$url().pathname}`

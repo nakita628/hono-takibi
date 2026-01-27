@@ -226,16 +226,15 @@ export function useGetUsersUserIdPostsPostIdCommentsCommentId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}/posts/{postId}/comments/{commentId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdPostsPostIdCommentsCommentIdQueryKey(
   args: InferRequestType<
     (typeof client.users)[':userId']['posts'][':postId']['comments'][':commentId']['$get']
   >,
 ) {
-  return [
-    client.users[':userId'].posts[':postId'].comments[':commentId'].$url(args).pathname,
-  ] as const
+  const u = client.users[':userId'].posts[':postId'].comments[':commentId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -287,12 +286,13 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates TanStack Query cache key for GET /params-test/{pathParam}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetParamsTestPathParamQueryKey(
   args: InferRequestType<(typeof client)['params-test'][':pathParam']['$get']>,
 ) {
-  return [client['params-test'][':pathParam'].$url(args).pathname] as const
+  const u = client['params-test'][':pathParam'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -650,12 +650,13 @@ export function useGetArrayParams(
 
 /**
  * Generates TanStack Query cache key for GET /array-params
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArrayParamsQueryKey(
   args: InferRequestType<(typeof client)['array-params']['$get']>,
 ) {
-  return [client['array-params'].$url(args).pathname] as const
+  const u = client['array-params'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -700,12 +701,13 @@ export function useGetObjectParam(
 
 /**
  * Generates TanStack Query cache key for GET /object-param
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetObjectParamQueryKey(
   args: InferRequestType<(typeof client)['object-param']['$get']>,
 ) {
-  return [client['object-param'].$url(args).pathname] as const
+  const u = client['object-param'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

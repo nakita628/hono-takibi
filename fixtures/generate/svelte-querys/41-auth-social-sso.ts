@@ -36,12 +36,13 @@ export function createGetSocialAuthorizeProvider(
 
 /**
  * Generates Svelte Query cache key for GET /social/authorize/{provider}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSocialAuthorizeProviderQueryKey(
   args: InferRequestType<(typeof client.social.authorize)[':provider']['$get']>,
 ) {
-  return [client.social.authorize[':provider'].$url(args).pathname] as const
+  const u = client.social.authorize[':provider'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -95,12 +96,13 @@ export function createGetSocialCallbackProvider(
 
 /**
  * Generates Svelte Query cache key for GET /social/callback/{provider}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSocialCallbackProviderQueryKey(
   args: InferRequestType<(typeof client.social.callback)[':provider']['$get']>,
 ) {
-  return [client.social.callback[':provider'].$url(args).pathname] as const
+  const u = client.social.callback[':provider'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -310,12 +312,13 @@ export function createGetProvidersProviderId(
 
 /**
  * Generates Svelte Query cache key for GET /providers/{providerId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProvidersProviderIdQueryKey(
   args: InferRequestType<(typeof client.providers)[':providerId']['$get']>,
 ) {
-  return [client.providers[':providerId'].$url(args).pathname] as const
+  const u = client.providers[':providerId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -615,12 +618,13 @@ export function createGetEnterpriseSsoConfigId(
 
 /**
  * Generates Svelte Query cache key for GET /enterprise/sso/{configId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEnterpriseSsoConfigIdQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$get']>,
 ) {
-  return [client.enterprise.sso[':configId'].$url(args).pathname] as const
+  const u = client.enterprise.sso[':configId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -729,12 +733,13 @@ export function createGetEnterpriseSsoDomainLookup(
 
 /**
  * Generates Svelte Query cache key for GET /enterprise/sso/domain-lookup
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEnterpriseSsoDomainLookupQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)['domain-lookup']['$get']>,
 ) {
-  return [client.enterprise.sso['domain-lookup'].$url(args).pathname] as const
+  const u = client.enterprise.sso['domain-lookup'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -788,12 +793,13 @@ export function createGetEnterpriseSsoConfigIdMetadata(
 
 /**
  * Generates Svelte Query cache key for GET /enterprise/sso/{configId}/metadata
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEnterpriseSsoConfigIdMetadataQueryKey(
   args: InferRequestType<(typeof client.enterprise.sso)[':configId']['metadata']['$get']>,
 ) {
-  return [client.enterprise.sso[':configId'].metadata.$url(args).pathname] as const
+  const u = client.enterprise.sso[':configId'].metadata.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

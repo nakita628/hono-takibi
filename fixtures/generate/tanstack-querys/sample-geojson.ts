@@ -66,10 +66,11 @@ export function useGetProjects(
 
 /**
  * Generates TanStack Query cache key for GET /projects
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProjectsQueryKey(args: InferRequestType<typeof client.projects.$get>) {
-  return [client.projects.$url(args).pathname] as const
+  const u = client.projects.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

@@ -21,26 +21,28 @@ export function useGet20100401AccountsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsJsonKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGet20100401AccountsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['2010-04-01']['Accounts.json'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsJsonKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
 ) {
-  return client['2010-04-01']['Accounts.json'].$url(args).pathname
+  const u = client['2010-04-01']['Accounts.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -66,7 +68,8 @@ export function usePost20100401AccountsJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPost20100401AccountsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -75,14 +78,15 @@ export function usePost20100401AccountsJson(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']> },
       ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsJsonMutationKey() {
   return `POST ${client['2010-04-01']['Accounts.json'].$url().pathname}`
@@ -103,27 +107,29 @@ export function useGet20100401AccountsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsSidJsonKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGet20100401AccountsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsSidJsonKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
 ) {
-  return client['2010-04-01'].Accounts[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -149,7 +155,8 @@ export function usePost20100401AccountsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPost20100401AccountsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -162,14 +169,15 @@ export function usePost20100401AccountsSidJson(options?: {
           arg: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>
         },
       ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':Sid.json'].$url().pathname}`
@@ -188,10 +196,10 @@ export function useGet20100401AccountsAccountSidAddressesJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAddressesJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidAddressesJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -200,21 +208,22 @@ export function useGet20100401AccountsAccountSidAddressesJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAddressesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -242,8 +251,8 @@ export function usePost20100401AccountsAccountSidAddressesJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidAddressesJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidAddressesJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -261,14 +270,15 @@ export function usePost20100401AccountsAccountSidAddressesJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidAddressesJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$url().pathname}`
@@ -287,10 +297,10 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidAddressesSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidAddressesSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -302,21 +312,22 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -344,8 +355,8 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidAddressesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidAddressesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -366,14 +377,15 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidAddressesSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$url().pathname}`
@@ -405,8 +417,8 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -427,14 +439,15 @@ export function useDelete20100401AccountsAccountSidAddressesSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$url().pathname}`
@@ -457,10 +470,10 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidApplicationsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidApplicationsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -472,21 +485,22 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -518,8 +532,8 @@ export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidApplicationsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidApplicationsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -540,14 +554,15 @@ export function usePost20100401AccountsAccountSidApplicationsJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidApplicationsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$url().pathname}`
@@ -570,10 +585,10 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidApplicationsSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidApplicationsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -585,21 +600,22 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -631,8 +647,8 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -653,14 +669,15 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$url().pathname}`
@@ -696,8 +713,8 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?:
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -718,14 +735,15 @@ export function useDelete20100401AccountsAccountSidApplicationsSidJson(options?:
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$url().pathname}`
@@ -748,9 +766,10 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(args)
       : null)
@@ -764,23 +783,25 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
             ':ConnectAppSid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[
-    ':ConnectAppSid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[':ConnectAppSid.json'].$url(
+      args,
+    )
+  return u.pathname + u.search
 }
 
 /**
@@ -800,9 +821,10 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(args) : null)
   return {
     swrKey,
@@ -815,22 +837,22 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -846,9 +868,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(args) : null)
   return {
     swrKey,
@@ -861,22 +884,22 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -892,9 +915,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(args)
       : null)
@@ -908,23 +932,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             ':CountryCode.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[
-    ':CountryCode.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode.json'].$url(
+      args,
+    )
+  return u.pathname + u.search
 }
 
 /**
@@ -940,9 +966,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(args)
       : null)
@@ -956,23 +983,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             'Local.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-    'Local.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+      'Local.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -988,9 +1017,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
           args,
@@ -1006,23 +1036,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             'MachineToMachine.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-    'MachineToMachine.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+      'MachineToMachine.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1038,9 +1070,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(args)
       : null)
@@ -1054,23 +1087,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             'Mobile.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-    'Mobile.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+      'Mobile.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1086,9 +1121,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(args)
       : null)
@@ -1102,23 +1138,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             'National.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-    'National.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+      'National.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1134,9 +1172,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(args)
       : null)
@@ -1150,23 +1189,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             'SharedCost.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-    'SharedCost.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+      'SharedCost.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1182,9 +1223,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(args)
       : null)
@@ -1198,23 +1240,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             'TollFree.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-    'TollFree.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+      'TollFree.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1230,9 +1274,10 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(args)
       : null)
@@ -1246,23 +1291,25 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
             'Voip.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
-    'Voip.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
+      'Voip.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1282,9 +1329,10 @@ export function useGet20100401AccountsAccountSidBalanceJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidBalanceJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidBalanceJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1293,21 +1341,22 @@ export function useGet20100401AccountsAccountSidBalanceJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidBalanceJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1327,9 +1376,10 @@ export function useGet20100401AccountsAccountSidCallsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1338,21 +1388,22 @@ export function useGet20100401AccountsAccountSidCallsJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1384,7 +1435,8 @@ export function usePost20100401AccountsAccountSidCallsJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidCallsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1402,14 +1454,15 @@ export function usePost20100401AccountsAccountSidCallsJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$url().pathname}`
@@ -1432,9 +1485,10 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidCallsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1443,21 +1497,22 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1489,8 +1544,8 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidCallsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1508,14 +1563,15 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$url().pathname}`
@@ -1551,8 +1607,8 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidCallsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidCallsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1573,14 +1629,15 @@ export function useDelete20100401AccountsAccountSidCallsSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidCallsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$url().pathname}`
@@ -1603,9 +1660,10 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(args) : null)
   return {
     swrKey,
@@ -1618,22 +1676,22 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1649,9 +1707,10 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(args) : null)
   return {
     swrKey,
@@ -1663,23 +1722,25 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
             ':Sid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[
-    ':Sid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[':Sid.json'].$url(
+      args,
+    )
+  return u.pathname + u.search
 }
 
 /**
@@ -1695,9 +1756,10 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(args) : null)
   return {
     swrKey,
@@ -1710,23 +1772,23 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$url(
-    args,
-  ).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1746,9 +1808,10 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(args) : null)
   return {
     swrKey,
@@ -1761,23 +1824,23 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$url(
-    args,
-  ).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1809,9 +1872,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(opti
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1832,14 +1895,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsJson(opti
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$url().pathname}`
@@ -1862,9 +1926,10 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(args) : null)
   return {
     swrKey,
@@ -1876,23 +1941,25 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
             ':Sid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
-    ':Sid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$url(
+      args,
+    )
+  return u.pathname + u.search
 }
 
 /**
@@ -1924,9 +1991,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1946,14 +2013,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
             ':Sid.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$url().pathname}`
@@ -1989,9 +2057,9 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey()
+    customKey ?? getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2011,14 +2079,15 @@ export function useDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJson
             ':Sid.json'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$url().pathname}`
@@ -2041,10 +2110,10 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConferencesSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConferencesSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2056,21 +2125,22 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2098,8 +2168,8 @@ export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidConferencesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidConferencesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2120,14 +2190,15 @@ export function usePost20100401AccountsAccountSidConferencesSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidConferencesSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$url().pathname}`
@@ -2150,10 +2221,10 @@ export function useGet20100401AccountsAccountSidConferencesJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConferencesJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConferencesJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2165,21 +2236,22 @@ export function useGet20100401AccountsAccountSidConferencesJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2199,9 +2271,10 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(args)
       : null)
@@ -2215,23 +2288,25 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
             'Recordings.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-    'Recordings.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+      'Recordings.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2251,9 +2326,10 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(args)
       : null)
@@ -2267,23 +2343,25 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
             ':Sid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
-    ':Sid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+      ':Sid.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2315,8 +2393,9 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey()
   return {
     swrKey,
@@ -2337,14 +2416,15 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
             ':Sid.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[':Sid.json'].$url().pathname}`
@@ -2380,8 +2460,9 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey()
   return {
     swrKey,
@@ -2402,14 +2483,15 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidRecor
             ':Sid.json'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[':Sid.json'].$url().pathname}`
@@ -2432,10 +2514,10 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConnectAppsSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConnectAppsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2447,21 +2529,22 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2493,8 +2576,8 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2515,14 +2598,15 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$url().pathname}`
@@ -2558,8 +2642,8 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: 
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2580,14 +2664,15 @@ export function useDelete20100401AccountsAccountSidConnectAppsSidJson(options?: 
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$url().pathname}`
@@ -2610,10 +2695,10 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidConnectAppsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidConnectAppsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2625,21 +2710,22 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2655,9 +2741,10 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(args)
       : null)
@@ -2671,23 +2758,25 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
             'DependentPhoneNumbers.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
-    'DependentPhoneNumbers.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
+      'DependentPhoneNumbers.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2707,9 +2796,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(args) : null)
   return {
     swrKey,
@@ -2722,22 +2812,23 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$url(args)
-    .pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2769,9 +2860,9 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2792,14 +2883,15 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$url().pathname}`
@@ -2835,9 +2927,9 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(o
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey()
+    customKey ?? getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2858,14 +2950,15 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJson(o
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$url().pathname}`
@@ -2888,9 +2981,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(args) : null)
   return {
     swrKey,
@@ -2903,22 +2997,22 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2950,9 +3044,8 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(option
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2973,14 +3066,15 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersJson(option
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$url().pathname}`
@@ -3003,9 +3097,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
           args,
@@ -3021,23 +3116,25 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
             ':ResourceSid'
           ].AssignedAddOns[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-    ':ResourceSid'
-  ].AssignedAddOns[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+      ':ResourceSid'
+    ].AssignedAddOns[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3070,8 +3167,9 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey()
   return {
     swrKey,
@@ -3092,14 +3190,15 @@ export function useDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceS
             ':ResourceSid'
           ].AssignedAddOns[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'].AssignedAddOns[':Sid.json'].$url().pathname}`
@@ -3122,9 +3221,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(args)
       : null)
@@ -3138,23 +3238,25 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
             'AssignedAddOns.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
-    'AssignedAddOns.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
+      'AssignedAddOns.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3186,8 +3288,9 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSid
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey()
   return {
     swrKey,
@@ -3208,14 +3311,15 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersResourceSid
             'AssignedAddOns.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid']['AssignedAddOns.json'].$url().pathname}`
@@ -3238,9 +3342,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
           args,
@@ -3256,23 +3361,25 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
             ':ResourceSid'
           ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-    ':ResourceSid'
-  ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+      ':ResourceSid'
+    ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3292,9 +3399,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
           args,
@@ -3310,23 +3418,25 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
             ':ResourceSid'
           ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
-    ':ResourceSid'
-  ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+      ':ResourceSid'
+    ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3342,9 +3452,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(args) : null)
   return {
     swrKey,
@@ -3357,22 +3468,23 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$url(args)
-    .pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3400,9 +3512,9 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(o
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3423,14 +3535,15 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(o
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$url().pathname}`
@@ -3449,9 +3562,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(args) : null)
   return {
     swrKey,
@@ -3464,22 +3578,23 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$url(args)
-    .pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3507,9 +3622,9 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3530,14 +3645,15 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$url().pathname}`
@@ -3556,9 +3672,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(args) : null)
   return {
     swrKey,
@@ -3571,23 +3688,23 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$url(
-    args,
-  ).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3615,9 +3732,9 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJso
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3638,14 +3755,15 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJso
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$url().pathname}`
@@ -3664,9 +3782,10 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -3675,21 +3794,22 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3717,8 +3837,8 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidKeysSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidKeysSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3736,14 +3856,15 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidKeysSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$url().pathname}`
@@ -3775,8 +3896,8 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidKeysSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidKeysSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3797,14 +3918,15 @@ export function useDelete20100401AccountsAccountSidKeysSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidKeysSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$url().pathname}`
@@ -3823,9 +3945,9 @@ export function useGet20100401AccountsAccountSidKeysJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysJsonKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGet20100401AccountsAccountSidKeysJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -3834,21 +3956,22 @@ export function useGet20100401AccountsAccountSidKeysJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidKeysJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3874,7 +3997,8 @@ export function usePost20100401AccountsAccountSidKeysJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidKeysJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidKeysJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3892,14 +4016,15 @@ export function usePost20100401AccountsAccountSidKeysJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidKeysJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$url().pathname}`
@@ -3922,9 +4047,10 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(args) : null)
   return {
     swrKey,
@@ -3936,23 +4062,25 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
             ':Sid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
-    ':Sid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[':Sid.json'].$url(
+      args,
+    )
+  return u.pathname + u.search
 }
 
 /**
@@ -3985,9 +4113,9 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey()
+    customKey ?? getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4007,14 +4135,15 @@ export function useDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJso
             ':Sid.json'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[':Sid.json'].$url().pathname}`
@@ -4037,9 +4166,10 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(args) : null)
   return {
     swrKey,
@@ -4052,23 +4182,23 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$url(
-    args,
-  ).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4088,9 +4218,10 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(args) : null)
   return {
     swrKey,
@@ -4102,23 +4233,25 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
             ':CallSid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
-    ':CallSid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[':CallSid.json'].$url(
+      args,
+    )
+  return u.pathname + u.search
 }
 
 /**
@@ -4150,9 +4283,9 @@ export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJso
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4172,14 +4305,15 @@ export function usePost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJso
             ':CallSid.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[':CallSid.json'].$url().pathname}`
@@ -4202,9 +4336,10 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(args) : null)
   return {
     swrKey,
@@ -4217,22 +4352,23 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$url(args)
-    .pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4252,9 +4388,10 @@ export function useGet20100401AccountsAccountSidMessagesJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidMessagesJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidMessagesJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -4263,21 +4400,22 @@ export function useGet20100401AccountsAccountSidMessagesJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4309,8 +4447,8 @@ export function usePost20100401AccountsAccountSidMessagesJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidMessagesJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidMessagesJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4328,14 +4466,15 @@ export function usePost20100401AccountsAccountSidMessagesJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidMessagesJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$url().pathname}`
@@ -4358,10 +4497,10 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidMessagesSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidMessagesSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -4373,21 +4512,22 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4419,8 +4559,8 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidMessagesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidMessagesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4441,14 +4581,15 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidMessagesSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$url().pathname}`
@@ -4484,8 +4625,8 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4506,14 +4647,15 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$url().pathname}`
@@ -4548,9 +4690,9 @@ export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4570,14 +4712,15 @@ export function usePost20100401AccountsAccountSidMessagesMessageSidFeedbackJson(
             'Feedback.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Feedback.json'].$url().pathname}`
@@ -4596,10 +4739,10 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSigningKeysJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSigningKeysJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -4611,21 +4754,22 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4657,8 +4801,8 @@ export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidSigningKeysJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSigningKeysJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4679,14 +4823,15 @@ export function usePost20100401AccountsAccountSidSigningKeysJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSigningKeysJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$url().pathname}`
@@ -4709,10 +4854,10 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidNotificationsSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidNotificationsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -4724,21 +4869,22 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4758,10 +4904,10 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidNotificationsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidNotificationsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -4773,21 +4919,22 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4807,9 +4954,10 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(args) : null)
   return {
     swrKey,
@@ -4822,22 +4970,22 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4869,9 +5017,8 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4892,14 +5039,15 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$url().pathname}`
@@ -4935,9 +5083,9 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(opti
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey()
+    customKey ?? getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4958,14 +5106,15 @@ export function useDelete20100401AccountsAccountSidOutgoingCallerIdsSidJson(opti
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$url().pathname}`
@@ -4988,10 +5137,10 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -5003,21 +5152,22 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5045,8 +5195,8 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?:
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5067,14 +5217,15 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsJson(options?:
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$url().pathname}`
@@ -5097,9 +5248,10 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(args)
       : null)
@@ -5113,23 +5265,25 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
             ':CallSid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
-    ':CallSid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+      ':CallSid.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5161,8 +5315,9 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey()
   return {
     swrKey,
@@ -5183,14 +5338,15 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
             ':CallSid.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[':CallSid.json'].$url().pathname}`
@@ -5226,8 +5382,9 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey()
   return {
     swrKey,
@@ -5248,14 +5405,15 @@ export function useDelete20100401AccountsAccountSidConferencesConferenceSidParti
             ':CallSid.json'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[':CallSid.json'].$url().pathname}`
@@ -5278,9 +5436,10 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(args)
       : null)
@@ -5294,23 +5453,25 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
             'Participants.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
-    'Participants.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+      'Participants.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5338,8 +5499,9 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey()
   return {
     swrKey,
@@ -5360,14 +5522,15 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
             'Participants.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid']['Participants.json'].$url().pathname}`
@@ -5402,9 +5565,8 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5425,14 +5587,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$url().pathname}`
@@ -5467,9 +5630,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(opt
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5489,14 +5652,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsSidJson(opt
             ':Sid.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[':Sid.json'].$url().pathname}`
@@ -5519,10 +5683,10 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidQueuesSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidQueuesSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -5534,21 +5698,22 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5580,8 +5745,8 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidQueuesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidQueuesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5602,14 +5767,15 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidQueuesSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$url().pathname}`
@@ -5645,8 +5811,8 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5667,14 +5833,15 @@ export function useDelete20100401AccountsAccountSidQueuesSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$url().pathname}`
@@ -5697,9 +5864,10 @@ export function useGet20100401AccountsAccountSidQueuesJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGet20100401AccountsAccountSidQueuesJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidQueuesJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -5708,21 +5876,22 @@ export function useGet20100401AccountsAccountSidQueuesJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5754,7 +5923,8 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidQueuesJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidQueuesJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5772,14 +5942,15 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidQueuesJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$url().pathname}`
@@ -5814,9 +5985,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5836,14 +6007,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
             'Transcriptions.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Transcriptions.json'].$url().pathname}`
@@ -5878,9 +6050,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJs
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5900,14 +6072,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJs
             ':Sid.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[':Sid.json'].$url().pathname}`
@@ -5930,10 +6103,10 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidRecordingsSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidRecordingsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -5945,21 +6118,22 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5992,8 +6166,8 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6014,14 +6188,15 @@ export function useDelete20100401AccountsAccountSidRecordingsSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$url().pathname}`
@@ -6044,10 +6219,10 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidRecordingsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidRecordingsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -6056,21 +6231,22 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6090,9 +6266,10 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(args)
       : null)
@@ -6106,23 +6283,25 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
             ':Sid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-    ':Sid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+      ':Sid.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6155,8 +6334,9 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey()
   return {
     swrKey,
@@ -6177,14 +6357,15 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
             ':Sid.json'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[':Sid.json'].$url().pathname}`
@@ -6207,9 +6388,10 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(args)
       : null)
@@ -6223,23 +6405,25 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
             'AddOnResults.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
-    'AddOnResults.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
+      'AddOnResults.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6259,9 +6443,10 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
           args,
@@ -6277,23 +6462,25 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
             ':AddOnResultSid'
           ].Payloads[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-    ':AddOnResultSid'
-  ].Payloads[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+      ':AddOnResultSid'
+    ].Payloads[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6326,8 +6513,9 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey()
   return {
     swrKey,
@@ -6348,14 +6536,15 @@ export function useDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnRe
             ':AddOnResultSid'
           ].Payloads[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[':AddOnResultSid'].Payloads[':Sid.json'].$url().pathname}`
@@ -6378,9 +6567,10 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
           args,
@@ -6396,23 +6586,25 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
             ':AddOnResultSid'
           ]['Payloads.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-    ':AddOnResultSid'
-  ]['Payloads.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+      ':AddOnResultSid'
+    ]['Payloads.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6432,9 +6624,10 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
           args,
@@ -6450,23 +6643,25 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
             ':AddOnResultSid'
           ].Payloads[':PayloadSid']['Data.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
-    ':AddOnResultSid'
-  ].Payloads[':PayloadSid']['Data.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+      ':AddOnResultSid'
+    ].Payloads[':PayloadSid']['Data.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6482,9 +6677,10 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(args)
       : null)
@@ -6498,23 +6694,25 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
             ':Sid.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
-    ':Sid.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
+      ':Sid.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6543,8 +6741,9 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey()
   return {
     swrKey,
@@ -6565,14 +6764,15 @@ export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscr
             ':Sid.json'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[':Sid.json'].$url().pathname}`
@@ -6591,9 +6791,10 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(args)
       : null)
@@ -6607,23 +6808,25 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
             'Transcriptions.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
-    'Transcriptions.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
+      'Transcriptions.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6643,10 +6846,10 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -6658,22 +6861,22 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6705,8 +6908,8 @@ export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: 
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6727,14 +6930,15 @@ export function usePost20100401AccountsAccountSidSMSShortCodesSidJson(options?: 
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$url().pathname}`
@@ -6757,10 +6961,10 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSMSShortCodesJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -6772,21 +6976,22 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6802,10 +7007,10 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSigningKeysSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSigningKeysSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -6817,21 +7022,22 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6859,8 +7065,8 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6881,14 +7087,15 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$url().pathname}`
@@ -6920,8 +7127,8 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: 
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6942,14 +7149,15 @@ export function useDelete20100401AccountsAccountSidSigningKeysSidJson(options?: 
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$url().pathname}`
@@ -6972,9 +7180,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
           args,
@@ -6990,23 +7199,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
             'CredentialListMappings.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-    'CredentialListMappings.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+      'CredentialListMappings.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7038,8 +7249,9 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCre
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey()
   return {
     swrKey,
@@ -7060,14 +7272,15 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCre
             'CredentialListMappings.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls['CredentialListMappings.json'].$url().pathname}`
@@ -7090,9 +7303,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
           args,
@@ -7108,23 +7322,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
             ':DomainSid'
           ].Auth.Calls.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-    ':DomainSid'
-  ].Auth.Calls.CredentialListMappings[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+      ':DomainSid'
+    ].Auth.Calls.CredentialListMappings[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7157,8 +7373,9 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey()
   return {
     swrKey,
@@ -7179,14 +7396,15 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsC
             ':DomainSid'
           ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls.CredentialListMappings[':Sid.json'].$url().pathname}`
@@ -7209,9 +7427,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
           args,
@@ -7227,23 +7446,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
             'IpAccessControlListMappings.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
-    'IpAccessControlListMappings.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+      'IpAccessControlListMappings.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7275,8 +7496,9 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpA
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey()
   return {
     swrKey,
@@ -7297,14 +7519,15 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpA
             'IpAccessControlListMappings.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls['IpAccessControlListMappings.json'].$url().pathname}`
@@ -7327,9 +7550,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
           args,
@@ -7345,23 +7569,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
             ':DomainSid'
           ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-    ':DomainSid'
-  ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+      ':DomainSid'
+    ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7394,8 +7620,9 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey()
   return {
     swrKey,
@@ -7416,14 +7643,15 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsI
             ':DomainSid'
           ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$url().pathname}`
@@ -7446,9 +7674,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
           args,
@@ -7464,23 +7693,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
             'CredentialListMappings.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
-    'CredentialListMappings.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
+      'CredentialListMappings.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7512,8 +7743,9 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistra
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey()
   return {
     swrKey,
@@ -7534,14 +7766,15 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistra
             'CredentialListMappings.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations['CredentialListMappings.json'].$url().pathname}`
@@ -7564,9 +7797,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
           args,
@@ -7582,23 +7816,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
             ':DomainSid'
           ].Auth.Registrations.CredentialListMappings[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-    ':DomainSid'
-  ].Auth.Registrations.CredentialListMappings[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+      ':DomainSid'
+    ].Auth.Registrations.CredentialListMappings[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7631,8 +7867,9 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey()
   return {
     swrKey,
@@ -7653,14 +7890,15 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegist
             ':DomainSid'
           ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations.CredentialListMappings[':Sid.json'].$url().pathname}`
@@ -7683,9 +7921,10 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(args)
       : null)
@@ -7699,23 +7938,25 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
             'Credentials.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
-    'Credentials.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
+      'Credentials.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7747,8 +7988,9 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey()
   return {
     swrKey,
@@ -7769,14 +8011,15 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
             'Credentials.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid']['Credentials.json'].$url().pathname}`
@@ -7799,9 +8042,10 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
           args,
@@ -7817,23 +8061,25 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
             ':CredentialListSid'
           ].Credentials[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
-    ':CredentialListSid'
-  ].Credentials[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+      ':CredentialListSid'
+    ].Credentials[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7865,8 +8111,9 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey()
   return {
     swrKey,
@@ -7887,14 +8134,15 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
             ':CredentialListSid'
           ].Credentials[':Sid.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'].Credentials[':Sid.json'].$url().pathname}`
@@ -7930,8 +8178,9 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey()
   return {
     swrKey,
@@ -7952,14 +8201,15 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsCredentialL
             ':CredentialListSid'
           ].Credentials[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'].Credentials[':Sid.json'].$url().pathname}`
@@ -7982,9 +8232,10 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(args) : null)
   return {
     swrKey,
@@ -7997,22 +8248,22 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8044,8 +8295,8 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8066,14 +8317,15 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsJson(options?
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$url().pathname}`
@@ -8096,9 +8348,10 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(args) : null)
   return {
     swrKey,
@@ -8111,22 +8364,22 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8158,9 +8411,9 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8181,14 +8434,15 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$url().pathname}`
@@ -8224,9 +8478,9 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(opt
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey()
+    customKey ?? getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8247,14 +8501,15 @@ export function useDelete20100401AccountsAccountSidSIPCredentialListsSidJson(opt
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$url().pathname}`
@@ -8277,9 +8532,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(args)
       : null)
@@ -8293,23 +8549,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
             'CredentialListMappings.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-    'CredentialListMappings.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+      'CredentialListMappings.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8341,8 +8599,9 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialLi
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey()
   return {
     swrKey,
@@ -8363,14 +8622,15 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidCredentialLi
             'CredentialListMappings.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid']['CredentialListMappings.json'].$url().pathname}`
@@ -8393,9 +8653,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(args)
       : null)
@@ -8409,23 +8670,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
             ':DomainSid'
           ].CredentialListMappings[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-    ':DomainSid'
-  ].CredentialListMappings[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].CredentialListMappings[
+      ':Sid.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8458,8 +8721,9 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey()
   return {
     swrKey,
@@ -8480,14 +8744,15 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidCredential
             ':DomainSid'
           ].CredentialListMappings[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].CredentialListMappings[':Sid.json'].$url().pathname}`
@@ -8510,10 +8775,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -8525,21 +8790,22 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8571,8 +8837,8 @@ export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8593,14 +8859,15 @@ export function usePost20100401AccountsAccountSidSIPDomainsJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$url().pathname}`
@@ -8623,10 +8890,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -8638,21 +8905,22 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8684,8 +8952,8 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8706,14 +8974,15 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$url().pathname}`
@@ -8749,8 +9018,8 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8771,14 +9040,15 @@ export function useDelete20100401AccountsAccountSidSIPDomainsSidJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$url().pathname}`
@@ -8801,9 +9071,10 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(args) : null)
   return {
     swrKey,
@@ -8816,22 +9087,22 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8863,9 +9134,9 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(opt
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8886,14 +9157,15 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsJson(opt
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$url().pathname}`
@@ -8916,9 +9188,10 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(args) : null)
   return {
     swrKey,
@@ -8931,23 +9204,23 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$url(
-    args,
-  ).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8979,9 +9252,9 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9002,14 +9275,15 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$url().pathname}`
@@ -9045,9 +9319,9 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey()
+    customKey ?? getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9067,14 +9341,15 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJso
             ':Sid.json'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$url().pathname}`
@@ -9097,9 +9372,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
           args,
@@ -9115,23 +9391,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
             ':DomainSid'
           ].IpAccessControlListMappings[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
-    ':DomainSid'
-  ].IpAccessControlListMappings[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+      ':DomainSid'
+    ].IpAccessControlListMappings[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9164,8 +9442,9 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey()
   return {
     swrKey,
@@ -9186,14 +9465,15 @@ export function useDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCo
             ':DomainSid'
           ].IpAccessControlListMappings[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].IpAccessControlListMappings[':Sid.json'].$url().pathname}`
@@ -9216,9 +9496,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(args)
       : null)
@@ -9232,23 +9513,25 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
             'IpAccessControlListMappings.json'
           ].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
-    'IpAccessControlListMappings.json'
-  ].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+      'IpAccessControlListMappings.json'
+    ].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9280,8 +9563,9 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCont
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey()
   return {
     swrKey,
@@ -9302,14 +9586,15 @@ export function usePost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessCont
             'IpAccessControlListMappings.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid']['IpAccessControlListMappings.json'].$url().pathname}`
@@ -9332,9 +9617,10 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
           args,
@@ -9350,23 +9636,25 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
             ':IpAccessControlListSid'
           ]['IpAddresses.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-    ':IpAccessControlListSid'
-  ]['IpAddresses.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+      ':IpAccessControlListSid'
+    ]['IpAddresses.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9398,8 +9686,9 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey()
   return {
     swrKey,
@@ -9420,14 +9709,15 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
             ':IpAccessControlListSid'
           ]['IpAddresses.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':IpAccessControlListSid']['IpAddresses.json'].$url().pathname}`
@@ -9450,9 +9740,10 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
           args,
@@ -9468,23 +9759,25 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
             ':IpAccessControlListSid'
           ].IpAddresses[':Sid.json'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
-    ':IpAccessControlListSid'
-  ].IpAddresses[':Sid.json'].$url(args).pathname
+  const u =
+    client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+      ':IpAccessControlListSid'
+    ].IpAddresses[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9516,8 +9809,9 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey()
   return {
     swrKey,
@@ -9538,14 +9832,15 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
             ':IpAccessControlListSid'
           ].IpAddresses[':Sid.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':IpAccessControlListSid'].IpAddresses[':Sid.json'].$url().pathname}`
@@ -9581,8 +9876,9 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey()
   return {
     swrKey,
@@ -9603,14 +9899,15 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
             ':IpAccessControlListSid'
           ].IpAddresses[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':IpAccessControlListSid'].IpAddresses[':Sid.json'].$url().pathname}`
@@ -9645,8 +9942,8 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9667,14 +9964,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$url().pathname}`
@@ -9709,9 +10007,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9732,14 +10030,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$url().pathname}`
@@ -9774,8 +10073,8 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9796,14 +10095,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$url().pathname}`
@@ -9838,9 +10138,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9861,14 +10161,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$url().pathname}`
@@ -9903,7 +10204,8 @@ export function usePost20100401AccountsAccountSidTokensJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidTokensJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidTokensJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9921,14 +10223,15 @@ export function usePost20100401AccountsAccountSidTokensJson(options?: {
         parseResponse(
           client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidTokensJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$url().pathname}`
@@ -9951,10 +10254,10 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -9966,22 +10269,22 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10014,8 +10317,8 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -10036,14 +10339,15 @@ export function useDelete20100401AccountsAccountSidTranscriptionsSidJson(options
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$url().pathname}`
@@ -10066,10 +10370,10 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidTranscriptionsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -10081,21 +10385,22 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10115,10 +10420,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -10130,21 +10435,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10160,9 +10466,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(args) : null)
   return {
     swrKey,
@@ -10175,22 +10482,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10206,10 +10513,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -10221,22 +10528,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10252,9 +10559,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(args) : null)
   return {
     swrKey,
@@ -10267,22 +10575,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10298,9 +10606,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(args) : null)
   return {
     swrKey,
@@ -10313,22 +10622,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10344,9 +10653,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(args) : null)
   return {
     swrKey,
@@ -10359,22 +10669,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10390,10 +10700,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -10405,22 +10715,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10436,9 +10746,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(args) : null)
   return {
     swrKey,
@@ -10451,22 +10762,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10482,9 +10793,10 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(args) : null)
   return {
     swrKey,
@@ -10497,22 +10809,22 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10532,10 +10844,10 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -10547,22 +10859,22 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$url(args)
-    .pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10594,8 +10906,8 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -10616,14 +10928,15 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$url().pathname}`
@@ -10655,8 +10968,8 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -10677,14 +10990,15 @@ export function useDelete20100401AccountsAccountSidUsageTriggersSidJson(options?
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$url().pathname}`
@@ -10707,10 +11021,10 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersJsonKey(args) : null)
+    customKey ?? (isEnabled ? getGet20100401AccountsAccountSidUsageTriggersJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -10722,21 +11036,22 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
 ) {
-  return client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$url(args).pathname
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -10768,8 +11083,8 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -10790,14 +11105,15 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$url().pathname}`
@@ -10832,9 +11148,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey()
+    customKey ?? getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -10854,14 +11170,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
             'UserDefinedMessages.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['UserDefinedMessages.json'].$url().pathname}`
@@ -10896,8 +11213,9 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey()
   return {
     swrKey,
@@ -10918,14 +11236,15 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
             'UserDefinedMessageSubscriptions.json'
           ].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey() {
   return `POST ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['UserDefinedMessageSubscriptions.json'].$url().pathname}`
@@ -10961,8 +11280,9 @@ export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessag
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey()
   return {
     swrKey,
@@ -10983,14 +11303,15 @@ export function useDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessag
             ':CallSid'
           ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey() {
   return `DELETE ${client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].UserDefinedMessageSubscriptions[':Sid.json'].$url().pathname}`

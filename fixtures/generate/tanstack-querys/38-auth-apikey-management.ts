@@ -27,10 +27,11 @@ export function useGetApiKeys(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApiKeysQueryKey(args: InferRequestType<(typeof client)['api-keys']['$get']>) {
-  return [client['api-keys'].$url(args).pathname] as const
+  const u = client['api-keys'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -97,12 +98,13 @@ export function useGetApiKeysKeyId(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys/{keyId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApiKeysKeyIdQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['$get']>,
 ) {
-  return [client['api-keys'][':keyId'].$url(args).pathname] as const
+  const u = client['api-keys'][':keyId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -260,12 +262,13 @@ export function useGetApiKeysKeyIdUsage(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/usage
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApiKeysKeyIdUsageQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['usage']['$get']>,
 ) {
-  return [client['api-keys'][':keyId'].usage.$url(args).pathname] as const
+  const u = client['api-keys'][':keyId'].usage.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -319,12 +322,13 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 
 /**
  * Generates TanStack Query cache key for GET /api-keys/{keyId}/rate-limit/current
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApiKeysKeyIdRateLimitCurrentQueryKey(
   args: InferRequestType<(typeof client)['api-keys'][':keyId']['rate-limit']['current']['$get']>,
 ) {
-  return [client['api-keys'][':keyId']['rate-limit'].current.$url(args).pathname] as const
+  const u = client['api-keys'][':keyId']['rate-limit'].current.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

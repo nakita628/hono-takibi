@@ -38,18 +38,18 @@ export function createGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10(
 
 /**
  * Generates Svelte Query cache key for GET /a/{p1}/b/{p2}/c/{p3}/d/{p4}/e/{p5}/f/{p6}/g/{p7}/h/{p8}/i/{p9}/j/{p10}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAP1BP2CP3DP4EP5FP6GP7HP8IP9JP10QueryKey(
   args: InferRequestType<
     (typeof client.a)[':p1']['b'][':p2']['c'][':p3']['d'][':p4']['e'][':p5']['f'][':p6']['g'][':p7']['h'][':p8']['i'][':p9']['j'][':p10']['$get']
   >,
 ) {
-  return [
+  const u =
     client.a[':p1'].b[':p2'].c[':p3'].d[':p4'].e[':p5'].f[':p6'].g[':p7'].h[':p8'].i[':p9'].j[
       ':p10'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -98,12 +98,13 @@ export function createGetQueryStyles(
 
 /**
  * Generates Svelte Query cache key for GET /query-styles
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetQueryStylesQueryKey(
   args: InferRequestType<(typeof client)['query-styles']['$get']>,
 ) {
-  return [client['query-styles'].$url(args).pathname] as const
+  const u = client['query-styles'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -155,12 +156,13 @@ export function createGetPathStylesSimpleLabelMatrix(
 
 /**
  * Generates Svelte Query cache key for GET /path-styles/{simple}/{label}/{matrix}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPathStylesSimpleLabelMatrixQueryKey(
   args: InferRequestType<(typeof client)['path-styles'][':simple'][':label'][':matrix']['$get']>,
 ) {
-  return [client['path-styles'][':simple'][':label'][':matrix'].$url(args).pathname] as const
+  const u = client['path-styles'][':simple'][':label'][':matrix'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -208,12 +210,13 @@ export function createGetHeaderStyles(
 
 /**
  * Generates Svelte Query cache key for GET /header-styles
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetHeaderStylesQueryKey(
   args: InferRequestType<(typeof client)['header-styles']['$get']>,
 ) {
-  return [client['header-styles'].$url(args).pathname] as const
+  const u = client['header-styles'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -261,12 +264,13 @@ export function createGetCookieStyles(
 
 /**
  * Generates Svelte Query cache key for GET /cookie-styles
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetCookieStylesQueryKey(
   args: InferRequestType<(typeof client)['cookie-styles']['$get']>,
 ) {
-  return [client['cookie-styles'].$url(args).pathname] as const
+  const u = client['cookie-styles'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -314,12 +318,13 @@ export function createGetManyQueryParams(
 
 /**
  * Generates Svelte Query cache key for GET /many-query-params
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetManyQueryParamsQueryKey(
   args: InferRequestType<(typeof client)['many-query-params']['$get']>,
 ) {
-  return [client['many-query-params'].$url(args).pathname] as const
+  const u = client['many-query-params'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -367,12 +372,13 @@ export function createGetParameterContent(
 
 /**
  * Generates Svelte Query cache key for GET /parameter-content
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetParameterContentQueryKey(
   args: InferRequestType<(typeof client)['parameter-content']['$get']>,
 ) {
-  return [client['parameter-content'].$url(args).pathname] as const
+  const u = client['parameter-content'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -420,12 +426,13 @@ export function createGetDeprecatedParams(
 
 /**
  * Generates Svelte Query cache key for GET /deprecated-params
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDeprecatedParamsQueryKey(
   args: InferRequestType<(typeof client)['deprecated-params']['$get']>,
 ) {
-  return [client['deprecated-params'].$url(args).pathname] as const
+  const u = client['deprecated-params'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -473,12 +480,13 @@ export function createGetExamplesParams(
 
 /**
  * Generates Svelte Query cache key for GET /examples-params
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetExamplesParamsQueryKey(
   args: InferRequestType<(typeof client)['examples-params']['$get']>,
 ) {
-  return [client['examples-params'].$url(args).pathname] as const
+  const u = client['examples-params'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

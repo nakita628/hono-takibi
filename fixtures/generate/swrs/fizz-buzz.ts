@@ -19,22 +19,24 @@ export function useGetFizzbuzz(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetFizzbuzzKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetFizzbuzzKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.fizzbuzz.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /fizzbuzz
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFizzbuzzKey(args: InferRequestType<typeof client.fizzbuzz.$get>) {
-  return client.fizzbuzz.$url(args).pathname
+  const u = client.fizzbuzz.$url(args)
+  return u.pathname + u.search
 }

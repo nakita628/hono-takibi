@@ -14,14 +14,15 @@ export function useGetExtremeResponses(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetExtremeResponsesKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetExtremeResponsesKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['extreme-responses'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -51,7 +52,8 @@ export function usePostMultipartVariations(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMultipartVariationsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMultipartVariationsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -60,14 +62,15 @@ export function usePostMultipartVariations(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['multipart-variations']['$post']> },
       ) => parseResponse(client['multipart-variations'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /multipart-variations
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMultipartVariationsMutationKey() {
   return `POST ${client['multipart-variations'].$url().pathname}`
@@ -90,7 +93,8 @@ export function usePostCharsetVariations(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostCharsetVariationsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostCharsetVariationsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -99,14 +103,15 @@ export function usePostCharsetVariations(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['charset-variations']['$post']> },
       ) => parseResponse(client['charset-variations'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /charset-variations
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostCharsetVariationsMutationKey() {
   return `POST ${client['charset-variations'].$url().pathname}`

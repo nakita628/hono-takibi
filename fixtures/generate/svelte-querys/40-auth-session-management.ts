@@ -30,10 +30,11 @@ export function createGetSessions(
 
 /**
  * Generates Svelte Query cache key for GET /sessions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return [client.sessions.$url(args).pathname] as const
+  const u = client.sessions.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -255,12 +256,13 @@ export function createGetSessionsSessionId(
 
 /**
  * Generates Svelte Query cache key for GET /sessions/{sessionId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsSessionIdQueryKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return [client.sessions[':sessionId'].$url(args).pathname] as const
+  const u = client.sessions[':sessionId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -390,12 +392,13 @@ export function createGetSessionsHistory(
 
 /**
  * Generates Svelte Query cache key for GET /sessions/history
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsHistoryQueryKey(
   args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return [client.sessions.history.$url(args).pathname] as const
+  const u = client.sessions.history.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -449,12 +452,13 @@ export function createGetSessionsSecurityEvents(
 
 /**
  * Generates Svelte Query cache key for GET /sessions/security-events
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsSecurityEventsQueryKey(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return [client.sessions['security-events'].$url(args).pathname] as const
+  const u = client.sessions['security-events'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

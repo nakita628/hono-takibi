@@ -29,12 +29,13 @@ export function useGetUsersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['$get']>,
 ) {
-  return [client.users[':userId'].$url(args).pathname] as const
+  const u = client.users[':userId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -86,12 +87,13 @@ export function useGetUsersByUsernameUsername(
 
 /**
  * Generates TanStack Query cache key for GET /users/by/username/{username}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersByUsernameUsernameQueryKey(
   args: InferRequestType<(typeof client.users.by.username)[':username']['$get']>,
 ) {
-  return [client.users.by.username[':username'].$url(args).pathname] as const
+  const u = client.users.by.username[':username'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -136,10 +138,11 @@ export function useGetUsersSearch(
 
 /**
  * Generates TanStack Query cache key for GET /users/search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersSearchQueryKey(args: InferRequestType<typeof client.users.search.$get>) {
-  return [client.users.search.$url(args).pathname] as const
+  const u = client.users.search.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -184,10 +187,11 @@ export function useGetUsersLookup(
 
 /**
  * Generates TanStack Query cache key for GET /users/lookup
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersLookupQueryKey(args: InferRequestType<typeof client.users.lookup.$get>) {
-  return [client.users.lookup.$url(args).pathname] as const
+  const u = client.users.lookup.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -441,12 +445,13 @@ export function useGetUsersUserIdFollowers(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}/followers
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdFollowersQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['followers']['$get']>,
 ) {
-  return [client.users[':userId'].followers.$url(args).pathname] as const
+  const u = client.users[':userId'].followers.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -498,12 +503,13 @@ export function useGetUsersUserIdFollowing(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}/following
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdFollowingQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['following']['$get']>,
 ) {
-  return [client.users[':userId'].following.$url(args).pathname] as const
+  const u = client.users[':userId'].following.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -578,12 +584,13 @@ export function useGetRelationships(
 
 /**
  * Generates TanStack Query cache key for GET /relationships
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetRelationshipsQueryKey(
   args: InferRequestType<typeof client.relationships.$get>,
 ) {
-  return [client.relationships.$url(args).pathname] as const
+  const u = client.relationships.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -632,12 +639,13 @@ export function useGetFollowRequests(
 
 /**
  * Generates TanStack Query cache key for GET /follow-requests
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFollowRequestsQueryKey(
   args: InferRequestType<(typeof client)['follow-requests']['$get']>,
 ) {
-  return [client['follow-requests'].$url(args).pathname] as const
+  const u = client['follow-requests'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -845,10 +853,11 @@ export function useGetBlocks(
 
 /**
  * Generates TanStack Query cache key for GET /blocks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBlocksQueryKey(args: InferRequestType<typeof client.blocks.$get>) {
-  return [client.blocks.$url(args).pathname] as const
+  const u = client.blocks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -888,10 +897,11 @@ export function useGetMutes(
 
 /**
  * Generates TanStack Query cache key for GET /mutes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMutesQueryKey(args: InferRequestType<typeof client.mutes.$get>) {
-  return [client.mutes.$url(args).pathname] as const
+  const u = client.mutes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -993,12 +1003,13 @@ export function useGetListsListId(
 
 /**
  * Generates TanStack Query cache key for GET /lists/{listId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetListsListIdQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['$get']>,
 ) {
-  return [client.lists[':listId'].$url(args).pathname] as const
+  const u = client.lists[':listId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1098,12 +1109,13 @@ export function useGetListsListIdMembers(
 
 /**
  * Generates TanStack Query cache key for GET /lists/{listId}/members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetListsListIdMembersQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['members']['$get']>,
 ) {
-  return [client.lists[':listId'].members.$url(args).pathname] as const
+  const u = client.lists[':listId'].members.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1212,12 +1224,13 @@ export function useGetListsListIdTimeline(
 
 /**
  * Generates TanStack Query cache key for GET /lists/{listId}/timeline
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetListsListIdTimelineQueryKey(
   args: InferRequestType<(typeof client.lists)[':listId']['timeline']['$get']>,
 ) {
-  return [client.lists[':listId'].timeline.$url(args).pathname] as const
+  const u = client.lists[':listId'].timeline.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1266,12 +1279,13 @@ export function useGetUsersUserIdLists(
 
 /**
  * Generates TanStack Query cache key for GET /users/{userId}/lists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdListsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['lists']['$get']>,
 ) {
-  return [client.users[':userId'].lists.$url(args).pathname] as const
+  const u = client.users[':userId'].lists.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

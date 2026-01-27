@@ -28,10 +28,11 @@ export function useGetTest(
 
 /**
  * Generates Vue Query cache key for GET /test
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTestQueryKey(args: InferRequestType<typeof client.test.$get>) {
-  return [client.test.$url(args).pathname] as const
+  const u = client.test.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

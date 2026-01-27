@@ -19,9 +19,10 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(args) : null)
   return {
     swrKey,
@@ -34,22 +35,23 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersKey(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
-    .pathname
+  const u =
+    client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -77,9 +79,9 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey()
+    customKey ?? getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -100,14 +102,15 @@ export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(opt
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
   return `POST ${client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url().pathname}`
@@ -121,15 +124,16 @@ export function useGetReportsOrganizationSummary(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetReportsOrganizationSummaryKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetReportsOrganizationSummaryKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.reports['organization-summary'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }

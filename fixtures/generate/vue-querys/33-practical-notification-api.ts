@@ -32,12 +32,13 @@ export function useGetNotifications(
 
 /**
  * Generates Vue Query cache key for GET /notifications
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetNotificationsQueryKey(
   args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return [client.notifications.$url(args).pathname] as const
+  const u = client.notifications.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -94,12 +95,13 @@ export function useGetNotificationsNotificationId(
 
 /**
  * Generates Vue Query cache key for GET /notifications/{notificationId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetNotificationsNotificationIdQueryKey(
   args: InferRequestType<(typeof client.notifications)[':notificationId']['$get']>,
 ) {
-  return [client.notifications[':notificationId'].$url(args).pathname] as const
+  const u = client.notifications[':notificationId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -367,12 +369,13 @@ export function useGetMessagesMessageId(
 
 /**
  * Generates Vue Query cache key for GET /messages/{messageId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMessagesMessageIdQueryKey(
   args: InferRequestType<(typeof client.messages)[':messageId']['$get']>,
 ) {
-  return [client.messages[':messageId'].$url(args).pathname] as const
+  const u = client.messages[':messageId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -422,10 +425,11 @@ export function useGetTemplates(
 
 /**
  * Generates Vue Query cache key for GET /templates
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTemplatesQueryKey(args: InferRequestType<typeof client.templates.$get>) {
-  return [client.templates.$url(args).pathname] as const
+  const u = client.templates.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -507,12 +511,13 @@ export function useGetTemplatesTemplateId(
 
 /**
  * Generates Vue Query cache key for GET /templates/{templateId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTemplatesTemplateIdQueryKey(
   args: InferRequestType<(typeof client.templates)[':templateId']['$get']>,
 ) {
-  return [client.templates[':templateId'].$url(args).pathname] as const
+  const u = client.templates[':templateId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -928,12 +933,13 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates Vue Query cache key for GET /webhooks/{webhookId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhookId']['$get']>,
 ) {
-  return [client.webhooks[':webhookId'].$url(args).pathname] as const
+  const u = client.webhooks[':webhookId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

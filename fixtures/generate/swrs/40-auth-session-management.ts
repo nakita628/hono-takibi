@@ -21,24 +21,26 @@ export function useGetSessions(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSessionsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.sessions.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /sessions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return client.sessions.$url(args).pathname
+  const u = client.sessions.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -58,21 +60,23 @@ export function usePostSessions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSessionsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSessionsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.sessions.$post> }) =>
         parseResponse(client.sessions.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /sessions
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsMutationKey() {
   return `POST ${client.sessions.$url().pathname}`
@@ -88,14 +92,15 @@ export function useGetSessionsCurrent(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsCurrentKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSessionsCurrentKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.sessions.current.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -128,20 +133,22 @@ export function useDeleteSessionsCurrent(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteSessionsCurrentMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteSessionsCurrentMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async () => parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /sessions/current
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSessionsCurrentMutationKey() {
   return `DELETE ${client.sessions.current.$url().pathname}`
@@ -168,7 +175,8 @@ export function usePostSessionsCurrentRefresh(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSessionsCurrentRefreshMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSessionsCurrentRefreshMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -177,14 +185,15 @@ export function usePostSessionsCurrentRefresh(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<typeof client.sessions.current.refresh.$post> },
       ) => parseResponse(client.sessions.current.refresh.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /sessions/current/refresh
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsCurrentRefreshMutationKey() {
   return `POST ${client.sessions.current.refresh.$url().pathname}`
@@ -211,7 +220,8 @@ export function usePostSessionsCurrentExtend(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSessionsCurrentExtendMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSessionsCurrentExtendMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -220,14 +230,15 @@ export function usePostSessionsCurrentExtend(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<typeof client.sessions.current.extend.$post> },
       ) => parseResponse(client.sessions.current.extend.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /sessions/current/extend
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsCurrentExtendMutationKey() {
   return `POST ${client.sessions.current.extend.$url().pathname}`
@@ -254,20 +265,22 @@ export function usePostSessionsCurrentActivity(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSessionsCurrentActivityMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSessionsCurrentActivityMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async () => parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /sessions/current/activity
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsCurrentActivityMutationKey() {
   return `POST ${client.sessions.current.activity.$url().pathname}`
@@ -286,26 +299,28 @@ export function useGetSessionsSessionId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsSessionIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSessionsSessionIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.sessions[':sessionId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /sessions/{sessionId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsSessionIdKey(
   args: InferRequestType<(typeof client.sessions)[':sessionId']['$get']>,
 ) {
-  return client.sessions[':sessionId'].$url(args).pathname
+  const u = client.sessions[':sessionId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -332,7 +347,8 @@ export function useDeleteSessionsSessionId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteSessionsSessionIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteSessionsSessionIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -341,14 +357,15 @@ export function useDeleteSessionsSessionId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']> },
       ) => parseResponse(client.sessions[':sessionId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /sessions/{sessionId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSessionsSessionIdMutationKey() {
   return `DELETE ${client.sessions[':sessionId'].$url().pathname}`
@@ -375,7 +392,8 @@ export function usePostSessionsRevokeAll(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSessionsRevokeAllMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSessionsRevokeAllMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -384,14 +402,15 @@ export function usePostSessionsRevokeAll(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.sessions)['revoke-all']['$post']> },
       ) => parseResponse(client.sessions['revoke-all'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /sessions/revoke-all
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsRevokeAllMutationKey() {
   return `POST ${client.sessions['revoke-all'].$url().pathname}`
@@ -416,21 +435,23 @@ export function usePostSessionsValidate(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSessionsValidateMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSessionsValidateMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.sessions.validate.$post> }) =>
         parseResponse(client.sessions.validate.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /sessions/validate
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsValidateMutationKey() {
   return `POST ${client.sessions.validate.$url().pathname}`
@@ -449,26 +470,28 @@ export function useGetSessionsHistory(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsHistoryKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSessionsHistoryKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.sessions.history.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /sessions/history
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsHistoryKey(
   args: InferRequestType<typeof client.sessions.history.$get>,
 ) {
-  return client.sessions.history.$url(args).pathname
+  const u = client.sessions.history.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -486,26 +509,28 @@ export function useGetSessionsSecurityEvents(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsSecurityEventsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSessionsSecurityEventsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.sessions['security-events'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /sessions/security-events
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsSecurityEventsKey(
   args: InferRequestType<(typeof client.sessions)['security-events']['$get']>,
 ) {
-  return client.sessions['security-events'].$url(args).pathname
+  const u = client.sessions['security-events'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -518,14 +543,15 @@ export function useGetSessionsPolicies(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsPoliciesKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSessionsPoliciesKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.sessions.policies.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -555,21 +581,23 @@ export function usePutSessionsPolicies(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutSessionsPoliciesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutSessionsPoliciesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.sessions.policies.$put> }) =>
         parseResponse(client.sessions.policies.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /sessions/policies
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutSessionsPoliciesMutationKey() {
   return `PUT ${client.sessions.policies.$url().pathname}`
@@ -585,14 +613,15 @@ export function useGetSessionsTrustedDevices(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSessionsTrustedDevicesKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSessionsTrustedDevicesKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.sessions['trusted-devices'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -626,7 +655,8 @@ export function usePostSessionsTrustedDevices(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSessionsTrustedDevicesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSessionsTrustedDevicesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -635,14 +665,15 @@ export function usePostSessionsTrustedDevices(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']> },
       ) => parseResponse(client.sessions['trusted-devices'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /sessions/trusted-devices
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSessionsTrustedDevicesMutationKey() {
   return `POST ${client.sessions['trusted-devices'].$url().pathname}`
@@ -670,7 +701,8 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteSessionsTrustedDevicesDeviceIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteSessionsTrustedDevicesDeviceIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -684,14 +716,15 @@ export function useDeleteSessionsTrustedDevicesDeviceId(options?: {
         },
       ) =>
         parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /sessions/trusted-devices/{deviceId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
   return `DELETE ${client.sessions['trusted-devices'][':deviceId'].$url().pathname}`

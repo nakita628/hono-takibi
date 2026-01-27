@@ -34,10 +34,11 @@ export function useGetSamlSso(
 
 /**
  * Generates Vue Query cache key for GET /saml/sso
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSamlSsoQueryKey(args: InferRequestType<typeof client.saml.sso.$get>) {
-  return [client.saml.sso.$url(args).pathname] as const
+  const u = client.saml.sso.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -116,10 +117,11 @@ export function useGetSamlSlo(
 
 /**
  * Generates Vue Query cache key for GET /saml/slo
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSamlSloQueryKey(args: InferRequestType<typeof client.saml.slo.$get>) {
-  return [client.saml.slo.$url(args).pathname] as const
+  const u = client.saml.slo.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -279,12 +281,13 @@ export function useGetServiceProviders(
 
 /**
  * Generates Vue Query cache key for GET /service-providers
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetServiceProvidersQueryKey(
   args: InferRequestType<(typeof client)['service-providers']['$get']>,
 ) {
-  return [client['service-providers'].$url(args).pathname] as const
+  const u = client['service-providers'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -371,12 +374,13 @@ export function useGetServiceProvidersSpId(
 
 /**
  * Generates Vue Query cache key for GET /service-providers/{spId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetServiceProvidersSpIdQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['$get']>,
 ) {
-  return [client['service-providers'][':spId'].$url(args).pathname] as const
+  const u = client['service-providers'][':spId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -502,12 +506,13 @@ export function useGetServiceProvidersSpIdMetadata(
 
 /**
  * Generates Vue Query cache key for GET /service-providers/{spId}/metadata
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetServiceProvidersSpIdMetadataQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$get']>,
 ) {
-  return [client['service-providers'][':spId'].metadata.$url(args).pathname] as const
+  const u = client['service-providers'][':spId'].metadata.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -599,12 +604,13 @@ export function useGetServiceProvidersSpIdAttributes(
 
 /**
  * Generates Vue Query cache key for GET /service-providers/{spId}/attributes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetServiceProvidersSpIdAttributesQueryKey(
   args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$get']>,
 ) {
-  return [client['service-providers'][':spId'].attributes.$url(args).pathname] as const
+  const u = client['service-providers'][':spId'].attributes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -878,10 +884,11 @@ export function useGetSessions(
 
 /**
  * Generates Vue Query cache key for GET /sessions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSessionsQueryKey(args: InferRequestType<typeof client.sessions.$get>) {
-  return [client.sessions.$url(args).pathname] as const
+  const u = client.sessions.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -963,12 +970,13 @@ export function useGetAuditLogs(
 
 /**
  * Generates Vue Query cache key for GET /audit-logs
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAuditLogsQueryKey(
   args: InferRequestType<(typeof client)['audit-logs']['$get']>,
 ) {
-  return [client['audit-logs'].$url(args).pathname] as const
+  const u = client['audit-logs'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

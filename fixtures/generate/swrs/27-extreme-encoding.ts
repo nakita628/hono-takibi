@@ -23,7 +23,8 @@ export function usePostEncodingTest(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostEncodingTestMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostEncodingTestMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -32,14 +33,15 @@ export function usePostEncodingTest(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['encoding-test']['$post']> },
       ) => parseResponse(client['encoding-test'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /encoding-test
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostEncodingTestMutationKey() {
   return `POST ${client['encoding-test'].$url().pathname}`
@@ -56,26 +58,28 @@ export function useGetContentNegotiation(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetContentNegotiationKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetContentNegotiationKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['content-negotiation'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /content-negotiation
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetContentNegotiationKey(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return client['content-negotiation'].$url(args).pathname
+  const u = client['content-negotiation'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -95,7 +99,8 @@ export function usePostBinaryVariations(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostBinaryVariationsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostBinaryVariationsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -104,14 +109,15 @@ export function usePostBinaryVariations(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['binary-variations']['$post']> },
       ) => parseResponse(client['binary-variations'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /binary-variations
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostBinaryVariationsMutationKey() {
   return `POST ${client['binary-variations'].$url().pathname}`
@@ -125,14 +131,15 @@ export function useGetStreaming(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStreamingKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetStreamingKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.streaming.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -158,21 +165,23 @@ export function usePostStreaming(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostStreamingMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostStreamingMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.streaming.$post> }) =>
         parseResponse(client.streaming.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /streaming
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostStreamingMutationKey() {
   return `POST ${client.streaming.$url().pathname}`
@@ -195,7 +204,8 @@ export function usePostUrlEncodedComplex(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostUrlEncodedComplexMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostUrlEncodedComplexMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -204,14 +214,15 @@ export function usePostUrlEncodedComplex(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['url-encoded-complex']['$post']> },
       ) => parseResponse(client['url-encoded-complex'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /url-encoded-complex
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostUrlEncodedComplexMutationKey() {
   return `POST ${client['url-encoded-complex'].$url().pathname}`
@@ -225,14 +236,15 @@ export function useGetResponseEncoding(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetResponseEncodingKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetResponseEncodingKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['response-encoding'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -262,7 +274,8 @@ export function usePostSchemaEncoding(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSchemaEncodingMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSchemaEncodingMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -271,14 +284,15 @@ export function usePostSchemaEncoding(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['schema-encoding']['$post']> },
       ) => parseResponse(client['schema-encoding'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /schema-encoding
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSchemaEncodingMutationKey() {
   return `POST ${client['schema-encoding'].$url().pathname}`

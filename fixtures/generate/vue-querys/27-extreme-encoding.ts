@@ -62,12 +62,13 @@ export function useGetContentNegotiation(
 
 /**
  * Generates Vue Query cache key for GET /content-negotiation
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetContentNegotiationQueryKey(
   args: InferRequestType<(typeof client)['content-negotiation']['$get']>,
 ) {
-  return [client['content-negotiation'].$url(args).pathname] as const
+  const u = client['content-negotiation'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

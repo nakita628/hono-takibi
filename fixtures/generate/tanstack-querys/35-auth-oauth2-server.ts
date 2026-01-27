@@ -30,12 +30,13 @@ export function useGetOauthAuthorize(
 
 /**
  * Generates TanStack Query cache key for GET /oauth/authorize
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOauthAuthorizeQueryKey(
   args: InferRequestType<typeof client.oauth.authorize.$get>,
 ) {
-  return [client.oauth.authorize.$url(args).pathname] as const
+  const u = client.oauth.authorize.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -396,12 +397,13 @@ export function useGetOauthClientsClientId(
 
 /**
  * Generates TanStack Query cache key for GET /oauth/clients/{clientId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOauthClientsClientIdQueryKey(
   args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$get']>,
 ) {
-  return [client.oauth.clients[':clientId'].$url(args).pathname] as const
+  const u = client.oauth.clients[':clientId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

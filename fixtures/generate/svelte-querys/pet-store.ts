@@ -78,12 +78,13 @@ export function createGetPetFindByStatus(
 
 /**
  * Generates Svelte Query cache key for GET /pet/findByStatus
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPetFindByStatusQueryKey(
   args: InferRequestType<typeof client.pet.findByStatus.$get>,
 ) {
-  return [client.pet.findByStatus.$url(args).pathname] as const
+  const u = client.pet.findByStatus.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -133,12 +134,13 @@ export function createGetPetFindByTags(
 
 /**
  * Generates Svelte Query cache key for GET /pet/findByTags
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPetFindByTagsQueryKey(
   args: InferRequestType<typeof client.pet.findByTags.$get>,
 ) {
-  return [client.pet.findByTags.$url(args).pathname] as const
+  const u = client.pet.findByTags.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -188,12 +190,13 @@ export function createGetPetPetId(
 
 /**
  * Generates Svelte Query cache key for GET /pet/{petId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPetPetIdQueryKey(
   args: InferRequestType<(typeof client.pet)[':petId']['$get']>,
 ) {
-  return [client.pet[':petId'].$url(args).pathname] as const
+  const u = client.pet[':petId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -393,12 +396,13 @@ export function createGetStoreOrderOrderId(
 
 /**
  * Generates Svelte Query cache key for GET /store/order/{orderId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetStoreOrderOrderIdQueryKey(
   args: InferRequestType<(typeof client.store.order)[':orderId']['$get']>,
 ) {
-  return [client.store.order[':orderId'].$url(args).pathname] as const
+  const u = client.store.order[':orderId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -522,10 +526,11 @@ export function createGetUserLogin(
 
 /**
  * Generates Svelte Query cache key for GET /user/login
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUserLoginQueryKey(args: InferRequestType<typeof client.user.login.$get>) {
-  return [client.user.login.$url(args).pathname] as const
+  const u = client.user.login.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -612,12 +617,13 @@ export function createGetUserUsername(
 
 /**
  * Generates Svelte Query cache key for GET /user/{username}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUserUsernameQueryKey(
   args: InferRequestType<(typeof client.user)[':username']['$get']>,
 ) {
-  return [client.user[':username'].$url(args).pathname] as const
+  const u = client.user[':username'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

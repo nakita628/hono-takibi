@@ -20,21 +20,23 @@ export function usePostWebhooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostWebhooksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostWebhooksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.webhooks.$post> }) =>
         parseResponse(client.webhooks.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /webhooks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksMutationKey() {
   return `POST ${client.webhooks.$url().pathname}`
@@ -57,21 +59,23 @@ export function usePostSubscriptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostSubscriptionsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostSubscriptionsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.subscriptions.$post> }) =>
         parseResponse(client.subscriptions.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /subscriptions
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostSubscriptionsMutationKey() {
   return `POST ${client.subscriptions.$url().pathname}`
@@ -92,21 +96,23 @@ export function usePostJobs(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostJobsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostJobsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.jobs.$post> }) =>
         parseResponse(client.jobs.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /jobs
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostJobsMutationKey() {
   return `POST ${client.jobs.$url().pathname}`
@@ -133,7 +139,8 @@ export function usePostIntegrationsIntegrationIdSync(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostIntegrationsIntegrationIdSyncMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostIntegrationsIntegrationIdSyncMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -146,14 +153,15 @@ export function usePostIntegrationsIntegrationIdSync(options?: {
           arg: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>
         },
       ) => parseResponse(client.integrations[':integrationId'].sync.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /integrations/{integrationId}/sync
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostIntegrationsIntegrationIdSyncMutationKey() {
   return `POST ${client.integrations[':integrationId'].sync.$url().pathname}`

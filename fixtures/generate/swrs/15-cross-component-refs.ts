@@ -17,24 +17,26 @@ export function useGetEntities(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetEntitiesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.entities.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /entities
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEntitiesKey(args: InferRequestType<typeof client.entities.$get>) {
-  return client.entities.$url(args).pathname
+  const u = client.entities.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -50,21 +52,23 @@ export function usePostEntities(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostEntitiesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostEntitiesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.entities.$post> }) =>
         parseResponse(client.entities.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /entities
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostEntitiesMutationKey() {
   return `POST ${client.entities.$url().pathname}`
@@ -81,26 +85,28 @@ export function useGetEntitiesEntityId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesEntityIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetEntitiesEntityIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.entities[':entityId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /entities/{entityId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEntitiesEntityIdKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return client.entities[':entityId'].$url(args).pathname
+  const u = client.entities[':entityId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -120,7 +126,8 @@ export function usePutEntitiesEntityId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutEntitiesEntityIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutEntitiesEntityIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -129,14 +136,15 @@ export function usePutEntitiesEntityId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.entities)[':entityId']['$put']> },
       ) => parseResponse(client.entities[':entityId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /entities/{entityId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutEntitiesEntityIdMutationKey() {
   return `PUT ${client.entities[':entityId'].$url().pathname}`
@@ -162,7 +170,8 @@ export function useDeleteEntitiesEntityId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteEntitiesEntityIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteEntitiesEntityIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -171,14 +180,15 @@ export function useDeleteEntitiesEntityId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.entities)[':entityId']['$delete']> },
       ) => parseResponse(client.entities[':entityId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /entities/{entityId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteEntitiesEntityIdMutationKey() {
   return `DELETE ${client.entities[':entityId'].$url().pathname}`
@@ -195,28 +205,29 @@ export function useGetEntitiesEntityIdRelationships(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetEntitiesEntityIdRelationshipsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetEntitiesEntityIdRelationshipsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.entities[':entityId'].relationships.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /entities/{entityId}/relationships
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEntitiesEntityIdRelationshipsKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return client.entities[':entityId'].relationships.$url(args).pathname
+  const u = client.entities[':entityId'].relationships.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -238,7 +249,8 @@ export function usePostEntitiesEntityIdRelationships(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostEntitiesEntityIdRelationshipsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostEntitiesEntityIdRelationshipsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -251,14 +263,15 @@ export function usePostEntitiesEntityIdRelationships(options?: {
           arg: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>
         },
       ) => parseResponse(client.entities[':entityId'].relationships.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /entities/{entityId}/relationships
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostEntitiesEntityIdRelationshipsMutationKey() {
   return `POST ${client.entities[':entityId'].relationships.$url().pathname}`
@@ -277,21 +290,23 @@ export function usePostBatch(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostBatchMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostBatchMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.batch.$post> }) =>
         parseResponse(client.batch.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /batch
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostBatchMutationKey() {
   return `POST ${client.batch.$url().pathname}`

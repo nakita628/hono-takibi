@@ -43,17 +43,16 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates Vue Query cache key for GET /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersQueryKey(
   args: InferRequestType<
     (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$get']
   >,
 ) {
-  return [
+  const u =
     client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**

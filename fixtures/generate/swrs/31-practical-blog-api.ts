@@ -19,24 +19,26 @@ export function useGetPosts(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPostsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.posts.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /posts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsKey(args: InferRequestType<typeof client.posts.$get>) {
-  return client.posts.$url(args).pathname
+  const u = client.posts.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -54,21 +56,23 @@ export function usePostPosts(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPostsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPostsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.posts.$post> }) =>
         parseResponse(client.posts.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /posts
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsMutationKey() {
   return `POST ${client.posts.$url().pathname}`
@@ -87,26 +91,28 @@ export function useGetPostsPostId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsPostIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.posts[':postId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /posts/{postId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return client.posts[':postId'].$url(args).pathname
+  const u = client.posts[':postId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -128,7 +134,8 @@ export function usePutPostsPostId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutPostsPostIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutPostsPostIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -137,14 +144,15 @@ export function usePutPostsPostId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['$put']> },
       ) => parseResponse(client.posts[':postId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /posts/{postId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutPostsPostIdMutationKey() {
   return `PUT ${client.posts[':postId'].$url().pathname}`
@@ -170,7 +178,8 @@ export function useDeletePostsPostId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeletePostsPostIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeletePostsPostIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -179,14 +188,15 @@ export function useDeletePostsPostId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['$delete']> },
       ) => parseResponse(client.posts[':postId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /posts/{postId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeletePostsPostIdMutationKey() {
   return `DELETE ${client.posts[':postId'].$url().pathname}`
@@ -205,26 +215,28 @@ export function useGetPostsSlugSlug(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsSlugSlugKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPostsSlugSlugKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.posts.slug[':slug'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /posts/slug/{slug}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsSlugSlugKey(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
 ) {
-  return client.posts.slug[':slug'].$url(args).pathname
+  const u = client.posts.slug[':slug'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -248,7 +260,8 @@ export function usePostPostsPostIdPublish(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPostsPostIdPublishMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPostsPostIdPublishMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -257,14 +270,15 @@ export function usePostPostsPostIdPublish(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['publish']['$post']> },
       ) => parseResponse(client.posts[':postId'].publish.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/publish
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdPublishMutationKey() {
   return `POST ${client.posts[':postId'].publish.$url().pathname}`
@@ -291,7 +305,8 @@ export function usePostPostsPostIdUnpublish(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPostsPostIdUnpublishMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPostsPostIdUnpublishMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -300,14 +315,15 @@ export function usePostPostsPostIdUnpublish(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['unpublish']['$post']> },
       ) => parseResponse(client.posts[':postId'].unpublish.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/unpublish
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdUnpublishMutationKey() {
   return `POST ${client.posts[':postId'].unpublish.$url().pathname}`
@@ -326,26 +342,28 @@ export function useGetPostsPostIdComments(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPostsPostIdCommentsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPostsPostIdCommentsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.posts[':postId'].comments.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /posts/{postId}/comments
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdCommentsKey(
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
 ) {
-  return client.posts[':postId'].comments.$url(args).pathname
+  const u = client.posts[':postId'].comments.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -369,7 +387,8 @@ export function usePostPostsPostIdComments(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPostsPostIdCommentsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPostsPostIdCommentsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -378,14 +397,15 @@ export function usePostPostsPostIdComments(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.posts)[':postId']['comments']['$post']> },
       ) => parseResponse(client.posts[':postId'].comments.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/comments
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPostsPostIdCommentsMutationKey() {
   return `POST ${client.posts[':postId'].comments.$url().pathname}`
@@ -413,7 +433,8 @@ export function useDeleteCommentsCommentId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteCommentsCommentIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteCommentsCommentIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -422,14 +443,15 @@ export function useDeleteCommentsCommentId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.comments)[':commentId']['$delete']> },
       ) => parseResponse(client.comments[':commentId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /comments/{commentId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteCommentsCommentIdMutationKey() {
   return `DELETE ${client.comments[':commentId'].$url().pathname}`
@@ -456,7 +478,8 @@ export function usePostCommentsCommentIdApprove(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostCommentsCommentIdApproveMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostCommentsCommentIdApproveMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -467,14 +490,15 @@ export function usePostCommentsCommentIdApprove(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.comments)[':commentId']['approve']['$post']> },
       ) => parseResponse(client.comments[':commentId'].approve.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /comments/{commentId}/approve
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostCommentsCommentIdApproveMutationKey() {
   return `POST ${client.comments[':commentId'].approve.$url().pathname}`
@@ -490,14 +514,15 @@ export function useGetCategories(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCategoriesKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetCategoriesKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.categories.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -525,21 +550,23 @@ export function usePostCategories(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostCategoriesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostCategoriesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.categories.$post> }) =>
         parseResponse(client.categories.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /categories
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostCategoriesMutationKey() {
   return `POST ${client.categories.$url().pathname}`
@@ -558,26 +585,28 @@ export function useGetCategoriesCategoryId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetCategoriesCategoryIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetCategoriesCategoryIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.categories[':categoryId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /categories/{categoryId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetCategoriesCategoryIdKey(
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
 ) {
-  return client.categories[':categoryId'].$url(args).pathname
+  const u = client.categories[':categoryId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -599,7 +628,8 @@ export function usePutCategoriesCategoryId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutCategoriesCategoryIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutCategoriesCategoryIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -608,14 +638,15 @@ export function usePutCategoriesCategoryId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.categories)[':categoryId']['$put']> },
       ) => parseResponse(client.categories[':categoryId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /categories/{categoryId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutCategoriesCategoryIdMutationKey() {
   return `PUT ${client.categories[':categoryId'].$url().pathname}`
@@ -643,7 +674,8 @@ export function useDeleteCategoriesCategoryId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteCategoriesCategoryIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteCategoriesCategoryIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -652,14 +684,15 @@ export function useDeleteCategoriesCategoryId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.categories)[':categoryId']['$delete']> },
       ) => parseResponse(client.categories[':categoryId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /categories/{categoryId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteCategoriesCategoryIdMutationKey() {
   return `DELETE ${client.categories[':categoryId'].$url().pathname}`
@@ -678,20 +711,26 @@ export function useGetTags(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTagsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTagsKey(args) : null)
   return {
     swrKey,
-    ...useSWR(swrKey, async () => parseResponse(client.tags.$get(args, clientOptions)), swrOptions),
+    ...useSWR(
+      swrKey,
+      async () => parseResponse(client.tags.$get(args, clientOptions)),
+      restSwrOptions,
+    ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /tags
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTagsKey(args: InferRequestType<typeof client.tags.$get>) {
-  return client.tags.$url(args).pathname
+  const u = client.tags.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -709,21 +748,23 @@ export function usePostTags(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostTagsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostTagsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.tags.$post> }) =>
         parseResponse(client.tags.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /tags
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostTagsMutationKey() {
   return `POST ${client.tags.$url().pathname}`
@@ -742,24 +783,26 @@ export function useGetMedia(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMediaKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMediaKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.media.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /media
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMediaKey(args: InferRequestType<typeof client.media.$get>) {
-  return client.media.$url(args).pathname
+  const u = client.media.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -777,21 +820,23 @@ export function usePostMedia(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMediaMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMediaMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.media.$post> }) =>
         parseResponse(client.media.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /media
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMediaMutationKey() {
   return `POST ${client.media.$url().pathname}`
@@ -810,26 +855,28 @@ export function useGetMediaMediaId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMediaMediaIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMediaMediaIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.media[':mediaId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /media/{mediaId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMediaMediaIdKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return client.media[':mediaId'].$url(args).pathname
+  const u = client.media[':mediaId'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -851,7 +898,8 @@ export function usePutMediaMediaId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMediaMediaIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMediaMediaIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -860,14 +908,15 @@ export function usePutMediaMediaId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.media)[':mediaId']['$put']> },
       ) => parseResponse(client.media[':mediaId'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /media/{mediaId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMediaMediaIdMutationKey() {
   return `PUT ${client.media[':mediaId'].$url().pathname}`
@@ -893,7 +942,8 @@ export function useDeleteMediaMediaId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMediaMediaIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMediaMediaIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -902,14 +952,15 @@ export function useDeleteMediaMediaId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.media)[':mediaId']['$delete']> },
       ) => parseResponse(client.media[':mediaId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /media/{mediaId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMediaMediaIdMutationKey() {
   return `DELETE ${client.media[':mediaId'].$url().pathname}`
@@ -925,14 +976,15 @@ export function useGetAuthors(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAuthorsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAuthorsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.authors.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -958,24 +1010,26 @@ export function useGetAuthorsAuthorId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAuthorsAuthorIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAuthorsAuthorIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.authors[':authorId'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /authors/{authorId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAuthorsAuthorIdKey(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
 ) {
-  return client.authors[':authorId'].$url(args).pathname
+  const u = client.authors[':authorId'].$url(args)
+  return u.pathname + u.search
 }

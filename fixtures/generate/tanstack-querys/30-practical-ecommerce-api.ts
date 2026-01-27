@@ -25,10 +25,11 @@ export function useGetProducts(
 
 /**
  * Generates TanStack Query cache key for GET /products
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProductsQueryKey(args: InferRequestType<typeof client.products.$get>) {
-  return [client.products.$url(args).pathname] as const
+  const u = client.products.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -93,12 +94,13 @@ export function useGetProductsProductId(
 
 /**
  * Generates TanStack Query cache key for GET /products/{productId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetProductsProductIdQueryKey(
   args: InferRequestType<(typeof client.products)[':productId']['$get']>,
 ) {
-  return [client.products[':productId'].$url(args).pathname] as const
+  const u = client.products[':productId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -412,10 +414,11 @@ export function useGetOrders(
 
 /**
  * Generates TanStack Query cache key for GET /orders
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOrdersQueryKey(args: InferRequestType<typeof client.orders.$get>) {
-  return [client.orders.$url(args).pathname] as const
+  const u = client.orders.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -482,12 +485,13 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates TanStack Query cache key for GET /orders/{orderId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetOrdersOrderIdQueryKey(
   args: InferRequestType<(typeof client.orders)[':orderId']['$get']>,
 ) {
-  return [client.orders[':orderId'].$url(args).pathname] as const
+  const u = client.orders[':orderId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -562,12 +566,13 @@ export function useGetInventoryProductId(
 
 /**
  * Generates TanStack Query cache key for GET /inventory/{productId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetInventoryProductIdQueryKey(
   args: InferRequestType<(typeof client.inventory)[':productId']['$get']>,
 ) {
-  return [client.inventory[':productId'].$url(args).pathname] as const
+  const u = client.inventory[':productId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

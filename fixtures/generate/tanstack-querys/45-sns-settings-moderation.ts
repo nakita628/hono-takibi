@@ -97,12 +97,13 @@ export function useGetSettingsUsernameCheck(
 
 /**
  * Generates TanStack Query cache key for GET /settings/username/check
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSettingsUsernameCheckQueryKey(
   args: InferRequestType<typeof client.settings.username.check.$get>,
 ) {
-  return [client.settings.username.check.$url(args).pathname] as const
+  const u = client.settings.username.check.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -567,12 +568,13 @@ export function useGetSettingsDataExportRequestId(
 
 /**
  * Generates TanStack Query cache key for GET /settings/data-export/{requestId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSettingsDataExportRequestIdQueryKey(
   args: InferRequestType<(typeof client.settings)['data-export'][':requestId']['$get']>,
 ) {
-  return [client.settings['data-export'][':requestId'].$url(args).pathname] as const
+  const u = client.settings['data-export'][':requestId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -663,12 +665,13 @@ export function useGetReportsReportId(
 
 /**
  * Generates TanStack Query cache key for GET /reports/{reportId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetReportsReportIdQueryKey(
   args: InferRequestType<(typeof client.reports)[':reportId']['$get']>,
 ) {
-  return [client.reports[':reportId'].$url(args).pathname] as const
+  const u = client.reports[':reportId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -715,12 +718,13 @@ export function useGetModerationQueue(
 
 /**
  * Generates TanStack Query cache key for GET /moderation/queue
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetModerationQueueQueryKey(
   args: InferRequestType<typeof client.moderation.queue.$get>,
 ) {
-  return [client.moderation.queue.$url(args).pathname] as const
+  const u = client.moderation.queue.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -772,12 +776,13 @@ export function useGetModerationItemsItemId(
 
 /**
  * Generates TanStack Query cache key for GET /moderation/items/{itemId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetModerationItemsItemIdQueryKey(
   args: InferRequestType<(typeof client.moderation.items)[':itemId']['$get']>,
 ) {
-  return [client.moderation.items[':itemId'].$url(args).pathname] as const
+  const u = client.moderation.items[':itemId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -857,12 +862,13 @@ export function useGetModerationUsersUserIdHistory(
 
 /**
  * Generates TanStack Query cache key for GET /moderation/users/{userId}/history
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetModerationUsersUserIdHistoryQueryKey(
   args: InferRequestType<(typeof client.moderation.users)[':userId']['history']['$get']>,
 ) {
-  return [client.moderation.users[':userId'].history.$url(args).pathname] as const
+  const u = client.moderation.users[':userId'].history.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -970,12 +976,13 @@ export function useGetAnalyticsPostsPostId(
 
 /**
  * Generates TanStack Query cache key for GET /analytics/posts/{postId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAnalyticsPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.analytics.posts)[':postId']['$get']>,
 ) {
-  return [client.analytics.posts[':postId'].$url(args).pathname] as const
+  const u = client.analytics.posts[':postId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1020,12 +1027,13 @@ export function useGetAnalyticsAccount(
 
 /**
  * Generates TanStack Query cache key for GET /analytics/account
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAnalyticsAccountQueryKey(
   args: InferRequestType<typeof client.analytics.account.$get>,
 ) {
-  return [client.analytics.account.$url(args).pathname] as const
+  const u = client.analytics.account.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1072,12 +1080,13 @@ export function useGetAnalyticsFollowers(
 
 /**
  * Generates TanStack Query cache key for GET /analytics/followers
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAnalyticsFollowersQueryKey(
   args: InferRequestType<typeof client.analytics.followers.$get>,
 ) {
-  return [client.analytics.followers.$url(args).pathname] as const
+  const u = client.analytics.followers.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1124,12 +1133,13 @@ export function useGetAnalyticsTopPosts(
 
 /**
  * Generates TanStack Query cache key for GET /analytics/top-posts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAnalyticsTopPostsQueryKey(
   args: InferRequestType<(typeof client.analytics)['top-posts']['$get']>,
 ) {
-  return [client.analytics['top-posts'].$url(args).pathname] as const
+  const u = client.analytics['top-posts'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

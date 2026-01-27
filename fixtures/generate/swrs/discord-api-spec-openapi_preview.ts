@@ -14,14 +14,15 @@ export function useGetApplicationsMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsMeKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetApplicationsMeKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.applications['@me'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -51,7 +52,8 @@ export function usePatchApplicationsMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchApplicationsMeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchApplicationsMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -60,14 +62,15 @@ export function usePatchApplicationsMe(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.applications)['@me']['$patch']> },
       ) => parseResponse(client.applications['@me'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /applications/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsMeMutationKey() {
   return `PATCH ${client.applications['@me'].$url().pathname}`
@@ -84,26 +87,28 @@ export function useGetApplicationsApplicationId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetApplicationsApplicationIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.applications[':application_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
 ) {
-  return client.applications[':application_id'].$url(args).pathname
+  const u = client.applications[':application_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -125,7 +130,8 @@ export function usePatchApplicationsApplicationId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchApplicationsApplicationIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchApplicationsApplicationIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -136,14 +142,15 @@ export function usePatchApplicationsApplicationId(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.applications)[':application_id']['$patch']> },
       ) => parseResponse(client.applications[':application_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdMutationKey() {
   return `PATCH ${client.applications[':application_id'].$url().pathname}`
@@ -162,9 +169,10 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(args) : null)
   return {
     swrKey,
@@ -177,22 +185,22 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/activity-instances/{instance_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
 ) {
-  return client.applications[':application_id']['activity-instances'][':instance_id'].$url(args)
-    .pathname
+  const u = client.applications[':application_id']['activity-instances'][':instance_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -216,7 +224,8 @@ export function usePostApplicationsApplicationIdAttachment(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostApplicationsApplicationIdAttachmentMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApplicationsApplicationIdAttachmentMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -232,14 +241,15 @@ export function usePostApplicationsApplicationIdAttachment(options?: {
         },
       ) =>
         parseResponse(client.applications[':application_id'].attachment.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/attachment
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdAttachmentMutationKey() {
   return `POST ${client.applications[':application_id'].attachment.$url().pathname}`
@@ -256,28 +266,29 @@ export function useGetApplicationsApplicationIdCommands(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdCommandsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetApplicationsApplicationIdCommandsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.applications[':application_id'].commands.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/commands
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdCommandsKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
 ) {
-  return client.applications[':application_id'].commands.$url(args).pathname
+  const u = client.applications[':application_id'].commands.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -299,7 +310,8 @@ export function usePutApplicationsApplicationIdCommands(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutApplicationsApplicationIdCommandsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutApplicationsApplicationIdCommandsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -312,14 +324,15 @@ export function usePutApplicationsApplicationIdCommands(options?: {
           arg: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>
         },
       ) => parseResponse(client.applications[':application_id'].commands.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/commands
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdCommandsMutationKey() {
   return `PUT ${client.applications[':application_id'].commands.$url().pathname}`
@@ -344,7 +357,8 @@ export function usePostApplicationsApplicationIdCommands(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostApplicationsApplicationIdCommandsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApplicationsApplicationIdCommandsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -359,14 +373,15 @@ export function usePostApplicationsApplicationIdCommands(options?: {
           >
         },
       ) => parseResponse(client.applications[':application_id'].commands.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/commands
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdCommandsMutationKey() {
   return `POST ${client.applications[':application_id'].commands.$url().pathname}`
@@ -385,10 +400,10 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetApplicationsApplicationIdCommandsCommandIdKey(args) : null)
+    customKey ?? (isEnabled ? getGetApplicationsApplicationIdCommandsCommandIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -397,21 +412,22 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
         parseResponse(
           client.applications[':application_id'].commands[':command_id'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return client.applications[':application_id'].commands[':command_id'].$url(args).pathname
+  const u = client.applications[':application_id'].commands[':command_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -440,8 +456,8 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -462,14 +478,15 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey() {
   return `DELETE ${client.applications[':application_id'].commands[':command_id'].$url().pathname}`
@@ -500,8 +517,8 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPatchApplicationsApplicationIdCommandsCommandIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchApplicationsApplicationIdCommandsCommandIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -519,14 +536,15 @@ export function usePatchApplicationsApplicationIdCommandsCommandId(options?: {
         parseResponse(
           client.applications[':application_id'].commands[':command_id'].$patch(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdCommandsCommandIdMutationKey() {
   return `PATCH ${client.applications[':application_id'].commands[':command_id'].$url().pathname}`
@@ -543,28 +561,29 @@ export function useGetApplicationsApplicationIdEmojis(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.applications[':application_id'].emojis.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/emojis
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEmojisKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
 ) {
-  return client.applications[':application_id'].emojis.$url(args).pathname
+  const u = client.applications[':application_id'].emojis.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -586,7 +605,8 @@ export function usePostApplicationsApplicationIdEmojis(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostApplicationsApplicationIdEmojisMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApplicationsApplicationIdEmojisMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -599,14 +619,15 @@ export function usePostApplicationsApplicationIdEmojis(options?: {
           arg: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>
         },
       ) => parseResponse(client.applications[':application_id'].emojis.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/emojis
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdEmojisMutationKey() {
   return `POST ${client.applications[':application_id'].emojis.$url().pathname}`
@@ -625,9 +646,10 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisEmojiIdKey(args) : null)
+    customKey ?? (isEnabled ? getGetApplicationsApplicationIdEmojisEmojiIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -636,21 +658,22 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
         parseResponse(
           client.applications[':application_id'].emojis[':emoji_id'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
 ) {
-  return client.applications[':application_id'].emojis[':emoji_id'].$url(args).pathname
+  const u = client.applications[':application_id'].emojis[':emoji_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -679,8 +702,8 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -698,14 +721,15 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
         parseResponse(
           client.applications[':application_id'].emojis[':emoji_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey() {
   return `DELETE ${client.applications[':application_id'].emojis[':emoji_id'].$url().pathname}`
@@ -736,8 +760,8 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -755,14 +779,15 @@ export function usePatchApplicationsApplicationIdEmojisEmojiId(options?: {
         parseResponse(
           client.applications[':application_id'].emojis[':emoji_id'].$patch(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey() {
   return `PATCH ${client.applications[':application_id'].emojis[':emoji_id'].$url().pathname}`
@@ -779,9 +804,10 @@ export function useGetApplicationsApplicationIdEntitlements(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetApplicationsApplicationIdEntitlementsKey(args) : null)
+    customKey ?? (isEnabled ? getGetApplicationsApplicationIdEntitlementsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -790,19 +816,20 @@ export function useGetApplicationsApplicationIdEntitlements(
         parseResponse(
           client.applications[':application_id'].entitlements.$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEntitlementsKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
 ) {
-  return client.applications[':application_id'].entitlements.$url(args).pathname
+  const u = client.applications[':application_id'].entitlements.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -826,8 +853,8 @@ export function usePostApplicationsApplicationIdEntitlements(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPostApplicationsApplicationIdEntitlementsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApplicationsApplicationIdEntitlementsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -845,14 +872,15 @@ export function usePostApplicationsApplicationIdEntitlements(options?: {
         parseResponse(
           client.applications[':application_id'].entitlements.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdEntitlementsMutationKey() {
   return `POST ${client.applications[':application_id'].entitlements.$url().pathname}`
@@ -871,9 +899,10 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(args) : null)
   return {
     swrKey,
@@ -886,21 +915,22 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
 ) {
-  return client.applications[':application_id'].entitlements[':entitlement_id'].$url(args).pathname
+  const u = client.applications[':application_id'].entitlements[':entitlement_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -929,9 +959,9 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey()
+    customKey ?? getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -952,14 +982,15 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/entitlements/{entitlement_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey() {
   return `DELETE ${client.applications[':application_id'].entitlements[':entitlement_id'].$url().pathname}`
@@ -991,9 +1022,9 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey()
+    customKey ?? getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1014,14 +1045,15 @@ export function usePostApplicationsApplicationIdEntitlementsEntitlementIdConsume
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/entitlements/{entitlement_id}/consume
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey() {
   return `POST ${client.applications[':application_id'].entitlements[':entitlement_id'].consume.$url().pathname}`
@@ -1040,10 +1072,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(args) : null)
+    customKey ?? (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -1055,21 +1087,22 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
 ) {
-  return client.applications[':application_id'].guilds[':guild_id'].commands.$url(args).pathname
+  const u = client.applications[':application_id'].guilds[':guild_id'].commands.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1097,8 +1130,8 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1119,14 +1152,15 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
   return `PUT ${client.applications[':application_id'].guilds[':guild_id'].commands.$url().pathname}`
@@ -1157,8 +1191,8 @@ export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: 
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1179,14 +1213,15 @@ export function usePostApplicationsApplicationIdGuildsGuildIdCommands(options?: 
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/guilds/{guild_id}/commands
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
   return `POST ${client.applications[':application_id'].guilds[':guild_id'].commands.$url().pathname}`
@@ -1205,9 +1240,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(args) : null)
   return {
     swrKey,
@@ -1220,22 +1256,23 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
 ) {
-  return client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$url(args)
-    .pathname
+  const u =
+    client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1251,9 +1288,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(args) : null)
   return {
     swrKey,
@@ -1266,23 +1304,23 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url(
-    args,
-  ).pathname
+  const u =
+    client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1311,9 +1349,9 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey()
+    customKey ?? getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1333,14 +1371,15 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
             ':command_id'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
   return `DELETE ${client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url().pathname}`
@@ -1371,9 +1410,9 @@ export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey()
+    customKey ?? getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1394,14 +1433,15 @@ export function usePatchApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
   return `PATCH ${client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url().pathname}`
@@ -1420,9 +1460,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled
       ? getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(args)
       : null)
@@ -1436,23 +1477,25 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
             ':command_id'
           ].permissions.$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
 ) {
-  return client.applications[':application_id'].guilds[':guild_id'].commands[
-    ':command_id'
-  ].permissions.$url(args).pathname
+  const u =
+    client.applications[':application_id'].guilds[':guild_id'].commands[
+      ':command_id'
+    ].permissions.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1480,8 +1523,9 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
+    customKey ??
     getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey()
   return {
     swrKey,
@@ -1502,14 +1546,15 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
             ':command_id'
           ].permissions.$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey() {
   return `PUT ${client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].permissions.$url().pathname}`
@@ -1528,9 +1573,10 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetApplicationsApplicationIdRoleConnectionsMetadataKey(args) : null)
   return {
     swrKey,
@@ -1543,21 +1589,22 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /applications/{application_id}/role-connections/metadata
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
 ) {
-  return client.applications[':application_id']['role-connections'].metadata.$url(args).pathname
+  const u = client.applications[':application_id']['role-connections'].metadata.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1585,8 +1632,8 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?:
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1607,14 +1654,15 @@ export function usePutApplicationsApplicationIdRoleConnectionsMetadata(options?:
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/role-connections/metadata
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey() {
   return `PUT ${client.applications[':application_id']['role-connections'].metadata.$url().pathname}`
@@ -1631,26 +1679,28 @@ export function useGetChannelsChannelId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.channels[':channel_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
 ) {
-  return client.channels[':channel_id'].$url(args).pathname
+  const u = client.channels[':channel_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1672,7 +1722,8 @@ export function useDeleteChannelsChannelId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteChannelsChannelIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1681,14 +1732,15 @@ export function useDeleteChannelsChannelId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['$delete']> },
       ) => parseResponse(client.channels[':channel_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMutationKey() {
   return `DELETE ${client.channels[':channel_id'].$url().pathname}`
@@ -1711,7 +1763,8 @@ export function usePatchChannelsChannelId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchChannelsChannelIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchChannelsChannelIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1720,14 +1773,15 @@ export function usePatchChannelsChannelId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['$patch']> },
       ) => parseResponse(client.channels[':channel_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /channels/{channel_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchChannelsChannelIdMutationKey() {
   return `PATCH ${client.channels[':channel_id'].$url().pathname}`
@@ -1752,7 +1806,8 @@ export function usePostChannelsChannelIdFollowers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdFollowersMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdFollowersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1763,14 +1818,15 @@ export function usePostChannelsChannelIdFollowers(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']> },
       ) => parseResponse(client.channels[':channel_id'].followers.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/followers
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdFollowersMutationKey() {
   return `POST ${client.channels[':channel_id'].followers.$url().pathname}`
@@ -1787,26 +1843,28 @@ export function useGetChannelsChannelIdInvites(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdInvitesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdInvitesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.channels[':channel_id'].invites.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/invites
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdInvitesKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
 ) {
-  return client.channels[':channel_id'].invites.$url(args).pathname
+  const u = client.channels[':channel_id'].invites.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1829,7 +1887,8 @@ export function usePostChannelsChannelIdInvites(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdInvitesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdInvitesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1840,14 +1899,15 @@ export function usePostChannelsChannelIdInvites(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']> },
       ) => parseResponse(client.channels[':channel_id'].invites.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/invites
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdInvitesMutationKey() {
   return `POST ${client.channels[':channel_id'].invites.$url().pathname}`
@@ -1864,26 +1924,28 @@ export function useGetChannelsChannelIdMessages(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdMessagesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdMessagesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.channels[':channel_id'].messages.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
 ) {
-  return client.channels[':channel_id'].messages.$url(args).pathname
+  const u = client.channels[':channel_id'].messages.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1905,7 +1967,8 @@ export function usePostChannelsChannelIdMessages(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdMessagesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdMessagesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1916,14 +1979,15 @@ export function usePostChannelsChannelIdMessages(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']> },
       ) => parseResponse(client.channels[':channel_id'].messages.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesMutationKey() {
   return `POST ${client.channels[':channel_id'].messages.$url().pathname}`
@@ -1953,7 +2017,8 @@ export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdMessagesBulkDeleteMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdMessagesBulkDeleteMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -1971,14 +2036,15 @@ export function usePostChannelsChannelIdMessagesBulkDelete(options?: {
         parseResponse(
           client.channels[':channel_id'].messages['bulk-delete'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages/bulk-delete
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesBulkDeleteMutationKey() {
   return `POST ${client.channels[':channel_id'].messages['bulk-delete'].$url().pathname}`
@@ -1995,28 +2061,29 @@ export function useGetChannelsChannelIdMessagesPins(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdMessagesPinsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdMessagesPinsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.channels[':channel_id'].messages.pins.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages/pins
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesPinsKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
 ) {
-  return client.channels[':channel_id'].messages.pins.$url(args).pathname
+  const u = client.channels[':channel_id'].messages.pins.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2045,8 +2112,8 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPutChannelsChannelIdMessagesPinsMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutChannelsChannelIdMessagesPinsMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2064,14 +2131,15 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
         parseResponse(
           client.channels[':channel_id'].messages.pins[':message_id'].$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/messages/pins/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdMessagesPinsMessageIdMutationKey() {
   return `PUT ${client.channels[':channel_id'].messages.pins[':message_id'].$url().pathname}`
@@ -2103,8 +2171,8 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2122,14 +2190,15 @@ export function useDeleteChannelsChannelIdMessagesPinsMessageId(options?: {
         parseResponse(
           client.channels[':channel_id'].messages.pins[':message_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/pins/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey() {
   return `DELETE ${client.channels[':channel_id'].messages.pins[':message_id'].$url().pathname}`
@@ -2148,9 +2217,9 @@ export function useGetChannelsChannelIdMessagesMessageId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdMessagesMessageIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdMessagesMessageIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2159,21 +2228,22 @@ export function useGetChannelsChannelIdMessagesMessageId(
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesMessageIdKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
 ) {
-  return client.channels[':channel_id'].messages[':message_id'].$url(args).pathname
+  const u = client.channels[':channel_id'].messages[':message_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2200,7 +2270,8 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteChannelsChannelIdMessagesMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdMessagesMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2218,14 +2289,15 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdMutationKey() {
   return `DELETE ${client.channels[':channel_id'].messages[':message_id'].$url().pathname}`
@@ -2252,7 +2324,8 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchChannelsChannelIdMessagesMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchChannelsChannelIdMessagesMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2270,14 +2343,15 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].$patch(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /channels/{channel_id}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchChannelsChannelIdMessagesMessageIdMutationKey() {
   return `PATCH ${client.channels[':channel_id'].messages[':message_id'].$url().pathname}`
@@ -2308,8 +2382,8 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2330,14 +2404,15 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/crosspost
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey() {
   return `POST ${client.channels[':channel_id'].messages[':message_id'].crosspost.$url().pathname}`
@@ -2369,8 +2444,8 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2391,14 +2466,15 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactions(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey() {
   return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions.$url().pathname}`
@@ -2417,9 +2493,10 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(args) : null)
   return {
     swrKey,
@@ -2432,22 +2509,23 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
 ) {
-  return client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$url(args)
-    .pathname
+  const u =
+    client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2476,9 +2554,9 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey()
+    customKey ?? getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2499,14 +2577,15 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey() {
   return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$url().pathname}`
@@ -2538,9 +2617,9 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey()
+    customKey ?? getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2560,14 +2639,15 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
             '@me'
           ].$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
   return `PUT ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$url().pathname}`
@@ -2599,9 +2679,9 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey()
+    customKey ?? getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2621,14 +2701,15 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
             '@me'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
   return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$url().pathname}`
@@ -2660,9 +2741,9 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey()
+    customKey ?? getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2682,14 +2763,15 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
             ':user_id'
           ].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey() {
   return `DELETE ${client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][':user_id'].$url().pathname}`
@@ -2720,8 +2802,8 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2739,14 +2821,15 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
         parseResponse(
           client.channels[':channel_id'].messages[':message_id'].threads.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/threads
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey() {
   return `POST ${client.channels[':channel_id'].messages[':message_id'].threads.$url().pathname}`
@@ -2778,8 +2861,8 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPutChannelsChannelIdPermissionsOverwriteIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutChannelsChannelIdPermissionsOverwriteIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2797,14 +2880,15 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
         parseResponse(
           client.channels[':channel_id'].permissions[':overwrite_id'].$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/permissions/{overwrite_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdPermissionsOverwriteIdMutationKey() {
   return `PUT ${client.channels[':channel_id'].permissions[':overwrite_id'].$url().pathname}`
@@ -2836,8 +2920,8 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2855,14 +2939,15 @@ export function useDeleteChannelsChannelIdPermissionsOverwriteId(options?: {
         parseResponse(
           client.channels[':channel_id'].permissions[':overwrite_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/permissions/{overwrite_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey() {
   return `DELETE ${client.channels[':channel_id'].permissions[':overwrite_id'].$url().pathname}`
@@ -2879,26 +2964,28 @@ export function useGetChannelsChannelIdPins(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdPinsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdPinsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.channels[':channel_id'].pins.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/pins
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdPinsKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
 ) {
-  return client.channels[':channel_id'].pins.$url(args).pathname
+  const u = client.channels[':channel_id'].pins.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2923,7 +3010,8 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutChannelsChannelIdPinsMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutChannelsChannelIdPinsMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2939,14 +3027,15 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
         },
       ) =>
         parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/pins/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdPinsMessageIdMutationKey() {
   return `PUT ${client.channels[':channel_id'].pins[':message_id'].$url().pathname}`
@@ -2974,7 +3063,8 @@ export function useDeleteChannelsChannelIdPinsMessageId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteChannelsChannelIdPinsMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdPinsMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2992,14 +3082,15 @@ export function useDeleteChannelsChannelIdPinsMessageId(options?: {
         parseResponse(
           client.channels[':channel_id'].pins[':message_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/pins/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdPinsMessageIdMutationKey() {
   return `DELETE ${client.channels[':channel_id'].pins[':message_id'].$url().pathname}`
@@ -3018,10 +3109,10 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(args) : null)
+    customKey ?? (isEnabled ? getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -3033,22 +3124,22 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
 ) {
-  return client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$url(args)
-    .pathname
+  const u = client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3076,8 +3167,8 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPostChannelsChannelIdPollsMessageIdExpireMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdPollsMessageIdExpireMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3095,14 +3186,15 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
         parseResponse(
           client.channels[':channel_id'].polls[':message_id'].expire.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/polls/{message_id}/expire
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdPollsMessageIdExpireMutationKey() {
   return `POST ${client.channels[':channel_id'].polls[':message_id'].expire.$url().pathname}`
@@ -3130,7 +3222,8 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutChannelsChannelIdRecipientsUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutChannelsChannelIdRecipientsUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3148,14 +3241,15 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
         parseResponse(
           client.channels[':channel_id'].recipients[':user_id'].$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/recipients/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdRecipientsUserIdMutationKey() {
   return `PUT ${client.channels[':channel_id'].recipients[':user_id'].$url().pathname}`
@@ -3185,7 +3279,8 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteChannelsChannelIdRecipientsUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdRecipientsUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3203,14 +3298,15 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
         parseResponse(
           client.channels[':channel_id'].recipients[':user_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/recipients/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdRecipientsUserIdMutationKey() {
   return `DELETE ${client.channels[':channel_id'].recipients[':user_id'].$url().pathname}`
@@ -3238,7 +3334,8 @@ export function usePostChannelsChannelIdSendSoundboardSound(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdSendSoundboardSoundMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdSendSoundboardSoundMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3256,14 +3353,15 @@ export function usePostChannelsChannelIdSendSoundboardSound(options?: {
         parseResponse(
           client.channels[':channel_id']['send-soundboard-sound'].$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/send-soundboard-sound
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdSendSoundboardSoundMutationKey() {
   return `POST ${client.channels[':channel_id']['send-soundboard-sound'].$url().pathname}`
@@ -3280,28 +3378,29 @@ export function useGetChannelsChannelIdThreadMembers(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.channels[':channel_id']['thread-members'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/thread-members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadMembersKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
 ) {
-  return client.channels[':channel_id']['thread-members'].$url(args).pathname
+  const u = client.channels[':channel_id']['thread-members'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3326,7 +3425,8 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutChannelsChannelIdThreadMembersMeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutChannelsChannelIdThreadMembersMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3344,14 +3444,15 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
         parseResponse(
           client.channels[':channel_id']['thread-members']['@me'].$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdThreadMembersMeMutationKey() {
   return `PUT ${client.channels[':channel_id']['thread-members']['@me'].$url().pathname}`
@@ -3381,7 +3482,8 @@ export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteChannelsChannelIdThreadMembersMeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdThreadMembersMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3399,14 +3501,15 @@ export function useDeleteChannelsChannelIdThreadMembersMe(options?: {
         parseResponse(
           client.channels[':channel_id']['thread-members']['@me'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdThreadMembersMeMutationKey() {
   return `DELETE ${client.channels[':channel_id']['thread-members']['@me'].$url().pathname}`
@@ -3425,9 +3528,10 @@ export function useGetChannelsChannelIdThreadMembersUserId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersUserIdKey(args) : null)
+    customKey ?? (isEnabled ? getGetChannelsChannelIdThreadMembersUserIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -3436,21 +3540,22 @@ export function useGetChannelsChannelIdThreadMembersUserId(
         parseResponse(
           client.channels[':channel_id']['thread-members'][':user_id'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/thread-members/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadMembersUserIdKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
 ) {
-  return client.channels[':channel_id']['thread-members'][':user_id'].$url(args).pathname
+  const u = client.channels[':channel_id']['thread-members'][':user_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3477,7 +3582,8 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutChannelsChannelIdThreadMembersUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutChannelsChannelIdThreadMembersUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3495,14 +3601,15 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
         parseResponse(
           client.channels[':channel_id']['thread-members'][':user_id'].$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutChannelsChannelIdThreadMembersUserIdMutationKey() {
   return `PUT ${client.channels[':channel_id']['thread-members'][':user_id'].$url().pathname}`
@@ -3534,8 +3641,8 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteChannelsChannelIdThreadMembersUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteChannelsChannelIdThreadMembersUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3553,14 +3660,15 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
         parseResponse(
           client.channels[':channel_id']['thread-members'][':user_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteChannelsChannelIdThreadMembersUserIdMutationKey() {
   return `DELETE ${client.channels[':channel_id']['thread-members'][':user_id'].$url().pathname}`
@@ -3585,7 +3693,8 @@ export function usePostChannelsChannelIdThreads(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdThreadsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdThreadsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3596,14 +3705,15 @@ export function usePostChannelsChannelIdThreads(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']> },
       ) => parseResponse(client.channels[':channel_id'].threads.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/threads
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdThreadsMutationKey() {
   return `POST ${client.channels[':channel_id'].threads.$url().pathname}`
@@ -3622,10 +3732,10 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetChannelsChannelIdThreadsArchivedPrivateKey(args) : null)
+    customKey ?? (isEnabled ? getGetChannelsChannelIdThreadsArchivedPrivateKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -3634,21 +3744,22 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
         parseResponse(
           client.channels[':channel_id'].threads.archived.private.$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/private
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
 ) {
-  return client.channels[':channel_id'].threads.archived.private.$url(args).pathname
+  const u = client.channels[':channel_id'].threads.archived.private.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3664,9 +3775,10 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadsArchivedPublicKey(args) : null)
+    customKey ?? (isEnabled ? getGetChannelsChannelIdThreadsArchivedPublicKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -3675,21 +3787,22 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
         parseResponse(
           client.channels[':channel_id'].threads.archived.public.$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/threads/archived/public
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  return client.channels[':channel_id'].threads.archived.public.$url(args).pathname
+  const u = client.channels[':channel_id'].threads.archived.public.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3703,28 +3816,29 @@ export function useGetChannelsChannelIdThreadsSearch(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdThreadsSearchKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdThreadsSearchKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.channels[':channel_id'].threads.search.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/threads/search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadsSearchKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  return client.channels[':channel_id'].threads.search.$url(args).pathname
+  const u = client.channels[':channel_id'].threads.search.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3747,7 +3861,8 @@ export function usePostChannelsChannelIdTyping(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdTypingMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdTypingMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3758,14 +3873,15 @@ export function usePostChannelsChannelIdTyping(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']> },
       ) => parseResponse(client.channels[':channel_id'].typing.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/typing
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdTypingMutationKey() {
   return `POST ${client.channels[':channel_id'].typing.$url().pathname}`
@@ -3784,10 +3900,10 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(args) : null)
+    customKey ?? (isEnabled ? getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -3799,21 +3915,22 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
 ) {
-  return client.channels[':channel_id'].users['@me'].threads.archived.private.$url(args).pathname
+  const u = client.channels[':channel_id'].users['@me'].threads.archived.private.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3827,26 +3944,28 @@ export function useGetChannelsChannelIdWebhooks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChannelsChannelIdWebhooksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChannelsChannelIdWebhooksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.channels[':channel_id'].webhooks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /channels/{channel_id}/webhooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdWebhooksKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  return client.channels[':channel_id'].webhooks.$url(args).pathname
+  const u = client.channels[':channel_id'].webhooks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3868,7 +3987,8 @@ export function usePostChannelsChannelIdWebhooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostChannelsChannelIdWebhooksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostChannelsChannelIdWebhooksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3879,14 +3999,15 @@ export function usePostChannelsChannelIdWebhooks(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']> },
       ) => parseResponse(client.channels[':channel_id'].webhooks.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/webhooks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostChannelsChannelIdWebhooksMutationKey() {
   return `POST ${client.channels[':channel_id'].webhooks.$url().pathname}`
@@ -3900,14 +4021,15 @@ export function useGetGateway(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGatewayKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGatewayKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.gateway.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -3928,14 +4050,15 @@ export function useGetGatewayBot(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGatewayBotKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGatewayBotKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.gateway.bot.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -3959,26 +4082,28 @@ export function useGetGuildsTemplatesCode(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsTemplatesCodeKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsTemplatesCodeKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds.templates[':code'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/templates/{code}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsTemplatesCodeKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
 ) {
-  return client.guilds.templates[':code'].$url(args).pathname
+  const u = client.guilds.templates[':code'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3992,26 +4117,28 @@ export function useGetGuildsGuildId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  return client.guilds[':guild_id'].$url(args).pathname
+  const u = client.guilds[':guild_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4031,7 +4158,8 @@ export function usePatchGuildsGuildId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4040,14 +4168,15 @@ export function usePatchGuildsGuildId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']> },
       ) => parseResponse(client.guilds[':guild_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].$url().pathname}`
@@ -4064,26 +4193,28 @@ export function useGetGuildsGuildIdAuditLogs(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdAuditLogsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdAuditLogsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id']['audit-logs'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/audit-logs
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdAuditLogsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
 ) {
-  return client.guilds[':guild_id']['audit-logs'].$url(args).pathname
+  const u = client.guilds[':guild_id']['audit-logs'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4097,9 +4228,9 @@ export function useGetGuildsGuildIdAutoModerationRules(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -4108,19 +4239,20 @@ export function useGetGuildsGuildIdAutoModerationRules(
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules.$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdAutoModerationRulesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  return client.guilds[':guild_id']['auto-moderation'].rules.$url(args).pathname
+  const u = client.guilds[':guild_id']['auto-moderation'].rules.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4144,7 +4276,8 @@ export function usePostGuildsGuildIdAutoModerationRules(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdAutoModerationRulesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdAutoModerationRulesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4162,14 +4295,15 @@ export function usePostGuildsGuildIdAutoModerationRules(options?: {
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/auto-moderation/rules
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdAutoModerationRulesMutationKey() {
   return `POST ${client.guilds[':guild_id']['auto-moderation'].rules.$url().pathname}`
@@ -4188,9 +4322,10 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesRuleIdKey(args) : null)
+    customKey ?? (isEnabled ? getGetGuildsGuildIdAutoModerationRulesRuleIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -4199,21 +4334,22 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
         parseResponse(
           client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
 ) {
-  return client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url(args).pathname
+  const u = client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4242,8 +4378,8 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4264,14 +4400,15 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url().pathname}`
@@ -4302,8 +4439,8 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4324,14 +4461,15 @@ export function usePatchGuildsGuildIdAutoModerationRulesRuleId(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url().pathname}`
@@ -4348,26 +4486,28 @@ export function useGetGuildsGuildIdBans(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdBansKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdBansKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].bans.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/bans
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdBansKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
 ) {
-  return client.guilds[':guild_id'].bans.$url(args).pathname
+  const u = client.guilds[':guild_id'].bans.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4381,27 +4521,29 @@ export function useGetGuildsGuildIdBansUserId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdBansUserIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdBansUserIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].bans[':user_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/bans/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdBansUserIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  return client.guilds[':guild_id'].bans[':user_id'].$url(args).pathname
+  const u = client.guilds[':guild_id'].bans[':user_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4424,7 +4566,8 @@ export function usePutGuildsGuildIdBansUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutGuildsGuildIdBansUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutGuildsGuildIdBansUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4437,14 +4580,15 @@ export function usePutGuildsGuildIdBansUserId(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>
         },
       ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/bans/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdBansUserIdMutationKey() {
   return `PUT ${client.guilds[':guild_id'].bans[':user_id'].$url().pathname}`
@@ -4470,7 +4614,8 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteGuildsGuildIdBansUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdBansUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4483,14 +4628,15 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>
         },
       ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/bans/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdBansUserIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].bans[':user_id'].$url().pathname}`
@@ -4515,7 +4661,8 @@ export function usePostGuildsGuildIdBulkBan(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdBulkBanMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdBulkBanMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4526,14 +4673,15 @@ export function usePostGuildsGuildIdBulkBan(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']> },
       ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/bulk-ban
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdBulkBanMutationKey() {
   return `POST ${client.guilds[':guild_id']['bulk-ban'].$url().pathname}`
@@ -4550,26 +4698,28 @@ export function useGetGuildsGuildIdChannels(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdChannelsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdChannelsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].channels.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/channels
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdChannelsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
 ) {
-  return client.guilds[':guild_id'].channels.$url(args).pathname
+  const u = client.guilds[':guild_id'].channels.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4591,7 +4741,8 @@ export function usePostGuildsGuildIdChannels(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdChannelsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdChannelsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4602,14 +4753,15 @@ export function usePostGuildsGuildIdChannels(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']> },
       ) => parseResponse(client.guilds[':guild_id'].channels.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/channels
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdChannelsMutationKey() {
   return `POST ${client.guilds[':guild_id'].channels.$url().pathname}`
@@ -4635,7 +4787,8 @@ export function usePatchGuildsGuildIdChannels(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdChannelsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdChannelsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4646,14 +4799,15 @@ export function usePatchGuildsGuildIdChannels(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']> },
       ) => parseResponse(client.guilds[':guild_id'].channels.$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/channels
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdChannelsMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].channels.$url().pathname}`
@@ -4670,26 +4824,28 @@ export function useGetGuildsGuildIdEmojis(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdEmojisKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdEmojisKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].emojis.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/emojis
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdEmojisKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
 ) {
-  return client.guilds[':guild_id'].emojis.$url(args).pathname
+  const u = client.guilds[':guild_id'].emojis.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4711,7 +4867,8 @@ export function usePostGuildsGuildIdEmojis(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdEmojisMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdEmojisMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4720,14 +4877,15 @@ export function usePostGuildsGuildIdEmojis(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']> },
       ) => parseResponse(client.guilds[':guild_id'].emojis.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/emojis
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdEmojisMutationKey() {
   return `POST ${client.guilds[':guild_id'].emojis.$url().pathname}`
@@ -4744,28 +4902,29 @@ export function useGetGuildsGuildIdEmojisEmojiId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdEmojisEmojiIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdEmojisEmojiIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdEmojisEmojiIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
 ) {
-  return client.guilds[':guild_id'].emojis[':emoji_id'].$url(args).pathname
+  const u = client.guilds[':guild_id'].emojis[':emoji_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4790,7 +4949,8 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteGuildsGuildIdEmojisEmojiIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdEmojisEmojiIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4806,14 +4966,15 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
         },
       ) =>
         parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdEmojisEmojiIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].emojis[':emoji_id'].$url().pathname}`
@@ -4838,7 +4999,8 @@ export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdEmojisEmojiIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdEmojisEmojiIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4853,14 +5015,15 @@ export function usePatchGuildsGuildIdEmojisEmojiId(options?: {
           >
         },
       ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdEmojisEmojiIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].emojis[':emoji_id'].$url().pathname}`
@@ -4877,26 +5040,28 @@ export function useGetGuildsGuildIdIntegrations(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdIntegrationsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdIntegrationsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].integrations.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/integrations
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdIntegrationsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
 ) {
-  return client.guilds[':guild_id'].integrations.$url(args).pathname
+  const u = client.guilds[':guild_id'].integrations.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -4925,8 +5090,8 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -4944,14 +5109,15 @@ export function useDeleteGuildsGuildIdIntegrationsIntegrationId(options?: {
         parseResponse(
           client.guilds[':guild_id'].integrations[':integration_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/integrations/{integration_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].integrations[':integration_id'].$url().pathname}`
@@ -4968,26 +5134,28 @@ export function useGetGuildsGuildIdInvites(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdInvitesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdInvitesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].invites.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/invites
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdInvitesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
 ) {
-  return client.guilds[':guild_id'].invites.$url(args).pathname
+  const u = client.guilds[':guild_id'].invites.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5001,26 +5169,28 @@ export function useGetGuildsGuildIdMembers(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMembersKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMembersKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].members.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMembersKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  return client.guilds[':guild_id'].members.$url(args).pathname
+  const u = client.guilds[':guild_id'].members.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5042,7 +5212,8 @@ export function usePatchGuildsGuildIdMembersMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdMembersMeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdMembersMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5055,14 +5226,15 @@ export function usePatchGuildsGuildIdMembersMe(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>
         },
       ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdMembersMeMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].members['@me'].$url().pathname}`
@@ -5079,28 +5251,29 @@ export function useGetGuildsGuildIdMembersSearch(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMembersSearchKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMembersSearchKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].members.search.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/members/search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMembersSearchKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
 ) {
-  return client.guilds[':guild_id'].members.search.$url(args).pathname
+  const u = client.guilds[':guild_id'].members.search.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5114,28 +5287,29 @@ export function useGetGuildsGuildIdMembersUserId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMembersUserIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMembersUserIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].members[':user_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/members/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMembersUserIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  return client.guilds[':guild_id'].members[':user_id'].$url(args).pathname
+  const u = client.guilds[':guild_id'].members[':user_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5158,7 +5332,8 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutGuildsGuildIdMembersUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutGuildsGuildIdMembersUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5171,14 +5346,15 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>
         },
       ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdMembersUserIdMutationKey() {
   return `PUT ${client.guilds[':guild_id'].members[':user_id'].$url().pathname}`
@@ -5206,7 +5382,8 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteGuildsGuildIdMembersUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdMembersUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5222,14 +5399,15 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
         },
       ) =>
         parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdMembersUserIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].members[':user_id'].$url().pathname}`
@@ -5257,7 +5435,8 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdMembersUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdMembersUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5272,14 +5451,15 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
           >
         },
       ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdMembersUserIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].members[':user_id'].$url().pathname}`
@@ -5311,7 +5491,8 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5329,14 +5510,15 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
         parseResponse(
           client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
   return `PUT ${client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$url().pathname}`
@@ -5368,8 +5550,8 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5390,14 +5572,15 @@ export function useDeleteGuildsGuildIdMembersUserIdRolesRoleId(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$url().pathname}`
@@ -5414,28 +5597,29 @@ export function useGetGuildsGuildIdMessagesSearch(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdMessagesSearchKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdMessagesSearchKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].messages.search.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/messages/search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMessagesSearchKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['messages']['search']['$get']>,
 ) {
-  return client.guilds[':guild_id'].messages.search.$url(args).pathname
+  const u = client.guilds[':guild_id'].messages.search.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5449,28 +5633,29 @@ export function useGetGuildsGuildIdNewMemberWelcome(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdNewMemberWelcomeKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdNewMemberWelcomeKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id']['new-member-welcome'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/new-member-welcome
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdNewMemberWelcomeKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
 ) {
-  return client.guilds[':guild_id']['new-member-welcome'].$url(args).pathname
+  const u = client.guilds[':guild_id']['new-member-welcome'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5484,26 +5669,28 @@ export function useGetGuildsGuildIdOnboarding(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdOnboardingKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdOnboardingKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].onboarding.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/onboarding
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdOnboardingKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  return client.guilds[':guild_id'].onboarding.$url(args).pathname
+  const u = client.guilds[':guild_id'].onboarding.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5525,7 +5712,8 @@ export function usePutGuildsGuildIdOnboarding(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutGuildsGuildIdOnboardingMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutGuildsGuildIdOnboardingMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5536,14 +5724,15 @@ export function usePutGuildsGuildIdOnboarding(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']> },
       ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/onboarding
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdOnboardingMutationKey() {
   return `PUT ${client.guilds[':guild_id'].onboarding.$url().pathname}`
@@ -5560,26 +5749,28 @@ export function useGetGuildsGuildIdPreview(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdPreviewKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdPreviewKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].preview.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/preview
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdPreviewKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
 ) {
-  return client.guilds[':guild_id'].preview.$url(args).pathname
+  const u = client.guilds[':guild_id'].preview.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5593,26 +5784,28 @@ export function useGetGuildsGuildIdPrune(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdPruneKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdPruneKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].prune.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/prune
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdPruneKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  return client.guilds[':guild_id'].prune.$url(args).pathname
+  const u = client.guilds[':guild_id'].prune.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5634,7 +5827,8 @@ export function usePostGuildsGuildIdPrune(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdPruneMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdPruneMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5643,14 +5837,15 @@ export function usePostGuildsGuildIdPrune(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']> },
       ) => parseResponse(client.guilds[':guild_id'].prune.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/prune
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdPruneMutationKey() {
   return `POST ${client.guilds[':guild_id'].prune.$url().pathname}`
@@ -5667,26 +5862,28 @@ export function useGetGuildsGuildIdRegions(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRegionsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRegionsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].regions.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/regions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRegionsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
 ) {
-  return client.guilds[':guild_id'].regions.$url(args).pathname
+  const u = client.guilds[':guild_id'].regions.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5700,26 +5897,28 @@ export function useGetGuildsGuildIdRoles(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRolesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRolesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].roles.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/roles
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRolesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  return client.guilds[':guild_id'].roles.$url(args).pathname
+  const u = client.guilds[':guild_id'].roles.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5741,7 +5940,8 @@ export function usePostGuildsGuildIdRoles(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdRolesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdRolesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5750,14 +5950,15 @@ export function usePostGuildsGuildIdRoles(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']> },
       ) => parseResponse(client.guilds[':guild_id'].roles.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/roles
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdRolesMutationKey() {
   return `POST ${client.guilds[':guild_id'].roles.$url().pathname}`
@@ -5782,7 +5983,8 @@ export function usePatchGuildsGuildIdRoles(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdRolesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdRolesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5791,14 +5993,15 @@ export function usePatchGuildsGuildIdRoles(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']> },
       ) => parseResponse(client.guilds[':guild_id'].roles.$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdRolesMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].roles.$url().pathname}`
@@ -5815,28 +6018,29 @@ export function useGetGuildsGuildIdRolesMemberCounts(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRolesMemberCountsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRolesMemberCountsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].roles['member-counts'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/roles/member-counts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRolesMemberCountsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['member-counts']['$get']>,
 ) {
-  return client.guilds[':guild_id'].roles['member-counts'].$url(args).pathname
+  const u = client.guilds[':guild_id'].roles['member-counts'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5850,27 +6054,29 @@ export function useGetGuildsGuildIdRolesRoleId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdRolesRoleIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdRolesRoleIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].roles[':role_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/roles/{role_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRolesRoleIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
 ) {
-  return client.guilds[':guild_id'].roles[':role_id'].$url(args).pathname
+  const u = client.guilds[':guild_id'].roles[':role_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -5893,7 +6099,8 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteGuildsGuildIdRolesRoleIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdRolesRoleIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5906,14 +6113,15 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>
         },
       ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/roles/{role_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdRolesRoleIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].roles[':role_id'].$url().pathname}`
@@ -5938,7 +6146,8 @@ export function usePatchGuildsGuildIdRolesRoleId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdRolesRoleIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdRolesRoleIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -5951,14 +6160,15 @@ export function usePatchGuildsGuildIdRolesRoleId(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>
         },
       ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles/{role_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdRolesRoleIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].roles[':role_id'].$url().pathname}`
@@ -5975,28 +6185,29 @@ export function useGetGuildsGuildIdScheduledEvents(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdScheduledEventsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdScheduledEventsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id']['scheduled-events'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdScheduledEventsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
 ) {
-  return client.guilds[':guild_id']['scheduled-events'].$url(args).pathname
+  const u = client.guilds[':guild_id']['scheduled-events'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6018,7 +6229,8 @@ export function usePostGuildsGuildIdScheduledEvents(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdScheduledEventsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdScheduledEventsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6031,14 +6243,15 @@ export function usePostGuildsGuildIdScheduledEvents(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>
         },
       ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/scheduled-events
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdScheduledEventsMutationKey() {
   return `POST ${client.guilds[':guild_id']['scheduled-events'].$url().pathname}`
@@ -6057,9 +6270,10 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(args) : null)
   return {
     swrKey,
@@ -6072,22 +6286,22 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
 ) {
-  return client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url(args)
-    .pathname
+  const u = client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6116,9 +6330,9 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
   const swrKey =
-    mutationOptions?.swrKey ??
-    getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey()
+    customKey ?? getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6139,14 +6353,15 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url().pathname}`
@@ -6177,9 +6392,8 @@ export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(option
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ??
-    getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6200,14 +6414,15 @@ export function usePatchGuildsGuildIdScheduledEventsGuildScheduledEventId(option
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url().pathname}`
@@ -6226,9 +6441,10 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
+    customKey ??
     (isEnabled ? getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(args) : null)
   return {
     swrKey,
@@ -6241,23 +6457,23 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
 ) {
-  return client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$url(
-    args,
-  ).pathname
+  const u =
+    client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6271,28 +6487,29 @@ export function useGetGuildsGuildIdSoundboardSounds(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdSoundboardSoundsKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  return client.guilds[':guild_id']['soundboard-sounds'].$url(args).pathname
+  const u = client.guilds[':guild_id']['soundboard-sounds'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6314,7 +6531,8 @@ export function usePostGuildsGuildIdSoundboardSounds(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdSoundboardSoundsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdSoundboardSoundsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6327,14 +6545,15 @@ export function usePostGuildsGuildIdSoundboardSounds(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>
         },
       ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/soundboard-sounds
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdSoundboardSoundsMutationKey() {
   return `POST ${client.guilds[':guild_id']['soundboard-sounds'].$url().pathname}`
@@ -6353,9 +6572,10 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsSoundIdKey(args) : null)
+    customKey ?? (isEnabled ? getGetGuildsGuildIdSoundboardSoundsSoundIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -6364,21 +6584,22 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
         parseResponse(
           client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
 ) {
-  return client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url(args).pathname
+  const u = client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6407,8 +6628,8 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6426,14 +6647,15 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
         parseResponse(
           client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url().pathname}`
@@ -6464,8 +6686,8 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6483,14 +6705,15 @@ export function usePatchGuildsGuildIdSoundboardSoundsSoundId(options?: {
         parseResponse(
           client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url().pathname}`
@@ -6507,26 +6730,28 @@ export function useGetGuildsGuildIdStickers(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdStickersKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdStickersKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].stickers.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/stickers
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdStickersKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
 ) {
-  return client.guilds[':guild_id'].stickers.$url(args).pathname
+  const u = client.guilds[':guild_id'].stickers.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6548,7 +6773,8 @@ export function usePostGuildsGuildIdStickers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdStickersMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdStickersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6559,14 +6785,15 @@ export function usePostGuildsGuildIdStickers(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']> },
       ) => parseResponse(client.guilds[':guild_id'].stickers.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/stickers
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdStickersMutationKey() {
   return `POST ${client.guilds[':guild_id'].stickers.$url().pathname}`
@@ -6583,28 +6810,29 @@ export function useGetGuildsGuildIdStickersStickerId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdStickersStickerIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdStickersStickerIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdStickersStickerIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
 ) {
-  return client.guilds[':guild_id'].stickers[':sticker_id'].$url(args).pathname
+  const u = client.guilds[':guild_id'].stickers[':sticker_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6629,7 +6857,8 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteGuildsGuildIdStickersStickerIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdStickersStickerIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6647,14 +6876,15 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
         parseResponse(
           client.guilds[':guild_id'].stickers[':sticker_id'].$delete(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/stickers/{sticker_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdStickersStickerIdMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].stickers[':sticker_id'].$url().pathname}`
@@ -6681,7 +6911,8 @@ export function usePatchGuildsGuildIdStickersStickerId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdStickersStickerIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdStickersStickerIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6699,14 +6930,15 @@ export function usePatchGuildsGuildIdStickersStickerId(options?: {
         parseResponse(
           client.guilds[':guild_id'].stickers[':sticker_id'].$patch(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/stickers/{sticker_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdStickersStickerIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].stickers[':sticker_id'].$url().pathname}`
@@ -6723,26 +6955,28 @@ export function useGetGuildsGuildIdTemplates(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdTemplatesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdTemplatesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].templates.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/templates
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdTemplatesKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
 ) {
-  return client.guilds[':guild_id'].templates.$url(args).pathname
+  const u = client.guilds[':guild_id'].templates.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6764,7 +6998,8 @@ export function usePostGuildsGuildIdTemplates(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostGuildsGuildIdTemplatesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostGuildsGuildIdTemplatesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6775,14 +7010,15 @@ export function usePostGuildsGuildIdTemplates(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']> },
       ) => parseResponse(client.guilds[':guild_id'].templates.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/templates
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostGuildsGuildIdTemplatesMutationKey() {
   return `POST ${client.guilds[':guild_id'].templates.$url().pathname}`
@@ -6807,7 +7043,8 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutGuildsGuildIdTemplatesCodeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutGuildsGuildIdTemplatesCodeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6820,14 +7057,15 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>
         },
       ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/templates/{code}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutGuildsGuildIdTemplatesCodeMutationKey() {
   return `PUT ${client.guilds[':guild_id'].templates[':code'].$url().pathname}`
@@ -6852,7 +7090,8 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteGuildsGuildIdTemplatesCodeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteGuildsGuildIdTemplatesCodeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6867,14 +7106,15 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
           >
         },
       ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/templates/{code}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteGuildsGuildIdTemplatesCodeMutationKey() {
   return `DELETE ${client.guilds[':guild_id'].templates[':code'].$url().pathname}`
@@ -6899,7 +7139,8 @@ export function usePatchGuildsGuildIdTemplatesCode(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdTemplatesCodeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdTemplatesCodeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -6912,14 +7153,15 @@ export function usePatchGuildsGuildIdTemplatesCode(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>
         },
       ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/templates/{code}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdTemplatesCodeMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].templates[':code'].$url().pathname}`
@@ -6936,28 +7178,29 @@ export function useGetGuildsGuildIdThreadsActive(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdThreadsActiveKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdThreadsActiveKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id'].threads.active.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/threads/active
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdThreadsActiveKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
 ) {
-  return client.guilds[':guild_id'].threads.active.$url(args).pathname
+  const u = client.guilds[':guild_id'].threads.active.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -6971,26 +7214,28 @@ export function useGetGuildsGuildIdVanityUrl(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdVanityUrlKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdVanityUrlKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id']['vanity-url'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/vanity-url
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdVanityUrlKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  return client.guilds[':guild_id']['vanity-url'].$url(args).pathname
+  const u = client.guilds[':guild_id']['vanity-url'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7004,28 +7249,29 @@ export function useGetGuildsGuildIdVoiceStatesMe(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesMeKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesMeKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/@me
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdVoiceStatesMeKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  return client.guilds[':guild_id']['voice-states']['@me'].$url(args).pathname
+  const u = client.guilds[':guild_id']['voice-states']['@me'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7050,7 +7296,8 @@ export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdVoiceStatesMeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdVoiceStatesMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7066,14 +7313,15 @@ export function usePatchGuildsGuildIdVoiceStatesMe(options?: {
         },
       ) =>
         parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdVoiceStatesMeMutationKey() {
   return `PATCH ${client.guilds[':guild_id']['voice-states']['@me'].$url().pathname}`
@@ -7090,9 +7338,9 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesUserIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdVoiceStatesUserIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -7101,19 +7349,20 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
         parseResponse(
           client.guilds[':guild_id']['voice-states'][':user_id'].$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/voice-states/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
 ) {
-  return client.guilds[':guild_id']['voice-states'][':user_id'].$url(args).pathname
+  const u = client.guilds[':guild_id']['voice-states'][':user_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7138,7 +7387,8 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdVoiceStatesUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdVoiceStatesUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7156,14 +7406,15 @@ export function usePatchGuildsGuildIdVoiceStatesUserId(options?: {
         parseResponse(
           client.guilds[':guild_id']['voice-states'][':user_id'].$patch(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdVoiceStatesUserIdMutationKey() {
   return `PATCH ${client.guilds[':guild_id']['voice-states'][':user_id'].$url().pathname}`
@@ -7180,26 +7431,28 @@ export function useGetGuildsGuildIdWebhooks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWebhooksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWebhooksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].webhooks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/webhooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWebhooksKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
 ) {
-  return client.guilds[':guild_id'].webhooks.$url(args).pathname
+  const u = client.guilds[':guild_id'].webhooks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7213,28 +7466,29 @@ export function useGetGuildsGuildIdWelcomeScreen(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWelcomeScreenKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWelcomeScreenKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id']['welcome-screen'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/welcome-screen
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWelcomeScreenKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  return client.guilds[':guild_id']['welcome-screen'].$url(args).pathname
+  const u = client.guilds[':guild_id']['welcome-screen'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7256,7 +7510,8 @@ export function usePatchGuildsGuildIdWelcomeScreen(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdWelcomeScreenMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdWelcomeScreenMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7269,14 +7524,15 @@ export function usePatchGuildsGuildIdWelcomeScreen(options?: {
           arg: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>
         },
       ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/welcome-screen
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdWelcomeScreenMutationKey() {
   return `PATCH ${client.guilds[':guild_id']['welcome-screen'].$url().pathname}`
@@ -7293,26 +7549,28 @@ export function useGetGuildsGuildIdWidget(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWidgetKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWidgetKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id'].widget.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/widget
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWidgetKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
 ) {
-  return client.guilds[':guild_id'].widget.$url(args).pathname
+  const u = client.guilds[':guild_id'].widget.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7334,7 +7592,8 @@ export function usePatchGuildsGuildIdWidget(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchGuildsGuildIdWidgetMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchGuildsGuildIdWidgetMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7343,14 +7602,15 @@ export function usePatchGuildsGuildIdWidget(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']> },
       ) => parseResponse(client.guilds[':guild_id'].widget.$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/widget
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchGuildsGuildIdWidgetMutationKey() {
   return `PATCH ${client.guilds[':guild_id'].widget.$url().pathname}`
@@ -7367,27 +7627,29 @@ export function useGetGuildsGuildIdWidgetJson(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWidgetJsonKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWidgetJsonKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.guilds[':guild_id']['widget.json'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/widget.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWidgetJsonKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
 ) {
-  return client.guilds[':guild_id']['widget.json'].$url(args).pathname
+  const u = client.guilds[':guild_id']['widget.json'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7401,26 +7663,28 @@ export function useGetGuildsGuildIdWidgetPng(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetGuildsGuildIdWidgetPngKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetGuildsGuildIdWidgetPngKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.guilds[':guild_id']['widget.png'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /guilds/{guild_id}/widget.png
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWidgetPngKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  return client.guilds[':guild_id']['widget.png'].$url(args).pathname
+  const u = client.guilds[':guild_id']['widget.png'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7449,8 +7713,8 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7471,14 +7735,15 @@ export function usePostInteractionsInteractionIdInteractionTokenCallback(options
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /interactions/{interaction_id}/{interaction_token}/callback
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey() {
   return `POST ${client.interactions[':interaction_id'][':interaction_token'].callback.$url().pathname}`
@@ -7495,26 +7760,28 @@ export function useGetInvitesCode(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetInvitesCodeKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetInvitesCodeKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.invites[':code'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /invites/{code}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetInvitesCodeKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
 ) {
-  return client.invites[':code'].$url(args).pathname
+  const u = client.invites[':code'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7534,7 +7801,8 @@ export function useDeleteInvitesCode(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteInvitesCodeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteInvitesCodeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7543,14 +7811,15 @@ export function useDeleteInvitesCode(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.invites)[':code']['$delete']> },
       ) => parseResponse(client.invites[':code'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /invites/{code}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteInvitesCodeMutationKey() {
   return `DELETE ${client.invites[':code'].$url().pathname}`
@@ -7569,21 +7838,23 @@ export function usePutLobbies(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutLobbiesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutLobbiesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.lobbies.$put> }) =>
         parseResponse(client.lobbies.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /lobbies
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutLobbiesMutationKey() {
   return `PUT ${client.lobbies.$url().pathname}`
@@ -7602,21 +7873,23 @@ export function usePostLobbies(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostLobbiesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostLobbiesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.lobbies.$post> }) =>
         parseResponse(client.lobbies.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /lobbies
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesMutationKey() {
   return `POST ${client.lobbies.$url().pathname}`
@@ -7633,26 +7906,28 @@ export function useGetLobbiesLobbyId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetLobbiesLobbyIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetLobbiesLobbyIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.lobbies[':lobby_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /lobbies/{lobby_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetLobbiesLobbyIdKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
 ) {
-  return client.lobbies[':lobby_id'].$url(args).pathname
+  const u = client.lobbies[':lobby_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -7672,7 +7947,8 @@ export function usePatchLobbiesLobbyId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchLobbiesLobbyIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchLobbiesLobbyIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7681,14 +7957,15 @@ export function usePatchLobbiesLobbyId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']> },
       ) => parseResponse(client.lobbies[':lobby_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /lobbies/{lobby_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchLobbiesLobbyIdMutationKey() {
   return `PATCH ${client.lobbies[':lobby_id'].$url().pathname}`
@@ -7713,7 +7990,8 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchLobbiesLobbyIdChannelLinkingMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchLobbiesLobbyIdChannelLinkingMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7726,14 +8004,15 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
           arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>
         },
       ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /lobbies/{lobby_id}/channel-linking
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchLobbiesLobbyIdChannelLinkingMutationKey() {
   return `PATCH ${client.lobbies[':lobby_id']['channel-linking'].$url().pathname}`
@@ -7759,7 +8038,8 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteLobbiesLobbyIdMembersMeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteLobbiesLobbyIdMembersMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7772,14 +8052,15 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
           arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>
         },
       ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteLobbiesLobbyIdMembersMeMutationKey() {
   return `DELETE ${client.lobbies[':lobby_id'].members['@me'].$url().pathname}`
@@ -7806,7 +8087,8 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostLobbiesLobbyIdMembersMeInvitesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostLobbiesLobbyIdMembersMeInvitesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7822,14 +8104,15 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
         },
       ) =>
         parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/@me/invites
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMembersMeInvitesMutationKey() {
   return `POST ${client.lobbies[':lobby_id'].members['@me'].invites.$url().pathname}`
@@ -7854,7 +8137,8 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostLobbiesLobbyIdMembersBulkMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostLobbiesLobbyIdMembersBulkMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7867,14 +8151,15 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
           arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>
         },
       ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/bulk
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMembersBulkMutationKey() {
   return `POST ${client.lobbies[':lobby_id'].members.bulk.$url().pathname}`
@@ -7899,7 +8184,8 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutLobbiesLobbyIdMembersUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutLobbiesLobbyIdMembersUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7912,14 +8198,15 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
           arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>
         },
       ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /lobbies/{lobby_id}/members/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutLobbiesLobbyIdMembersUserIdMutationKey() {
   return `PUT ${client.lobbies[':lobby_id'].members[':user_id'].$url().pathname}`
@@ -7947,7 +8234,8 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteLobbiesLobbyIdMembersUserIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteLobbiesLobbyIdMembersUserIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -7963,14 +8251,15 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
         },
       ) =>
         parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/{user_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteLobbiesLobbyIdMembersUserIdMutationKey() {
   return `DELETE ${client.lobbies[':lobby_id'].members[':user_id'].$url().pathname}`
@@ -8001,7 +8290,8 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8019,14 +8309,15 @@ export function usePostLobbiesLobbyIdMembersUserIdInvites(options?: {
         parseResponse(
           client.lobbies[':lobby_id'].members[':user_id'].invites.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/{user_id}/invites
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey() {
   return `POST ${client.lobbies[':lobby_id'].members[':user_id'].invites.$url().pathname}`
@@ -8043,26 +8334,28 @@ export function useGetLobbiesLobbyIdMessages(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetLobbiesLobbyIdMessagesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetLobbiesLobbyIdMessagesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.lobbies[':lobby_id'].messages.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /lobbies/{lobby_id}/messages
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetLobbiesLobbyIdMessagesKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
 ) {
-  return client.lobbies[':lobby_id'].messages.$url(args).pathname
+  const u = client.lobbies[':lobby_id'].messages.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8084,7 +8377,8 @@ export function usePostLobbiesLobbyIdMessages(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostLobbiesLobbyIdMessagesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostLobbiesLobbyIdMessagesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8095,14 +8389,15 @@ export function usePostLobbiesLobbyIdMessages(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']> },
       ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/messages
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostLobbiesLobbyIdMessagesMutationKey() {
   return `POST ${client.lobbies[':lobby_id'].messages.$url().pathname}`
@@ -8116,14 +8411,15 @@ export function useGetOauth2Me(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2MeKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetOauth2MeKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.oauth2['@me'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -8144,14 +8440,15 @@ export function useGetOauth2ApplicationsMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2ApplicationsMeKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetOauth2ApplicationsMeKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.oauth2.applications['@me'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -8172,14 +8469,15 @@ export function useGetOauth2Keys(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2KeysKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetOauth2KeysKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.oauth2.keys.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -8200,14 +8498,15 @@ export function useGetOauth2Userinfo(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetOauth2UserinfoKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetOauth2UserinfoKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.oauth2.userinfo.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -8242,7 +8541,8 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPartnerSdkProvisionalAccountsUnmergeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPartnerSdkProvisionalAccountsUnmergeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8260,14 +8560,15 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
         parseResponse(
           client['partner-sdk']['provisional-accounts'].unmerge.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeMutationKey() {
   return `POST ${client['partner-sdk']['provisional-accounts'].unmerge.$url().pathname}`
@@ -8299,8 +8600,8 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8318,14 +8619,15 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
         parseResponse(
           client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge/bot
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey() {
   return `POST ${client['partner-sdk']['provisional-accounts'].unmerge.bot.$url().pathname}`
@@ -8348,7 +8650,8 @@ export function usePostPartnerSdkToken(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPartnerSdkTokenMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPartnerSdkTokenMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8357,14 +8660,15 @@ export function usePostPartnerSdkToken(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['partner-sdk']['token']['$post']> },
       ) => parseResponse(client['partner-sdk'].token.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/token
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkTokenMutationKey() {
   return `POST ${client['partner-sdk'].token.$url().pathname}`
@@ -8389,7 +8693,8 @@ export function usePostPartnerSdkTokenBot(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPartnerSdkTokenBotMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPartnerSdkTokenBotMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8398,14 +8703,15 @@ export function usePostPartnerSdkTokenBot(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']> },
       ) => parseResponse(client['partner-sdk'].token.bot.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/token/bot
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPartnerSdkTokenBotMutationKey() {
   return `POST ${client['partner-sdk'].token.bot.$url().pathname}`
@@ -8419,14 +8725,15 @@ export function useGetSoundboardDefaultSounds(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSoundboardDefaultSoundsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSoundboardDefaultSoundsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['soundboard-default-sounds'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -8456,7 +8763,8 @@ export function usePostStageInstances(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostStageInstancesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostStageInstancesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8465,14 +8773,15 @@ export function usePostStageInstances(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client)['stage-instances']['$post']> },
       ) => parseResponse(client['stage-instances'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /stage-instances
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostStageInstancesMutationKey() {
   return `POST ${client['stage-instances'].$url().pathname}`
@@ -8489,26 +8798,28 @@ export function useGetStageInstancesChannelId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStageInstancesChannelIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetStageInstancesChannelIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['stage-instances'][':channel_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /stage-instances/{channel_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetStageInstancesChannelIdKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
 ) {
-  return client['stage-instances'][':channel_id'].$url(args).pathname
+  const u = client['stage-instances'][':channel_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8531,7 +8842,8 @@ export function useDeleteStageInstancesChannelId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteStageInstancesChannelIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteStageInstancesChannelIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8542,14 +8854,15 @@ export function useDeleteStageInstancesChannelId(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']> },
       ) => parseResponse(client['stage-instances'][':channel_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /stage-instances/{channel_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteStageInstancesChannelIdMutationKey() {
   return `DELETE ${client['stage-instances'][':channel_id'].$url().pathname}`
@@ -8574,7 +8887,8 @@ export function usePatchStageInstancesChannelId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchStageInstancesChannelIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchStageInstancesChannelIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8585,14 +8899,15 @@ export function usePatchStageInstancesChannelId(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']> },
       ) => parseResponse(client['stage-instances'][':channel_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /stage-instances/{channel_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchStageInstancesChannelIdMutationKey() {
   return `PATCH ${client['stage-instances'][':channel_id'].$url().pathname}`
@@ -8606,14 +8921,15 @@ export function useGetStickerPacks(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStickerPacksKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetStickerPacksKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['sticker-packs'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -8637,26 +8953,28 @@ export function useGetStickerPacksPackId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStickerPacksPackIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetStickerPacksPackIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['sticker-packs'][':pack_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /sticker-packs/{pack_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetStickerPacksPackIdKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
 ) {
-  return client['sticker-packs'][':pack_id'].$url(args).pathname
+  const u = client['sticker-packs'][':pack_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8670,26 +8988,28 @@ export function useGetStickersStickerId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetStickersStickerIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetStickersStickerIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.stickers[':sticker_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /stickers/{sticker_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetStickersStickerIdKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  return client.stickers[':sticker_id'].$url(args).pathname
+  const u = client.stickers[':sticker_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8700,14 +9020,15 @@ export function useGetUsersMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersMeKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.users['@me'].$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -8735,21 +9056,23 @@ export function usePatchUsersMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchUsersMeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchUsersMeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<(typeof client.users)['@me']['$patch']> }) =>
         parseResponse(client.users['@me'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /users/@me
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchUsersMeMutationKey() {
   return `PATCH ${client.users['@me'].$url().pathname}`
@@ -8768,10 +9091,10 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetUsersMeApplicationsApplicationIdEntitlementsKey(args) : null)
+    customKey ?? (isEnabled ? getGetUsersMeApplicationsApplicationIdEntitlementsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -8783,21 +9106,22 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/@me/applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
 ) {
-  return client.users['@me'].applications[':application_id'].entitlements.$url(args).pathname
+  const u = client.users['@me'].applications[':application_id'].entitlements.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8813,10 +9137,10 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetUsersMeApplicationsApplicationIdRoleConnectionKey(args) : null)
+    customKey ?? (isEnabled ? getGetUsersMeApplicationsApplicationIdRoleConnectionKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -8828,21 +9152,22 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/@me/applications/{application_id}/role-connection
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  return client.users['@me'].applications[':application_id']['role-connection'].$url(args).pathname
+  const u = client.users['@me'].applications[':application_id']['role-connection'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -8870,8 +9195,8 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8892,14 +9217,15 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /users/@me/applications/{application_id}/role-connection
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
   return `PUT ${client.users['@me'].applications[':application_id']['role-connection'].$url().pathname}`
@@ -8931,8 +9257,8 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8953,14 +9279,15 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /users/@me/applications/{application_id}/role-connection
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
   return `DELETE ${client.users['@me'].applications[':application_id']['role-connection'].$url().pathname}`
@@ -8983,7 +9310,8 @@ export function usePostUsersMeChannels(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostUsersMeChannelsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostUsersMeChannelsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -8992,14 +9320,15 @@ export function usePostUsersMeChannels(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.users)['@me']['channels']['$post']> },
       ) => parseResponse(client.users['@me'].channels.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /users/@me/channels
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersMeChannelsMutationKey() {
   return `POST ${client.users['@me'].channels.$url().pathname}`
@@ -9013,14 +9342,15 @@ export function useGetUsersMeConnections(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeConnectionsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersMeConnectionsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.users['@me'].connections.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -9044,26 +9374,28 @@ export function useGetUsersMeGuilds(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeGuildsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersMeGuildsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.users['@me'].guilds.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/@me/guilds
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeGuildsKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
 ) {
-  return client.users['@me'].guilds.$url(args).pathname
+  const u = client.users['@me'].guilds.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9086,7 +9418,8 @@ export function useDeleteUsersMeGuildsGuildId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteUsersMeGuildsGuildIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteUsersMeGuildsGuildIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9099,14 +9432,15 @@ export function useDeleteUsersMeGuildsGuildId(options?: {
           arg: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>
         },
       ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /users/@me/guilds/{guild_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteUsersMeGuildsGuildIdMutationKey() {
   return `DELETE ${client.users['@me'].guilds[':guild_id'].$url().pathname}`
@@ -9123,28 +9457,29 @@ export function useGetUsersMeGuildsGuildIdMember(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetUsersMeGuildsGuildIdMemberKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersMeGuildsGuildIdMemberKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.users['@me'].guilds[':guild_id'].member.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/@me/guilds/{guild_id}/member
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeGuildsGuildIdMemberKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
 ) {
-  return client.users['@me'].guilds[':guild_id'].member.$url(args).pathname
+  const u = client.users['@me'].guilds[':guild_id'].member.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9158,26 +9493,28 @@ export function useGetUsersUserId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return client.users[':user_id'].$url(args).pathname
+  const u = client.users[':user_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9188,14 +9525,15 @@ export function useGetVoiceRegions(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetVoiceRegionsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetVoiceRegionsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.voice.regions.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -9219,26 +9557,28 @@ export function useGetWebhooksWebhookId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetWebhooksWebhookIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetWebhooksWebhookIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.webhooks[':webhook_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
 ) {
-  return client.webhooks[':webhook_id'].$url(args).pathname
+  const u = client.webhooks[':webhook_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9261,7 +9601,8 @@ export function useDeleteWebhooksWebhookId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteWebhooksWebhookIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteWebhooksWebhookIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9270,14 +9611,15 @@ export function useDeleteWebhooksWebhookId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']> },
       ) => parseResponse(client.webhooks[':webhook_id'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdMutationKey() {
   return `DELETE ${client.webhooks[':webhook_id'].$url().pathname}`
@@ -9300,7 +9642,8 @@ export function usePatchWebhooksWebhookId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchWebhooksWebhookIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchWebhooksWebhookIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9309,14 +9652,15 @@ export function usePatchWebhooksWebhookId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']> },
       ) => parseResponse(client.webhooks[':webhook_id'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdMutationKey() {
   return `PATCH ${client.webhooks[':webhook_id'].$url().pathname}`
@@ -9333,28 +9677,29 @@ export function useGetWebhooksWebhookIdWebhookToken(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdWebhookTokenKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
 ) {
-  return client.webhooks[':webhook_id'][':webhook_token'].$url(args).pathname
+  const u = client.webhooks[':webhook_id'][':webhook_token'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9377,7 +9722,8 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostWebhooksWebhookIdWebhookTokenMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostWebhooksWebhookIdWebhookTokenMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9391,14 +9737,15 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
         },
       ) =>
         parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksWebhookIdWebhookTokenMutationKey() {
   return `POST ${client.webhooks[':webhook_id'][':webhook_token'].$url().pathname}`
@@ -9426,7 +9773,8 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteWebhooksWebhookIdWebhookTokenMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteWebhooksWebhookIdWebhookTokenMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9442,14 +9790,15 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
         },
       ) =>
         parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMutationKey() {
   return `DELETE ${client.webhooks[':webhook_id'][':webhook_token'].$url().pathname}`
@@ -9474,7 +9823,8 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchWebhooksWebhookIdWebhookTokenMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchWebhooksWebhookIdWebhookTokenMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9488,14 +9838,15 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
         },
       ) =>
         parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMutationKey() {
   return `PATCH ${client.webhooks[':webhook_id'][':webhook_token'].$url().pathname}`
@@ -9525,7 +9876,8 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostWebhooksWebhookIdWebhookTokenGithubMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostWebhooksWebhookIdWebhookTokenGithubMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9543,14 +9895,15 @@ export function usePostWebhooksWebhookIdWebhookTokenGithub(options?: {
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].github.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/github
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksWebhookIdWebhookTokenGithubMutationKey() {
   return `POST ${client.webhooks[':webhook_id'][':webhook_token'].github.$url().pathname}`
@@ -9569,10 +9922,10 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(args) : null)
+    customKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -9584,21 +9937,22 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
 ) {
-  return client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url(args).pathname
+  const u = client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9627,8 +9981,8 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9649,14 +10003,15 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
   return `DELETE ${client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url().pathname}`
@@ -9687,8 +10042,8 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: 
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9709,14 +10064,15 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: 
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
   return `PATCH ${client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url().pathname}`
@@ -9735,10 +10091,10 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ??
-    (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(args) : null)
+    customKey ?? (isEnabled ? getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -9750,22 +10106,22 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
             clientOptions,
           ),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
 ) {
-  return client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url(args)
-    .pathname
+  const u = client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -9794,8 +10150,8 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9816,14 +10172,15 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
   return `DELETE ${client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url().pathname}`
@@ -9854,8 +10211,8 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey =
-    mutationOptions?.swrKey ?? getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9876,14 +10233,15 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
             clientOptions,
           ),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
   return `PATCH ${client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url().pathname}`
@@ -9910,7 +10268,8 @@ export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostWebhooksWebhookIdWebhookTokenSlackMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostWebhooksWebhookIdWebhookTokenSlackMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -9928,14 +10287,15 @@ export function usePostWebhooksWebhookIdWebhookTokenSlack(options?: {
         parseResponse(
           client.webhooks[':webhook_id'][':webhook_token'].slack.$post(arg, clientOptions),
         ),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/slack
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostWebhooksWebhookIdWebhookTokenSlackMutationKey() {
   return `POST ${client.webhooks[':webhook_id'][':webhook_token'].slack.$url().pathname}`

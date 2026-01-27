@@ -30,10 +30,11 @@ export function useGetDocuments(
 
 /**
  * Generates Vue Query cache key for GET /documents
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDocumentsQueryKey(args: InferRequestType<typeof client.documents.$get>) {
-  return [client.documents.$url(args).pathname] as const
+  const u = client.documents.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -111,12 +112,13 @@ export function useGetDocumentsDocumentId(
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDocumentsDocumentIdQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['$get']>,
 ) {
-  return [client.documents[':documentId'].$url(args).pathname] as const
+  const u = client.documents[':documentId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -201,12 +203,13 @@ export function useGetDocumentsDocumentIdVersions(
 
 /**
  * Generates Vue Query cache key for GET /documents/{documentId}/versions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDocumentsDocumentIdVersionsQueryKey(
   args: InferRequestType<(typeof client.documents)[':documentId']['versions']['$get']>,
 ) {
-  return [client.documents[':documentId'].versions.$url(args).pathname] as const
+  const u = client.documents[':documentId'].versions.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -292,12 +295,13 @@ export function useGetUsersUserIdDocuments(
 
 /**
  * Generates Vue Query cache key for GET /users/{userId}/documents
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdDocumentsQueryKey(
   args: InferRequestType<(typeof client.users)[':userId']['documents']['$get']>,
 ) {
-  return [client.users[':userId'].documents.$url(args).pathname] as const
+  const u = client.users[':userId'].documents.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

@@ -189,12 +189,13 @@ export function createGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates Svelte Query cache key for GET /webauthn/credentials/{credentialId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebauthnCredentialsCredentialIdQueryKey(
   args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$get']>,
 ) {
-  return [client.webauthn.credentials[':credentialId'].$url(args).pathname] as const
+  const u = client.webauthn.credentials[':credentialId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

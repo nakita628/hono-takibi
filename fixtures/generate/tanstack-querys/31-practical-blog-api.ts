@@ -25,10 +25,11 @@ export function useGetPosts(
 
 /**
  * Generates TanStack Query cache key for GET /posts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return [client.posts.$url(args).pathname] as const
+  const u = client.posts.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -93,12 +94,13 @@ export function useGetPostsPostId(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return [client.posts[':postId'].$url(args).pathname] as const
+  const u = client.posts[':postId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -196,12 +198,13 @@ export function useGetPostsSlugSlug(
 
 /**
  * Generates TanStack Query cache key for GET /posts/slug/{slug}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsSlugSlugQueryKey(
   args: InferRequestType<(typeof client.posts.slug)[':slug']['$get']>,
 ) {
-  return [client.posts.slug[':slug'].$url(args).pathname] as const
+  const u = client.posts.slug[':slug'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -309,12 +312,13 @@ export function useGetPostsPostIdComments(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/comments
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdCommentsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['comments']['$get']>,
 ) {
-  return [client.posts[':postId'].comments.$url(args).pathname] as const
+  const u = client.posts[':postId'].comments.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -511,12 +515,13 @@ export function useGetCategoriesCategoryId(
 
 /**
  * Generates TanStack Query cache key for GET /categories/{categoryId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.categories)[':categoryId']['$get']>,
 ) {
-  return [client.categories[':categoryId'].$url(args).pathname] as const
+  const u = client.categories[':categoryId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -613,10 +618,11 @@ export function useGetTags(
 
 /**
  * Generates TanStack Query cache key for GET /tags
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTagsQueryKey(args: InferRequestType<typeof client.tags.$get>) {
-  return [client.tags.$url(args).pathname] as const
+  const u = client.tags.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -677,10 +683,11 @@ export function useGetMedia(
 
 /**
  * Generates TanStack Query cache key for GET /media
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMediaQueryKey(args: InferRequestType<typeof client.media.$get>) {
-  return [client.media.$url(args).pathname] as const
+  const u = client.media.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -745,12 +752,13 @@ export function useGetMediaMediaId(
 
 /**
  * Generates TanStack Query cache key for GET /media/{mediaId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return [client.media[':mediaId'].$url(args).pathname] as const
+  const u = client.media[':mediaId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -888,12 +896,13 @@ export function useGetAuthorsAuthorId(
 
 /**
  * Generates TanStack Query cache key for GET /authors/{authorId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAuthorsAuthorIdQueryKey(
   args: InferRequestType<(typeof client.authors)[':authorId']['$get']>,
 ) {
-  return [client.authors[':authorId'].$url(args).pathname] as const
+  const u = client.authors[':authorId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

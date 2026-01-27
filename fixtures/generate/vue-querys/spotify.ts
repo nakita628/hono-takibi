@@ -32,10 +32,11 @@ export function useGetAlbums(
 
 /**
  * Generates Vue Query cache key for GET /albums
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAlbumsQueryKey(args: InferRequestType<typeof client.albums.$get>) {
-  return [client.albums.$url(args).pathname] as const
+  const u = client.albums.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -86,12 +87,13 @@ export function useGetAlbumsId(
 
 /**
  * Generates Vue Query cache key for GET /albums/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAlbumsIdQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['$get']>,
 ) {
-  return [client.albums[':id'].$url(args).pathname] as const
+  const u = client.albums[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -148,12 +150,13 @@ export function useGetAlbumsIdTracks(
 
 /**
  * Generates Vue Query cache key for GET /albums/{id}/tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAlbumsIdTracksQueryKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return [client.albums[':id'].tracks.$url(args).pathname] as const
+  const u = client.albums[':id'].tracks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -205,10 +208,11 @@ export function useGetArtists(
 
 /**
  * Generates Vue Query cache key for GET /artists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsQueryKey(args: InferRequestType<typeof client.artists.$get>) {
-  return [client.artists.$url(args).pathname] as const
+  const u = client.artists.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -259,12 +263,13 @@ export function useGetArtistsId(
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['$get']>,
 ) {
-  return [client.artists[':id'].$url(args).pathname] as const
+  const u = client.artists[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -320,12 +325,13 @@ export function useGetArtistsIdAlbums(
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}/albums
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdAlbumsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return [client.artists[':id'].albums.$url(args).pathname] as const
+  const u = client.artists[':id'].albums.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -384,12 +390,13 @@ export function useGetArtistsIdRelatedArtists(
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}/related-artists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdRelatedArtistsQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return [client.artists[':id']['related-artists'].$url(args).pathname] as const
+  const u = client.artists[':id']['related-artists'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -445,12 +452,13 @@ export function useGetArtistsIdTopTracks(
 
 /**
  * Generates Vue Query cache key for GET /artists/{id}/top-tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdTopTracksQueryKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return [client.artists[':id']['top-tracks'].$url(args).pathname] as const
+  const u = client.artists[':id']['top-tracks'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -506,12 +514,13 @@ export function useGetAudioAnalysisId(
 
 /**
  * Generates Vue Query cache key for GET /audio-analysis/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudioAnalysisIdQueryKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return [client['audio-analysis'][':id'].$url(args).pathname] as const
+  const u = client['audio-analysis'][':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -565,12 +574,13 @@ export function useGetAudioFeatures(
 
 /**
  * Generates Vue Query cache key for GET /audio-features
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudioFeaturesQueryKey(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return [client['audio-features'].$url(args).pathname] as const
+  const u = client['audio-features'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -627,12 +637,13 @@ export function useGetAudioFeaturesId(
 
 /**
  * Generates Vue Query cache key for GET /audio-features/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudioFeaturesIdQueryKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return [client['audio-features'][':id'].$url(args).pathname] as const
+  const u = client['audio-features'][':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -685,10 +696,11 @@ export function useGetAudiobooks(
 
 /**
  * Generates Vue Query cache key for GET /audiobooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudiobooksQueryKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  return [client.audiobooks.$url(args).pathname] as const
+  const u = client.audiobooks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -740,12 +752,13 @@ export function useGetAudiobooksId(
 
 /**
  * Generates Vue Query cache key for GET /audiobooks/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudiobooksIdQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return [client.audiobooks[':id'].$url(args).pathname] as const
+  const u = client.audiobooks[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -805,12 +818,13 @@ export function useGetAudiobooksIdChapters(
 
 /**
  * Generates Vue Query cache key for GET /audiobooks/{id}/chapters
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudiobooksIdChaptersQueryKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return [client.audiobooks[':id'].chapters.$url(args).pathname] as const
+  const u = client.audiobooks[':id'].chapters.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -864,12 +878,13 @@ export function useGetBrowseCategories(
 
 /**
  * Generates Vue Query cache key for GET /browse/categories
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseCategoriesQueryKey(
   args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return [client.browse.categories.$url(args).pathname] as const
+  const u = client.browse.categories.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -928,12 +943,13 @@ export function useGetBrowseCategoriesCategoryId(
 
 /**
  * Generates Vue Query cache key for GET /browse/categories/{category_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseCategoriesCategoryIdQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return [client.browse.categories[':category_id'].$url(args).pathname] as const
+  const u = client.browse.categories[':category_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -994,12 +1010,13 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
 
 /**
  * Generates Vue Query cache key for GET /browse/categories/{category_id}/playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return [client.browse.categories[':category_id'].playlists.$url(args).pathname] as const
+  const u = client.browse.categories[':category_id'].playlists.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1058,12 +1075,13 @@ export function useGetBrowseFeaturedPlaylists(
 
 /**
  * Generates Vue Query cache key for GET /browse/featured-playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseFeaturedPlaylistsQueryKey(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return [client.browse['featured-playlists'].$url(args).pathname] as const
+  const u = client.browse['featured-playlists'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1119,12 +1137,13 @@ export function useGetBrowseNewReleases(
 
 /**
  * Generates Vue Query cache key for GET /browse/new-releases
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseNewReleasesQueryKey(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return [client.browse['new-releases'].$url(args).pathname] as const
+  const u = client.browse['new-releases'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1177,10 +1196,11 @@ export function useGetChapters(
 
 /**
  * Generates Vue Query cache key for GET /chapters
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChaptersQueryKey(args: InferRequestType<typeof client.chapters.$get>) {
-  return [client.chapters.$url(args).pathname] as const
+  const u = client.chapters.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1232,12 +1252,13 @@ export function useGetChaptersId(
 
 /**
  * Generates Vue Query cache key for GET /chapters/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChaptersIdQueryKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return [client.chapters[':id'].$url(args).pathname] as const
+  const u = client.chapters[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1289,10 +1310,11 @@ export function useGetEpisodes(
 
 /**
  * Generates Vue Query cache key for GET /episodes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEpisodesQueryKey(args: InferRequestType<typeof client.episodes.$get>) {
-  return [client.episodes.$url(args).pathname] as const
+  const u = client.episodes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1344,12 +1366,13 @@ export function useGetEpisodesId(
 
 /**
  * Generates Vue Query cache key for GET /episodes/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEpisodesIdQueryKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return [client.episodes[':id'].$url(args).pathname] as const
+  const u = client.episodes[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1493,10 +1516,11 @@ export function useGetMeAlbums(
 
 /**
  * Generates Vue Query cache key for GET /me/albums
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAlbumsQueryKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  return [client.me.albums.$url(args).pathname] as const
+  const u = client.me.albums.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1607,12 +1631,13 @@ export function useGetMeAlbumsContains(
 
 /**
  * Generates Vue Query cache key for GET /me/albums/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAlbumsContainsQueryKey(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return [client.me.albums.contains.$url(args).pathname] as const
+  const u = client.me.albums.contains.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1664,12 +1689,13 @@ export function useGetMeAudiobooks(
 
 /**
  * Generates Vue Query cache key for GET /me/audiobooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAudiobooksQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.$get>,
 ) {
-  return [client.me.audiobooks.$url(args).pathname] as const
+  const u = client.me.audiobooks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1786,12 +1812,13 @@ export function useGetMeAudiobooksContains(
 
 /**
  * Generates Vue Query cache key for GET /me/audiobooks/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAudiobooksContainsQueryKey(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return [client.me.audiobooks.contains.$url(args).pathname] as const
+  const u = client.me.audiobooks.contains.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1844,10 +1871,11 @@ export function useGetMeEpisodes(
 
 /**
  * Generates Vue Query cache key for GET /me/episodes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeEpisodesQueryKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  return [client.me.episodes.$url(args).pathname] as const
+  const u = client.me.episodes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1961,12 +1989,13 @@ export function useGetMeEpisodesContains(
 
 /**
  * Generates Vue Query cache key for GET /me/episodes/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeEpisodesContainsQueryKey(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return [client.me.episodes.contains.$url(args).pathname] as const
+  const u = client.me.episodes.contains.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2018,10 +2047,11 @@ export function useGetMeFollowing(
 
 /**
  * Generates Vue Query cache key for GET /me/following
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeFollowingQueryKey(args: InferRequestType<typeof client.me.following.$get>) {
-  return [client.me.following.$url(args).pathname] as const
+  const u = client.me.following.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2139,12 +2169,13 @@ export function useGetMeFollowingContains(
 
 /**
  * Generates Vue Query cache key for GET /me/following/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeFollowingContainsQueryKey(
   args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return [client.me.following.contains.$url(args).pathname] as const
+  const u = client.me.following.contains.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2196,10 +2227,11 @@ export function useGetMePlayer(
 
 /**
  * Generates Vue Query cache key for GET /me/player
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlayerQueryKey(args: InferRequestType<typeof client.me.player.$get>) {
-  return [client.me.player.$url(args).pathname] as const
+  const u = client.me.player.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2286,12 +2318,13 @@ export function useGetMePlayerCurrentlyPlaying(
 
 /**
  * Generates Vue Query cache key for GET /me/player/currently-playing
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlayerCurrentlyPlayingQueryKey(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return [client.me.player['currently-playing'].$url(args).pathname] as const
+  const u = client.me.player['currently-playing'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2614,12 +2647,13 @@ export function useGetMePlayerRecentlyPlayed(
 
 /**
  * Generates Vue Query cache key for GET /me/player/recently-played
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlayerRecentlyPlayedQueryKey(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return [client.me.player['recently-played'].$url(args).pathname] as const
+  const u = client.me.player['recently-played'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2803,10 +2837,11 @@ export function useGetMePlaylists(
 
 /**
  * Generates Vue Query cache key for GET /me/playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlaylistsQueryKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  return [client.me.playlists.$url(args).pathname] as const
+  const u = client.me.playlists.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2858,10 +2893,11 @@ export function useGetMeShows(
 
 /**
  * Generates Vue Query cache key for GET /me/shows
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeShowsQueryKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  return [client.me.shows.$url(args).pathname] as const
+  const u = client.me.shows.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2970,12 +3006,13 @@ export function useGetMeShowsContains(
 
 /**
  * Generates Vue Query cache key for GET /me/shows/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeShowsContainsQueryKey(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return [client.me.shows.contains.$url(args).pathname] as const
+  const u = client.me.shows.contains.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3029,12 +3066,13 @@ export function useGetMeTopType(
 
 /**
  * Generates Vue Query cache key for GET /me/top/{type}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeTopTypeQueryKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return [client.me.top[':type'].$url(args).pathname] as const
+  const u = client.me.top[':type'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3086,10 +3124,11 @@ export function useGetMeTracks(
 
 /**
  * Generates Vue Query cache key for GET /me/tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeTracksQueryKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  return [client.me.tracks.$url(args).pathname] as const
+  const u = client.me.tracks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3200,12 +3239,13 @@ export function useGetMeTracksContains(
 
 /**
  * Generates Vue Query cache key for GET /me/tracks/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeTracksContainsQueryKey(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return [client.me.tracks.contains.$url(args).pathname] as const
+  const u = client.me.tracks.contains.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3264,12 +3304,13 @@ export function useGetPlaylistsPlaylistId(
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return [client.playlists[':playlist_id'].$url(args).pathname] as const
+  const u = client.playlists[':playlist_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3439,14 +3480,15 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}/followers/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsQueryKey(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return [client.playlists[':playlist_id'].followers.contains.$url(args).pathname] as const
+  const u = client.playlists[':playlist_id'].followers.contains.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3507,12 +3549,13 @@ export function useGetPlaylistsPlaylistIdImages(
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}/images
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdImagesQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return [client.playlists[':playlist_id'].images.$url(args).pathname] as const
+  const u = client.playlists[':playlist_id'].images.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3606,12 +3649,13 @@ export function useGetPlaylistsPlaylistIdTracks(
 
 /**
  * Generates Vue Query cache key for GET /playlists/{playlist_id}/tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdTracksQueryKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return [client.playlists[':playlist_id'].tracks.$url(args).pathname] as const
+  const u = client.playlists[':playlist_id'].tracks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3778,12 +3822,13 @@ export function useGetRecommendations(
 
 /**
  * Generates Vue Query cache key for GET /recommendations
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetRecommendationsQueryKey(
   args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return [client.recommendations.$url(args).pathname] as const
+  const u = client.recommendations.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3893,10 +3938,11 @@ export function useGetSearch(
 
 /**
  * Generates Vue Query cache key for GET /search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSearchQueryKey(args: InferRequestType<typeof client.search.$get>) {
-  return [client.search.$url(args).pathname] as const
+  const u = client.search.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3943,10 +3989,11 @@ export function useGetShows(
 
 /**
  * Generates Vue Query cache key for GET /shows
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetShowsQueryKey(args: InferRequestType<typeof client.shows.$get>) {
-  return [client.shows.$url(args).pathname] as const
+  const u = client.shows.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3998,12 +4045,13 @@ export function useGetShowsId(
 
 /**
  * Generates Vue Query cache key for GET /shows/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetShowsIdQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['$get']>,
 ) {
-  return [client.shows[':id'].$url(args).pathname] as const
+  const u = client.shows[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4059,12 +4107,13 @@ export function useGetShowsIdEpisodes(
 
 /**
  * Generates Vue Query cache key for GET /shows/{id}/episodes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetShowsIdEpisodesQueryKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return [client.shows[':id'].episodes.$url(args).pathname] as const
+  const u = client.shows[':id'].episodes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4114,10 +4163,11 @@ export function useGetTracks(
 
 /**
  * Generates Vue Query cache key for GET /tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTracksQueryKey(args: InferRequestType<typeof client.tracks.$get>) {
-  return [client.tracks.$url(args).pathname] as const
+  const u = client.tracks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4169,12 +4219,13 @@ export function useGetTracksId(
 
 /**
  * Generates Vue Query cache key for GET /tracks/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTracksIdQueryKey(
   args: InferRequestType<(typeof client.tracks)[':id']['$get']>,
 ) {
-  return [client.tracks[':id'].$url(args).pathname] as const
+  const u = client.tracks[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4228,12 +4279,13 @@ export function useGetUsersUserId(
 
 /**
  * Generates Vue Query cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return [client.users[':user_id'].$url(args).pathname] as const
+  const u = client.users[':user_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4292,12 +4344,13 @@ export function useGetUsersUserIdPlaylists(
 
 /**
  * Generates Vue Query cache key for GET /users/{user_id}/playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdPlaylistsQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return [client.users[':user_id'].playlists.$url(args).pathname] as const
+  const u = client.users[':user_id'].playlists.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

@@ -16,14 +16,15 @@ export function useGetMfaStatus(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaStatusKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMfaStatusKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.mfa.status.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -46,14 +47,15 @@ export function useGetMfaMethods(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaMethodsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMfaMethodsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.mfa.methods.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -83,21 +85,23 @@ export function usePutMfaPreferred(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMfaPreferredMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMfaPreferredMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.preferred.$put> }) =>
         parseResponse(client.mfa.preferred.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /mfa/preferred
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMfaPreferredMutationKey() {
   return `PUT ${client.mfa.preferred.$url().pathname}`
@@ -122,21 +126,23 @@ export function usePostMfaTotpSetup(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaTotpSetupMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaTotpSetupMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.totp.setup.$post> }) =>
         parseResponse(client.mfa.totp.setup.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/totp/setup
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaTotpSetupMutationKey() {
   return `POST ${client.mfa.totp.setup.$url().pathname}`
@@ -161,21 +167,23 @@ export function usePostMfaTotpVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaTotpVerifyMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaTotpVerifyMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.totp.verify.$post> }) =>
         parseResponse(client.mfa.totp.verify.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/totp/verify
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaTotpVerifyMutationKey() {
   return `POST ${client.mfa.totp.verify.$url().pathname}`
@@ -197,21 +205,23 @@ export function useDeleteMfaTotp(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMfaTotpMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMfaTotpMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.totp.$delete> }) =>
         parseResponse(client.mfa.totp.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /mfa/totp
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMfaTotpMutationKey() {
   return `DELETE ${client.mfa.totp.$url().pathname}`
@@ -236,21 +246,23 @@ export function usePostMfaSmsSetup(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaSmsSetupMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaSmsSetupMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.sms.setup.$post> }) =>
         parseResponse(client.mfa.sms.setup.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/sms/setup
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaSmsSetupMutationKey() {
   return `POST ${client.mfa.sms.setup.$url().pathname}`
@@ -273,21 +285,23 @@ export function usePostMfaSmsVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaSmsVerifyMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaSmsVerifyMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.sms.verify.$post> }) =>
         parseResponse(client.mfa.sms.verify.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/sms/verify
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaSmsVerifyMutationKey() {
   return `POST ${client.mfa.sms.verify.$url().pathname}`
@@ -313,7 +327,8 @@ export function useDeleteMfaSmsMethodId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMfaSmsMethodIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMfaSmsMethodIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -322,14 +337,15 @@ export function useDeleteMfaSmsMethodId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.mfa.sms)[':methodId']['$delete']> },
       ) => parseResponse(client.mfa.sms[':methodId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /mfa/sms/{methodId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMfaSmsMethodIdMutationKey() {
   return `DELETE ${client.mfa.sms[':methodId'].$url().pathname}`
@@ -352,21 +368,23 @@ export function usePostMfaEmailSetup(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaEmailSetupMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaEmailSetupMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.email.setup.$post> }) =>
         parseResponse(client.mfa.email.setup.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/email/setup
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaEmailSetupMutationKey() {
   return `POST ${client.mfa.email.setup.$url().pathname}`
@@ -389,21 +407,23 @@ export function usePostMfaEmailVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaEmailVerifyMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaEmailVerifyMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.email.verify.$post> }) =>
         parseResponse(client.mfa.email.verify.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/email/verify
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaEmailVerifyMutationKey() {
   return `POST ${client.mfa.email.verify.$url().pathname}`
@@ -430,7 +450,8 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaWebauthnRegisterOptionsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaWebauthnRegisterOptionsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -439,14 +460,15 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.register.options.$post> },
       ) => parseResponse(client.mfa.webauthn.register.options.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/register/options
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaWebauthnRegisterOptionsMutationKey() {
   return `POST ${client.mfa.webauthn.register.options.$url().pathname}`
@@ -471,7 +493,8 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaWebauthnRegisterVerifyMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaWebauthnRegisterVerifyMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -480,14 +503,15 @@ export function usePostMfaWebauthnRegisterVerify(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.register.verify.$post> },
       ) => parseResponse(client.mfa.webauthn.register.verify.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/register/verify
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaWebauthnRegisterVerifyMutationKey() {
   return `POST ${client.mfa.webauthn.register.verify.$url().pathname}`
@@ -503,14 +527,15 @@ export function useGetMfaWebauthnCredentials(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaWebauthnCredentialsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMfaWebauthnCredentialsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.mfa.webauthn.credentials.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -547,7 +572,8 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMfaWebauthnCredentialsCredentialIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMfaWebauthnCredentialsCredentialIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -563,14 +589,15 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
         },
       ) =>
         parseResponse(client.mfa.webauthn.credentials[':credentialId'].$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /mfa/webauthn/credentials/{credentialId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
   return `DELETE ${client.mfa.webauthn.credentials[':credentialId'].$url().pathname}`
@@ -597,7 +624,8 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPatchMfaWebauthnCredentialsCredentialIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPatchMfaWebauthnCredentialsCredentialIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -611,14 +639,15 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
         },
       ) =>
         parseResponse(client.mfa.webauthn.credentials[':credentialId'].$patch(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PATCH /mfa/webauthn/credentials/{credentialId}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
   return `PATCH ${client.mfa.webauthn.credentials[':credentialId'].$url().pathname}`
@@ -647,7 +676,8 @@ export function usePostMfaBackupCodesGenerate(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaBackupCodesGenerateMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaBackupCodesGenerateMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -658,14 +688,15 @@ export function usePostMfaBackupCodesGenerate(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.mfa)['backup-codes']['generate']['$post']> },
       ) => parseResponse(client.mfa['backup-codes'].generate.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/backup-codes/generate
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaBackupCodesGenerateMutationKey() {
   return `POST ${client.mfa['backup-codes'].generate.$url().pathname}`
@@ -681,14 +712,15 @@ export function useGetMfaBackupCodesStatus(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMfaBackupCodesStatusKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMfaBackupCodesStatusKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.mfa['backup-codes'].status.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -720,21 +752,23 @@ export function usePostMfaChallenge(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaChallengeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaChallengeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.challenge.$post> }) =>
         parseResponse(client.mfa.challenge.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/challenge
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaChallengeMutationKey() {
   return `POST ${client.mfa.challenge.$url().pathname}`
@@ -759,21 +793,23 @@ export function usePostMfaChallengeSend(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaChallengeSendMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaChallengeSendMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.challenge.send.$post> }) =>
         parseResponse(client.mfa.challenge.send.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/challenge/send
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaChallengeSendMutationKey() {
   return `POST ${client.mfa.challenge.send.$url().pathname}`
@@ -796,21 +832,23 @@ export function usePostMfaVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaVerifyMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaVerifyMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.verify.$post> }) =>
         parseResponse(client.mfa.verify.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/verify
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaVerifyMutationKey() {
   return `POST ${client.mfa.verify.$url().pathname}`
@@ -837,7 +875,8 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaWebauthnAuthenticateOptionsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaWebauthnAuthenticateOptionsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -846,14 +885,15 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<typeof client.mfa.webauthn.authenticate.options.$post> },
       ) => parseResponse(client.mfa.webauthn.authenticate.options.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/authenticate/options
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
   return `POST ${client.mfa.webauthn.authenticate.options.$url().pathname}`
@@ -878,21 +918,23 @@ export function usePostMfaRecovery(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaRecoveryMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaRecoveryMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.recovery.$post> }) =>
         parseResponse(client.mfa.recovery.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/recovery
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaRecoveryMutationKey() {
   return `POST ${client.mfa.recovery.$url().pathname}`
@@ -915,21 +957,23 @@ export function usePostMfaRecoveryVerify(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMfaRecoveryVerifyMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMfaRecoveryVerifyMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.mfa.recovery.verify.$post> }) =>
         parseResponse(client.mfa.recovery.verify.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /mfa/recovery/verify
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMfaRecoveryVerifyMutationKey() {
   return `POST ${client.mfa.recovery.verify.$url().pathname}`

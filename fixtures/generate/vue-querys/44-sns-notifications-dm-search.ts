@@ -32,12 +32,13 @@ export function useGetNotifications(
 
 /**
  * Generates Vue Query cache key for GET /notifications
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetNotificationsQueryKey(
   args: InferRequestType<typeof client.notifications.$get>,
 ) {
-  return [client.notifications.$url(args).pathname] as const
+  const u = client.notifications.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -254,12 +255,13 @@ export function useGetDmConversations(
 
 /**
  * Generates Vue Query cache key for GET /dm/conversations
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDmConversationsQueryKey(
   args: InferRequestType<typeof client.dm.conversations.$get>,
 ) {
-  return [client.dm.conversations.$url(args).pathname] as const
+  const u = client.dm.conversations.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -346,12 +348,13 @@ export function useGetDmConversationsConversationId(
 
 /**
  * Generates Vue Query cache key for GET /dm/conversations/{conversationId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDmConversationsConversationIdQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$get']>,
 ) {
-  return [client.dm.conversations[':conversationId'].$url(args).pathname] as const
+  const u = client.dm.conversations[':conversationId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -446,12 +449,13 @@ export function useGetDmConversationsConversationIdMessages(
 
 /**
  * Generates Vue Query cache key for GET /dm/conversations/{conversationId}/messages
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDmConversationsConversationIdMessagesQueryKey(
   args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['messages']['$get']>,
 ) {
-  return [client.dm.conversations[':conversationId'].messages.$url(args).pathname] as const
+  const u = client.dm.conversations[':conversationId'].messages.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -761,10 +765,11 @@ export function useGetSearchPosts(
 
 /**
  * Generates Vue Query cache key for GET /search/posts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSearchPostsQueryKey(args: InferRequestType<typeof client.search.posts.$get>) {
-  return [client.search.posts.$url(args).pathname] as const
+  const u = client.search.posts.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -814,10 +819,11 @@ export function useGetSearchUsers(
 
 /**
  * Generates Vue Query cache key for GET /search/users
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSearchUsersQueryKey(args: InferRequestType<typeof client.search.users.$get>) {
-  return [client.search.users.$url(args).pathname] as const
+  const u = client.search.users.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -869,12 +875,13 @@ export function useGetSearchHashtags(
 
 /**
  * Generates Vue Query cache key for GET /search/hashtags
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSearchHashtagsQueryKey(
   args: InferRequestType<typeof client.search.hashtags.$get>,
 ) {
-  return [client.search.hashtags.$url(args).pathname] as const
+  const u = client.search.hashtags.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -999,10 +1006,11 @@ export function useGetTrends(
 
 /**
  * Generates Vue Query cache key for GET /trends
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTrendsQueryKey(args: InferRequestType<typeof client.trends.$get>) {
-  return [client.trends.$url(args).pathname] as const
+  const u = client.trends.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1098,12 +1106,13 @@ export function useGetSuggestionsUsers(
 
 /**
  * Generates Vue Query cache key for GET /suggestions/users
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSuggestionsUsersQueryKey(
   args: InferRequestType<typeof client.suggestions.users.$get>,
 ) {
-  return [client.suggestions.users.$url(args).pathname] as const
+  const u = client.suggestions.users.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

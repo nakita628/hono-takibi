@@ -21,24 +21,26 @@ export function useGetAlbums(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAlbumsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAlbumsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.albums.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /albums
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAlbumsKey(args: InferRequestType<typeof client.albums.$get>) {
-  return client.albums.$url(args).pathname
+  const u = client.albums.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -56,24 +58,26 @@ export function useGetAlbumsId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAlbumsIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAlbumsIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.albums[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /albums/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAlbumsIdKey(args: InferRequestType<(typeof client.albums)[':id']['$get']>) {
-  return client.albums[':id'].$url(args).pathname
+  const u = client.albums[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -92,26 +96,28 @@ export function useGetAlbumsIdTracks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAlbumsIdTracksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAlbumsIdTracksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.albums[':id'].tracks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /albums/{id}/tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAlbumsIdTracksKey(
   args: InferRequestType<(typeof client.albums)[':id']['tracks']['$get']>,
 ) {
-  return client.albums[':id'].tracks.$url(args).pathname
+  const u = client.albums[':id'].tracks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -129,24 +135,26 @@ export function useGetArtists(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetArtistsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetArtistsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.artists.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /artists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsKey(args: InferRequestType<typeof client.artists.$get>) {
-  return client.artists.$url(args).pathname
+  const u = client.artists.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -164,24 +172,26 @@ export function useGetArtistsId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetArtistsIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.artists[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /artists/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdKey(args: InferRequestType<(typeof client.artists)[':id']['$get']>) {
-  return client.artists[':id'].$url(args).pathname
+  const u = client.artists[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -199,26 +209,28 @@ export function useGetArtistsIdAlbums(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetArtistsIdAlbumsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdAlbumsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.artists[':id'].albums.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /artists/{id}/albums
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdAlbumsKey(
   args: InferRequestType<(typeof client.artists)[':id']['albums']['$get']>,
 ) {
-  return client.artists[':id'].albums.$url(args).pathname
+  const u = client.artists[':id'].albums.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -236,26 +248,28 @@ export function useGetArtistsIdRelatedArtists(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetArtistsIdRelatedArtistsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdRelatedArtistsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.artists[':id']['related-artists'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /artists/{id}/related-artists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdRelatedArtistsKey(
   args: InferRequestType<(typeof client.artists)[':id']['related-artists']['$get']>,
 ) {
-  return client.artists[':id']['related-artists'].$url(args).pathname
+  const u = client.artists[':id']['related-artists'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -273,26 +287,28 @@ export function useGetArtistsIdTopTracks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetArtistsIdTopTracksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetArtistsIdTopTracksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.artists[':id']['top-tracks'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /artists/{id}/top-tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetArtistsIdTopTracksKey(
   args: InferRequestType<(typeof client.artists)[':id']['top-tracks']['$get']>,
 ) {
-  return client.artists[':id']['top-tracks'].$url(args).pathname
+  const u = client.artists[':id']['top-tracks'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -310,26 +326,28 @@ export function useGetAudioAnalysisId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAudioAnalysisIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAudioAnalysisIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['audio-analysis'][':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /audio-analysis/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudioAnalysisIdKey(
   args: InferRequestType<(typeof client)['audio-analysis'][':id']['$get']>,
 ) {
-  return client['audio-analysis'][':id'].$url(args).pathname
+  const u = client['audio-analysis'][':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -347,26 +365,28 @@ export function useGetAudioFeatures(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAudioFeaturesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAudioFeaturesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['audio-features'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /audio-features
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudioFeaturesKey(
   args: InferRequestType<(typeof client)['audio-features']['$get']>,
 ) {
-  return client['audio-features'].$url(args).pathname
+  const u = client['audio-features'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -385,26 +405,28 @@ export function useGetAudioFeaturesId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAudioFeaturesIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAudioFeaturesIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client['audio-features'][':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /audio-features/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudioFeaturesIdKey(
   args: InferRequestType<(typeof client)['audio-features'][':id']['$get']>,
 ) {
-  return client['audio-features'][':id'].$url(args).pathname
+  const u = client['audio-features'][':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -423,24 +445,26 @@ export function useGetAudiobooks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAudiobooksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAudiobooksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.audiobooks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /audiobooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudiobooksKey(args: InferRequestType<typeof client.audiobooks.$get>) {
-  return client.audiobooks.$url(args).pathname
+  const u = client.audiobooks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -459,26 +483,28 @@ export function useGetAudiobooksId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAudiobooksIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAudiobooksIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.audiobooks[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /audiobooks/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudiobooksIdKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['$get']>,
 ) {
-  return client.audiobooks[':id'].$url(args).pathname
+  const u = client.audiobooks[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -497,26 +523,28 @@ export function useGetAudiobooksIdChapters(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetAudiobooksIdChaptersKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetAudiobooksIdChaptersKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.audiobooks[':id'].chapters.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /audiobooks/{id}/chapters
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAudiobooksIdChaptersKey(
   args: InferRequestType<(typeof client.audiobooks)[':id']['chapters']['$get']>,
 ) {
-  return client.audiobooks[':id'].chapters.$url(args).pathname
+  const u = client.audiobooks[':id'].chapters.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -534,26 +562,28 @@ export function useGetBrowseCategories(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetBrowseCategoriesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetBrowseCategoriesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.browse.categories.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /browse/categories
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseCategoriesKey(
   args: InferRequestType<typeof client.browse.categories.$get>,
 ) {
-  return client.browse.categories.$url(args).pathname
+  const u = client.browse.categories.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -571,27 +601,28 @@ export function useGetBrowseCategoriesCategoryId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetBrowseCategoriesCategoryIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetBrowseCategoriesCategoryIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.browse.categories[':category_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /browse/categories/{category_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseCategoriesCategoryIdKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['$get']>,
 ) {
-  return client.browse.categories[':category_id'].$url(args).pathname
+  const u = client.browse.categories[':category_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -609,28 +640,30 @@ export function useGetBrowseCategoriesCategoryIdPlaylists(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetBrowseCategoriesCategoryIdPlaylistsKey(args) : null)
+    customKey ?? (isEnabled ? getGetBrowseCategoriesCategoryIdPlaylistsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () =>
         parseResponse(client.browse.categories[':category_id'].playlists.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /browse/categories/{category_id}/playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseCategoriesCategoryIdPlaylistsKey(
   args: InferRequestType<(typeof client.browse.categories)[':category_id']['playlists']['$get']>,
 ) {
-  return client.browse.categories[':category_id'].playlists.$url(args).pathname
+  const u = client.browse.categories[':category_id'].playlists.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -648,26 +681,28 @@ export function useGetBrowseFeaturedPlaylists(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetBrowseFeaturedPlaylistsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetBrowseFeaturedPlaylistsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.browse['featured-playlists'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /browse/featured-playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseFeaturedPlaylistsKey(
   args: InferRequestType<(typeof client.browse)['featured-playlists']['$get']>,
 ) {
-  return client.browse['featured-playlists'].$url(args).pathname
+  const u = client.browse['featured-playlists'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -685,26 +720,28 @@ export function useGetBrowseNewReleases(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetBrowseNewReleasesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetBrowseNewReleasesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.browse['new-releases'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /browse/new-releases
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseNewReleasesKey(
   args: InferRequestType<(typeof client.browse)['new-releases']['$get']>,
 ) {
-  return client.browse['new-releases'].$url(args).pathname
+  const u = client.browse['new-releases'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -723,24 +760,26 @@ export function useGetChapters(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChaptersKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChaptersKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.chapters.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /chapters
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChaptersKey(args: InferRequestType<typeof client.chapters.$get>) {
-  return client.chapters.$url(args).pathname
+  const u = client.chapters.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -759,26 +798,28 @@ export function useGetChaptersId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetChaptersIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetChaptersIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.chapters[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /chapters/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChaptersIdKey(
   args: InferRequestType<(typeof client.chapters)[':id']['$get']>,
 ) {
-  return client.chapters[':id'].$url(args).pathname
+  const u = client.chapters[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -796,24 +837,26 @@ export function useGetEpisodes(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEpisodesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetEpisodesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.episodes.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /episodes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEpisodesKey(args: InferRequestType<typeof client.episodes.$get>) {
-  return client.episodes.$url(args).pathname
+  const u = client.episodes.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -832,26 +875,28 @@ export function useGetEpisodesId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetEpisodesIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetEpisodesIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.episodes[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /episodes/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEpisodesIdKey(
   args: InferRequestType<(typeof client.episodes)[':id']['$get']>,
 ) {
-  return client.episodes[':id'].$url(args).pathname
+  const u = client.episodes[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -866,14 +911,15 @@ export function useGetMarkets(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMarketsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMarketsKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.markets.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -899,14 +945,15 @@ export function useGetMe(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -934,24 +981,26 @@ export function useGetMeAlbums(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeAlbumsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeAlbumsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.albums.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/albums
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAlbumsKey(args: InferRequestType<typeof client.me.albums.$get>) {
-  return client.me.albums.$url(args).pathname
+  const u = client.me.albums.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -971,21 +1020,23 @@ export function usePutMeAlbums(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMeAlbumsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMeAlbumsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.albums.$put> }) =>
         parseResponse(client.me.albums.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/albums
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMeAlbumsMutationKey() {
   return `PUT ${client.me.albums.$url().pathname}`
@@ -1008,21 +1059,23 @@ export function useDeleteMeAlbums(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMeAlbumsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMeAlbumsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.albums.$delete> }) =>
         parseResponse(client.me.albums.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /me/albums
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeAlbumsMutationKey() {
   return `DELETE ${client.me.albums.$url().pathname}`
@@ -1043,26 +1096,28 @@ export function useGetMeAlbumsContains(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeAlbumsContainsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeAlbumsContainsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.albums.contains.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/albums/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAlbumsContainsKey(
   args: InferRequestType<typeof client.me.albums.contains.$get>,
 ) {
-  return client.me.albums.contains.$url(args).pathname
+  const u = client.me.albums.contains.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1080,24 +1135,26 @@ export function useGetMeAudiobooks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeAudiobooksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeAudiobooksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.audiobooks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/audiobooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAudiobooksKey(args: InferRequestType<typeof client.me.audiobooks.$get>) {
-  return client.me.audiobooks.$url(args).pathname
+  const u = client.me.audiobooks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1119,21 +1176,23 @@ export function usePutMeAudiobooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMeAudiobooksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMeAudiobooksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.audiobooks.$put> }) =>
         parseResponse(client.me.audiobooks.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/audiobooks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMeAudiobooksMutationKey() {
   return `PUT ${client.me.audiobooks.$url().pathname}`
@@ -1158,21 +1217,23 @@ export function useDeleteMeAudiobooks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMeAudiobooksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMeAudiobooksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.audiobooks.$delete> }) =>
         parseResponse(client.me.audiobooks.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /me/audiobooks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeAudiobooksMutationKey() {
   return `DELETE ${client.me.audiobooks.$url().pathname}`
@@ -1193,26 +1254,28 @@ export function useGetMeAudiobooksContains(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeAudiobooksContainsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeAudiobooksContainsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.audiobooks.contains.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/audiobooks/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeAudiobooksContainsKey(
   args: InferRequestType<typeof client.me.audiobooks.contains.$get>,
 ) {
-  return client.me.audiobooks.contains.$url(args).pathname
+  const u = client.me.audiobooks.contains.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1231,24 +1294,26 @@ export function useGetMeEpisodes(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeEpisodesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeEpisodesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.episodes.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/episodes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeEpisodesKey(args: InferRequestType<typeof client.me.episodes.$get>) {
-  return client.me.episodes.$url(args).pathname
+  const u = client.me.episodes.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1269,21 +1334,23 @@ export function usePutMeEpisodes(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMeEpisodesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMeEpisodesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.episodes.$put> }) =>
         parseResponse(client.me.episodes.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/episodes
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMeEpisodesMutationKey() {
   return `PUT ${client.me.episodes.$url().pathname}`
@@ -1309,21 +1376,23 @@ export function useDeleteMeEpisodes(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMeEpisodesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMeEpisodesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.episodes.$delete> }) =>
         parseResponse(client.me.episodes.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /me/episodes
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeEpisodesMutationKey() {
   return `DELETE ${client.me.episodes.$url().pathname}`
@@ -1345,26 +1414,28 @@ export function useGetMeEpisodesContains(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeEpisodesContainsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeEpisodesContainsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.episodes.contains.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/episodes/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeEpisodesContainsKey(
   args: InferRequestType<typeof client.me.episodes.contains.$get>,
 ) {
-  return client.me.episodes.contains.$url(args).pathname
+  const u = client.me.episodes.contains.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1382,24 +1453,26 @@ export function useGetMeFollowing(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeFollowingKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeFollowingKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.following.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/following
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeFollowingKey(args: InferRequestType<typeof client.me.following.$get>) {
-  return client.me.following.$url(args).pathname
+  const u = client.me.following.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1422,21 +1495,23 @@ export function usePutMeFollowing(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMeFollowingMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMeFollowingMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.following.$put> }) =>
         parseResponse(client.me.following.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/following
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMeFollowingMutationKey() {
   return `PUT ${client.me.following.$url().pathname}`
@@ -1461,21 +1536,23 @@ export function useDeleteMeFollowing(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMeFollowingMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMeFollowingMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.following.$delete> }) =>
         parseResponse(client.me.following.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /me/following
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeFollowingMutationKey() {
   return `DELETE ${client.me.following.$url().pathname}`
@@ -1496,26 +1573,28 @@ export function useGetMeFollowingContains(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeFollowingContainsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeFollowingContainsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.following.contains.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/following/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeFollowingContainsKey(
   args: InferRequestType<typeof client.me.following.contains.$get>,
 ) {
-  return client.me.following.contains.$url(args).pathname
+  const u = client.me.following.contains.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1533,24 +1612,26 @@ export function useGetMePlayer(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMePlayerKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMePlayerKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.player.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/player
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlayerKey(args: InferRequestType<typeof client.me.player.$get>) {
-  return client.me.player.$url(args).pathname
+  const u = client.me.player.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1571,21 +1652,23 @@ export function usePutMePlayer(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMePlayerMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMePlayerMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.$put> }) =>
         parseResponse(client.me.player.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/player
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerMutationKey() {
   return `PUT ${client.me.player.$url().pathname}`
@@ -1606,26 +1689,28 @@ export function useGetMePlayerCurrentlyPlaying(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMePlayerCurrentlyPlayingKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMePlayerCurrentlyPlayingKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.player['currently-playing'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/player/currently-playing
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlayerCurrentlyPlayingKey(
   args: InferRequestType<(typeof client.me.player)['currently-playing']['$get']>,
 ) {
-  return client.me.player['currently-playing'].$url(args).pathname
+  const u = client.me.player['currently-playing'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1640,14 +1725,15 @@ export function useGetMePlayerDevices(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMePlayerDevicesKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMePlayerDevicesKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.player.devices.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1680,21 +1766,23 @@ export function usePostMePlayerNext(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMePlayerNextMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMePlayerNextMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.next.$post> }) =>
         parseResponse(client.me.player.next.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /me/player/next
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMePlayerNextMutationKey() {
   return `POST ${client.me.player.next.$url().pathname}`
@@ -1720,21 +1808,23 @@ export function usePutMePlayerPause(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMePlayerPauseMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMePlayerPauseMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.pause.$put> }) =>
         parseResponse(client.me.player.pause.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/player/pause
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerPauseMutationKey() {
   return `PUT ${client.me.player.pause.$url().pathname}`
@@ -1760,21 +1850,23 @@ export function usePutMePlayerPlay(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMePlayerPlayMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMePlayerPlayMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.play.$put> }) =>
         parseResponse(client.me.player.play.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/player/play
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerPlayMutationKey() {
   return `PUT ${client.me.player.play.$url().pathname}`
@@ -1802,21 +1894,23 @@ export function usePostMePlayerPrevious(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMePlayerPreviousMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMePlayerPreviousMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.previous.$post> }) =>
         parseResponse(client.me.player.previous.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /me/player/previous
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMePlayerPreviousMutationKey() {
   return `POST ${client.me.player.previous.$url().pathname}`
@@ -1834,14 +1928,15 @@ export function useGetMePlayerQueue(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMePlayerQueueKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMePlayerQueueKey() : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.player.queue.$get(undefined, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -1874,21 +1969,23 @@ export function usePostMePlayerQueue(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostMePlayerQueueMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostMePlayerQueueMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.queue.$post> }) =>
         parseResponse(client.me.player.queue.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /me/player/queue
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostMePlayerQueueMutationKey() {
   return `POST ${client.me.player.queue.$url().pathname}`
@@ -1910,26 +2007,28 @@ export function useGetMePlayerRecentlyPlayed(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMePlayerRecentlyPlayedKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMePlayerRecentlyPlayedKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.player['recently-played'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/player/recently-played
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlayerRecentlyPlayedKey(
   args: InferRequestType<(typeof client.me.player)['recently-played']['$get']>,
 ) {
-  return client.me.player['recently-played'].$url(args).pathname
+  const u = client.me.player['recently-played'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -1953,21 +2052,23 @@ export function usePutMePlayerRepeat(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMePlayerRepeatMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMePlayerRepeatMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.repeat.$put> }) =>
         parseResponse(client.me.player.repeat.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/player/repeat
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerRepeatMutationKey() {
   return `PUT ${client.me.player.repeat.$url().pathname}`
@@ -1993,21 +2094,23 @@ export function usePutMePlayerSeek(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMePlayerSeekMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMePlayerSeekMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.seek.$put> }) =>
         parseResponse(client.me.player.seek.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/player/seek
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerSeekMutationKey() {
   return `PUT ${client.me.player.seek.$url().pathname}`
@@ -2033,21 +2136,23 @@ export function usePutMePlayerShuffle(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMePlayerShuffleMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMePlayerShuffleMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.shuffle.$put> }) =>
         parseResponse(client.me.player.shuffle.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/player/shuffle
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerShuffleMutationKey() {
   return `PUT ${client.me.player.shuffle.$url().pathname}`
@@ -2073,21 +2178,23 @@ export function usePutMePlayerVolume(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMePlayerVolumeMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMePlayerVolumeMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.player.volume.$put> }) =>
         parseResponse(client.me.player.volume.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/player/volume
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMePlayerVolumeMutationKey() {
   return `PUT ${client.me.player.volume.$url().pathname}`
@@ -2109,24 +2216,26 @@ export function useGetMePlaylists(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMePlaylistsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMePlaylistsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.playlists.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMePlaylistsKey(args: InferRequestType<typeof client.me.playlists.$get>) {
-  return client.me.playlists.$url(args).pathname
+  const u = client.me.playlists.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2144,24 +2253,26 @@ export function useGetMeShows(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeShowsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeShowsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.shows.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/shows
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeShowsKey(args: InferRequestType<typeof client.me.shows.$get>) {
-  return client.me.shows.$url(args).pathname
+  const u = client.me.shows.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2181,21 +2292,23 @@ export function usePutMeShows(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMeShowsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMeShowsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.shows.$put> }) =>
         parseResponse(client.me.shows.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/shows
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMeShowsMutationKey() {
   return `PUT ${client.me.shows.$url().pathname}`
@@ -2218,21 +2331,23 @@ export function useDeleteMeShows(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMeShowsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMeShowsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.shows.$delete> }) =>
         parseResponse(client.me.shows.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /me/shows
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeShowsMutationKey() {
   return `DELETE ${client.me.shows.$url().pathname}`
@@ -2253,26 +2368,28 @@ export function useGetMeShowsContains(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeShowsContainsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeShowsContainsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.shows.contains.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/shows/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeShowsContainsKey(
   args: InferRequestType<typeof client.me.shows.contains.$get>,
 ) {
-  return client.me.shows.contains.$url(args).pathname
+  const u = client.me.shows.contains.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2290,26 +2407,28 @@ export function useGetMeTopType(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeTopTypeKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeTopTypeKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.top[':type'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/top/{type}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeTopTypeKey(
   args: InferRequestType<(typeof client.me.top)[':type']['$get']>,
 ) {
-  return client.me.top[':type'].$url(args).pathname
+  const u = client.me.top[':type'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2327,24 +2446,26 @@ export function useGetMeTracks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeTracksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeTracksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.tracks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeTracksKey(args: InferRequestType<typeof client.me.tracks.$get>) {
-  return client.me.tracks.$url(args).pathname
+  const u = client.me.tracks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2364,21 +2485,23 @@ export function usePutMeTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutMeTracksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutMeTracksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.tracks.$put> }) =>
         parseResponse(client.me.tracks.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /me/tracks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutMeTracksMutationKey() {
   return `PUT ${client.me.tracks.$url().pathname}`
@@ -2401,21 +2524,23 @@ export function useDeleteMeTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeleteMeTracksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeleteMeTracksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
       swrKey,
       async (_: Key, { arg }: { arg: InferRequestType<typeof client.me.tracks.$delete> }) =>
         parseResponse(client.me.tracks.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /me/tracks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeleteMeTracksMutationKey() {
   return `DELETE ${client.me.tracks.$url().pathname}`
@@ -2436,26 +2561,28 @@ export function useGetMeTracksContains(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetMeTracksContainsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetMeTracksContainsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.me.tracks.contains.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /me/tracks/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMeTracksContainsKey(
   args: InferRequestType<typeof client.me.tracks.contains.$get>,
 ) {
-  return client.me.tracks.contains.$url(args).pathname
+  const u = client.me.tracks.contains.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2473,26 +2600,28 @@ export function useGetPlaylistsPlaylistId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPlaylistsPlaylistIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.playlists[':playlist_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['$get']>,
 ) {
-  return client.playlists[':playlist_id'].$url(args).pathname
+  const u = client.playlists[':playlist_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2517,7 +2646,8 @@ export function usePutPlaylistsPlaylistId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutPlaylistsPlaylistIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutPlaylistsPlaylistIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2526,14 +2656,15 @@ export function usePutPlaylistsPlaylistId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']> },
       ) => parseResponse(client.playlists[':playlist_id'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdMutationKey() {
   return `PUT ${client.playlists[':playlist_id'].$url().pathname}`
@@ -2562,7 +2693,8 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutPlaylistsPlaylistIdFollowersMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutPlaylistsPlaylistIdFollowersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2575,14 +2707,15 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
           arg: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>
         },
       ) => parseResponse(client.playlists[':playlist_id'].followers.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}/followers
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdFollowersMutationKey() {
   return `PUT ${client.playlists[':playlist_id'].followers.$url().pathname}`
@@ -2611,7 +2744,8 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeletePlaylistsPlaylistIdFollowersMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeletePlaylistsPlaylistIdFollowersMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2624,14 +2758,15 @@ export function useDeletePlaylistsPlaylistIdFollowers(options?: {
           arg: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>
         },
       ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /playlists/{playlist_id}/followers
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeletePlaylistsPlaylistIdFollowersMutationKey() {
   return `DELETE ${client.playlists[':playlist_id'].followers.$url().pathname}`
@@ -2654,9 +2789,10 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
   const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetPlaylistsPlaylistIdFollowersContainsKey(args) : null)
+    customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdFollowersContainsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
@@ -2665,21 +2801,22 @@ export function useGetPlaylistsPlaylistIdFollowersContains(
         parseResponse(
           client.playlists[':playlist_id'].followers.contains.$get(args, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}/followers/contains
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdFollowersContainsKey(
   args: InferRequestType<
     (typeof client.playlists)[':playlist_id']['followers']['contains']['$get']
   >,
 ) {
-  return client.playlists[':playlist_id'].followers.contains.$url(args).pathname
+  const u = client.playlists[':playlist_id'].followers.contains.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2697,26 +2834,28 @@ export function useGetPlaylistsPlaylistIdImages(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPlaylistsPlaylistIdImagesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdImagesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.playlists[':playlist_id'].images.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}/images
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdImagesKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$get']>,
 ) {
-  return client.playlists[':playlist_id'].images.$url(args).pathname
+  const u = client.playlists[':playlist_id'].images.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2742,7 +2881,8 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutPlaylistsPlaylistIdImagesMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutPlaylistsPlaylistIdImagesMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2753,14 +2893,15 @@ export function usePutPlaylistsPlaylistIdImages(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']> },
       ) => parseResponse(client.playlists[':playlist_id'].images.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}/images
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdImagesMutationKey() {
   return `PUT ${client.playlists[':playlist_id'].images.$url().pathname}`
@@ -2781,26 +2922,28 @@ export function useGetPlaylistsPlaylistIdTracks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetPlaylistsPlaylistIdTracksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetPlaylistsPlaylistIdTracksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.playlists[':playlist_id'].tracks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /playlists/{playlist_id}/tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPlaylistsPlaylistIdTracksKey(
   args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$get']>,
 ) {
-  return client.playlists[':playlist_id'].tracks.$url(args).pathname
+  const u = client.playlists[':playlist_id'].tracks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -2832,7 +2975,8 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutPlaylistsPlaylistIdTracksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutPlaylistsPlaylistIdTracksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2843,14 +2987,15 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']> },
       ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}/tracks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutPlaylistsPlaylistIdTracksMutationKey() {
   return `PUT ${client.playlists[':playlist_id'].tracks.$url().pathname}`
@@ -2879,7 +3024,8 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostPlaylistsPlaylistIdTracksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostPlaylistsPlaylistIdTracksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2890,14 +3036,15 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
           arg,
         }: { arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']> },
       ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /playlists/{playlist_id}/tracks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostPlaylistsPlaylistIdTracksMutationKey() {
   return `POST ${client.playlists[':playlist_id'].tracks.$url().pathname}`
@@ -2926,7 +3073,8 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getDeletePlaylistsPlaylistIdTracksMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getDeletePlaylistsPlaylistIdTracksMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -2939,14 +3087,15 @@ export function useDeletePlaylistsPlaylistIdTracks(options?: {
           arg: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>
         },
       ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for DELETE /playlists/{playlist_id}/tracks
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getDeletePlaylistsPlaylistIdTracksMutationKey() {
   return `DELETE ${client.playlists[':playlist_id'].tracks.$url().pathname}`
@@ -2969,26 +3118,28 @@ export function useGetRecommendations(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetRecommendationsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetRecommendationsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.recommendations.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /recommendations
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetRecommendationsKey(
   args: InferRequestType<typeof client.recommendations.$get>,
 ) {
-  return client.recommendations.$url(args).pathname
+  const u = client.recommendations.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3003,9 +3154,9 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
   client?: ClientRequestOptions
 }) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey =
-    swrOptions?.swrKey ?? (isEnabled ? getGetRecommendationsAvailableGenreSeedsKey() : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetRecommendationsAvailableGenreSeedsKey() : null)
   return {
     swrKey,
     ...useSWR(
@@ -3014,7 +3165,7 @@ export function useGetRecommendationsAvailableGenreSeeds(options?: {
         parseResponse(
           client.recommendations['available-genre-seeds'].$get(undefined, clientOptions),
         ),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
@@ -3044,24 +3195,26 @@ export function useGetSearch(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetSearchKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetSearchKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.search.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSearchKey(args: InferRequestType<typeof client.search.$get>) {
-  return client.search.$url(args).pathname
+  const u = client.search.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3079,24 +3232,26 @@ export function useGetShows(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetShowsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetShowsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.shows.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /shows
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetShowsKey(args: InferRequestType<typeof client.shows.$get>) {
-  return client.shows.$url(args).pathname
+  const u = client.shows.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3115,24 +3270,26 @@ export function useGetShowsId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetShowsIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetShowsIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.shows[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /shows/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetShowsIdKey(args: InferRequestType<(typeof client.shows)[':id']['$get']>) {
-  return client.shows[':id'].$url(args).pathname
+  const u = client.shows[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3150,26 +3307,28 @@ export function useGetShowsIdEpisodes(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetShowsIdEpisodesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetShowsIdEpisodesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.shows[':id'].episodes.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /shows/{id}/episodes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetShowsIdEpisodesKey(
   args: InferRequestType<(typeof client.shows)[':id']['episodes']['$get']>,
 ) {
-  return client.shows[':id'].episodes.$url(args).pathname
+  const u = client.shows[':id'].episodes.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3187,24 +3346,26 @@ export function useGetTracks(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTracksKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTracksKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.tracks.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /tracks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTracksKey(args: InferRequestType<typeof client.tracks.$get>) {
-  return client.tracks.$url(args).pathname
+  const u = client.tracks.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3223,24 +3384,26 @@ export function useGetTracksId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetTracksIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetTracksIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.tracks[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /tracks/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTracksIdKey(args: InferRequestType<(typeof client.tracks)[':id']['$get']>) {
-  return client.tracks[':id'].$url(args).pathname
+  const u = client.tracks[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3258,26 +3421,28 @@ export function useGetUsersUserId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.users[':user_id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return client.users[':user_id'].$url(args).pathname
+  const u = client.users[':user_id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3295,26 +3460,28 @@ export function useGetUsersUserIdPlaylists(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetUsersUserIdPlaylistsKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetUsersUserIdPlaylistsKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.users[':user_id'].playlists.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /users/{user_id}/playlists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdPlaylistsKey(
   args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$get']>,
 ) {
-  return client.users[':user_id'].playlists.$url(args).pathname
+  const u = client.users[':user_id'].playlists.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -3341,7 +3508,8 @@ export function usePostUsersUserIdPlaylists(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPostUsersUserIdPlaylistsMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPostUsersUserIdPlaylistsMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -3350,14 +3518,15 @@ export function usePostUsersUserIdPlaylists(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']> },
       ) => parseResponse(client.users[':user_id'].playlists.$post(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for POST /users/{user_id}/playlists
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPostUsersUserIdPlaylistsMutationKey() {
   return `POST ${client.users[':user_id'].playlists.$url().pathname}`

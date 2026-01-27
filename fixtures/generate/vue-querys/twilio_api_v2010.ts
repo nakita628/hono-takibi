@@ -41,12 +41,13 @@ export function useGet20100401AccountsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsJsonQueryKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$get']>,
 ) {
-  return [client['2010-04-01']['Accounts.json'].$url(args).pathname] as const
+  const u = client['2010-04-01']['Accounts.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -140,12 +141,13 @@ export function useGet20100401AccountsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsSidJsonQueryKey(
   args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$get']>,
 ) {
-  return [client['2010-04-01'].Accounts[':Sid.json'].$url(args).pathname] as const
+  const u = client['2010-04-01'].Accounts[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -241,16 +243,15 @@ export function useGet20100401AccountsAccountSidAddressesJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAddressesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -355,16 +356,15 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAddressesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -522,16 +522,15 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidApplicationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -647,16 +646,15 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidApplicationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -825,18 +823,18 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppS
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps/{ConnectAppSid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsConnectAppSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps'][':ConnectAppSid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AuthorizedConnectApps[':ConnectAppSid.json'].$url(
       args,
-    ).pathname,
-  ] as const
+    )
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -902,16 +900,15 @@ export function useGet20100401AccountsAccountSidAuthorizedConnectAppsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AuthorizedConnectApps.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAuthorizedConnectAppsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AuthorizedConnectApps.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['AuthorizedConnectApps.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -974,16 +971,15 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['AvailablePhoneNumbers.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1049,18 +1045,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode.json'].$url(
       args,
-    ).pathname,
-  ] as const
+    )
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1126,18 +1122,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Local.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeLocalJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Local.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
       'Local.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1204,18 +1200,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/MachineToMachine.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMachineToMachineJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['MachineToMachine.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
       'MachineToMachine.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1284,18 +1280,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Mobile.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeMobileJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Mobile.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
       'Mobile.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1362,18 +1358,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/National.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeNationalJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['National.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
       'National.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1440,18 +1436,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/SharedCost.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeSharedCostJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['SharedCost.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
       'SharedCost.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1518,18 +1514,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/TollFree.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeTollFreeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['TollFree.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
       'TollFree.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1596,18 +1592,18 @@ export function useGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCode
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/AvailablePhoneNumbers/{CountryCode}/Voip.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAvailablePhoneNumbersCountryCodeVoipJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['AvailablePhoneNumbers'][':CountryCode']['Voip.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].AvailablePhoneNumbers[':CountryCode'][
       'Voip.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1675,14 +1671,15 @@ export function useGet20100401AccountsAccountSidBalanceJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Balance.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidBalanceJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Balance.json']['$get']
   >,
 ) {
-  return [client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$url(args).pathname] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Balance.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1749,14 +1746,15 @@ export function useGet20100401AccountsAccountSidCallsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$get']
   >,
 ) {
-  return [client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$url(args).pathname] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1869,16 +1867,15 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2041,17 +2038,15 @@ export function useGet20100401AccountsAccountSidCallsCallSidEventsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Events.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidEventsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Events.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$url(args)
-      .pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Events.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2117,18 +2112,18 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsSidJson
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Notifications[':Sid.json'].$url(
       args,
-    ).pathname,
-  ] as const
+    )
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2193,17 +2188,16 @@ export function useGet20100401AccountsAccountSidCallsCallSidNotificationsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Notifications.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidNotificationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Notifications.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Notifications.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2270,17 +2264,16 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2399,18 +2392,18 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidCallsCallSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$url(
       args,
-    ).pathname,
-  ] as const
+    )
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2574,16 +2567,15 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2695,16 +2687,15 @@ export function useGet20100401AccountsAccountSidConferencesJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Conferences.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2774,18 +2765,18 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
       'Recordings.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2854,18 +2845,18 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
       ':Sid.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3030,16 +3021,15 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConnectAppsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3205,16 +3195,15 @@ export function useGet20100401AccountsAccountSidConnectAppsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/ConnectApps.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConnectAppsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['ConnectApps.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3280,18 +3269,18 @@ export function useGet20100401AccountsAccountSidAddressesAddressSidDependentPhon
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Addresses/{AddressSid}/DependentPhoneNumbers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidAddressesAddressSidDependentPhoneNumbersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':AddressSid']['DependentPhoneNumbers.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Addresses[':AddressSid'][
       'DependentPhoneNumbers.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3359,17 +3348,16 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3535,16 +3523,15 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3663,18 +3650,18 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
       ':ResourceSid'
-    ].AssignedAddOns[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].AssignedAddOns[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3799,18 +3786,18 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
       'AssignedAddOns.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3931,18 +3918,18 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
       ':ResourceSid'
-    ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].AssignedAddOns[':AssignedAddOnSid'].Extensions[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4018,18 +4005,18 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{AssignedAddOnSid}/Extensions.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsAssignedAddOnSidExtensionsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':AssignedAddOnSid']['Extensions.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
       ':ResourceSid'
-    ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$url(args).pathname,
-  ] as const
+    ].AssignedAddOns[':AssignedAddOnSid']['Extensions.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4101,17 +4088,16 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4222,17 +4208,16 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4343,17 +4328,16 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4461,16 +4445,15 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidKeysSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4618,14 +4601,15 @@ export function useGet20100401AccountsAccountSidKeysJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidKeysJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$get']
   >,
 ) {
-  return [client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$url(args).pathname] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4737,18 +4721,18 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[':Sid.json'].$url(
       args,
-    ).pathname,
-  ] as const
+    )
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4864,17 +4848,16 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesMessageSidMediaJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Media.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4944,18 +4927,18 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[':CallSid.json'].$url(
       args,
-    ).pathname,
-  ] as const
+    )
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5069,17 +5052,16 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesQueueSidMembersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid']['Members.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5146,16 +5128,15 @@ export function useGet20100401AccountsAccountSidMessagesJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5268,16 +5249,15 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidMessagesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5488,16 +5468,15 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSigningKeysJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5610,16 +5589,15 @@ export function useGet20100401AccountsAccountSidNotificationsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidNotificationsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Notifications[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5686,16 +5664,15 @@ export function useGet20100401AccountsAccountSidNotificationsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Notifications.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidNotificationsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Notifications.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Notifications.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5762,16 +5739,15 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5937,16 +5913,15 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6061,18 +6036,18 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
       ':CallSid.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6240,18 +6215,18 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
       'Participants.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6461,16 +6436,15 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6633,14 +6607,15 @@ export function useGet20100401AccountsAccountSidQueuesJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidQueuesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$get']
   >,
 ) {
-  return [client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$url(args).pathname] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6850,16 +6825,15 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6976,16 +6950,15 @@ export function useGet20100401AccountsAccountSidRecordingsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Recordings.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7055,18 +7028,18 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
       ':Sid.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7186,18 +7159,18 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'][
       'AddOnResults.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7266,18 +7239,18 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
       ':AddOnResultSid'
-    ].Payloads[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].Payloads[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7402,18 +7375,18 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
       ':AddOnResultSid'
-    ]['Payloads.json'].$url(args).pathname,
-  ] as const
+    ]['Payloads.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7489,18 +7462,18 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{PayloadSid}/Data.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsPayloadSidDataJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':PayloadSid']['Data.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
       ':AddOnResultSid'
-    ].Payloads[':PayloadSid']['Data.json'].$url(args).pathname,
-  ] as const
+    ].Payloads[':PayloadSid']['Data.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7572,18 +7545,18 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
       ':Sid.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7695,18 +7668,18 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'][
       'Transcriptions.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7774,16 +7747,15 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7899,16 +7871,15 @@ export function useGet20100401AccountsAccountSidSMSShortCodesJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSMSShortCodesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SMS['ShortCodes.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7971,16 +7942,15 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSigningKeysSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8141,18 +8111,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
       'CredentialListMappings.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8273,18 +8243,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
       ':DomainSid'
-    ].Auth.Calls.CredentialListMappings[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].Auth.Calls.CredentialListMappings[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8409,18 +8379,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
       'IpAccessControlListMappings.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8541,18 +8511,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
       ':DomainSid'
-    ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8677,18 +8647,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
       'CredentialListMappings.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8809,18 +8779,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
       ':DomainSid'
-    ].Auth.Registrations.CredentialListMappings[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].Auth.Registrations.CredentialListMappings[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8945,18 +8915,18 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
       'Credentials.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9077,18 +9047,18 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
       ':CredentialListSid'
-    ].Credentials[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].Credentials[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9258,16 +9228,15 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9383,17 +9352,15 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPCredentialListsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$url(args)
-      .pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9562,18 +9529,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
       'CredentialListMappings.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9692,18 +9659,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].CredentialListMappings[
       ':Sid.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9825,16 +9792,15 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9947,16 +9913,15 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -10122,17 +10087,15 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$url(args)
-      .pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -10251,17 +10214,16 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -10430,18 +10392,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
       ':DomainSid'
-    ].IpAccessControlListMappings[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].IpAccessControlListMappings[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -10566,18 +10528,18 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
       'IpAccessControlListMappings.json'
-    ].$url(args).pathname,
-  ] as const
+    ].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -10698,18 +10660,18 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
       ':IpAccessControlListSid'
-    ]['IpAddresses.json'].$url(args).pathname,
-  ] as const
+    ]['IpAddresses.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -10833,18 +10795,18 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$get']
   >,
 ) {
-  return [
+  const u =
     client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
       ':IpAccessControlListSid'
-    ].IpAddresses[':Sid.json'].$url(args).pathname,
-  ] as const
+    ].IpAddresses[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11256,16 +11218,15 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11382,16 +11343,15 @@ export function useGet20100401AccountsAccountSidTranscriptionsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Transcriptions.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidTranscriptionsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid']['Transcriptions.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11458,16 +11418,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage['Records.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11530,16 +11489,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsAllTimeJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/AllTime.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsAllTimeJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['AllTime.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['AllTime.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11602,16 +11560,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsDailyJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Daily.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsDailyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Daily.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Daily.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11674,17 +11631,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsLastMonthJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/LastMonth.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsLastMonthJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['LastMonth.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$url(args)
-      .pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['LastMonth.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11747,16 +11702,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsMonthlyJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Monthly.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsMonthlyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Monthly.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Monthly.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11819,17 +11773,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsThisMonthJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/ThisMonth.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsThisMonthJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['ThisMonth.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$url(args)
-      .pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['ThisMonth.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11892,16 +11844,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsTodayJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Today.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsTodayJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Today.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Today.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -11964,16 +11915,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsYearlyJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yearly.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYearlyJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yearly.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yearly.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -12036,17 +11986,15 @@ export function useGet20100401AccountsAccountSidUsageRecordsYesterdayJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Records/Yesterday.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageRecordsYesterdayJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Records']['Yesterday.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$url(args)
-      .pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Records['Yesterday.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -12113,16 +12061,15 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageTriggersSidJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -12284,16 +12231,15 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
 
 /**
  * Generates Vue Query cache key for GET /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet20100401AccountsAccountSidUsageTriggersJsonQueryKey(
   args: InferRequestType<
     (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$get']
   >,
 ) {
-  return [
-    client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$url(args).pathname,
-  ] as const
+  const u = client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

@@ -34,10 +34,11 @@ export function useGetPath(
 
 /**
  * Generates Vue Query cache key for GET /{path}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPathQueryKey(args: InferRequestType<(typeof client)[':path']['$get']>) {
-  return [client[':path'].$url(args).pathname] as const
+  const u = client[':path'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -462,12 +463,13 @@ export function useGet1IndexesIndexNameObjectID(
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/{objectID}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1IndexesIndexNameObjectIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$get']>,
 ) {
-  return [client['1'].indexes[':indexName'][':objectID'].$url(args).pathname] as const
+  const u = client['1'].indexes[':indexName'][':objectID'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -883,12 +885,13 @@ export function useGet1IndexesIndexNameSettings(
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/settings
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1IndexesIndexNameSettingsQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$get']>,
 ) {
-  return [client['1'].indexes[':indexName'].settings.$url(args).pathname] as const
+  const u = client['1'].indexes[':indexName'].settings.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -995,14 +998,15 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/synonyms/{objectID}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1IndexesIndexNameSynonymsObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$get']
   >,
 ) {
-  return [client['1'].indexes[':indexName'].synonyms[':objectID'].$url(args).pathname] as const
+  const u = client['1'].indexes[':indexName'].synonyms[':objectID'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1375,12 +1379,13 @@ export function useGet1KeysKey(
 
 /**
  * Generates Vue Query cache key for GET /1/keys/{key}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1KeysKeyQueryKey(
   args: InferRequestType<(typeof client)['1']['keys'][':key']['$get']>,
 ) {
-  return [client['1'].keys[':key'].$url(args).pathname] as const
+  const u = client['1'].keys[':key'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1554,14 +1559,15 @@ export function useGet1IndexesIndexNameRulesObjectID(
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/rules/{objectID}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1IndexesIndexNameRulesObjectIDQueryKey(
   args: InferRequestType<
     (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$get']
   >,
 ) {
-  return [client['1'].indexes[':indexName'].rules[':objectID'].$url(args).pathname] as const
+  const u = client['1'].indexes[':indexName'].rules[':objectID'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2066,12 +2072,13 @@ export function useGet1ClustersMapping(
 
 /**
  * Generates Vue Query cache key for GET /1/clusters/mapping
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1ClustersMappingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$get']>,
 ) {
-  return [client['1'].clusters.mapping.$url(args).pathname] as const
+  const u = client['1'].clusters.mapping.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2263,12 +2270,13 @@ export function useGet1ClustersMappingUserID(
 
 /**
  * Generates Vue Query cache key for GET /1/clusters/mapping/{userID}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1ClustersMappingUserIDQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$get']>,
 ) {
-  return [client['1'].clusters.mapping[':userID'].$url(args).pathname] as const
+  const u = client['1'].clusters.mapping[':userID'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2451,12 +2459,13 @@ export function useGet1ClustersMappingPending(
 
 /**
  * Generates Vue Query cache key for GET /1/clusters/mapping/pending
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1ClustersMappingPendingQueryKey(
   args: InferRequestType<(typeof client)['1']['clusters']['mapping']['pending']['$get']>,
 ) {
-  return [client['1'].clusters.mapping.pending.$url(args).pathname] as const
+  const u = client['1'].clusters.mapping.pending.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2672,10 +2681,11 @@ export function useGet1Logs(
 
 /**
  * Generates Vue Query cache key for GET /1/logs
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1LogsQueryKey(args: InferRequestType<(typeof client)['1']['logs']['$get']>) {
-  return [client['1'].logs.$url(args).pathname] as const
+  const u = client['1'].logs.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2728,12 +2738,13 @@ export function useGet1TaskTaskID(
 
 /**
  * Generates Vue Query cache key for GET /1/task/{taskID}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1TaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['task'][':taskID']['$get']>,
 ) {
-  return [client['1'].task[':taskID'].$url(args).pathname] as const
+  const u = client['1'].task[':taskID'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2802,12 +2813,13 @@ export function useGet1IndexesIndexNameTaskTaskID(
 
 /**
  * Generates Vue Query cache key for GET /1/indexes/{indexName}/task/{taskID}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1IndexesIndexNameTaskTaskIDQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['task'][':taskID']['$get']>,
 ) {
-  return [client['1'].indexes[':indexName'].task[':taskID'].$url(args).pathname] as const
+  const u = client['1'].indexes[':indexName'].task[':taskID'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2923,12 +2935,13 @@ export function useGet1Indexes(
 
 /**
  * Generates Vue Query cache key for GET /1/indexes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGet1IndexesQueryKey(
   args: InferRequestType<(typeof client)['1']['indexes']['$get']>,
 ) {
-  return [client['1'].indexes.$url(args).pathname] as const
+  const u = client['1'].indexes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2980,12 +2993,13 @@ export function useGetWaitForApiKey(
 
 /**
  * Generates Vue Query cache key for GET /waitForApiKey
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWaitForApiKeyQueryKey(
   args: InferRequestType<typeof client.waitForApiKey.$get>,
 ) {
-  return [client.waitForApiKey.$url(args).pathname] as const
+  const u = client.waitForApiKey.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3039,10 +3053,11 @@ export function useGetWaitForTask(
 
 /**
  * Generates Vue Query cache key for GET /waitForTask
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWaitForTaskQueryKey(args: InferRequestType<typeof client.waitForTask.$get>) {
-  return [client.waitForTask.$url(args).pathname] as const
+  const u = client.waitForTask.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3091,12 +3106,13 @@ export function useGetWaitForAppTask(
 
 /**
  * Generates Vue Query cache key for GET /waitForAppTask
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWaitForAppTaskQueryKey(
   args: InferRequestType<typeof client.waitForAppTask.$get>,
 ) {
-  return [client.waitForAppTask.$url(args).pathname] as const
+  const u = client.waitForAppTask.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3152,12 +3168,13 @@ export function useGetBrowseObjects(
 
 /**
  * Generates Vue Query cache key for GET /browseObjects
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBrowseObjectsQueryKey(
   args: InferRequestType<typeof client.browseObjects.$get>,
 ) {
-  return [client.browseObjects.$url(args).pathname] as const
+  const u = client.browseObjects.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3226,12 +3243,13 @@ export function useGetGenerateSecuredApiKey(
 
 /**
  * Generates Vue Query cache key for GET /generateSecuredApiKey
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGenerateSecuredApiKeyQueryKey(
   args: InferRequestType<typeof client.generateSecuredApiKey.$get>,
 ) {
-  return [client.generateSecuredApiKey.$url(args).pathname] as const
+  const u = client.generateSecuredApiKey.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3285,12 +3303,13 @@ export function useGetAccountCopyIndex(
 
 /**
  * Generates Vue Query cache key for GET /accountCopyIndex
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetAccountCopyIndexQueryKey(
   args: InferRequestType<typeof client.accountCopyIndex.$get>,
 ) {
-  return [client.accountCopyIndex.$url(args).pathname] as const
+  const u = client.accountCopyIndex.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3359,12 +3378,13 @@ export function useGetReplaceAllObjects(
 
 /**
  * Generates Vue Query cache key for GET /replaceAllObjects
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetReplaceAllObjectsQueryKey(
   args: InferRequestType<typeof client.replaceAllObjects.$get>,
 ) {
-  return [client.replaceAllObjects.$url(args).pathname] as const
+  const u = client.replaceAllObjects.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3435,12 +3455,13 @@ export function useGetReplaceAllObjectsWithTransformation(
 
 /**
  * Generates Vue Query cache key for GET /replaceAllObjectsWithTransformation
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetReplaceAllObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.replaceAllObjectsWithTransformation.$get>,
 ) {
-  return [client.replaceAllObjectsWithTransformation.$url(args).pathname] as const
+  const u = client.replaceAllObjectsWithTransformation.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3492,12 +3513,13 @@ export function useGetChunkedBatch(
 
 /**
  * Generates Vue Query cache key for GET /chunkedBatch
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChunkedBatchQueryKey(
   args: InferRequestType<typeof client.chunkedBatch.$get>,
 ) {
-  return [client.chunkedBatch.$url(args).pathname] as const
+  const u = client.chunkedBatch.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3549,10 +3571,11 @@ export function useGetSaveObjects(
 
 /**
  * Generates Vue Query cache key for GET /saveObjects
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSaveObjectsQueryKey(args: InferRequestType<typeof client.saveObjects.$get>) {
-  return [client.saveObjects.$url(args).pathname] as const
+  const u = client.saveObjects.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3608,12 +3631,13 @@ export function useGetSaveObjectsWithTransformation(
 
 /**
  * Generates Vue Query cache key for GET /saveObjectsWithTransformation
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSaveObjectsWithTransformationQueryKey(
   args: InferRequestType<typeof client.saveObjectsWithTransformation.$get>,
 ) {
-  return [client.saveObjectsWithTransformation.$url(args).pathname] as const
+  const u = client.saveObjectsWithTransformation.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3762,10 +3786,11 @@ export function useGetIndexExists(
 
 /**
  * Generates Vue Query cache key for GET /indexExists
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetIndexExistsQueryKey(args: InferRequestType<typeof client.indexExists.$get>) {
-  return [client.indexExists.$url(args).pathname] as const
+  const u = client.indexExists.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3816,12 +3841,13 @@ export function useGetSetClientApiKey(
 
 /**
  * Generates Vue Query cache key for GET /setClientApiKey
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetSetClientApiKeyQueryKey(
   args: InferRequestType<typeof client.setClientApiKey.$get>,
 ) {
-  return [client.setClientApiKey.$url(args).pathname] as const
+  const u = client.setClientApiKey.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

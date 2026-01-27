@@ -23,10 +23,11 @@ export function useGetEntities(
 
 /**
  * Generates TanStack Query cache key for GET /entities
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEntitiesQueryKey(args: InferRequestType<typeof client.entities.$get>) {
-  return [client.entities.$url(args).pathname] as const
+  const u = client.entities.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -87,12 +88,13 @@ export function useGetEntitiesEntityId(
 
 /**
  * Generates TanStack Query cache key for GET /entities/{entityId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEntitiesEntityIdQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['$get']>,
 ) {
-  return [client.entities[':entityId'].$url(args).pathname] as const
+  const u = client.entities[':entityId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -191,12 +193,13 @@ export function useGetEntitiesEntityIdRelationships(
 
 /**
  * Generates TanStack Query cache key for GET /entities/{entityId}/relationships
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetEntitiesEntityIdRelationshipsQueryKey(
   args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$get']>,
 ) {
-  return [client.entities[':entityId'].relationships.$url(args).pathname] as const
+  const u = client.entities[':entityId'].relationships.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

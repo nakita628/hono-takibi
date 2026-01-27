@@ -27,10 +27,11 @@ export function useGetPosts(
 
 /**
  * Generates TanStack Query cache key for GET /posts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsQueryKey(args: InferRequestType<typeof client.posts.$get>) {
-  return [client.posts.$url(args).pathname] as const
+  const u = client.posts.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -95,12 +96,13 @@ export function useGetPostsPostId(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['$get']>,
 ) {
-  return [client.posts[':postId'].$url(args).pathname] as const
+  const u = client.posts[':postId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -177,12 +179,13 @@ export function useGetPostsPostIdThread(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/thread
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdThreadQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['thread']['$get']>,
 ) {
-  return [client.posts[':postId'].thread.$url(args).pathname] as const
+  const u = client.posts[':postId'].thread.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -233,12 +236,13 @@ export function useGetPostsPostIdContext(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/context
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdContextQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['context']['$get']>,
 ) {
-  return [client.posts[':postId'].context.$url(args).pathname] as const
+  const u = client.posts[':postId'].context.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -285,12 +289,13 @@ export function useGetTimelineHome(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/home
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTimelineHomeQueryKey(
   args: InferRequestType<typeof client.timeline.home.$get>,
 ) {
-  return [client.timeline.home.$url(args).pathname] as const
+  const u = client.timeline.home.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -339,12 +344,13 @@ export function useGetTimelineForYou(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/for-you
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTimelineForYouQueryKey(
   args: InferRequestType<(typeof client.timeline)['for-you']['$get']>,
 ) {
-  return [client.timeline['for-you'].$url(args).pathname] as const
+  const u = client.timeline['for-you'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -393,12 +399,13 @@ export function useGetTimelineUserUserId(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/user/{userId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTimelineUserUserIdQueryKey(
   args: InferRequestType<(typeof client.timeline.user)[':userId']['$get']>,
 ) {
-  return [client.timeline.user[':userId'].$url(args).pathname] as const
+  const u = client.timeline.user[':userId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -450,12 +457,13 @@ export function useGetTimelineHashtagHashtag(
 
 /**
  * Generates TanStack Query cache key for GET /timeline/hashtag/{hashtag}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTimelineHashtagHashtagQueryKey(
   args: InferRequestType<(typeof client.timeline.hashtag)[':hashtag']['$get']>,
 ) {
-  return [client.timeline.hashtag[':hashtag'].$url(args).pathname] as const
+  const u = client.timeline.hashtag[':hashtag'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -691,10 +699,11 @@ export function useGetBookmarks(
 
 /**
  * Generates TanStack Query cache key for GET /bookmarks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetBookmarksQueryKey(args: InferRequestType<typeof client.bookmarks.$get>) {
-  return [client.bookmarks.$url(args).pathname] as const
+  const u = client.bookmarks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -740,12 +749,13 @@ export function useGetPostsPostIdLikes(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/likes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdLikesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['likes']['$get']>,
 ) {
-  return [client.posts[':postId'].likes.$url(args).pathname] as const
+  const u = client.posts[':postId'].likes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -794,12 +804,13 @@ export function useGetPostsPostIdReposts(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/reposts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdRepostsQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['reposts']['$get']>,
 ) {
-  return [client.posts[':postId'].reposts.$url(args).pathname] as const
+  const u = client.posts[':postId'].reposts.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -848,12 +859,13 @@ export function useGetPostsPostIdQuotes(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/quotes
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdQuotesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['quotes']['$get']>,
 ) {
-  return [client.posts[':postId'].quotes.$url(args).pathname] as const
+  const u = client.posts[':postId'].quotes.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -902,12 +914,13 @@ export function useGetPostsPostIdReplies(
 
 /**
  * Generates TanStack Query cache key for GET /posts/{postId}/replies
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetPostsPostIdRepliesQueryKey(
   args: InferRequestType<(typeof client.posts)[':postId']['replies']['$get']>,
 ) {
-  return [client.posts[':postId'].replies.$url(args).pathname] as const
+  const u = client.posts[':postId'].replies.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1005,12 +1018,13 @@ export function useGetMediaMediaId(
 
 /**
  * Generates TanStack Query cache key for GET /media/{mediaId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetMediaMediaIdQueryKey(
   args: InferRequestType<(typeof client.media)[':mediaId']['$get']>,
 ) {
-  return [client.media[':mediaId'].$url(args).pathname] as const
+  const u = client.media[':mediaId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

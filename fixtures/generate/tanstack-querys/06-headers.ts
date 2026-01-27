@@ -23,10 +23,11 @@ export function useGetResources(
 
 /**
  * Generates TanStack Query cache key for GET /resources
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetResourcesQueryKey(args: InferRequestType<typeof client.resources.$get>) {
-  return [client.resources.$url(args).pathname] as const
+  const u = client.resources.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -68,12 +69,13 @@ export function useGetResourcesId(
 
 /**
  * Generates TanStack Query cache key for GET /resources/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetResourcesIdQueryKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return [client.resources[':id'].$url(args).pathname] as const
+  const u = client.resources[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -141,12 +143,13 @@ export function useGetDownloadId(
 
 /**
  * Generates TanStack Query cache key for GET /download/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDownloadIdQueryKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return [client.download[':id'].$url(args).pathname] as const
+  const u = client.download[':id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

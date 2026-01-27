@@ -25,10 +25,11 @@ export function createGetFiles(
 
 /**
  * Generates Svelte Query cache key for GET /files
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesQueryKey(args: InferRequestType<typeof client.files.$get>) {
-  return [client.files.$url(args).pathname] as const
+  const u = client.files.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -186,12 +187,13 @@ export function createGetFilesFileId(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesFileIdQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['$get']>,
 ) {
-  return [client.files[':fileId'].$url(args).pathname] as const
+  const u = client.files[':fileId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -294,12 +296,13 @@ export function createGetFilesFileIdDownload(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/download
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesFileIdDownloadQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download']['$get']>,
 ) {
-  return [client.files[':fileId'].download.$url(args).pathname] as const
+  const u = client.files[':fileId'].download.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -351,12 +354,13 @@ export function createGetFilesFileIdDownloadUrl(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/download-url
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesFileIdDownloadUrlQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['download-url']['$get']>,
 ) {
-  return [client.files[':fileId']['download-url'].$url(args).pathname] as const
+  const u = client.files[':fileId']['download-url'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -458,12 +462,13 @@ export function createGetFilesFileIdThumbnail(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/thumbnail
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesFileIdThumbnailQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['thumbnail']['$get']>,
 ) {
-  return [client.files[':fileId'].thumbnail.$url(args).pathname] as const
+  const u = client.files[':fileId'].thumbnail.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -534,12 +539,13 @@ export function createGetFoldersFolderId(
 
 /**
  * Generates Svelte Query cache key for GET /folders/{folderId}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFoldersFolderIdQueryKey(
   args: InferRequestType<(typeof client.folders)[':folderId']['$get']>,
 ) {
-  return [client.folders[':folderId'].$url(args).pathname] as const
+  const u = client.folders[':folderId'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -642,12 +648,13 @@ export function createGetFilesFileIdShare(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/share
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesFileIdShareQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['share']['$get']>,
 ) {
-  return [client.files[':fileId'].share.$url(args).pathname] as const
+  const u = client.files[':fileId'].share.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -784,12 +791,13 @@ export function createGetFilesFileIdVersions(
 
 /**
  * Generates Svelte Query cache key for GET /files/{fileId}/versions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetFilesFileIdVersionsQueryKey(
   args: InferRequestType<(typeof client.files)[':fileId']['versions']['$get']>,
 ) {
-  return [client.files[':fileId'].versions.$url(args).pathname] as const
+  const u = client.files[':fileId'].versions.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -869,10 +877,11 @@ export function createGetTrash(
 
 /**
  * Generates Svelte Query cache key for GET /trash
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetTrashQueryKey(args: InferRequestType<typeof client.trash.$get>) {
-  return [client.trash.$url(args).pathname] as const
+  const u = client.trash.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**

@@ -17,24 +17,26 @@ export function useGetResources(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetResourcesKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetResourcesKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.resources.$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /resources
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetResourcesKey(args: InferRequestType<typeof client.resources.$get>) {
-  return client.resources.$url(args).pathname
+  const u = client.resources.$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -48,26 +50,28 @@ export function useGetResourcesId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetResourcesIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetResourcesIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.resources[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /resources/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetResourcesIdKey(
   args: InferRequestType<(typeof client.resources)[':id']['$get']>,
 ) {
-  return client.resources[':id'].$url(args).pathname
+  const u = client.resources[':id'].$url(args)
+  return u.pathname + u.search
 }
 
 /**
@@ -87,7 +91,8 @@ export function usePutResourcesId(options?: {
   client?: ClientRequestOptions
 }) {
   const { mutation: mutationOptions, client: clientOptions } = options ?? {}
-  const swrKey = mutationOptions?.swrKey ?? getPutResourcesIdMutationKey()
+  const { swrKey: customKey, ...restMutationOptions } = mutationOptions ?? {}
+  const swrKey = customKey ?? getPutResourcesIdMutationKey()
   return {
     swrKey,
     ...useSWRMutation(
@@ -96,14 +101,15 @@ export function usePutResourcesId(options?: {
         _: Key,
         { arg }: { arg: InferRequestType<(typeof client.resources)[':id']['$put']> },
       ) => parseResponse(client.resources[':id'].$put(arg, clientOptions)),
-      mutationOptions,
+      restMutationOptions,
     ),
   }
 }
 
 /**
  * Generates SWR mutation key for PUT /resources/{id}
- * Uses $url() for type-safe key generation
+ * Returns fixed template key (path params are NOT resolved)
+ * All args should be passed via trigger's { arg } object
  */
 export function getPutResourcesIdMutationKey() {
   return `PUT ${client.resources[':id'].$url().pathname}`
@@ -120,24 +126,26 @@ export function useGetDownloadId(
   },
 ) {
   const { swr: swrOptions, client: clientOptions } = options ?? {}
-  const isEnabled = swrOptions?.enabled !== false
-  const swrKey = swrOptions?.swrKey ?? (isEnabled ? getGetDownloadIdKey(args) : null)
+  const { swrKey: customKey, enabled, ...restSwrOptions } = swrOptions ?? {}
+  const isEnabled = enabled !== false
+  const swrKey = customKey ?? (isEnabled ? getGetDownloadIdKey(args) : null)
   return {
     swrKey,
     ...useSWR(
       swrKey,
       async () => parseResponse(client.download[':id'].$get(args, clientOptions)),
-      swrOptions,
+      restSwrOptions,
     ),
   }
 }
 
 /**
  * Generates SWR cache key for GET /download/{id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetDownloadIdKey(
   args: InferRequestType<(typeof client.download)[':id']['$get']>,
 ) {
-  return client.download[':id'].$url(args).pathname
+  const u = client.download[':id'].$url(args)
+  return u.pathname + u.search
 }

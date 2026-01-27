@@ -97,12 +97,13 @@ export function useGetApplicationsApplicationId(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['$get']>,
 ) {
-  return [client.applications[':application_id'].$url(args).pathname] as const
+  const u = client.applications[':application_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -184,17 +185,15 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/activity-instances/{instance_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdActivityInstancesInstanceIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['activity-instances'][':instance_id']['$get']
   >,
 ) {
-  return [
-    client.applications[':application_id']['activity-instances'][':instance_id'].$url(args)
-      .pathname,
-  ] as const
+  const u = client.applications[':application_id']['activity-instances'][':instance_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -277,12 +276,13 @@ export function useGetApplicationsApplicationIdCommands(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/commands
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdCommandsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$get']>,
 ) {
-  return [client.applications[':application_id'].commands.$url(args).pathname] as const
+  const u = client.applications[':application_id'].commands.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -390,16 +390,15 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdCommandsCommandIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return [
-    client.applications[':application_id'].commands[':command_id'].$url(args).pathname,
-  ] as const
+  const u = client.applications[':application_id'].commands[':command_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -526,12 +525,13 @@ export function useGetApplicationsApplicationIdEmojis(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/emojis
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEmojisQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$get']>,
 ) {
-  return [client.applications[':application_id'].emojis.$url(args).pathname] as const
+  const u = client.applications[':application_id'].emojis.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -613,14 +613,15 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEmojisEmojiIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$get']
   >,
 ) {
-  return [client.applications[':application_id'].emojis[':emoji_id'].$url(args).pathname] as const
+  const u = client.applications[':application_id'].emojis[':emoji_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -749,12 +750,13 @@ export function useGetApplicationsApplicationIdEntitlements(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<(typeof client.applications)[':application_id']['entitlements']['$get']>,
 ) {
-  return [client.applications[':application_id'].entitlements.$url(args).pathname] as const
+  const u = client.applications[':application_id'].entitlements.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -841,16 +843,15 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/entitlements/{entitlement_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdEntitlementsEntitlementIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$get']
   >,
 ) {
-  return [
-    client.applications[':application_id'].entitlements[':entitlement_id'].$url(args).pathname,
-  ] as const
+  const u = client.applications[':application_id'].entitlements[':entitlement_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -990,16 +991,15 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$get']
   >,
 ) {
-  return [
-    client.applications[':application_id'].guilds[':guild_id'].commands.$url(args).pathname,
-  ] as const
+  const u = client.applications[':application_id'].guilds[':guild_id'].commands.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1140,17 +1140,16 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsPermissions(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/permissions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsPermissionsQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['permissions']['$get']
   >,
 ) {
-  return [
+  const u =
     client.applications[':application_id'].guilds[':guild_id'].commands.permissions.$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1211,17 +1210,16 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$get']
   >,
 ) {
-  return [
+  const u =
     client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1363,18 +1361,18 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$get']
   >,
 ) {
-  return [
+  const u =
     client.applications[':application_id'].guilds[':guild_id'].commands[
       ':command_id'
-    ].permissions.$url(args).pathname,
-  ] as const
+    ].permissions.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1472,16 +1470,15 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
 
 /**
  * Generates TanStack Query cache key for GET /applications/{application_id}/role-connections/metadata
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetApplicationsApplicationIdRoleConnectionsMetadataQueryKey(
   args: InferRequestType<
     (typeof client.applications)[':application_id']['role-connections']['metadata']['$get']
   >,
 ) {
-  return [
-    client.applications[':application_id']['role-connections'].metadata.$url(args).pathname,
-  ] as const
+  const u = client.applications[':application_id']['role-connections'].metadata.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1568,12 +1565,13 @@ export function useGetChannelsChannelId(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['$get']>,
 ) {
-  return [client.channels[':channel_id'].$url(args).pathname] as const
+  const u = client.channels[':channel_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1698,12 +1696,13 @@ export function useGetChannelsChannelIdInvites(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/invites
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdInvitesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$get']>,
 ) {
-  return [client.channels[':channel_id'].invites.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].invites.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1780,12 +1779,13 @@ export function useGetChannelsChannelIdMessages(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$get']>,
 ) {
-  return [client.channels[':channel_id'].messages.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].messages.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -1897,12 +1897,13 @@ export function useGetChannelsChannelIdMessagesPins(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/pins
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['pins']['$get']>,
 ) {
-  return [client.channels[':channel_id'].messages.pins.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].messages.pins.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2032,14 +2033,15 @@ export function useGetChannelsChannelIdMessagesMessageId(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesMessageIdQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['$get']
   >,
 ) {
-  return [client.channels[':channel_id'].messages[':message_id'].$url(args).pathname] as const
+  const u = client.channels[':channel_id'].messages[':message_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2244,17 +2246,16 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdMessagesMessageIdReactionsEmojiNameQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$get']
   >,
 ) {
-  return [
+  const u =
     client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2581,12 +2582,13 @@ export function useGetChannelsChannelIdPins(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/pins
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdPinsQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['pins']['$get']>,
 ) {
-  return [client.channels[':channel_id'].pins.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].pins.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2708,16 +2710,15 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/polls/{message_id}/answers/{answer_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdPollsMessageIdAnswersAnswerIdQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['polls'][':message_id']['answers'][':answer_id']['$get']
   >,
 ) {
-  return [
-    client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$url(args).pathname,
-  ] as const
+  const u = client.channels[':channel_id'].polls[':message_id'].answers[':answer_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -2910,12 +2911,13 @@ export function useGetChannelsChannelIdThreadMembers(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/thread-members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadMembersQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['thread-members']['$get']>,
 ) {
-  return [client.channels[':channel_id']['thread-members'].$url(args).pathname] as const
+  const u = client.channels[':channel_id']['thread-members'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3041,14 +3043,15 @@ export function useGetChannelsChannelIdThreadMembersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/thread-members/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadMembersUserIdQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$get']
   >,
 ) {
-  return [client.channels[':channel_id']['thread-members'][':user_id'].$url(args).pathname] as const
+  const u = client.channels[':channel_id']['thread-members'][':user_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3206,14 +3209,15 @@ export function useGetChannelsChannelIdThreadsArchivedPrivate(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/archived/private
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['private']['$get']
   >,
 ) {
-  return [client.channels[':channel_id'].threads.archived.private.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].threads.archived.private.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3271,14 +3275,15 @@ export function useGetChannelsChannelIdThreadsArchivedPublic(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/archived/public
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadsArchivedPublicQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['threads']['archived']['public']['$get']
   >,
 ) {
-  return [client.channels[':channel_id'].threads.archived.public.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].threads.archived.public.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3332,12 +3337,13 @@ export function useGetChannelsChannelIdThreadsSearch(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/threads/search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdThreadsSearchQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['search']['$get']>,
 ) {
-  return [client.channels[':channel_id'].threads.search.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].threads.search.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3420,16 +3426,15 @@ export function useGetChannelsChannelIdUsersMeThreadsArchivedPrivate(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/users/@me/threads/archived/private
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdUsersMeThreadsArchivedPrivateQueryKey(
   args: InferRequestType<
     (typeof client.channels)[':channel_id']['users']['@me']['threads']['archived']['private']['$get']
   >,
 ) {
-  return [
-    client.channels[':channel_id'].users['@me'].threads.archived.private.$url(args).pathname,
-  ] as const
+  const u = client.channels[':channel_id'].users['@me'].threads.archived.private.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3481,12 +3486,13 @@ export function useGetChannelsChannelIdWebhooks(
 
 /**
  * Generates TanStack Query cache key for GET /channels/{channel_id}/webhooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetChannelsChannelIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$get']>,
 ) {
-  return [client.channels[':channel_id'].webhooks.$url(args).pathname] as const
+  const u = client.channels[':channel_id'].webhooks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3638,12 +3644,13 @@ export function useGetGuildsTemplatesCode(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/templates/{code}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsTemplatesCodeQueryKey(
   args: InferRequestType<(typeof client.guilds.templates)[':code']['$get']>,
 ) {
-  return [client.guilds.templates[':code'].$url(args).pathname] as const
+  const u = client.guilds.templates[':code'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3688,12 +3695,13 @@ export function useGetGuildsGuildId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3766,12 +3774,13 @@ export function useGetGuildsGuildIdAuditLogs(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/audit-logs
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdAuditLogsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['audit-logs']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['audit-logs'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['audit-logs'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3823,12 +3832,13 @@ export function useGetGuildsGuildIdAutoModerationRules(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/auto-moderation/rules
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdAutoModerationRulesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['auto-moderation'].rules.$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['auto-moderation'].rules.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -3915,16 +3925,15 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdAutoModerationRulesRuleIdQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$get']
   >,
 ) {
-  return [
-    client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url(args).pathname,
-  ] as const
+  const u = client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4051,12 +4060,13 @@ export function useGetGuildsGuildIdBans(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/bans
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdBansQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].bans.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].bans.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4106,12 +4116,13 @@ export function useGetGuildsGuildIdBansUserId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/bans/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdBansUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].bans[':user_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].bans[':user_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4241,12 +4252,13 @@ export function useGetGuildsGuildIdChannels(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/channels
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdChannelsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].channels.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].channels.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4349,12 +4361,13 @@ export function useGetGuildsGuildIdEmojis(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/emojis
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdEmojisQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].emojis.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].emojis.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4430,12 +4443,13 @@ export function useGetGuildsGuildIdEmojisEmojiId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/emojis/{emoji_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdEmojisEmojiIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].emojis[':emoji_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].emojis[':emoji_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4540,12 +4554,13 @@ export function useGetGuildsGuildIdIntegrations(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/integrations
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdIntegrationsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['integrations']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].integrations.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].integrations.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4633,12 +4648,13 @@ export function useGetGuildsGuildIdInvites(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/invites
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdInvitesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['invites']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].invites.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].invites.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4688,12 +4704,13 @@ export function useGetGuildsGuildIdMembers(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/members
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMembersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].members.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].members.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4769,12 +4786,13 @@ export function useGetGuildsGuildIdMembersSearch(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/members/search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMembersSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['search']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].members.search.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].members.search.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -4824,12 +4842,13 @@ export function useGetGuildsGuildIdMembersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/members/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMembersUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].members[':user_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].members[':user_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5043,12 +5062,13 @@ export function useGetGuildsGuildIdMessagesSearch(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/messages/search
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdMessagesSearchQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['messages']['search']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].messages.search.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].messages.search.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5098,12 +5118,13 @@ export function useGetGuildsGuildIdNewMemberWelcome(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/new-member-welcome
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdNewMemberWelcomeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['new-member-welcome']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['new-member-welcome'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['new-member-welcome'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5153,12 +5174,13 @@ export function useGetGuildsGuildIdOnboarding(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/onboarding
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdOnboardingQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].onboarding.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].onboarding.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5234,12 +5256,13 @@ export function useGetGuildsGuildIdPreview(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/preview
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdPreviewQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['preview']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].preview.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].preview.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5286,12 +5309,13 @@ export function useGetGuildsGuildIdPrune(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/prune
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdPruneQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].prune.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].prune.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5367,12 +5391,13 @@ export function useGetGuildsGuildIdRegions(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/regions
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRegionsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['regions']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].regions.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].regions.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5419,12 +5444,13 @@ export function useGetGuildsGuildIdRoles(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/roles
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRolesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].roles.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].roles.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5528,12 +5554,13 @@ export function useGetGuildsGuildIdRolesMemberCounts(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/roles/member-counts
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRolesMemberCountsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['member-counts']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].roles['member-counts'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].roles['member-counts'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5583,12 +5610,13 @@ export function useGetGuildsGuildIdRolesRoleId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/roles/{role_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdRolesRoleIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].roles[':role_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].roles[':role_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5691,12 +5719,13 @@ export function useGetGuildsGuildIdScheduledEvents(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdScheduledEventsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['scheduled-events'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['scheduled-events'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5778,16 +5807,15 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$get']
   >,
 ) {
-  return [
-    client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url(args).pathname,
-  ] as const
+  const u = client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5929,17 +5957,16 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsers(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}/users
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdScheduledEventsGuildScheduledEventIdUsersQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['users']['$get']
   >,
 ) {
-  return [
+  const u =
     client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].users.$url(args)
-      .pathname,
-  ] as const
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -5991,12 +6018,13 @@ export function useGetGuildsGuildIdSoundboardSounds(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/soundboard-sounds
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdSoundboardSoundsQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['soundboard-sounds'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['soundboard-sounds'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6078,14 +6106,15 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdSoundboardSoundsSoundIdQueryKey(
   args: InferRequestType<
     (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$get']
   >,
 ) {
-  return [client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6212,12 +6241,13 @@ export function useGetGuildsGuildIdStickers(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/stickers
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdStickersQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].stickers.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].stickers.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6295,12 +6325,13 @@ export function useGetGuildsGuildIdStickersStickerId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/stickers/{sticker_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].stickers[':sticker_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].stickers[':sticker_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6415,12 +6446,13 @@ export function useGetGuildsGuildIdTemplates(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/templates
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdTemplatesQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].templates.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].templates.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6574,12 +6606,13 @@ export function useGetGuildsGuildIdThreadsActive(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/threads/active
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdThreadsActiveQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['threads']['active']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].threads.active.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].threads.active.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6629,12 +6662,13 @@ export function useGetGuildsGuildIdVanityUrl(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/vanity-url
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdVanityUrlQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['vanity-url']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['vanity-url'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['vanity-url'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6684,12 +6718,13 @@ export function useGetGuildsGuildIdVoiceStatesMe(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/voice-states/@me
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdVoiceStatesMeQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['voice-states']['@me'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['voice-states']['@me'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6771,12 +6806,13 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/voice-states/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdVoiceStatesUserIdQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['voice-states'][':user_id'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['voice-states'][':user_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6860,12 +6896,13 @@ export function useGetGuildsGuildIdWebhooks(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/webhooks
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWebhooksQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['webhooks']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].webhooks.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].webhooks.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6915,12 +6952,13 @@ export function useGetGuildsGuildIdWelcomeScreen(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/welcome-screen
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWelcomeScreenQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['welcome-screen'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['welcome-screen'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -6996,12 +7034,13 @@ export function useGetGuildsGuildIdWidget(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWidgetQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$get']>,
 ) {
-  return [client.guilds[':guild_id'].widget.$url(args).pathname] as const
+  const u = client.guilds[':guild_id'].widget.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7077,12 +7116,13 @@ export function useGetGuildsGuildIdWidgetJson(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget.json
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWidgetJsonQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.json']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['widget.json'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['widget.json'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7132,12 +7172,13 @@ export function useGetGuildsGuildIdWidgetPng(
 
 /**
  * Generates TanStack Query cache key for GET /guilds/{guild_id}/widget.png
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetGuildsGuildIdWidgetPngQueryKey(
   args: InferRequestType<(typeof client.guilds)[':guild_id']['widget.png']['$get']>,
 ) {
-  return [client.guilds[':guild_id']['widget.png'].$url(args).pathname] as const
+  const u = client.guilds[':guild_id']['widget.png'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7223,12 +7264,13 @@ export function useGetInvitesCode(
 
 /**
  * Generates TanStack Query cache key for GET /invites/{code}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetInvitesCodeQueryKey(
   args: InferRequestType<(typeof client.invites)[':code']['$get']>,
 ) {
-  return [client.invites[':code'].$url(args).pathname] as const
+  const u = client.invites[':code'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7334,12 +7376,13 @@ export function useGetLobbiesLobbyId(
 
 /**
  * Generates TanStack Query cache key for GET /lobbies/{lobby_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetLobbiesLobbyIdQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$get']>,
 ) {
-  return [client.lobbies[':lobby_id'].$url(args).pathname] as const
+  const u = client.lobbies[':lobby_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -7617,12 +7660,13 @@ export function useGetLobbiesLobbyIdMessages(
 
 /**
  * Generates TanStack Query cache key for GET /lobbies/{lobby_id}/messages
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetLobbiesLobbyIdMessagesQueryKey(
   args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$get']>,
 ) {
-  return [client.lobbies[':lobby_id'].messages.$url(args).pathname] as const
+  const u = client.lobbies[':lobby_id'].messages.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8050,12 +8094,13 @@ export function useGetStageInstancesChannelId(
 
 /**
  * Generates TanStack Query cache key for GET /stage-instances/{channel_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetStageInstancesChannelIdQueryKey(
   args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$get']>,
 ) {
-  return [client['stage-instances'][':channel_id'].$url(args).pathname] as const
+  const u = client['stage-instances'][':channel_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8197,12 +8242,13 @@ export function useGetStickerPacksPackId(
 
 /**
  * Generates TanStack Query cache key for GET /sticker-packs/{pack_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetStickerPacksPackIdQueryKey(
   args: InferRequestType<(typeof client)['sticker-packs'][':pack_id']['$get']>,
 ) {
-  return [client['sticker-packs'][':pack_id'].$url(args).pathname] as const
+  const u = client['sticker-packs'][':pack_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8247,12 +8293,13 @@ export function useGetStickersStickerId(
 
 /**
  * Generates TanStack Query cache key for GET /stickers/{sticker_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetStickersStickerIdQueryKey(
   args: InferRequestType<(typeof client.stickers)[':sticker_id']['$get']>,
 ) {
-  return [client.stickers[':sticker_id'].$url(args).pathname] as const
+  const u = client.stickers[':sticker_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8369,16 +8416,15 @@ export function useGetUsersMeApplicationsApplicationIdEntitlements(
 
 /**
  * Generates TanStack Query cache key for GET /users/@me/applications/{application_id}/entitlements
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeApplicationsApplicationIdEntitlementsQueryKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['entitlements']['$get']
   >,
 ) {
-  return [
-    client.users['@me'].applications[':application_id'].entitlements.$url(args).pathname,
-  ] as const
+  const u = client.users['@me'].applications[':application_id'].entitlements.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8436,16 +8482,15 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
 
 /**
  * Generates TanStack Query cache key for GET /users/@me/applications/{application_id}/role-connection
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeApplicationsApplicationIdRoleConnectionQueryKey(
   args: InferRequestType<
     (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$get']
   >,
 ) {
-  return [
-    client.users['@me'].applications[':application_id']['role-connection'].$url(args).pathname,
-  ] as const
+  const u = client.users['@me'].applications[':application_id']['role-connection'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8640,12 +8685,13 @@ export function useGetUsersMeGuilds(
 
 /**
  * Generates TanStack Query cache key for GET /users/@me/guilds
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeGuildsQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds']['$get']>,
 ) {
-  return [client.users['@me'].guilds.$url(args).pathname] as const
+  const u = client.users['@me'].guilds.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8724,12 +8770,13 @@ export function useGetUsersMeGuildsGuildIdMember(
 
 /**
  * Generates TanStack Query cache key for GET /users/@me/guilds/{guild_id}/member
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersMeGuildsGuildIdMemberQueryKey(
   args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['member']['$get']>,
 ) {
-  return [client.users['@me'].guilds[':guild_id'].member.$url(args).pathname] as const
+  const u = client.users['@me'].guilds[':guild_id'].member.$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8774,12 +8821,13 @@ export function useGetUsersUserId(
 
 /**
  * Generates TanStack Query cache key for GET /users/{user_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetUsersUserIdQueryKey(
   args: InferRequestType<(typeof client.users)[':user_id']['$get']>,
 ) {
-  return [client.users[':user_id'].$url(args).pathname] as const
+  const u = client.users[':user_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8864,12 +8912,13 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$get']>,
 ) {
-  return [client.webhooks[':webhook_id'].$url(args).pathname] as const
+  const u = client.webhooks[':webhook_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -8969,12 +9018,13 @@ export function useGetWebhooksWebhookIdWebhookToken(
 
 /**
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdWebhookTokenQueryKey(
   args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$get']>,
 ) {
-  return [client.webhooks[':webhook_id'][':webhook_token'].$url(args).pathname] as const
+  const u = client.webhooks[':webhook_id'][':webhook_token'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9150,16 +9200,15 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 
 /**
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesOriginalQueryKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$get']
   >,
 ) {
-  return [
-    client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url(args).pathname,
-  ] as const
+  const u = client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
@@ -9298,16 +9347,15 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 
 /**
  * Generates TanStack Query cache key for GET /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Uses $url() for type-safe key generation
+ * Uses $url() for type-safe key generation (includes query string)
  */
 export function getGetWebhooksWebhookIdWebhookTokenMessagesMessageIdQueryKey(
   args: InferRequestType<
     (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$get']
   >,
 ) {
-  return [
-    client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url(args).pathname,
-  ] as const
+  const u = client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$url(args)
+  return [u.pathname + u.search] as const
 }
 
 /**
