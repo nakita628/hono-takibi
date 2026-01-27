@@ -238,7 +238,12 @@ function makeQueryHookCode(
   inferRequestType: string,
   parseResponseType: string,
   docs: string,
-  config: { queryFn: string; useThunk?: boolean; useQueryOptionsType: string; usePartialOmit?: boolean },
+  config: {
+    queryFn: string
+    useThunk?: boolean
+    useQueryOptionsType: string
+    usePartialOmit?: boolean
+  },
 ): string {
   const argsSig = hasArgs ? `args:${inferRequestType},` : ''
 
@@ -395,7 +400,12 @@ function makeMutationHookCode(
   inferRequestType: string,
   inferResponseType: string,
   docs: string,
-  config: { mutationFn: string; useThunk?: boolean; useMutationOptionsType: string; usePartialOmit?: boolean },
+  config: {
+    mutationFn: string
+    useThunk?: boolean
+    useMutationOptionsType: string
+    usePartialOmit?: boolean
+  },
   hasNoContent: boolean,
 ): string {
   const variablesType = hasArgs ? inferRequestType : 'void'
@@ -625,7 +635,9 @@ function makeHeader(
       ? [`import type{${typeImports.join(',')}}from'${config.packageName}'`]
       : []),
     // Vue Query needs MaybeRef type and unref from 'vue' for queryKey generation
-    ...(config.isVueQuery && hasQuery ? ["import{unref}from'vue'", "import type{MaybeRef}from'vue'"] : []),
+    ...(config.isVueQuery && hasQuery
+      ? ["import{unref}from'vue'", "import type{MaybeRef}from'vue'"]
+      : []),
     `import type{${honoTypeImportParts.join(',')}}from'hono/client'`,
     "import{parseResponse}from'hono/client'",
     `import{${clientName}}from'${importPath}'`,

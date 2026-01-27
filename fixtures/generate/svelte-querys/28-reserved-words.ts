@@ -1,9 +1,9 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
 import type {
+  CreateMutationOptions,
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateMutationOptions,
 } from '@tanstack/svelte-query'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/28-reserved-words'

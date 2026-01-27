@@ -1,7 +1,7 @@
-import useSWR from 'swr'
-import type { Key, SWRConfiguration } from 'swr'
 import type { ClientRequestOptions } from 'hono/client'
 import { parseResponse } from 'hono/client'
+import type { Key, SWRConfiguration } from 'swr'
+import useSWR from 'swr'
 import { client } from '../clients/openapi-literal'
 
 /**

@@ -1,10 +1,10 @@
-import { createQuery, createMutation } from '@tanstack/svelte-query'
 import type {
+  CreateMutationOptions,
   CreateQueryOptions,
   QueryFunctionContext,
-  CreateMutationOptions,
 } from '@tanstack/svelte-query'
-import type { InferRequestType, ClientRequestOptions } from 'hono/client'
+import { createMutation, createQuery } from '@tanstack/svelte-query'
+import type { ClientRequestOptions, InferRequestType } from 'hono/client'
 import { parseResponse } from 'hono/client'
 import { client } from '../clients/12-edge-cases'
 

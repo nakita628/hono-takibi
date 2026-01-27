@@ -167,7 +167,13 @@ const makeHookCode = (
   if (isQuery) {
     // useSWR hook for GET - use key getter function with structured key
     const keyGetterName = toKeyGetterName(method, pathStr)
-    const keyGetterCode = makeKeyGetterCode(keyGetterName, hasArgs, inferRequestType, honoPath, clientPath)
+    const keyGetterCode = makeKeyGetterCode(
+      keyGetterName,
+      hasArgs,
+      inferRequestType,
+      honoPath,
+      clientPath,
+    )
 
     const argsSig = hasArgs ? `args:${inferRequestType},` : ''
     const swrConfigType = 'SWRConfiguration&{swrKey?:Key;enabled?:boolean}'
