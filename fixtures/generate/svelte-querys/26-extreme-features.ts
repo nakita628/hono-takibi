@@ -51,6 +51,25 @@ export function createGetStream(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /graphql
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGraphqlMutationKey() {
+  return ['POST', '/graphql'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /graphql
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGraphqlMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGraphqlMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.graphql.$post>) =>
+    parseResponse(client.graphql.$post(args, clientOptions)),
+})
+
+/**
  * POST /graphql
  *
  * GraphQL endpoint
@@ -70,6 +89,25 @@ export function createPostGraphql(options?: {
       parseResponse(client.graphql.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /grpc-gateway
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGrpcGatewayMutationKey() {
+  return ['POST', '/grpc-gateway'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /grpc-gateway
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGrpcGatewayMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGrpcGatewayMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['grpc-gateway']['$post']>) =>
+    parseResponse(client['grpc-gateway'].$post(args, clientOptions)),
+})
 
 /**
  * POST /grpc-gateway

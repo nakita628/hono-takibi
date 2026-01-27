@@ -1476,6 +1476,25 @@ export function createGetMeAlbums(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/albums
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMeAlbumsMutationKey() {
+  return ['PUT', '/me/albums'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/albums
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeAlbumsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeAlbumsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.albums.$put>) =>
+    parseResponse(client.me.albums.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/albums
  *
  * Save Albums for Current User
@@ -1497,6 +1516,25 @@ export function createPutMeAlbums(options?: {
       parseResponse(client.me.albums.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/albums
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMeAlbumsMutationKey() {
+  return ['DELETE', '/me/albums'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/albums
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeAlbumsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeAlbumsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.albums.$delete>) =>
+    parseResponse(client.me.albums.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/albums
@@ -1635,6 +1673,25 @@ export function createGetMeAudiobooks(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/audiobooks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMeAudiobooksMutationKey() {
+  return ['PUT', '/me/audiobooks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/audiobooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeAudiobooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeAudiobooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$put>) =>
+    parseResponse(client.me.audiobooks.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/audiobooks
  *
  * Save Audiobooks for Current User
@@ -1658,6 +1715,25 @@ export function createPutMeAudiobooks(options?: {
       parseResponse(client.me.audiobooks.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/audiobooks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMeAudiobooksMutationKey() {
+  return ['DELETE', '/me/audiobooks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/audiobooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeAudiobooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeAudiobooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.audiobooks.$delete>) =>
+    parseResponse(client.me.audiobooks.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/audiobooks
@@ -1796,6 +1872,25 @@ export function createGetMeEpisodes(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/episodes
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMeEpisodesMutationKey() {
+  return ['PUT', '/me/episodes'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/episodes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeEpisodesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeEpisodesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.episodes.$put>) =>
+    parseResponse(client.me.episodes.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/episodes
  *
  * Save Episodes for Current User
@@ -1818,6 +1913,25 @@ export function createPutMeEpisodes(options?: {
       parseResponse(client.me.episodes.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/episodes
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMeEpisodesMutationKey() {
+  return ['DELETE', '/me/episodes'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/episodes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeEpisodesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeEpisodesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.episodes.$delete>) =>
+    parseResponse(client.me.episodes.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/episodes
@@ -1960,6 +2074,25 @@ export function createGetMeFollowing(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/following
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMeFollowingMutationKey() {
+  return ['PUT', '/me/following'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/following
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeFollowingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeFollowingMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.following.$put>) =>
+    parseResponse(client.me.following.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/following
  *
  * Follow Artists or Users
@@ -1984,6 +2117,25 @@ export function createPutMeFollowing(options?: {
       parseResponse(client.me.following.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/following
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMeFollowingMutationKey() {
+  return ['DELETE', '/me/following'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/following
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeFollowingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeFollowingMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.following.$delete>) =>
+    parseResponse(client.me.following.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/following
@@ -2117,6 +2269,25 @@ export function createGetMePlayer(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMePlayerMutationKey() {
+  return ['PUT', '/me/player'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.$put>) =>
+    parseResponse(client.me.player.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player
@@ -2254,6 +2425,25 @@ export function createGetMePlayerDevices(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /me/player/next
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMePlayerNextMutationKey() {
+  return ['POST', '/me/player/next'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /me/player/next
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMePlayerNextMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMePlayerNextMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.next.$post>) =>
+    parseResponse(client.me.player.next.$post(args, clientOptions)),
+})
+
+/**
  * POST /me/player/next
  *
  * Skip To Next
@@ -2278,6 +2468,25 @@ export function createPostMePlayerNext(options?: {
       parseResponse(client.me.player.next.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/pause
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMePlayerPauseMutationKey() {
+  return ['PUT', '/me/player/pause'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/pause
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerPauseMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerPauseMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.pause.$put>) =>
+    parseResponse(client.me.player.pause.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/pause
@@ -2306,6 +2515,25 @@ export function createPutMePlayerPause(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/player/play
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMePlayerPlayMutationKey() {
+  return ['PUT', '/me/player/play'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/play
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerPlayMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerPlayMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.play.$put>) =>
+    parseResponse(client.me.player.play.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/player/play
  *
  * Start/Resume Playback
@@ -2330,6 +2558,25 @@ export function createPutMePlayerPlay(options?: {
       parseResponse(client.me.player.play.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /me/player/previous
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMePlayerPreviousMutationKey() {
+  return ['POST', '/me/player/previous'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /me/player/previous
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMePlayerPreviousMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMePlayerPreviousMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.previous.$post>) =>
+    parseResponse(client.me.player.previous.$post(args, clientOptions)),
+})
 
 /**
  * POST /me/player/previous
@@ -2407,6 +2654,25 @@ export function createGetMePlayerQueue(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /me/player/queue
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMePlayerQueueMutationKey() {
+  return ['POST', '/me/player/queue'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /me/player/queue
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMePlayerQueueMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMePlayerQueueMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.queue.$post>) =>
+    parseResponse(client.me.player.queue.$post(args, clientOptions)),
+})
 
 /**
  * POST /me/player/queue
@@ -2498,6 +2764,25 @@ export function createGetMePlayerRecentlyPlayed(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/player/repeat
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMePlayerRepeatMutationKey() {
+  return ['PUT', '/me/player/repeat'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/repeat
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerRepeatMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerRepeatMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.repeat.$put>) =>
+    parseResponse(client.me.player.repeat.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/player/repeat
  *
  * Set Repeat Mode
@@ -2523,6 +2808,25 @@ export function createPutMePlayerRepeat(options?: {
       parseResponse(client.me.player.repeat.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/seek
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMePlayerSeekMutationKey() {
+  return ['PUT', '/me/player/seek'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/seek
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerSeekMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerSeekMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.seek.$put>) =>
+    parseResponse(client.me.player.seek.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/seek
@@ -2551,6 +2855,25 @@ export function createPutMePlayerSeek(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/player/shuffle
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMePlayerShuffleMutationKey() {
+  return ['PUT', '/me/player/shuffle'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/shuffle
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerShuffleMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerShuffleMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.shuffle.$put>) =>
+    parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/player/shuffle
  *
  * Toggle Playback Shuffle
@@ -2575,6 +2898,25 @@ export function createPutMePlayerShuffle(options?: {
       parseResponse(client.me.player.shuffle.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /me/player/volume
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMePlayerVolumeMutationKey() {
+  return ['PUT', '/me/player/volume'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/player/volume
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMePlayerVolumeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMePlayerVolumeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.player.volume.$put>) =>
+    parseResponse(client.me.player.volume.$put(args, clientOptions)),
+})
 
 /**
  * PUT /me/player/volume
@@ -2705,6 +3047,25 @@ export function createGetMeShows(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/shows
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMeShowsMutationKey() {
+  return ['PUT', '/me/shows'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/shows
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeShowsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeShowsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.shows.$put>) =>
+    parseResponse(client.me.shows.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/shows
  *
  * Save Shows for Current User
@@ -2726,6 +3087,25 @@ export function createPutMeShows(options?: {
       parseResponse(client.me.shows.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/shows
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMeShowsMutationKey() {
+  return ['DELETE', '/me/shows'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/shows
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeShowsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeShowsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.shows.$delete>) =>
+    parseResponse(client.me.shows.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/shows
@@ -2914,6 +3294,25 @@ export function createGetMeTracks(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /me/tracks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMeTracksMutationKey() {
+  return ['PUT', '/me/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /me/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMeTracksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMeTracksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.tracks.$put>) =>
+    parseResponse(client.me.tracks.$put(args, clientOptions)),
+})
+
+/**
  * PUT /me/tracks
  *
  * Save Tracks for Current User
@@ -2935,6 +3334,25 @@ export function createPutMeTracks(options?: {
       parseResponse(client.me.tracks.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /me/tracks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMeTracksMutationKey() {
+  return ['DELETE', '/me/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /me/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMeTracksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMeTracksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.me.tracks.$delete>) =>
+    parseResponse(client.me.tracks.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /me/tracks
@@ -3080,6 +3498,25 @@ export function createGetPlaylistsPlaylistId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutPlaylistsPlaylistIdMutationKey() {
+  return ['PUT', '/playlists/:playlist_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPlaylistsPlaylistIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.playlists)[':playlist_id']['$put']>) =>
+    parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /playlists/{playlist_id}
  *
  * Change Playlist Details
@@ -3106,6 +3543,28 @@ export function createPutPlaylistsPlaylistId(options?: {
       parseResponse(client.playlists[':playlist_id'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}/followers
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutPlaylistsPlaylistIdFollowersMutationKey() {
+  return ['PUT', '/playlists/:playlist_id/followers'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}/followers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdFollowersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutPlaylistsPlaylistIdFollowersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$put']>,
+  ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
+})
 
 /**
  * PUT /playlists/{playlist_id}/followers
@@ -3136,6 +3595,28 @@ export function createPutPlaylistsPlaylistIdFollowers(options?: {
     ) => parseResponse(client.playlists[':playlist_id'].followers.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /playlists/{playlist_id}/followers
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePlaylistsPlaylistIdFollowersMutationKey() {
+  return ['DELETE', '/playlists/:playlist_id/followers'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /playlists/{playlist_id}/followers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePlaylistsPlaylistIdFollowersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeletePlaylistsPlaylistIdFollowersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['followers']['$delete']>,
+  ) => parseResponse(client.playlists[':playlist_id'].followers.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /playlists/{playlist_id}/followers
@@ -3298,6 +3779,28 @@ export function createGetPlaylistsPlaylistIdImages(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}/images
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutPlaylistsPlaylistIdImagesMutationKey() {
+  return ['PUT', '/playlists/:playlist_id/images'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}/images
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdImagesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutPlaylistsPlaylistIdImagesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['images']['$put']>,
+  ) => parseResponse(client.playlists[':playlist_id'].images.$put(args, clientOptions)),
+})
+
+/**
  * PUT /playlists/{playlist_id}/images
  *
  * Add Custom Playlist Cover Image
@@ -3390,6 +3893,28 @@ export function createGetPlaylistsPlaylistIdTracks(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /playlists/{playlist_id}/tracks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutPlaylistsPlaylistIdTracksMutationKey() {
+  return ['PUT', '/playlists/:playlist_id/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /playlists/{playlist_id}/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPlaylistsPlaylistIdTracksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutPlaylistsPlaylistIdTracksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$put']>,
+  ) => parseResponse(client.playlists[':playlist_id'].tracks.$put(args, clientOptions)),
+})
+
+/**
  * PUT /playlists/{playlist_id}/tracks
  *
  * Update Playlist Items
@@ -3426,6 +3951,28 @@ export function createPutPlaylistsPlaylistIdTracks(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /playlists/{playlist_id}/tracks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPlaylistsPlaylistIdTracksMutationKey() {
+  return ['POST', '/playlists/:playlist_id/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /playlists/{playlist_id}/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPlaylistsPlaylistIdTracksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPlaylistsPlaylistIdTracksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$post']>,
+  ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
+})
+
+/**
  * POST /playlists/{playlist_id}/tracks
  *
  * Add Items to Playlist
@@ -3454,6 +4001,28 @@ export function createPostPlaylistsPlaylistIdTracks(options?: {
     ) => parseResponse(client.playlists[':playlist_id'].tracks.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /playlists/{playlist_id}/tracks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePlaylistsPlaylistIdTracksMutationKey() {
+  return ['DELETE', '/playlists/:playlist_id/tracks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /playlists/{playlist_id}/tracks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePlaylistsPlaylistIdTracksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeletePlaylistsPlaylistIdTracksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.playlists)[':playlist_id']['tracks']['$delete']>,
+  ) => parseResponse(client.playlists[':playlist_id'].tracks.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /playlists/{playlist_id}/tracks
@@ -4039,6 +4608,28 @@ export function createGetUsersUserIdPlaylists(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /users/{user_id}/playlists
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostUsersUserIdPlaylistsMutationKey() {
+  return ['POST', '/users/:user_id/playlists'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /users/{user_id}/playlists
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersUserIdPlaylistsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostUsersUserIdPlaylistsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.users)[':user_id']['playlists']['$post']>,
+  ) => parseResponse(client.users[':user_id'].playlists.$post(args, clientOptions)),
+})
 
 /**
  * POST /users/{user_id}/playlists

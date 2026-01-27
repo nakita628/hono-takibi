@@ -44,10 +44,10 @@ export function useGetPath(
 
 /**
  * Generates SWR mutation key for PUT /{path}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutPathMutationKey() {
-  return ['/:path'] as const
+  return ['PUT', '/:path'] as const
 }
 
 /**
@@ -84,10 +84,10 @@ export function usePutPath(options?: {
 
 /**
  * Generates SWR mutation key for POST /{path}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPathMutationKey() {
-  return ['/:path'] as const
+  return ['POST', '/:path'] as const
 }
 
 /**
@@ -124,10 +124,10 @@ export function usePostPath(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /{path}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePathMutationKey() {
-  return ['/:path'] as const
+  return ['DELETE', '/:path'] as const
 }
 
 /**
@@ -164,10 +164,10 @@ export function useDeletePath(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/query
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameQueryMutationKey() {
-  return ['/1/indexes/:indexName/query'] as const
+  return ['POST', '/1/indexes/:indexName/query'] as const
 }
 
 /**
@@ -217,10 +217,10 @@ export function usePost1IndexesIndexNameQuery(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/* /queries
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesQueriesMutationKey() {
-  return ['/1/indexes/*/queries'] as const
+  return ['POST', '/1/indexes/*/queries'] as const
 }
 
 /**
@@ -272,10 +272,10 @@ export function usePost1IndexesQueries(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/facets/{facetName}/query
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey() {
-  return ['/1/indexes/:indexName/facets/:facetName/query'] as const
+  return ['POST', '/1/indexes/:indexName/facets/:facetName/query'] as const
 }
 
 /**
@@ -337,10 +337,10 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/browse
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameBrowseMutationKey() {
-  return ['/1/indexes/:indexName/browse'] as const
+  return ['POST', '/1/indexes/:indexName/browse'] as const
 }
 
 /**
@@ -411,10 +411,10 @@ export function usePost1IndexesIndexNameBrowse(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameMutationKey() {
-  return ['/1/indexes/:indexName'] as const
+  return ['POST', '/1/indexes/:indexName'] as const
 }
 
 /**
@@ -467,10 +467,10 @@ export function usePost1IndexesIndexName(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /1/indexes/{indexName}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete1IndexesIndexNameMutationKey() {
-  return ['/1/indexes/:indexName'] as const
+  return ['DELETE', '/1/indexes/:indexName'] as const
 }
 
 /**
@@ -562,10 +562,10 @@ export function useGet1IndexesIndexNameObjectID(
 
 /**
  * Generates SWR mutation key for PUT /1/indexes/{indexName}/{objectID}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPut1IndexesIndexNameObjectIDMutationKey() {
-  return ['/1/indexes/:indexName/:objectID'] as const
+  return ['PUT', '/1/indexes/:indexName/:objectID'] as const
 }
 
 /**
@@ -617,10 +617,10 @@ export function usePut1IndexesIndexNameObjectID(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /1/indexes/{indexName}/{objectID}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete1IndexesIndexNameObjectIDMutationKey() {
-  return ['/1/indexes/:indexName/:objectID'] as const
+  return ['DELETE', '/1/indexes/:indexName/:objectID'] as const
 }
 
 /**
@@ -673,10 +673,10 @@ export function useDelete1IndexesIndexNameObjectID(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/deleteByQuery
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameDeleteByQueryMutationKey() {
-  return ['/1/indexes/:indexName/deleteByQuery'] as const
+  return ['POST', '/1/indexes/:indexName/deleteByQuery'] as const
 }
 
 /**
@@ -734,10 +734,10 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/clear
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameClearMutationKey() {
-  return ['/1/indexes/:indexName/clear'] as const
+  return ['POST', '/1/indexes/:indexName/clear'] as const
 }
 
 /**
@@ -785,10 +785,10 @@ export function usePost1IndexesIndexNameClear(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/{objectID}/partial
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameObjectIDPartialMutationKey() {
-  return ['/1/indexes/:indexName/:objectID/partial'] as const
+  return ['POST', '/1/indexes/:indexName/:objectID/partial'] as const
 }
 
 /**
@@ -870,10 +870,10 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameBatchMutationKey() {
-  return ['/1/indexes/:indexName/batch'] as const
+  return ['POST', '/1/indexes/:indexName/batch'] as const
 }
 
 /**
@@ -927,10 +927,10 @@ export function usePost1IndexesIndexNameBatch(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/* /batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesBatchMutationKey() {
-  return ['/1/indexes/*/batch'] as const
+  return ['POST', '/1/indexes/*/batch'] as const
 }
 
 /**
@@ -978,10 +978,10 @@ export function usePost1IndexesBatch(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/* /objects
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesObjectsMutationKey() {
-  return ['/1/indexes/*/objects'] as const
+  return ['POST', '/1/indexes/*/objects'] as const
 }
 
 /**
@@ -1067,10 +1067,10 @@ export function useGet1IndexesIndexNameSettings(
 
 /**
  * Generates SWR mutation key for PUT /1/indexes/{indexName}/settings
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPut1IndexesIndexNameSettingsMutationKey() {
-  return ['/1/indexes/:indexName/settings'] as const
+  return ['PUT', '/1/indexes/:indexName/settings'] as const
 }
 
 /**
@@ -1169,10 +1169,10 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
 
 /**
  * Generates SWR mutation key for PUT /1/indexes/{indexName}/synonyms/{objectID}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPut1IndexesIndexNameSynonymsObjectIDMutationKey() {
-  return ['/1/indexes/:indexName/synonyms/:objectID'] as const
+  return ['PUT', '/1/indexes/:indexName/synonyms/:objectID'] as const
 }
 
 /**
@@ -1230,10 +1230,10 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /1/indexes/{indexName}/synonyms/{objectID}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete1IndexesIndexNameSynonymsObjectIDMutationKey() {
-  return ['/1/indexes/:indexName/synonyms/:objectID'] as const
+  return ['DELETE', '/1/indexes/:indexName/synonyms/:objectID'] as const
 }
 
 /**
@@ -1292,10 +1292,10 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameSynonymsBatchMutationKey() {
-  return ['/1/indexes/:indexName/synonyms/batch'] as const
+  return ['POST', '/1/indexes/:indexName/synonyms/batch'] as const
 }
 
 /**
@@ -1350,10 +1350,10 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/clear
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameSynonymsClearMutationKey() {
-  return ['/1/indexes/:indexName/synonyms/clear'] as const
+  return ['POST', '/1/indexes/:indexName/synonyms/clear'] as const
 }
 
 /**
@@ -1405,10 +1405,10 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/synonyms/search
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameSynonymsSearchMutationKey() {
-  return ['/1/indexes/:indexName/synonyms/search'] as const
+  return ['POST', '/1/indexes/:indexName/synonyms/search'] as const
 }
 
 /**
@@ -1493,10 +1493,10 @@ export function useGet1Keys(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/keys
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1KeysMutationKey() {
-  return ['/1/keys'] as const
+  return ['POST', '/1/keys'] as const
 }
 
 /**
@@ -1575,10 +1575,10 @@ export function useGet1KeysKey(
 
 /**
  * Generates SWR mutation key for PUT /1/keys/{key}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPut1KeysKeyMutationKey() {
-  return ['/1/keys/:key'] as const
+  return ['PUT', '/1/keys/:key'] as const
 }
 
 /**
@@ -1621,10 +1621,10 @@ export function usePut1KeysKey(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /1/keys/{key}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete1KeysKeyMutationKey() {
-  return ['/1/keys/:key'] as const
+  return ['DELETE', '/1/keys/:key'] as const
 }
 
 /**
@@ -1665,10 +1665,10 @@ export function useDelete1KeysKey(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/keys/{key}/restore
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1KeysKeyRestoreMutationKey() {
-  return ['/1/keys/:key/restore'] as const
+  return ['POST', '/1/keys/:key/restore'] as const
 }
 
 /**
@@ -1764,10 +1764,10 @@ export function useGet1IndexesIndexNameRulesObjectID(
 
 /**
  * Generates SWR mutation key for PUT /1/indexes/{indexName}/rules/{objectID}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPut1IndexesIndexNameRulesObjectIDMutationKey() {
-  return ['/1/indexes/:indexName/rules/:objectID'] as const
+  return ['PUT', '/1/indexes/:indexName/rules/:objectID'] as const
 }
 
 /**
@@ -1824,10 +1824,10 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /1/indexes/{indexName}/rules/{objectID}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete1IndexesIndexNameRulesObjectIDMutationKey() {
-  return ['/1/indexes/:indexName/rules/:objectID'] as const
+  return ['DELETE', '/1/indexes/:indexName/rules/:objectID'] as const
 }
 
 /**
@@ -1885,10 +1885,10 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameRulesBatchMutationKey() {
-  return ['/1/indexes/:indexName/rules/batch'] as const
+  return ['POST', '/1/indexes/:indexName/rules/batch'] as const
 }
 
 /**
@@ -1944,10 +1944,10 @@ export function usePost1IndexesIndexNameRulesBatch(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/clear
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameRulesClearMutationKey() {
-  return ['/1/indexes/:indexName/rules/clear'] as const
+  return ['POST', '/1/indexes/:indexName/rules/clear'] as const
 }
 
 /**
@@ -1998,10 +1998,10 @@ export function usePost1IndexesIndexNameRulesClear(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/rules/search
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameRulesSearchMutationKey() {
-  return ['/1/indexes/:indexName/rules/search'] as const
+  return ['POST', '/1/indexes/:indexName/rules/search'] as const
 }
 
 /**
@@ -2052,10 +2052,10 @@ export function usePost1IndexesIndexNameRulesSearch(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1DictionariesDictionaryNameBatchMutationKey() {
-  return ['/1/dictionaries/:dictionaryName/batch'] as const
+  return ['POST', '/1/dictionaries/:dictionaryName/batch'] as const
 }
 
 /**
@@ -2107,10 +2107,10 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/dictionaries/{dictionaryName}/search
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1DictionariesDictionaryNameSearchMutationKey() {
-  return ['/1/dictionaries/:dictionaryName/search'] as const
+  return ['POST', '/1/dictionaries/:dictionaryName/search'] as const
 }
 
 /**
@@ -2196,10 +2196,10 @@ export function useGet1DictionariesSettings(options?: {
 
 /**
  * Generates SWR mutation key for PUT /1/dictionaries/* /settings
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPut1DictionariesSettingsMutationKey() {
-  return ['/1/dictionaries/*/settings'] as const
+  return ['PUT', '/1/dictionaries/*/settings'] as const
 }
 
 /**
@@ -2319,10 +2319,10 @@ export function useGet1ClustersMapping(
 
 /**
  * Generates SWR mutation key for POST /1/clusters/mapping
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1ClustersMappingMutationKey() {
-  return ['/1/clusters/mapping'] as const
+  return ['POST', '/1/clusters/mapping'] as const
 }
 
 /**
@@ -2367,10 +2367,10 @@ export function usePost1ClustersMapping(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/clusters/mapping/batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1ClustersMappingBatchMutationKey() {
-  return ['/1/clusters/mapping/batch'] as const
+  return ['POST', '/1/clusters/mapping/batch'] as const
 }
 
 /**
@@ -2494,10 +2494,10 @@ export function useGet1ClustersMappingUserID(
 
 /**
  * Generates SWR mutation key for DELETE /1/clusters/mapping/{userID}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete1ClustersMappingUserIDMutationKey() {
-  return ['/1/clusters/mapping/:userID'] as const
+  return ['DELETE', '/1/clusters/mapping/:userID'] as const
 }
 
 /**
@@ -2577,10 +2577,10 @@ export function useGet1Clusters(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/clusters/mapping/search
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1ClustersMappingSearchMutationKey() {
-  return ['/1/clusters/mapping/search'] as const
+  return ['POST', '/1/clusters/mapping/search'] as const
 }
 
 /**
@@ -2701,10 +2701,10 @@ export function useGet1SecuritySources(options?: {
 
 /**
  * Generates SWR mutation key for PUT /1/security/sources
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPut1SecuritySourcesMutationKey() {
-  return ['/1/security/sources'] as const
+  return ['PUT', '/1/security/sources'] as const
 }
 
 /**
@@ -2747,10 +2747,10 @@ export function usePut1SecuritySources(options?: {
 
 /**
  * Generates SWR mutation key for POST /1/security/sources/append
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1SecuritySourcesAppendMutationKey() {
-  return ['/1/security/sources/append'] as const
+  return ['POST', '/1/security/sources/append'] as const
 }
 
 /**
@@ -2797,10 +2797,10 @@ export function usePost1SecuritySourcesAppend(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /1/security/sources/{source}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete1SecuritySourcesSourceMutationKey() {
-  return ['/1/security/sources/:source'] as const
+  return ['DELETE', '/1/security/sources/:source'] as const
 }
 
 /**
@@ -2970,10 +2970,10 @@ export function useGet1IndexesIndexNameTaskTaskID(
 
 /**
  * Generates SWR mutation key for POST /1/indexes/{indexName}/operation
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost1IndexesIndexNameOperationMutationKey() {
-  return ['/1/indexes/:indexName/operation'] as const
+  return ['POST', '/1/indexes/:indexName/operation'] as const
 }
 
 /**
@@ -3534,10 +3534,10 @@ export function useGetSaveObjectsWithTransformation(
 
 /**
  * Generates SWR mutation key for POST /deleteObjects
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDeleteObjectsMutationKey() {
-  return ['/deleteObjects'] as const
+  return ['POST', '/deleteObjects'] as const
 }
 
 /**
@@ -3574,10 +3574,10 @@ export function usePostDeleteObjects(options?: {
 
 /**
  * Generates SWR mutation key for POST /partialUpdateObjects
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPartialUpdateObjectsMutationKey() {
-  return ['/partialUpdateObjects'] as const
+  return ['POST', '/partialUpdateObjects'] as const
 }
 
 /**
@@ -3618,10 +3618,10 @@ export function usePostPartialUpdateObjects(options?: {
 
 /**
  * Generates SWR mutation key for POST /partialUpdateObjectsWithTransformation
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPartialUpdateObjectsWithTransformationMutationKey() {
-  return ['/partialUpdateObjectsWithTransformation'] as const
+  return ['POST', '/partialUpdateObjectsWithTransformation'] as const
 }
 
 /**

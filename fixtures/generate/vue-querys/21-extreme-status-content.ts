@@ -55,6 +55,27 @@ export function useGetExtremeResponses(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /multipart-variations
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMultipartVariationsMutationKey() {
+  return ['POST', '/multipart-variations'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /multipart-variations
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMultipartVariationsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostMultipartVariationsMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['multipart-variations']['$post']>) =>
+    parseResponse(client['multipart-variations'].$post(args, clientOptions)),
+})
+
+/**
  * POST /multipart-variations
  */
 export function usePostMultipartVariations(options?: {
@@ -83,6 +104,25 @@ export function usePostMultipartVariations(options?: {
       parseResponse(client['multipart-variations'].$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /charset-variations
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCharsetVariationsMutationKey() {
+  return ['POST', '/charset-variations'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /charset-variations
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCharsetVariationsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCharsetVariationsMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['charset-variations']['$post']>) =>
+    parseResponse(client['charset-variations'].$post(args, clientOptions)),
+})
 
 /**
  * POST /charset-variations

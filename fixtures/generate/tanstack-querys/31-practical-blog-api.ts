@@ -53,6 +53,25 @@ export function useGetPosts(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /posts
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsMutationKey() {
+  return ['POST', '/posts'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /posts
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+    parseResponse(client.posts.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts
  *
  * 記事作成
@@ -127,6 +146,25 @@ export function useGetPostsPostId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /posts/{postId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutPostsPostIdMutationKey() {
+  return ['PUT', '/posts/:postId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /posts/{postId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPostsPostIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPostsPostIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['$put']>) =>
+    parseResponse(client.posts[':postId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /posts/{postId}
  *
  * 記事更新
@@ -150,6 +188,25 @@ export function usePutPostsPostId(options?: {
       parseResponse(client.posts[':postId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /posts/{postId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePostsPostIdMutationKey() {
+  return ['DELETE', '/posts/:postId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /posts/{postId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePostsPostIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeletePostsPostIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['$delete']>) =>
+    parseResponse(client.posts[':postId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /posts/{postId}
@@ -231,6 +288,26 @@ export function useGetPostsSlugSlug(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /posts/{postId}/publish
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdPublishMutationKey() {
+  return ['POST', '/posts/:postId/publish'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /posts/{postId}/publish
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdPublishMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsPostIdPublishMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.posts)[':postId']['publish']['$post']>,
+  ) => parseResponse(client.posts[':postId'].publish.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts/{postId}/publish
  *
  * 記事公開
@@ -257,6 +334,28 @@ export function usePostPostsPostIdPublish(options?: {
     ) => parseResponse(client.posts[':postId'].publish.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /posts/{postId}/unpublish
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdUnpublishMutationKey() {
+  return ['POST', '/posts/:postId/unpublish'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /posts/{postId}/unpublish
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdUnpublishMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPostsPostIdUnpublishMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.posts)[':postId']['unpublish']['$post']>,
+  ) => parseResponse(client.posts[':postId'].unpublish.$post(args, clientOptions)),
+})
 
 /**
  * POST /posts/{postId}/unpublish
@@ -345,6 +444,28 @@ export function useGetPostsPostIdComments(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /posts/{postId}/comments
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdCommentsMutationKey() {
+  return ['POST', '/posts/:postId/comments'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /posts/{postId}/comments
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdCommentsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPostsPostIdCommentsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.posts)[':postId']['comments']['$post']>,
+  ) => parseResponse(client.posts[':postId'].comments.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts/{postId}/comments
  *
  * コメント投稿
@@ -373,6 +494,27 @@ export function usePostPostsPostIdComments(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /comments/{commentId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteCommentsCommentIdMutationKey() {
+  return ['DELETE', '/comments/:commentId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /comments/{commentId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteCommentsCommentIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteCommentsCommentIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.comments)[':commentId']['$delete']>) =>
+    parseResponse(client.comments[':commentId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /comments/{commentId}
  *
  * コメント削除
@@ -399,6 +541,28 @@ export function useDeleteCommentsCommentId(options?: {
       parseResponse(client.comments[':commentId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /comments/{commentId}/approve
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCommentsCommentIdApproveMutationKey() {
+  return ['POST', '/comments/:commentId/approve'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /comments/{commentId}/approve
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCommentsCommentIdApproveMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostCommentsCommentIdApproveMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.comments)[':commentId']['approve']['$post']>,
+  ) => parseResponse(client.comments[':commentId'].approve.$post(args, clientOptions)),
+})
 
 /**
  * POST /comments/{commentId}/approve
@@ -468,6 +632,25 @@ export function useGetCategories(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetCategoriesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /categories
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCategoriesMutationKey() {
+  return ['POST', '/categories'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /categories
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCategoriesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCategoriesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.categories.$post>) =>
+    parseResponse(client.categories.$post(args, clientOptions)),
+})
 
 /**
  * POST /categories
@@ -549,6 +732,27 @@ export function useGetCategoriesCategoryId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /categories/{categoryId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutCategoriesCategoryIdMutationKey() {
+  return ['PUT', '/categories/:categoryId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /categories/{categoryId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutCategoriesCategoryIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutCategoriesCategoryIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.categories)[':categoryId']['$put']>) =>
+    parseResponse(client.categories[':categoryId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /categories/{categoryId}
  *
  * カテゴリ更新
@@ -572,6 +776,28 @@ export function usePutCategoriesCategoryId(options?: {
       parseResponse(client.categories[':categoryId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /categories/{categoryId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteCategoriesCategoryIdMutationKey() {
+  return ['DELETE', '/categories/:categoryId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /categories/{categoryId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteCategoriesCategoryIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteCategoriesCategoryIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.categories)[':categoryId']['$delete']>,
+  ) => parseResponse(client.categories[':categoryId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /categories/{categoryId}
@@ -647,6 +873,25 @@ export function useGetTags(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /tags
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTagsMutationKey() {
+  return ['POST', '/tags'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /tags
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTagsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTagsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.tags.$post>) =>
+    parseResponse(client.tags.$post(args, clientOptions)),
+})
+
+/**
  * POST /tags
  *
  * タグ作成
@@ -710,6 +955,25 @@ export function useGetMedia(
   const { queryKey, queryFn, ...baseOptions } = getGetMediaQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /media
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMediaMutationKey() {
+  return ['POST', '/media'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /media
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMediaMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMediaMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.media.$post>) =>
+    parseResponse(client.media.$post(args, clientOptions)),
+})
 
 /**
  * POST /media
@@ -786,6 +1050,25 @@ export function useGetMediaMediaId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /media/{mediaId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMediaMediaIdMutationKey() {
+  return ['PUT', '/media/:mediaId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /media/{mediaId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMediaMediaIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMediaMediaIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.media)[':mediaId']['$put']>) =>
+    parseResponse(client.media[':mediaId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /media/{mediaId}
  *
  * メディア情報更新
@@ -809,6 +1092,25 @@ export function usePutMediaMediaId(options?: {
       parseResponse(client.media[':mediaId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /media/{mediaId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMediaMediaIdMutationKey() {
+  return ['DELETE', '/media/:mediaId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /media/{mediaId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMediaMediaIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteMediaMediaIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.media)[':mediaId']['$delete']>) =>
+    parseResponse(client.media[':mediaId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /media/{mediaId}

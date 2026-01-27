@@ -44,10 +44,10 @@ export function useGetSessions(
 
 /**
  * Generates SWR mutation key for POST /sessions
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSessionsMutationKey() {
-  return ['/sessions'] as const
+  return ['POST', '/sessions'] as const
 }
 
 /**
@@ -113,10 +113,10 @@ export function useGetSessionsCurrent(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /sessions/current
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSessionsCurrentMutationKey() {
-  return ['/sessions/current'] as const
+  return ['DELETE', '/sessions/current'] as const
 }
 
 /**
@@ -153,10 +153,10 @@ export function useDeleteSessionsCurrent(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/current/refresh
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSessionsCurrentRefreshMutationKey() {
-  return ['/sessions/current/refresh'] as const
+  return ['POST', '/sessions/current/refresh'] as const
 }
 
 /**
@@ -197,10 +197,10 @@ export function usePostSessionsCurrentRefresh(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/current/extend
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSessionsCurrentExtendMutationKey() {
-  return ['/sessions/current/extend'] as const
+  return ['POST', '/sessions/current/extend'] as const
 }
 
 /**
@@ -241,10 +241,10 @@ export function usePostSessionsCurrentExtend(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/current/activity
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSessionsCurrentActivityMutationKey() {
-  return ['/sessions/current/activity'] as const
+  return ['POST', '/sessions/current/activity'] as const
 }
 
 /**
@@ -318,10 +318,10 @@ export function useGetSessionsSessionId(
 
 /**
  * Generates SWR mutation key for DELETE /sessions/{sessionId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSessionsSessionIdMutationKey() {
-  return ['/sessions/:sessionId'] as const
+  return ['DELETE', '/sessions/:sessionId'] as const
 }
 
 /**
@@ -365,10 +365,10 @@ export function useDeleteSessionsSessionId(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/revoke-all
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSessionsRevokeAllMutationKey() {
-  return ['/sessions/revoke-all'] as const
+  return ['POST', '/sessions/revoke-all'] as const
 }
 
 /**
@@ -409,10 +409,10 @@ export function usePostSessionsRevokeAll(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/validate
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSessionsValidateMutationKey() {
-  return ['/sessions/validate'] as const
+  return ['POST', '/sessions/validate'] as const
 }
 
 /**
@@ -554,10 +554,10 @@ export function useGetSessionsPolicies(options?: {
 
 /**
  * Generates SWR mutation key for PUT /sessions/policies
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutSessionsPoliciesMutationKey() {
-  return ['/sessions/policies'] as const
+  return ['PUT', '/sessions/policies'] as const
 }
 
 /**
@@ -623,10 +623,10 @@ export function useGetSessionsTrustedDevices(options?: {
 
 /**
  * Generates SWR mutation key for POST /sessions/trusted-devices
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSessionsTrustedDevicesMutationKey() {
-  return ['/sessions/trusted-devices'] as const
+  return ['POST', '/sessions/trusted-devices'] as const
 }
 
 /**
@@ -667,10 +667,10 @@ export function usePostSessionsTrustedDevices(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /sessions/trusted-devices/{deviceId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
-  return ['/sessions/trusted-devices/:deviceId'] as const
+  return ['DELETE', '/sessions/trusted-devices/:deviceId'] as const
 }
 
 /**

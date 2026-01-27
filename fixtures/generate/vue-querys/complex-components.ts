@@ -7,6 +7,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/complex-components'
 
 /**
+ * Generates Vue Query mutation key for POST /auth/token
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAuthTokenMutationKey() {
+  return ['POST', '/auth/token'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /auth/token
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAuthTokenMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAuthTokenMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.auth.token.$post>) =>
+    parseResponse(client.auth.token.$post(args, clientOptions)),
+})
+
+/**
  * POST /auth/token
  *
  * Issue access token
@@ -82,6 +101,25 @@ export function useGetUsers(
   const { queryKey, queryFn, ...baseOptions } = getGetUsersQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /users
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostUsersMutationKey() {
+  return ['POST', '/users'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /users
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostUsersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+    parseResponse(client.users.$post(args, clientOptions)),
+})
 
 /**
  * POST /users
@@ -166,6 +204,25 @@ export function useGetUsersUserId(
   const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for PATCH /users/{userId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchUsersUserIdMutationKey() {
+  return ['PATCH', '/users/:userId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PATCH /users/{userId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchUsersUserIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
+    parseResponse(client.users[':userId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /users/{userId}
@@ -310,6 +367,25 @@ export function useGetOrders(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /orders
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrdersMutationKey() {
+  return ['POST', '/orders'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /orders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOrdersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+    parseResponse(client.orders.$post(args, clientOptions)),
+})
+
+/**
  * POST /orders
  *
  * Create order (and optionally trigger callback)
@@ -450,6 +526,25 @@ export function useGetFilesFileId(
   const { queryKey, queryFn, ...baseOptions } = getGetFilesFileIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /subscriptions
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSubscriptionsMutationKey() {
+  return ['POST', '/subscriptions'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /subscriptions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSubscriptionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSubscriptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+    parseResponse(client.subscriptions.$post(args, clientOptions)),
+})
 
 /**
  * POST /subscriptions

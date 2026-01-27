@@ -40,10 +40,10 @@ export function useGetEntities(
 
 /**
  * Generates SWR mutation key for POST /entities
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostEntitiesMutationKey() {
-  return ['/entities'] as const
+  return ['POST', '/entities'] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function useGetEntitiesEntityId(
 
 /**
  * Generates SWR mutation key for PUT /entities/{entityId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutEntitiesEntityIdMutationKey() {
-  return ['/entities/:entityId'] as const
+  return ['PUT', '/entities/:entityId'] as const
 }
 
 /**
@@ -148,10 +148,10 @@ export function usePutEntitiesEntityId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /entities/{entityId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteEntitiesEntityIdMutationKey() {
-  return ['/entities/:entityId'] as const
+  return ['DELETE', '/entities/:entityId'] as const
 }
 
 /**
@@ -226,10 +226,10 @@ export function useGetEntitiesEntityIdRelationships(
 
 /**
  * Generates SWR mutation key for POST /entities/{entityId}/relationships
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostEntitiesEntityIdRelationshipsMutationKey() {
-  return ['/entities/:entityId/relationships'] as const
+  return ['POST', '/entities/:entityId/relationships'] as const
 }
 
 /**
@@ -272,10 +272,10 @@ export function usePostEntitiesEntityIdRelationships(options?: {
 
 /**
  * Generates SWR mutation key for POST /batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostBatchMutationKey() {
-  return ['/batch'] as const
+  return ['POST', '/batch'] as const
 }
 
 /**

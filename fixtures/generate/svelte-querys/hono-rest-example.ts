@@ -101,6 +101,25 @@ export function createGetPosts(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /posts
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsMutationKey() {
+  return ['POST', '/posts'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /posts
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+    parseResponse(client.posts.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts
  *
  * Create a new post
@@ -122,6 +141,25 @@ export function createPostPosts(options?: {
       parseResponse(client.posts.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /posts/{id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutPostsIdMutationKey() {
+  return ['PUT', '/posts/:id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /posts/{id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPostsIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPostsIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$put']>) =>
+    parseResponse(client.posts[':id'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /posts/{id}
@@ -148,6 +186,25 @@ export function createPutPostsId(options?: {
       parseResponse(client.posts[':id'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /posts/{id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePostsIdMutationKey() {
+  return ['DELETE', '/posts/:id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /posts/{id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePostsIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeletePostsIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':id']['$delete']>) =>
+    parseResponse(client.posts[':id'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /posts/{id}

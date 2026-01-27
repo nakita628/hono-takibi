@@ -77,10 +77,10 @@ export function useGetPosts(
 
 /**
  * Generates SWR mutation key for POST /posts
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsMutationKey() {
-  return ['/posts'] as const
+  return ['POST', '/posts'] as const
 }
 
 /**
@@ -115,10 +115,10 @@ export function usePostPosts(options?: {
 
 /**
  * Generates SWR mutation key for PUT /posts/{id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutPostsIdMutationKey() {
-  return ['/posts/:id'] as const
+  return ['PUT', '/posts/:id'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutPostsId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /posts/{id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePostsIdMutationKey() {
-  return ['/posts/:id'] as const
+  return ['DELETE', '/posts/:id'] as const
 }
 
 /**

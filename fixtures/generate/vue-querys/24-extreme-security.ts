@@ -348,6 +348,25 @@ export function useGetMixedLevelSecurity(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /mixed-level-security
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMixedLevelSecurityMutationKey() {
+  return ['PUT', '/mixed-level-security'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /mixed-level-security
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMixedLevelSecurityMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMixedLevelSecurityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client['mixed-level-security'].$put(undefined, clientOptions)),
+})
+
+/**
  * PUT /mixed-level-security
  *
  * Admin-only security
@@ -380,6 +399,25 @@ export function usePutMixedLevelSecurity(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /mixed-level-security
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMixedLevelSecurityMutationKey() {
+  return ['POST', '/mixed-level-security'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /mixed-level-security
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMixedLevelSecurityMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMixedLevelSecurityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
+})
+
+/**
  * POST /mixed-level-security
  *
  * Different security for POST
@@ -410,6 +448,27 @@ export function usePostMixedLevelSecurity(options?: {
       parseResponse(client['mixed-level-security'].$post(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /mixed-level-security
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteMixedLevelSecurityMutationKey() {
+  return ['DELETE', '/mixed-level-security'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /mixed-level-security
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteMixedLevelSecurityMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteMixedLevelSecurityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client['mixed-level-security'].$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /mixed-level-security

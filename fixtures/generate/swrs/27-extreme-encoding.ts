@@ -8,10 +8,10 @@ import { client } from '../clients/27-extreme-encoding'
 
 /**
  * Generates SWR mutation key for POST /encoding-test
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostEncodingTestMutationKey() {
-  return ['/encoding-test'] as const
+  return ['POST', '/encoding-test'] as const
 }
 
 /**
@@ -82,10 +82,10 @@ export function useGetContentNegotiation(
 
 /**
  * Generates SWR mutation key for POST /binary-variations
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostBinaryVariationsMutationKey() {
-  return ['/binary-variations'] as const
+  return ['POST', '/binary-variations'] as const
 }
 
 /**
@@ -151,10 +151,10 @@ export function useGetStreaming(options?: {
 
 /**
  * Generates SWR mutation key for POST /streaming
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostStreamingMutationKey() {
-  return ['/streaming'] as const
+  return ['POST', '/streaming'] as const
 }
 
 /**
@@ -185,10 +185,10 @@ export function usePostStreaming(options?: {
 
 /**
  * Generates SWR mutation key for POST /url-encoded-complex
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUrlEncodedComplexMutationKey() {
-  return ['/url-encoded-complex'] as const
+  return ['POST', '/url-encoded-complex'] as const
 }
 
 /**
@@ -254,10 +254,10 @@ export function useGetResponseEncoding(options?: {
 
 /**
  * Generates SWR mutation key for POST /schema-encoding
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSchemaEncodingMutationKey() {
-  return ['/schema-encoding'] as const
+  return ['POST', '/schema-encoding'] as const
 }
 
 /**

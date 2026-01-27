@@ -9,6 +9,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/16-complex-composition'
 
 /**
+ * Generates TanStack Query mutation key for POST /messages
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMessagesMutationKey() {
+  return ['POST', '/messages'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /messages
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMessagesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMessagesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.messages.$post>) =>
+    parseResponse(client.messages.$post(args, clientOptions)),
+})
+
+/**
  * POST /messages
  */
 export function usePostMessages(options?: {
@@ -26,6 +45,25 @@ export function usePostMessages(options?: {
       parseResponse(client.messages.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /events
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostEventsMutationKey() {
+  return ['POST', '/events'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /events
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEventsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostEventsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.events.$post>) =>
+    parseResponse(client.events.$post(args, clientOptions)),
+})
 
 /**
  * POST /events
@@ -86,6 +124,25 @@ export function useGetConfigs(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /configs
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutConfigsMutationKey() {
+  return ['PUT', '/configs'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /configs
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutConfigsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutConfigsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.configs.$put>) =>
+    parseResponse(client.configs.$put(args, clientOptions)),
+})
+
+/**
  * PUT /configs
  */
 export function usePutConfigs(options?: {
@@ -105,6 +162,25 @@ export function usePutConfigs(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /resources
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostResourcesMutationKey() {
+  return ['POST', '/resources'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /resources
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostResourcesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostResourcesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.resources.$post>) =>
+    parseResponse(client.resources.$post(args, clientOptions)),
+})
+
+/**
  * POST /resources
  */
 export function usePostResources(options?: {
@@ -122,6 +198,25 @@ export function usePostResources(options?: {
       parseResponse(client.resources.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /validations
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostValidationsMutationKey() {
+  return ['POST', '/validations'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /validations
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostValidationsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostValidationsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.validations.$post>) =>
+    parseResponse(client.validations.$post(args, clientOptions)),
+})
 
 /**
  * POST /validations

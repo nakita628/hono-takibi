@@ -78,10 +78,10 @@ export function useGetNotificationsNotificationId(
 
 /**
  * Generates SWR mutation key for DELETE /notifications/{notificationId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteNotificationsNotificationIdMutationKey() {
-  return ['/notifications/:notificationId'] as const
+  return ['DELETE', '/notifications/:notificationId'] as const
 }
 
 /**
@@ -125,10 +125,10 @@ export function useDeleteNotificationsNotificationId(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications/{notificationId}/read
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostNotificationsNotificationIdReadMutationKey() {
-  return ['/notifications/:notificationId/read'] as const
+  return ['POST', '/notifications/:notificationId/read'] as const
 }
 
 /**
@@ -173,10 +173,10 @@ export function usePostNotificationsNotificationIdRead(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications/read-all
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostNotificationsReadAllMutationKey() {
-  return ['/notifications/read-all'] as const
+  return ['POST', '/notifications/read-all'] as const
 }
 
 /**
@@ -246,10 +246,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates SWR mutation key for POST /messages/send
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMessagesSendMutationKey() {
-  return ['/messages/send'] as const
+  return ['POST', '/messages/send'] as const
 }
 
 /**
@@ -286,10 +286,10 @@ export function usePostMessagesSend(options?: {
 
 /**
  * Generates SWR mutation key for POST /messages/send-batch
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMessagesSendBatchMutationKey() {
-  return ['/messages/send-batch'] as const
+  return ['POST', '/messages/send-batch'] as const
 }
 
 /**
@@ -398,10 +398,10 @@ export function useGetTemplates(
 
 /**
  * Generates SWR mutation key for POST /templates
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTemplatesMutationKey() {
-  return ['/templates'] as const
+  return ['POST', '/templates'] as const
 }
 
 /**
@@ -470,10 +470,10 @@ export function useGetTemplatesTemplateId(
 
 /**
  * Generates SWR mutation key for PUT /templates/{templateId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutTemplatesTemplateIdMutationKey() {
-  return ['/templates/:templateId'] as const
+  return ['PUT', '/templates/:templateId'] as const
 }
 
 /**
@@ -512,10 +512,10 @@ export function usePutTemplatesTemplateId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /templates/{templateId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteTemplatesTemplateIdMutationKey() {
-  return ['/templates/:templateId'] as const
+  return ['DELETE', '/templates/:templateId'] as const
 }
 
 /**
@@ -557,10 +557,10 @@ export function useDeleteTemplatesTemplateId(options?: {
 
 /**
  * Generates SWR mutation key for POST /templates/{templateId}/preview
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTemplatesTemplateIdPreviewMutationKey() {
-  return ['/templates/:templateId/preview'] as const
+  return ['POST', '/templates/:templateId/preview'] as const
 }
 
 /**
@@ -634,10 +634,10 @@ export function useGetChannelsPreferences(options?: {
 
 /**
  * Generates SWR mutation key for PUT /channels/preferences
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsPreferencesMutationKey() {
-  return ['/channels/preferences'] as const
+  return ['PUT', '/channels/preferences'] as const
 }
 
 /**
@@ -703,10 +703,10 @@ export function useGetChannelsDevices(options?: {
 
 /**
  * Generates SWR mutation key for POST /channels/devices
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsDevicesMutationKey() {
-  return ['/channels/devices'] as const
+  return ['POST', '/channels/devices'] as const
 }
 
 /**
@@ -741,10 +741,10 @@ export function usePostChannelsDevices(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/devices/{deviceId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsDevicesDeviceIdMutationKey() {
-  return ['/channels/devices/:deviceId'] as const
+  return ['DELETE', '/channels/devices/:deviceId'] as const
 }
 
 /**
@@ -819,10 +819,10 @@ export function useGetWebhooks(options?: {
 
 /**
  * Generates SWR mutation key for POST /webhooks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebhooksMutationKey() {
-  return ['/webhooks'] as const
+  return ['POST', '/webhooks'] as const
 }
 
 /**
@@ -891,10 +891,10 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates SWR mutation key for PUT /webhooks/{webhookId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutWebhooksWebhookIdMutationKey() {
-  return ['/webhooks/:webhookId'] as const
+  return ['PUT', '/webhooks/:webhookId'] as const
 }
 
 /**
@@ -933,10 +933,10 @@ export function usePutWebhooksWebhookId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhookId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteWebhooksWebhookIdMutationKey() {
-  return ['/webhooks/:webhookId'] as const
+  return ['DELETE', '/webhooks/:webhookId'] as const
 }
 
 /**
@@ -978,10 +978,10 @@ export function useDeleteWebhooksWebhookId(options?: {
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhookId}/test
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebhooksWebhookIdTestMutationKey() {
-  return ['/webhooks/:webhookId/test'] as const
+  return ['POST', '/webhooks/:webhookId/test'] as const
 }
 
 /**

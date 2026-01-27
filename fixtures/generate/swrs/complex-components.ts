@@ -8,10 +8,10 @@ import { client } from '../clients/complex-components'
 
 /**
  * Generates SWR mutation key for POST /auth/token
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAuthTokenMutationKey() {
-  return ['/auth/token'] as const
+  return ['POST', '/auth/token'] as const
 }
 
 /**
@@ -78,10 +78,10 @@ export function useGetUsers(
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersMutationKey() {
-  return ['/users'] as const
+  return ['POST', '/users'] as const
 }
 
 /**
@@ -150,10 +150,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR mutation key for PATCH /users/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchUsersUserIdMutationKey() {
-  return ['/users/:userId'] as const
+  return ['PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -262,10 +262,10 @@ export function useGetOrders(
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOrdersMutationKey() {
-  return ['/orders'] as const
+  return ['POST', '/orders'] as const
 }
 
 /**
@@ -370,10 +370,10 @@ export function useGetFilesFileId(
 
 /**
  * Generates SWR mutation key for POST /subscriptions
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSubscriptionsMutationKey() {
-  return ['/subscriptions'] as const
+  return ['POST', '/subscriptions'] as const
 }
 
 /**

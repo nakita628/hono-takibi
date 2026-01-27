@@ -70,10 +70,10 @@ export function useGetMfaMethods(options?: {
 
 /**
  * Generates SWR mutation key for PUT /mfa/preferred
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMfaPreferredMutationKey() {
-  return ['/mfa/preferred'] as const
+  return ['PUT', '/mfa/preferred'] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function usePutMfaPreferred(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/totp/setup
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaTotpSetupMutationKey() {
-  return ['/mfa/totp/setup'] as const
+  return ['POST', '/mfa/totp/setup'] as const
 }
 
 /**
@@ -148,10 +148,10 @@ export function usePostMfaTotpSetup(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/totp/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaTotpVerifyMutationKey() {
-  return ['/mfa/totp/verify'] as const
+  return ['POST', '/mfa/totp/verify'] as const
 }
 
 /**
@@ -188,10 +188,10 @@ export function usePostMfaTotpVerify(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mfa/totp
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMfaTotpMutationKey() {
-  return ['/mfa/totp'] as const
+  return ['DELETE', '/mfa/totp'] as const
 }
 
 /**
@@ -225,10 +225,10 @@ export function useDeleteMfaTotp(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/sms/setup
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaSmsSetupMutationKey() {
-  return ['/mfa/sms/setup'] as const
+  return ['POST', '/mfa/sms/setup'] as const
 }
 
 /**
@@ -265,10 +265,10 @@ export function usePostMfaSmsSetup(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/sms/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaSmsVerifyMutationKey() {
-  return ['/mfa/sms/verify'] as const
+  return ['POST', '/mfa/sms/verify'] as const
 }
 
 /**
@@ -303,10 +303,10 @@ export function usePostMfaSmsVerify(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mfa/sms/{methodId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMfaSmsMethodIdMutationKey() {
-  return ['/mfa/sms/:methodId'] as const
+  return ['DELETE', '/mfa/sms/:methodId'] as const
 }
 
 /**
@@ -346,10 +346,10 @@ export function useDeleteMfaSmsMethodId(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/email/setup
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaEmailSetupMutationKey() {
-  return ['/mfa/email/setup'] as const
+  return ['POST', '/mfa/email/setup'] as const
 }
 
 /**
@@ -384,10 +384,10 @@ export function usePostMfaEmailSetup(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/email/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaEmailVerifyMutationKey() {
-  return ['/mfa/email/verify'] as const
+  return ['POST', '/mfa/email/verify'] as const
 }
 
 /**
@@ -422,10 +422,10 @@ export function usePostMfaEmailVerify(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/register/options
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaWebauthnRegisterOptionsMutationKey() {
-  return ['/mfa/webauthn/register/options'] as const
+  return ['POST', '/mfa/webauthn/register/options'] as const
 }
 
 /**
@@ -466,10 +466,10 @@ export function usePostMfaWebauthnRegisterOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/register/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaWebauthnRegisterVerifyMutationKey() {
-  return ['/mfa/webauthn/register/verify'] as const
+  return ['POST', '/mfa/webauthn/register/verify'] as const
 }
 
 /**
@@ -539,10 +539,10 @@ export function useGetMfaWebauthnCredentials(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mfa/webauthn/credentials/{credentialId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['/mfa/webauthn/credentials/:credentialId'] as const
+  return ['DELETE', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -593,10 +593,10 @@ export function useDeleteMfaWebauthnCredentialsCredentialId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /mfa/webauthn/credentials/{credentialId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchMfaWebauthnCredentialsCredentialIdMutationKey() {
-  return ['/mfa/webauthn/credentials/:credentialId'] as const
+  return ['PATCH', '/mfa/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -642,10 +642,10 @@ export function usePatchMfaWebauthnCredentialsCredentialId(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/backup-codes/generate
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaBackupCodesGenerateMutationKey() {
-  return ['/mfa/backup-codes/generate'] as const
+  return ['POST', '/mfa/backup-codes/generate'] as const
 }
 
 /**
@@ -721,10 +721,10 @@ export function useGetMfaBackupCodesStatus(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/challenge
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaChallengeMutationKey() {
-  return ['/mfa/challenge'] as const
+  return ['POST', '/mfa/challenge'] as const
 }
 
 /**
@@ -761,10 +761,10 @@ export function usePostMfaChallenge(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/challenge/send
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaChallengeSendMutationKey() {
-  return ['/mfa/challenge/send'] as const
+  return ['POST', '/mfa/challenge/send'] as const
 }
 
 /**
@@ -801,10 +801,10 @@ export function usePostMfaChallengeSend(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaVerifyMutationKey() {
-  return ['/mfa/verify'] as const
+  return ['POST', '/mfa/verify'] as const
 }
 
 /**
@@ -839,10 +839,10 @@ export function usePostMfaVerify(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/webauthn/authenticate/options
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaWebauthnAuthenticateOptionsMutationKey() {
-  return ['/mfa/webauthn/authenticate/options'] as const
+  return ['POST', '/mfa/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -883,10 +883,10 @@ export function usePostMfaWebauthnAuthenticateOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/recovery
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaRecoveryMutationKey() {
-  return ['/mfa/recovery'] as const
+  return ['POST', '/mfa/recovery'] as const
 }
 
 /**
@@ -923,10 +923,10 @@ export function usePostMfaRecovery(options?: {
 
 /**
  * Generates SWR mutation key for POST /mfa/recovery/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMfaRecoveryVerifyMutationKey() {
-  return ['/mfa/recovery/verify'] as const
+  return ['POST', '/mfa/recovery/verify'] as const
 }
 
 /**

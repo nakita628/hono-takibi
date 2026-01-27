@@ -62,6 +62,25 @@ export function useGetSessions(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /sessions
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSessionsMutationKey() {
+  return ['POST', '/sessions'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /sessions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.$post>) =>
+    parseResponse(client.sessions.$post(args, clientOptions)),
+})
+
+/**
  * POST /sessions
  *
  * セッション作成
@@ -140,6 +159,24 @@ export function useGetSessionsCurrent(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /sessions/current
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSessionsCurrentMutationKey() {
+  return ['DELETE', '/sessions/current'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /sessions/current
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsCurrentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteSessionsCurrentMutationKey(),
+  mutationFn: async () => parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
+})
+
+/**
  * DELETE /sessions/current
  *
  * 現在のセッション終了（ログアウト）
@@ -169,6 +206,27 @@ export function useDeleteSessionsCurrent(options?: {
       parseResponse(client.sessions.current.$delete(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /sessions/current/refresh
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSessionsCurrentRefreshMutationKey() {
+  return ['POST', '/sessions/current/refresh'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /sessions/current/refresh
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentRefreshMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentRefreshMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.current.refresh.$post>) =>
+    parseResponse(client.sessions.current.refresh.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/current/refresh
@@ -203,6 +261,27 @@ export function usePostSessionsCurrentRefresh(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /sessions/current/extend
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSessionsCurrentExtendMutationKey() {
+  return ['POST', '/sessions/current/extend'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /sessions/current/extend
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentExtendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentExtendMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.current.extend.$post>) =>
+    parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
+})
+
+/**
  * POST /sessions/current/extend
  *
  * セッション延長
@@ -233,6 +312,27 @@ export function usePostSessionsCurrentExtend(options?: {
       parseResponse(client.sessions.current.extend.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /sessions/current/activity
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSessionsCurrentActivityMutationKey() {
+  return ['POST', '/sessions/current/activity'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /sessions/current/activity
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsCurrentActivityMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsCurrentActivityMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client.sessions.current.activity.$post(undefined, clientOptions)),
+})
 
 /**
  * POST /sessions/current/activity
@@ -330,6 +430,27 @@ export function useGetSessionsSessionId(
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /sessions/{sessionId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['DELETE', '/sessions/:sessionId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsSessionIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
+    parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /sessions/{sessionId}
  *
  * セッション無効化
@@ -365,6 +486,25 @@ export function useDeleteSessionsSessionId(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /sessions/revoke-all
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSessionsRevokeAllMutationKey() {
+  return ['POST', '/sessions/revoke-all'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /sessions/revoke-all
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsRevokeAllMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsRevokeAllMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)['revoke-all']['$post']>) =>
+    parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
+})
+
+/**
  * POST /sessions/revoke-all
  *
  * 全セッション無効化
@@ -397,6 +537,25 @@ export function usePostSessionsRevokeAll(options?: {
       parseResponse(client.sessions['revoke-all'].$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /sessions/validate
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSessionsValidateMutationKey() {
+  return ['POST', '/sessions/validate'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /sessions/validate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsValidateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSessionsValidateMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.validate.$post>) =>
+    parseResponse(client.sessions.validate.$post(args, clientOptions)),
+})
 
 /**
  * POST /sessions/validate
@@ -607,6 +766,25 @@ export function useGetSessionsPolicies(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /sessions/policies
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutSessionsPoliciesMutationKey() {
+  return ['PUT', '/sessions/policies'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /sessions/policies
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSessionsPoliciesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSessionsPoliciesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.sessions.policies.$put>) =>
+    parseResponse(client.sessions.policies.$put(args, clientOptions)),
+})
+
+/**
  * PUT /sessions/policies
  *
  * セッションポリシー更新
@@ -690,6 +868,28 @@ export function useGetSessionsTrustedDevices(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /sessions/trusted-devices
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSessionsTrustedDevicesMutationKey() {
+  return ['POST', '/sessions/trusted-devices'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /sessions/trusted-devices
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSessionsTrustedDevicesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSessionsTrustedDevicesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.sessions)['trusted-devices']['$post']>,
+  ) => parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
+})
+
+/**
  * POST /sessions/trusted-devices
  *
  * 現在のデバイスを信頼
@@ -721,6 +921,28 @@ export function usePostSessionsTrustedDevices(options?: {
     ) => parseResponse(client.sessions['trusted-devices'].$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /sessions/trusted-devices/{deviceId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSessionsTrustedDevicesDeviceIdMutationKey() {
+  return ['DELETE', '/sessions/trusted-devices/:deviceId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /sessions/trusted-devices/{deviceId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsTrustedDevicesDeviceIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsTrustedDevicesDeviceIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.sessions)['trusted-devices'][':deviceId']['$delete']>,
+  ) => parseResponse(client.sessions['trusted-devices'][':deviceId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/trusted-devices/{deviceId}

@@ -9,6 +9,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/27-extreme-encoding'
 
 /**
+ * Generates TanStack Query mutation key for POST /encoding-test
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostEncodingTestMutationKey() {
+  return ['POST', '/encoding-test'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /encoding-test
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEncodingTestMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostEncodingTestMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['encoding-test']['$post']>) =>
+    parseResponse(client['encoding-test'].$post(args, clientOptions)),
+})
+
+/**
  * POST /encoding-test
  */
 export function usePostEncodingTest(options?: {
@@ -86,6 +105,25 @@ export function useGetContentNegotiation(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /binary-variations
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostBinaryVariationsMutationKey() {
+  return ['POST', '/binary-variations'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /binary-variations
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostBinaryVariationsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostBinaryVariationsMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['binary-variations']['$post']>) =>
+    parseResponse(client['binary-variations'].$post(args, clientOptions)),
+})
+
+/**
  * POST /binary-variations
  */
 export function usePostBinaryVariations(options?: {
@@ -148,6 +186,25 @@ export function useGetStreaming(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /streaming
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostStreamingMutationKey() {
+  return ['POST', '/streaming'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /streaming
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostStreamingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostStreamingMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.streaming.$post>) =>
+    parseResponse(client.streaming.$post(args, clientOptions)),
+})
+
+/**
  * POST /streaming
  */
 export function usePostStreaming(options?: {
@@ -165,6 +222,25 @@ export function usePostStreaming(options?: {
       parseResponse(client.streaming.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /url-encoded-complex
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostUrlEncodedComplexMutationKey() {
+  return ['POST', '/url-encoded-complex'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /url-encoded-complex
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUrlEncodedComplexMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostUrlEncodedComplexMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['url-encoded-complex']['$post']>) =>
+    parseResponse(client['url-encoded-complex'].$post(args, clientOptions)),
+})
 
 /**
  * POST /url-encoded-complex
@@ -231,6 +307,25 @@ export function useGetResponseEncoding(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetResponseEncodingQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /schema-encoding
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSchemaEncodingMutationKey() {
+  return ['POST', '/schema-encoding'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /schema-encoding
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSchemaEncodingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSchemaEncodingMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['schema-encoding']['$post']>) =>
+    parseResponse(client['schema-encoding'].$post(args, clientOptions)),
+})
 
 /**
  * POST /schema-encoding

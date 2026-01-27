@@ -42,10 +42,10 @@ export function useGetFiles(
 
 /**
  * Generates SWR mutation key for POST /files/upload
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesUploadMutationKey() {
-  return ['/files/upload'] as const
+  return ['POST', '/files/upload'] as const
 }
 
 /**
@@ -80,10 +80,10 @@ export function usePostFilesUpload(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/upload/multipart/init
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesUploadMultipartInitMutationKey() {
-  return ['/files/upload/multipart/init'] as const
+  return ['POST', '/files/upload/multipart/init'] as const
 }
 
 /**
@@ -124,10 +124,10 @@ export function usePostFilesUploadMultipartInit(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/part
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
-  return ['/files/upload/multipart/:uploadId/part'] as const
+  return ['POST', '/files/upload/multipart/:uploadId/part'] as const
 }
 
 /**
@@ -174,10 +174,10 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/upload/multipart/{uploadId}/complete
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
-  return ['/files/upload/multipart/:uploadId/complete'] as const
+  return ['POST', '/files/upload/multipart/:uploadId/complete'] as const
 }
 
 /**
@@ -265,10 +265,10 @@ export function useGetFilesFileId(
 
 /**
  * Generates SWR mutation key for DELETE /files/{fileId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteFilesFileIdMutationKey() {
-  return ['/files/:fileId'] as const
+  return ['DELETE', '/files/:fileId'] as const
 }
 
 /**
@@ -308,10 +308,10 @@ export function useDeleteFilesFileId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /files/{fileId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchFilesFileIdMutationKey() {
-  return ['/files/:fileId'] as const
+  return ['PATCH', '/files/:fileId'] as const
 }
 
 /**
@@ -422,10 +422,10 @@ export function useGetFilesFileIdDownloadUrl(
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/copy
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesFileIdCopyMutationKey() {
-  return ['/files/:fileId/copy'] as const
+  return ['POST', '/files/:fileId/copy'] as const
 }
 
 /**
@@ -464,10 +464,10 @@ export function usePostFilesFileIdCopy(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/move
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesFileIdMoveMutationKey() {
-  return ['/files/:fileId/move'] as const
+  return ['POST', '/files/:fileId/move'] as const
 }
 
 /**
@@ -542,10 +542,10 @@ export function useGetFilesFileIdThumbnail(
 
 /**
  * Generates SWR mutation key for POST /folders
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFoldersMutationKey() {
-  return ['/folders'] as const
+  return ['POST', '/folders'] as const
 }
 
 /**
@@ -614,10 +614,10 @@ export function useGetFoldersFolderId(
 
 /**
  * Generates SWR mutation key for DELETE /folders/{folderId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteFoldersFolderIdMutationKey() {
-  return ['/folders/:folderId'] as const
+  return ['DELETE', '/folders/:folderId'] as const
 }
 
 /**
@@ -657,10 +657,10 @@ export function useDeleteFoldersFolderId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /folders/{folderId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchFoldersFolderIdMutationKey() {
-  return ['/folders/:folderId'] as const
+  return ['PATCH', '/folders/:folderId'] as const
 }
 
 /**
@@ -735,10 +735,10 @@ export function useGetFilesFileIdShare(
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/share
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesFileIdShareMutationKey() {
-  return ['/files/:fileId/share'] as const
+  return ['POST', '/files/:fileId/share'] as const
 }
 
 /**
@@ -779,10 +779,10 @@ export function usePostFilesFileIdShare(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /files/{fileId}/share
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteFilesFileIdShareMutationKey() {
-  return ['/files/:fileId/share'] as const
+  return ['DELETE', '/files/:fileId/share'] as const
 }
 
 /**
@@ -824,10 +824,10 @@ export function useDeleteFilesFileIdShare(options?: {
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/share/link
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesFileIdShareLinkMutationKey() {
-  return ['/files/:fileId/share/link'] as const
+  return ['POST', '/files/:fileId/share/link'] as const
 }
 
 /**
@@ -906,10 +906,10 @@ export function useGetFilesFileIdVersions(
 
 /**
  * Generates SWR mutation key for POST /files/{fileId}/versions/{versionId}/restore
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
-  return ['/files/:fileId/versions/:versionId/restore'] as const
+  return ['POST', '/files/:fileId/versions/:versionId/restore'] as const
 }
 
 /**
@@ -997,10 +997,10 @@ export function useGetTrash(
 
 /**
  * Generates SWR mutation key for DELETE /trash
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteTrashMutationKey() {
-  return ['/trash'] as const
+  return ['DELETE', '/trash'] as const
 }
 
 /**
@@ -1033,10 +1033,10 @@ export function useDeleteTrash(options?: {
 
 /**
  * Generates SWR mutation key for POST /trash/{fileId}/restore
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTrashFileIdRestoreMutationKey() {
-  return ['/trash/:fileId/restore'] as const
+  return ['POST', '/trash/:fileId/restore'] as const
 }
 
 /**

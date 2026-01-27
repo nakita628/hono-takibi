@@ -225,10 +225,10 @@ export function useGetMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR mutation key for PUT /mixed-level-security
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMixedLevelSecurityMutationKey() {
-  return ['/mixed-level-security'] as const
+  return ['PUT', '/mixed-level-security'] as const
 }
 
 /**
@@ -264,10 +264,10 @@ export function usePutMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR mutation key for POST /mixed-level-security
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMixedLevelSecurityMutationKey() {
-  return ['/mixed-level-security'] as const
+  return ['POST', '/mixed-level-security'] as const
 }
 
 /**
@@ -303,10 +303,10 @@ export function usePostMixedLevelSecurity(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /mixed-level-security
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMixedLevelSecurityMutationKey() {
-  return ['/mixed-level-security'] as const
+  return ['DELETE', '/mixed-level-security'] as const
 }
 
 /**

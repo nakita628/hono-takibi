@@ -40,10 +40,10 @@ export function useGetDocuments(
 
 /**
  * Generates SWR mutation key for POST /documents
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDocumentsMutationKey() {
-  return ['/documents'] as const
+  return ['POST', '/documents'] as const
 }
 
 /**
@@ -108,10 +108,10 @@ export function useGetDocumentsDocumentId(
 
 /**
  * Generates SWR mutation key for PUT /documents/{documentId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutDocumentsDocumentIdMutationKey() {
-  return ['/documents/:documentId'] as const
+  return ['PUT', '/documents/:documentId'] as const
 }
 
 /**
@@ -182,10 +182,10 @@ export function useGetDocumentsDocumentIdVersions(
 
 /**
  * Generates SWR mutation key for POST /documents/{documentId}/share
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDocumentsDocumentIdShareMutationKey() {
-  return ['/documents/:documentId/share'] as const
+  return ['POST', '/documents/:documentId/share'] as const
 }
 
 /**
@@ -260,10 +260,10 @@ export function useGetUsersUserIdDocuments(
 
 /**
  * Generates SWR mutation key for POST /compare
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCompareMutationKey() {
-  return ['/compare'] as const
+  return ['POST', '/compare'] as const
 }
 
 /**
@@ -323,10 +323,10 @@ export function useGetTemplates(options?: {
 
 /**
  * Generates SWR mutation key for POST /templates
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTemplatesMutationKey() {
-  return ['/templates'] as const
+  return ['POST', '/templates'] as const
 }
 
 /**
@@ -357,10 +357,10 @@ export function usePostTemplates(options?: {
 
 /**
  * Generates SWR mutation key for POST /workflows
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWorkflowsMutationKey() {
-  return ['/workflows'] as const
+  return ['POST', '/workflows'] as const
 }
 
 /**

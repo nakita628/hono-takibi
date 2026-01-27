@@ -7,6 +7,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/29-practical-user-api'
 
 /**
+ * Generates Vue Query mutation key for POST /auth/register
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAuthRegisterMutationKey() {
+  return ['POST', '/auth/register'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /auth/register
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAuthRegisterMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAuthRegisterMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.auth.register.$post>) =>
+    parseResponse(client.auth.register.$post(args, clientOptions)),
+})
+
+/**
  * POST /auth/register
  *
  * 新規ユーザー登録
@@ -35,6 +54,25 @@ export function usePostAuthRegister(options?: {
       parseResponse(client.auth.register.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /auth/login
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAuthLoginMutationKey() {
+  return ['POST', '/auth/login'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /auth/login
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAuthLoginMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAuthLoginMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.auth.login.$post>) =>
+    parseResponse(client.auth.login.$post(args, clientOptions)),
+})
 
 /**
  * POST /auth/login
@@ -67,6 +105,25 @@ export function usePostAuthLogin(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /auth/refresh
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAuthRefreshMutationKey() {
+  return ['POST', '/auth/refresh'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /auth/refresh
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAuthRefreshMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAuthRefreshMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.auth.refresh.$post>) =>
+    parseResponse(client.auth.refresh.$post(args, clientOptions)),
+})
+
+/**
  * POST /auth/refresh
  *
  * トークンリフレッシュ
@@ -97,6 +154,24 @@ export function usePostAuthRefresh(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /auth/logout
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAuthLogoutMutationKey() {
+  return ['POST', '/auth/logout'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /auth/logout
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAuthLogoutMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAuthLogoutMutationKey(),
+  mutationFn: async () => parseResponse(client.auth.logout.$post(undefined, clientOptions)),
+})
+
+/**
  * POST /auth/logout
  *
  * ログアウト
@@ -123,6 +198,25 @@ export function usePostAuthLogout(options?: {
     mutationFn: async () => parseResponse(client.auth.logout.$post(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /auth/password/forgot
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAuthPasswordForgotMutationKey() {
+  return ['POST', '/auth/password/forgot'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /auth/password/forgot
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAuthPasswordForgotMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAuthPasswordForgotMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.auth.password.forgot.$post>) =>
+    parseResponse(client.auth.password.forgot.$post(args, clientOptions)),
+})
 
 /**
  * POST /auth/password/forgot
@@ -155,6 +249,25 @@ export function usePostAuthPasswordForgot(options?: {
       parseResponse(client.auth.password.forgot.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /auth/password/reset
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAuthPasswordResetMutationKey() {
+  return ['POST', '/auth/password/reset'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /auth/password/reset
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAuthPasswordResetMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAuthPasswordResetMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.auth.password.reset.$post>) =>
+    parseResponse(client.auth.password.reset.$post(args, clientOptions)),
+})
 
 /**
  * POST /auth/password/reset
@@ -296,6 +409,25 @@ export function useGetUsersUserId(
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /users/{userId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteUsersUserIdMutationKey() {
+  return ['DELETE', '/users/:userId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /users/{userId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteUsersUserIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
+    parseResponse(client.users[':userId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /users/{userId}
  *
  * ユーザー削除
@@ -325,6 +457,25 @@ export function useDeleteUsersUserId(options?: {
       parseResponse(client.users[':userId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for PATCH /users/{userId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchUsersUserIdMutationKey() {
+  return ['PATCH', '/users/:userId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PATCH /users/{userId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchUsersUserIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$patch']>) =>
+    parseResponse(client.users[':userId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /users/{userId}
@@ -403,6 +554,25 @@ export function useGetUsersMe(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for PATCH /users/me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchUsersMeMutationKey() {
+  return ['PATCH', '/users/me'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PATCH /users/me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchUsersMeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchUsersMeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.me.$patch>) =>
+    parseResponse(client.users.me.$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /users/me
  *
  * 現在のユーザー情報更新
@@ -429,6 +599,25 @@ export function usePatchUsersMe(options?: {
       parseResponse(client.users.me.$patch(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for PUT /users/me/password
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutUsersMePasswordMutationKey() {
+  return ['PUT', '/users/me/password'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /users/me/password
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutUsersMePasswordMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutUsersMePasswordMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.me.password.$put>) =>
+    parseResponse(client.users.me.password.$put(args, clientOptions)),
+})
 
 /**
  * PUT /users/me/password
@@ -461,6 +650,25 @@ export function usePutUsersMePassword(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /users/me/avatar
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutUsersMeAvatarMutationKey() {
+  return ['PUT', '/users/me/avatar'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /users/me/avatar
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutUsersMeAvatarMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutUsersMeAvatarMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.me.avatar.$put>) =>
+    parseResponse(client.users.me.avatar.$put(args, clientOptions)),
+})
+
+/**
  * PUT /users/me/avatar
  *
  * アバター画像アップロード
@@ -487,6 +695,24 @@ export function usePutUsersMeAvatar(options?: {
       parseResponse(client.users.me.avatar.$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /users/me/avatar
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteUsersMeAvatarMutationKey() {
+  return ['DELETE', '/users/me/avatar'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /users/me/avatar
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteUsersMeAvatarMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteUsersMeAvatarMutationKey(),
+  mutationFn: async () => parseResponse(client.users.me.avatar.$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /users/me/avatar

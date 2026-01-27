@@ -62,6 +62,25 @@ export function useGetSamlSso(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /saml/sso
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSamlSsoMutationKey() {
+  return ['POST', '/saml/sso'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /saml/sso
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlSsoMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlSsoMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.sso.$post>) =>
+    parseResponse(client.saml.sso.$post(args, clientOptions)),
+})
+
+/**
  * POST /saml/sso
  *
  * SSO (HTTP-POST binding)
@@ -147,6 +166,25 @@ export function useGetSamlSlo(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /saml/slo
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSamlSloMutationKey() {
+  return ['POST', '/saml/slo'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /saml/slo
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlSloMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlSloMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.slo.$post>) =>
+    parseResponse(client.saml.slo.$post(args, clientOptions)),
+})
+
+/**
  * POST /saml/slo
  *
  * Single Logout (HTTP-POST)
@@ -175,6 +213,25 @@ export function usePostSamlSlo(options?: {
       parseResponse(client.saml.slo.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /saml/acs
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSamlAcsMutationKey() {
+  return ['POST', '/saml/acs'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /saml/acs
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSamlAcsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSamlAcsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.saml.acs.$post>) =>
+    parseResponse(client.saml.acs.$post(args, clientOptions)),
+})
 
 /**
  * POST /saml/acs
@@ -320,6 +377,25 @@ export function useGetServiceProviders(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /service-providers
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostServiceProvidersMutationKey() {
+  return ['POST', '/service-providers'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /service-providers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostServiceProvidersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostServiceProvidersMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['service-providers']['$post']>) =>
+    parseResponse(client['service-providers'].$post(args, clientOptions)),
+})
+
+/**
  * POST /service-providers
  *
  * SP登録
@@ -413,6 +489,28 @@ export function useGetServiceProvidersSpId(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /service-providers/{spId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutServiceProvidersSpIdMutationKey() {
+  return ['PUT', '/service-providers/:spId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /service-providers/{spId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /service-providers/{spId}
  *
  * SP更新
@@ -444,6 +542,28 @@ export function usePutServiceProvidersSpId(options?: {
     ) => parseResponse(client['service-providers'][':spId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /service-providers/{spId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteServiceProvidersSpIdMutationKey() {
+  return ['DELETE', '/service-providers/:spId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /service-providers/{spId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteServiceProvidersSpIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteServiceProvidersSpIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['$delete']>,
+  ) => parseResponse(client['service-providers'][':spId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /service-providers/{spId}
@@ -547,6 +667,28 @@ export function useGetServiceProvidersSpIdMetadata(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /service-providers/{spId}/metadata
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutServiceProvidersSpIdMetadataMutationKey() {
+  return ['PUT', '/service-providers/:spId/metadata'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /service-providers/{spId}/metadata
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdMetadataMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdMetadataMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['metadata']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].metadata.$put(args, clientOptions)),
+})
+
+/**
  * PUT /service-providers/{spId}/metadata
  *
  * SPメタデータ更新
@@ -645,6 +787,28 @@ export function useGetServiceProvidersSpIdAttributes(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for PUT /service-providers/{spId}/attributes
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutServiceProvidersSpIdAttributesMutationKey() {
+  return ['PUT', '/service-providers/:spId/attributes'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /service-providers/{spId}/attributes
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutServiceProvidersSpIdAttributesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutServiceProvidersSpIdAttributesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['service-providers'][':spId']['attributes']['$put']>,
+  ) => parseResponse(client['service-providers'][':spId'].attributes.$put(args, clientOptions)),
+})
 
 /**
  * PUT /service-providers/{spId}/attributes
@@ -778,6 +942,25 @@ export function useGetCertificates(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /certificates
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCertificatesMutationKey() {
+  return ['POST', '/certificates'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /certificates
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCertificatesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCertificatesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.certificates.$post>) =>
+    parseResponse(client.certificates.$post(args, clientOptions)),
+})
+
+/**
  * POST /certificates
  *
  * 証明書アップロード
@@ -804,6 +987,27 @@ export function usePostCertificates(options?: {
       parseResponse(client.certificates.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /certificates/{certId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteCertificatesCertIdMutationKey() {
+  return ['DELETE', '/certificates/:certId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /certificates/{certId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteCertificatesCertIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteCertificatesCertIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.certificates)[':certId']['$delete']>) =>
+    parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /certificates/{certId}
@@ -838,6 +1042,28 @@ export function useDeleteCertificatesCertId(options?: {
     ) => parseResponse(client.certificates[':certId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /certificates/{certId}/activate
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCertificatesCertIdActivateMutationKey() {
+  return ['POST', '/certificates/:certId/activate'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /certificates/{certId}/activate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCertificatesCertIdActivateMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostCertificatesCertIdActivateMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.certificates)[':certId']['activate']['$post']>,
+  ) => parseResponse(client.certificates[':certId'].activate.$post(args, clientOptions)),
+})
 
 /**
  * POST /certificates/{certId}/activate
@@ -924,6 +1150,27 @@ export function useGetSessions(
   const { queryKey, queryFn, ...baseOptions } = getGetSessionsQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /sessions/{sessionId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSessionsSessionIdMutationKey() {
+  return ['DELETE', '/sessions/:sessionId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSessionsSessionIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.sessions)[':sessionId']['$delete']>) =>
+    parseResponse(client.sessions[':sessionId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /sessions/{sessionId}

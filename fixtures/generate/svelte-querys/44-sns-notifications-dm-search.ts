@@ -120,6 +120,27 @@ export function createGetNotificationsUnreadCount(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /notifications/mark-read
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostNotificationsMarkReadMutationKey() {
+  return ['POST', '/notifications/mark-read'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /notifications/mark-read
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNotificationsMarkReadMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostNotificationsMarkReadMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.notifications)['mark-read']['$post']>) =>
+    parseResponse(client.notifications['mark-read'].$post(args, clientOptions)),
+})
+
+/**
  * POST /notifications/mark-read
  *
  * 通知を既読にする
@@ -197,6 +218,27 @@ export function createGetNotificationsSettings(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /notifications/settings
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutNotificationsSettingsMutationKey() {
+  return ['PUT', '/notifications/settings'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /notifications/settings
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutNotificationsSettingsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutNotificationsSettingsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.notifications.settings.$put>) =>
+    parseResponse(client.notifications.settings.$put(args, clientOptions)),
+})
 
 /**
  * PUT /notifications/settings
@@ -280,6 +322,25 @@ export function createGetDmConversations(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /dm/conversations
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDmConversationsMutationKey() {
+  return ['POST', '/dm/conversations'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /dm/conversations
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDmConversationsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostDmConversationsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.dm.conversations.$post>) =>
+    parseResponse(client.dm.conversations.$post(args, clientOptions)),
+})
+
+/**
  * POST /dm/conversations
  *
  * 会話作成
@@ -361,6 +422,28 @@ export function createGetDmConversationsConversationId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /dm/conversations/{conversationId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteDmConversationsConversationIdMutationKey() {
+  return ['DELETE', '/dm/conversations/:conversationId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /dm/conversations/{conversationId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteDmConversationsConversationIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteDmConversationsConversationIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['$delete']>,
+  ) => parseResponse(client.dm.conversations[':conversationId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /dm/conversations/{conversationId}
@@ -452,6 +535,31 @@ export function createGetDmConversationsConversationIdMessages(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /dm/conversations/{conversationId}/messages
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDmConversationsConversationIdMessagesMutationKey() {
+  return ['POST', '/dm/conversations/:conversationId/messages'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /dm/conversations/{conversationId}/messages
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDmConversationsConversationIdMessagesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostDmConversationsConversationIdMessagesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.dm.conversations)[':conversationId']['messages']['$post']
+    >,
+  ) =>
+    parseResponse(client.dm.conversations[':conversationId'].messages.$post(args, clientOptions)),
+})
+
+/**
  * POST /dm/conversations/{conversationId}/messages
  *
  * メッセージ送信
@@ -485,6 +593,28 @@ export function createPostDmConversationsConversationIdMessages(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /dm/conversations/{conversationId}/read
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDmConversationsConversationIdReadMutationKey() {
+  return ['POST', '/dm/conversations/:conversationId/read'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /dm/conversations/{conversationId}/read
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDmConversationsConversationIdReadMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostDmConversationsConversationIdReadMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['read']['$post']>,
+  ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(args, clientOptions)),
+})
+
+/**
  * POST /dm/conversations/{conversationId}/read
  *
  * 会話を既読にする
@@ -511,6 +641,28 @@ export function createPostDmConversationsConversationIdRead(options?: {
     ) => parseResponse(client.dm.conversations[':conversationId'].read.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /dm/conversations/{conversationId}/typing
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDmConversationsConversationIdTypingMutationKey() {
+  return ['POST', '/dm/conversations/:conversationId/typing'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /dm/conversations/{conversationId}/typing
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDmConversationsConversationIdTypingMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostDmConversationsConversationIdTypingMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.dm.conversations)[':conversationId']['typing']['$post']>,
+  ) => parseResponse(client.dm.conversations[':conversationId'].typing.$post(args, clientOptions)),
+})
 
 /**
  * POST /dm/conversations/{conversationId}/typing
@@ -546,6 +698,28 @@ export function createPostDmConversationsConversationIdTyping(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /dm/messages/{messageId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteDmMessagesMessageIdMutationKey() {
+  return ['DELETE', '/dm/messages/:messageId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /dm/messages/{messageId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteDmMessagesMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteDmMessagesMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.dm.messages)[':messageId']['$delete']>,
+  ) => parseResponse(client.dm.messages[':messageId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /dm/messages/{messageId}
  *
  * メッセージ削除
@@ -575,6 +749,28 @@ export function createDeleteDmMessagesMessageId(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /dm/messages/{messageId}/reactions
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDmMessagesMessageIdReactionsMutationKey() {
+  return ['POST', '/dm/messages/:messageId/reactions'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /dm/messages/{messageId}/reactions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDmMessagesMessageIdReactionsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostDmMessagesMessageIdReactionsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$post']>,
+  ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(args, clientOptions)),
+})
+
+/**
  * POST /dm/messages/{messageId}/reactions
  *
  * メッセージにリアクション追加
@@ -601,6 +797,28 @@ export function createPostDmMessagesMessageIdReactions(options?: {
     ) => parseResponse(client.dm.messages[':messageId'].reactions.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /dm/messages/{messageId}/reactions
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteDmMessagesMessageIdReactionsMutationKey() {
+  return ['DELETE', '/dm/messages/:messageId/reactions'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /dm/messages/{messageId}/reactions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteDmMessagesMessageIdReactionsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteDmMessagesMessageIdReactionsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.dm.messages)[':messageId']['reactions']['$delete']>,
+  ) => parseResponse(client.dm.messages[':messageId'].reactions.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /dm/messages/{messageId}/reactions
@@ -885,6 +1103,24 @@ export function createGetSearchRecent(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /search/recent
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSearchRecentMutationKey() {
+  return ['DELETE', '/search/recent'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /search/recent
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSearchRecentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteSearchRecentMutationKey(),
+  mutationFn: async () => parseResponse(client.search.recent.$delete(undefined, clientOptions)),
+})
+
+/**
  * DELETE /search/recent
  *
  * 検索履歴クリア
@@ -1057,6 +1293,28 @@ export function createGetSuggestionsUsers(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /suggestions/users/{userId}/hide
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSuggestionsUsersUserIdHideMutationKey() {
+  return ['POST', '/suggestions/users/:userId/hide'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /suggestions/users/{userId}/hide
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSuggestionsUsersUserIdHideMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostSuggestionsUsersUserIdHideMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.suggestions.users)[':userId']['hide']['$post']>,
+  ) => parseResponse(client.suggestions.users[':userId'].hide.$post(args, clientOptions)),
+})
+
+/**
  * POST /suggestions/users/{userId}/hide
  *
  * おすすめユーザーを非表示
@@ -1132,6 +1390,28 @@ export function createGetSuggestionsTopics(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /topics/{topicId}/follow
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTopicsTopicIdFollowMutationKey() {
+  return ['POST', '/topics/:topicId/follow'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /topics/{topicId}/follow
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTopicsTopicIdFollowMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostTopicsTopicIdFollowMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$post']>,
+  ) => parseResponse(client.topics[':topicId'].follow.$post(args, clientOptions)),
+})
+
+/**
  * POST /topics/{topicId}/follow
  *
  * トピックをフォロー
@@ -1158,6 +1438,28 @@ export function createPostTopicsTopicIdFollow(options?: {
     ) => parseResponse(client.topics[':topicId'].follow.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /topics/{topicId}/follow
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteTopicsTopicIdFollowMutationKey() {
+  return ['DELETE', '/topics/:topicId/follow'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /topics/{topicId}/follow
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteTopicsTopicIdFollowMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteTopicsTopicIdFollowMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.topics)[':topicId']['follow']['$delete']>,
+  ) => parseResponse(client.topics[':topicId'].follow.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /topics/{topicId}/follow

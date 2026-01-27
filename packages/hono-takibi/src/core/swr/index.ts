@@ -209,13 +209,14 @@ export function ${hookName}(${argsSig}${optionsSig}){const{swr:swrOptions,client
     // Safe comment path for JSDoc
     const safeCommentPath = honoPath.replace(/:([^/]+)/g, '{$1}').replace(/\*\//g, '* /')
 
-    // Orval-style mutation key: array with template path (no method prefix)
+    // SWR mutation key: [method, templatePath] to avoid collisions
+    // e.g., PUT /pet and POST /pet get different keys: ['PUT', '/pet'] vs ['POST', '/pet']
     // Path params are NOT resolved since args are passed via trigger's { arg }
     const mutationKeyGetterCode = `/**
  * Generates SWR mutation key for ${methodUpper} ${safeCommentPath}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
-export function ${mutationKeyGetterName}(){return['${honoPath}']as const}`
+export function ${mutationKeyGetterName}(){return['${methodUpper}','${honoPath}']as const}`
 
     if (hasArgs) {
       const clientCall = `${clientPath}.$${method}(arg,clientOptions)`

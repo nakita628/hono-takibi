@@ -8,10 +8,10 @@ import { client } from '../clients/edge'
 
 /**
  * Generates SWR mutation key for POST /polymorphic
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPolymorphicMutationKey() {
-  return ['/polymorphic'] as const
+  return ['POST', '/polymorphic'] as const
 }
 
 /**
@@ -78,10 +78,10 @@ export function useGetSearch(
 
 /**
  * Generates SWR mutation key for PUT /multi-step
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMultiStepMutationKey() {
-  return ['/multi-step'] as const
+  return ['PUT', '/multi-step'] as const
 }
 
 /**

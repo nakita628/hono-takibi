@@ -49,6 +49,25 @@ export function createGetTrees(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /trees
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTreesMutationKey() {
+  return ['POST', '/trees'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /trees
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTreesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTreesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.trees.$post>) =>
+    parseResponse(client.trees.$post(args, clientOptions)),
+})
+
+/**
  * POST /trees
  */
 export function createPostTrees(options?: {

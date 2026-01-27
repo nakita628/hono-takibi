@@ -8,10 +8,10 @@ import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
  * Generates SWR mutation key for POST /webauthn/register/options
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebauthnRegisterOptionsMutationKey() {
-  return ['/webauthn/register/options'] as const
+  return ['POST', '/webauthn/register/options'] as const
 }
 
 /**
@@ -52,10 +52,10 @@ export function usePostWebauthnRegisterOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /webauthn/register/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebauthnRegisterVerifyMutationKey() {
-  return ['/webauthn/register/verify'] as const
+  return ['POST', '/webauthn/register/verify'] as const
 }
 
 /**
@@ -96,10 +96,10 @@ export function usePostWebauthnRegisterVerify(options?: {
 
 /**
  * Generates SWR mutation key for POST /webauthn/authenticate/options
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebauthnAuthenticateOptionsMutationKey() {
-  return ['/webauthn/authenticate/options'] as const
+  return ['POST', '/webauthn/authenticate/options'] as const
 }
 
 /**
@@ -140,10 +140,10 @@ export function usePostWebauthnAuthenticateOptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /webauthn/authenticate/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebauthnAuthenticateVerifyMutationKey() {
-  return ['/webauthn/authenticate/verify'] as const
+  return ['POST', '/webauthn/authenticate/verify'] as const
 }
 
 /**
@@ -254,10 +254,10 @@ export function useGetWebauthnCredentialsCredentialId(
 
 /**
  * Generates SWR mutation key for DELETE /webauthn/credentials/{credentialId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
-  return ['/webauthn/credentials/:credentialId'] as const
+  return ['DELETE', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -305,10 +305,10 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /webauthn/credentials/{credentialId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
-  return ['/webauthn/credentials/:credentialId'] as const
+  return ['PATCH', '/webauthn/credentials/:credentialId'] as const
 }
 
 /**
@@ -419,10 +419,10 @@ export function useGetWebauthnSettingsRp(options?: {
 
 /**
  * Generates SWR mutation key for PUT /webauthn/settings/rp
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutWebauthnSettingsRpMutationKey() {
-  return ['/webauthn/settings/rp'] as const
+  return ['PUT', '/webauthn/settings/rp'] as const
 }
 
 /**

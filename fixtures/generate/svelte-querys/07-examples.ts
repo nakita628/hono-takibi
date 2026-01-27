@@ -52,6 +52,25 @@ export function createGetProducts(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /products
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProductsMutationKey() {
+  return ['POST', '/products'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /products
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProductsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProductsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+    parseResponse(client.products.$post(args, clientOptions)),
+})
+
+/**
  * POST /products
  */
 export function createPostProducts(options?: {

@@ -46,10 +46,10 @@ export function useGet20100401AccountsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsJsonMutationKey() {
-  return ['/2010-04-01/Accounts.json'] as const
+  return ['POST', '/2010-04-01/Accounts.json'] as const
 }
 
 /**
@@ -131,10 +131,10 @@ export function useGet20100401AccountsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:Sid.json'] as const
 }
 
 /**
@@ -223,10 +223,10 @@ export function useGet20100401AccountsAccountSidAddressesJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidAddressesJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
 }
 
 /**
@@ -328,10 +328,10 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -388,10 +388,10 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
 }
 
 /**
@@ -498,10 +498,10 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidApplicationsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
 }
 
 /**
@@ -614,10 +614,10 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
 }
 
 /**
@@ -678,10 +678,10 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
 }
 
 /**
@@ -1387,10 +1387,10 @@ export function useGet20100401AccountsAccountSidCallsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
 }
 
 /**
@@ -1497,10 +1497,10 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -1558,10 +1558,10 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidCallsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
 }
 
 /**
@@ -1826,10 +1826,10 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json'] as const
 }
 
 /**
@@ -1943,10 +1943,10 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
 }
 
 /**
@@ -2007,10 +2007,10 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
 }
 
 /**
@@ -2124,10 +2124,10 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidConferencesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
 }
 
 /**
@@ -2341,10 +2341,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
 }
@@ -2408,10 +2409,11 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
   ] as const
 }
@@ -2528,10 +2530,10 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -2592,10 +2594,10 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
 }
 
 /**
@@ -2809,10 +2811,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
 }
 
 /**
@@ -2874,10 +2876,10 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
 }
 
 /**
@@ -2990,10 +2992,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json'] as const
 }
 
 /**
@@ -3110,10 +3112,11 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
   ] as const
 }
@@ -3232,10 +3235,11 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
   ] as const
 }
@@ -3460,10 +3464,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json'] as const
 }
 
 /**
@@ -3570,10 +3574,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json'] as const
 }
 
 /**
@@ -3680,10 +3684,10 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json'] as const
 }
 
 /**
@@ -3786,10 +3790,10 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -3843,10 +3847,10 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidKeysSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
 }
 
 /**
@@ -3945,10 +3949,10 @@ export function useGet20100401AccountsAccountSidKeysJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidKeysJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
 }
 
 /**
@@ -4052,10 +4056,13 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json'] as const
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
+  ] as const
 }
 
 /**
@@ -4222,10 +4229,13 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json'] as const
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
+  ] as const
 }
 
 /**
@@ -4385,10 +4395,10 @@ export function useGet20100401AccountsAccountSidMessagesJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidMessagesJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
 }
 
 /**
@@ -4498,10 +4508,10 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -4562,10 +4572,10 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
 }
 
 /**
@@ -4627,10 +4637,10 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json'] as const
 }
 
 /**
@@ -4736,10 +4746,10 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSigningKeysJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
 }
 
 /**
@@ -4954,10 +4964,10 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
 }
 
 /**
@@ -5018,10 +5028,10 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
 }
 
 /**
@@ -5133,10 +5143,10 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
 }
 
 /**
@@ -5247,10 +5257,11 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
 }
@@ -5314,10 +5325,11 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
   ] as const
 }
@@ -5436,10 +5448,13 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json'] as const
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
+  ] as const
 }
 
 /**
@@ -5497,10 +5512,10 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json'] as const
 }
 
 /**
@@ -5561,10 +5576,10 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json'] as const
 }
 
 /**
@@ -5677,10 +5692,10 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -5741,10 +5756,10 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
 }
 
 /**
@@ -5852,10 +5867,10 @@ export function useGet20100401AccountsAccountSidQueuesJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidQueuesJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
 }
 
 /**
@@ -5913,10 +5928,10 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json'] as const
 }
 
 /**
@@ -5977,10 +5992,13 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json'] as const
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json',
+  ] as const
 }
 
 /**
@@ -6093,10 +6111,10 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
 }
 
 /**
@@ -6258,10 +6276,11 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
   ] as const
 }
@@ -6436,10 +6455,11 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
   ] as const
 }
@@ -6666,10 +6686,11 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
   ] as const
 }
@@ -6832,10 +6853,10 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json'] as const
 }
 
 /**
@@ -6993,10 +7014,10 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -7053,10 +7074,10 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
 }
 
 /**
@@ -7170,10 +7191,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
   ] as const
 }
@@ -7293,10 +7315,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
   ] as const
 }
@@ -7417,10 +7440,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
   ] as const
 }
@@ -7540,10 +7564,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
   ] as const
 }
@@ -7664,10 +7689,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
   ] as const
 }
@@ -7787,10 +7813,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
   ] as const
 }
@@ -7909,10 +7936,11 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
   ] as const
 }
@@ -8032,10 +8060,11 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
 }
@@ -8099,10 +8128,11 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
   ] as const
 }
@@ -8217,10 +8247,10 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json'] as const
 }
 
 /**
@@ -8334,10 +8364,10 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
 }
 
 /**
@@ -8399,10 +8429,10 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
 }
 
 /**
@@ -8519,10 +8549,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
   ] as const
 }
@@ -8640,10 +8671,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
   ] as const
 }
@@ -8757,10 +8789,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
 }
 
 /**
@@ -8873,10 +8905,10 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -8937,10 +8969,10 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
 }
 
 /**
@@ -9055,10 +9087,10 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json'] as const
 }
 
 /**
@@ -9173,10 +9205,10 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
 }
 
 /**
@@ -9238,10 +9270,10 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
 }
 
 /**
@@ -9359,10 +9391,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
   ] as const
 }
@@ -9481,10 +9514,11 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
   ] as const
 }
@@ -9604,10 +9638,11 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
   ] as const
 }
@@ -9727,10 +9762,11 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
 }
@@ -9794,10 +9830,11 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
   ] as const
 }
@@ -9862,10 +9899,10 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json'] as const
 }
 
 /**
@@ -9926,10 +9963,10 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json'] as const
 }
 
 /**
@@ -9991,10 +10028,10 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json'] as const
 }
 
 /**
@@ -10055,10 +10092,10 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json'] as const
 }
 
 /**
@@ -10120,10 +10157,10 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidTokensJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
 }
 
 /**
@@ -10233,10 +10270,10 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json'] as const
 }
 
 /**
@@ -10823,10 +10860,10 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
 }
 
 /**
@@ -10887,10 +10924,10 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
 }
 
 /**
@@ -10997,10 +11034,10 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
 }
 
 /**
@@ -11061,10 +11098,13 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey() {
-  return ['/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json'] as const
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json',
+  ] as const
 }
 
 /**
@@ -11125,10 +11165,11 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
 
 /**
  * Generates SWR mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey() {
   return [
+    'POST',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions.json',
   ] as const
 }
@@ -11192,10 +11233,11 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
 
 /**
  * Generates SWR mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey() {
   return [
+    'DELETE',
     '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions/:Sid.json',
   ] as const
 }

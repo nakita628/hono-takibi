@@ -77,6 +77,36 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
+  return ['POST', '/organizations/:orgId/departments/:deptId/teams/:teamId/members'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.organizations)[':orgId']['departments'][':deptId']['teams'][':teamId']['members']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.organizations[':orgId'].departments[':deptId'].teams[':teamId'].members.$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
  */
 export function usePostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(options?: {

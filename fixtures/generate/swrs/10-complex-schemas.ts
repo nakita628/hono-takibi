@@ -7,10 +7,10 @@ import { client } from '../clients/10-complex-schemas'
 
 /**
  * Generates SWR mutation key for POST /events
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostEventsMutationKey() {
-  return ['/events'] as const
+  return ['POST', '/events'] as const
 }
 
 /**
@@ -41,10 +41,10 @@ export function usePostEvents(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostNotificationsMutationKey() {
-  return ['/notifications'] as const
+  return ['POST', '/notifications'] as const
 }
 
 /**
@@ -77,10 +77,10 @@ export function usePostNotifications(options?: {
 
 /**
  * Generates SWR mutation key for POST /shapes
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostShapesMutationKey() {
-  return ['/shapes'] as const
+  return ['POST', '/shapes'] as const
 }
 
 /**
@@ -111,10 +111,10 @@ export function usePostShapes(options?: {
 
 /**
  * Generates SWR mutation key for POST /documents
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDocumentsMutationKey() {
-  return ['/documents'] as const
+  return ['POST', '/documents'] as const
 }
 
 /**
@@ -145,10 +145,10 @@ export function usePostDocuments(options?: {
 
 /**
  * Generates SWR mutation key for POST /mixed
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMixedMutationKey() {
-  return ['/mixed'] as const
+  return ['POST', '/mixed'] as const
 }
 
 /**

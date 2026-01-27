@@ -7,10 +7,10 @@ import { client } from '../clients/not-schema'
 
 /**
  * Generates SWR mutation key for POST /validate
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostValidateMutationKey() {
-  return ['/validate'] as const
+  return ['POST', '/validate'] as const
 }
 
 /**

@@ -55,6 +55,25 @@ export function useGetSettingsAccount(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /settings/account
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutSettingsAccountMutationKey() {
+  return ['PUT', '/settings/account'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /settings/account
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSettingsAccountMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSettingsAccountMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.settings.account.$put>) =>
+    parseResponse(client.settings.account.$put(args, clientOptions)),
+})
+
+/**
  * PUT /settings/account
  *
  * アカウント設定更新
@@ -192,6 +211,25 @@ export function useGetSettingsPrivacy(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /settings/privacy
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutSettingsPrivacyMutationKey() {
+  return ['PUT', '/settings/privacy'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /settings/privacy
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSettingsPrivacyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutSettingsPrivacyMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.settings.privacy.$put>) =>
+    parseResponse(client.settings.privacy.$put(args, clientOptions)),
+})
+
+/**
  * PUT /settings/privacy
  *
  * プライバシー設定更新
@@ -273,6 +311,28 @@ export function useGetSettingsContentPreferences(options?: {
     getGetSettingsContentPreferencesQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for PUT /settings/content-preferences
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutSettingsContentPreferencesMutationKey() {
+  return ['PUT', '/settings/content-preferences'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /settings/content-preferences
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutSettingsContentPreferencesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutSettingsContentPreferencesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings)['content-preferences']['$put']>,
+  ) => parseResponse(client.settings['content-preferences'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /settings/content-preferences
@@ -360,6 +420,25 @@ export function useGetSettingsMutedWords(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /settings/muted-words
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSettingsMutedWordsMutationKey() {
+  return ['POST', '/settings/muted-words'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /settings/muted-words
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSettingsMutedWordsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSettingsMutedWordsMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.settings)['muted-words']['$post']>) =>
+    parseResponse(client.settings['muted-words'].$post(args, clientOptions)),
+})
+
+/**
  * POST /settings/muted-words
  *
  * ミュートワード追加
@@ -390,6 +469,28 @@ export function usePostSettingsMutedWords(options?: {
       parseResponse(client.settings['muted-words'].$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /settings/muted-words/{wordId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSettingsMutedWordsWordIdMutationKey() {
+  return ['DELETE', '/settings/muted-words/:wordId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /settings/muted-words/{wordId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSettingsMutedWordsWordIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSettingsMutedWordsWordIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings)['muted-words'][':wordId']['$delete']>,
+  ) => parseResponse(client.settings['muted-words'][':wordId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /settings/muted-words/{wordId}
@@ -474,6 +575,28 @@ export function useGetSettingsSessions(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetSettingsSessionsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /settings/sessions/{sessionId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSettingsSessionsSessionIdMutationKey() {
+  return ['DELETE', '/settings/sessions/:sessionId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /settings/sessions/{sessionId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSettingsSessionsSessionIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSettingsSessionsSessionIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings.sessions)[':sessionId']['$delete']>,
+  ) => parseResponse(client.settings.sessions[':sessionId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /settings/sessions/{sessionId}
@@ -563,6 +686,28 @@ export function useGetSettingsConnectedApps(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /settings/connected-apps/{appId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteSettingsConnectedAppsAppIdMutationKey() {
+  return ['DELETE', '/settings/connected-apps/:appId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /settings/connected-apps/{appId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteSettingsConnectedAppsAppIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteSettingsConnectedAppsAppIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.settings)['connected-apps'][':appId']['$delete']>,
+  ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /settings/connected-apps/{appId}
  *
  * 連携アプリ解除
@@ -595,6 +740,25 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
     ) => parseResponse(client.settings['connected-apps'][':appId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /settings/data-export
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSettingsDataExportMutationKey() {
+  return ['POST', '/settings/data-export'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /settings/data-export
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSettingsDataExportMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSettingsDataExportMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client.settings['data-export'].$post(undefined, clientOptions)),
+})
 
 /**
  * POST /settings/data-export
@@ -692,6 +856,25 @@ export function useGetSettingsDataExportRequestId(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /settings/deactivate
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSettingsDeactivateMutationKey() {
+  return ['POST', '/settings/deactivate'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /settings/deactivate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSettingsDeactivateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSettingsDeactivateMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.settings.deactivate.$post>) =>
+    parseResponse(client.settings.deactivate.$post(args, clientOptions)),
+})
+
+/**
  * POST /settings/deactivate
  *
  * アカウント一時停止
@@ -720,6 +903,25 @@ export function usePostSettingsDeactivate(options?: {
       parseResponse(client.settings.deactivate.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /reports
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostReportsMutationKey() {
+  return ['POST', '/reports'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /reports
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostReportsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostReportsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.reports.$post>) =>
+    parseResponse(client.reports.$post(args, clientOptions)),
+})
 
 /**
  * POST /reports
@@ -937,6 +1139,28 @@ export function useGetModerationItemsItemId(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /moderation/items/{itemId}/action
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostModerationItemsItemIdActionMutationKey() {
+  return ['POST', '/moderation/items/:itemId/action'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /moderation/items/{itemId}/action
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostModerationItemsItemIdActionMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostModerationItemsItemIdActionMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.moderation.items)[':itemId']['action']['$post']>,
+  ) => parseResponse(client.moderation.items[':itemId'].action.$post(args, clientOptions)),
+})
+
+/**
  * POST /moderation/items/{itemId}/action
  *
  * モデレーションアクション実行
@@ -1033,6 +1257,28 @@ export function useGetModerationUsersUserIdHistory(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /moderation/users/{userId}/suspend
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostModerationUsersUserIdSuspendMutationKey() {
+  return ['POST', '/moderation/users/:userId/suspend'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /moderation/users/{userId}/suspend
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostModerationUsersUserIdSuspendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostModerationUsersUserIdSuspendMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.moderation.users)[':userId']['suspend']['$post']>,
+  ) => parseResponse(client.moderation.users[':userId'].suspend.$post(args, clientOptions)),
+})
+
+/**
  * POST /moderation/users/{userId}/suspend
  *
  * ユーザー凍結
@@ -1064,6 +1310,28 @@ export function usePostModerationUsersUserIdSuspend(options?: {
     ) => parseResponse(client.moderation.users[':userId'].suspend.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /moderation/users/{userId}/unsuspend
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostModerationUsersUserIdUnsuspendMutationKey() {
+  return ['POST', '/moderation/users/:userId/unsuspend'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /moderation/users/{userId}/unsuspend
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostModerationUsersUserIdUnsuspendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostModerationUsersUserIdUnsuspendMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.moderation.users)[':userId']['unsuspend']['$post']>,
+  ) => parseResponse(client.moderation.users[':userId'].unsuspend.$post(args, clientOptions)),
+})
 
 /**
  * POST /moderation/users/{userId}/unsuspend

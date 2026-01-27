@@ -981,10 +981,10 @@ export function useGetMeAlbums(
 
 /**
  * Generates SWR mutation key for PUT /me/albums
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMeAlbumsMutationKey() {
-  return ['/me/albums'] as const
+  return ['PUT', '/me/albums'] as const
 }
 
 /**
@@ -1019,10 +1019,10 @@ export function usePutMeAlbums(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/albums
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeAlbumsMutationKey() {
-  return ['/me/albums'] as const
+  return ['DELETE', '/me/albums'] as const
 }
 
 /**
@@ -1131,10 +1131,10 @@ export function useGetMeAudiobooks(
 
 /**
  * Generates SWR mutation key for PUT /me/audiobooks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMeAudiobooksMutationKey() {
-  return ['/me/audiobooks'] as const
+  return ['PUT', '/me/audiobooks'] as const
 }
 
 /**
@@ -1171,10 +1171,10 @@ export function usePutMeAudiobooks(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/audiobooks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeAudiobooksMutationKey() {
-  return ['/me/audiobooks'] as const
+  return ['DELETE', '/me/audiobooks'] as const
 }
 
 /**
@@ -1286,10 +1286,10 @@ export function useGetMeEpisodes(
 
 /**
  * Generates SWR mutation key for PUT /me/episodes
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMeEpisodesMutationKey() {
-  return ['/me/episodes'] as const
+  return ['PUT', '/me/episodes'] as const
 }
 
 /**
@@ -1325,10 +1325,10 @@ export function usePutMeEpisodes(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/episodes
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeEpisodesMutationKey() {
-  return ['/me/episodes'] as const
+  return ['DELETE', '/me/episodes'] as const
 }
 
 /**
@@ -1441,10 +1441,10 @@ export function useGetMeFollowing(
 
 /**
  * Generates SWR mutation key for PUT /me/following
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMeFollowingMutationKey() {
-  return ['/me/following'] as const
+  return ['PUT', '/me/following'] as const
 }
 
 /**
@@ -1482,10 +1482,10 @@ export function usePutMeFollowing(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/following
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeFollowingMutationKey() {
-  return ['/me/following'] as const
+  return ['DELETE', '/me/following'] as const
 }
 
 /**
@@ -1596,10 +1596,10 @@ export function useGetMePlayer(
 
 /**
  * Generates SWR mutation key for PUT /me/player
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMePlayerMutationKey() {
-  return ['/me/player'] as const
+  return ['PUT', '/me/player'] as const
 }
 
 /**
@@ -1706,10 +1706,10 @@ export function useGetMePlayerDevices(options?: {
 
 /**
  * Generates SWR mutation key for POST /me/player/next
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMePlayerNextMutationKey() {
-  return ['/me/player/next'] as const
+  return ['POST', '/me/player/next'] as const
 }
 
 /**
@@ -1747,10 +1747,10 @@ export function usePostMePlayerNext(options?: {
 
 /**
  * Generates SWR mutation key for PUT /me/player/pause
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMePlayerPauseMutationKey() {
-  return ['/me/player/pause'] as const
+  return ['PUT', '/me/player/pause'] as const
 }
 
 /**
@@ -1788,10 +1788,10 @@ export function usePutMePlayerPause(options?: {
 
 /**
  * Generates SWR mutation key for PUT /me/player/play
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMePlayerPlayMutationKey() {
-  return ['/me/player/play'] as const
+  return ['PUT', '/me/player/play'] as const
 }
 
 /**
@@ -1829,10 +1829,10 @@ export function usePutMePlayerPlay(options?: {
 
 /**
  * Generates SWR mutation key for POST /me/player/previous
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMePlayerPreviousMutationKey() {
-  return ['/me/player/previous'] as const
+  return ['POST', '/me/player/previous'] as const
 }
 
 /**
@@ -1905,10 +1905,10 @@ export function useGetMePlayerQueue(options?: {
 
 /**
  * Generates SWR mutation key for POST /me/player/queue
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMePlayerQueueMutationKey() {
-  return ['/me/player/queue'] as const
+  return ['POST', '/me/player/queue'] as const
 }
 
 /**
@@ -1985,10 +1985,10 @@ export function useGetMePlayerRecentlyPlayed(
 
 /**
  * Generates SWR mutation key for PUT /me/player/repeat
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMePlayerRepeatMutationKey() {
-  return ['/me/player/repeat'] as const
+  return ['PUT', '/me/player/repeat'] as const
 }
 
 /**
@@ -2027,10 +2027,10 @@ export function usePutMePlayerRepeat(options?: {
 
 /**
  * Generates SWR mutation key for PUT /me/player/seek
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMePlayerSeekMutationKey() {
-  return ['/me/player/seek'] as const
+  return ['PUT', '/me/player/seek'] as const
 }
 
 /**
@@ -2068,10 +2068,10 @@ export function usePutMePlayerSeek(options?: {
 
 /**
  * Generates SWR mutation key for PUT /me/player/shuffle
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMePlayerShuffleMutationKey() {
-  return ['/me/player/shuffle'] as const
+  return ['PUT', '/me/player/shuffle'] as const
 }
 
 /**
@@ -2109,10 +2109,10 @@ export function usePutMePlayerShuffle(options?: {
 
 /**
  * Generates SWR mutation key for PUT /me/player/volume
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMePlayerVolumeMutationKey() {
-  return ['/me/player/volume'] as const
+  return ['PUT', '/me/player/volume'] as const
 }
 
 /**
@@ -2223,10 +2223,10 @@ export function useGetMeShows(
 
 /**
  * Generates SWR mutation key for PUT /me/shows
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMeShowsMutationKey() {
-  return ['/me/shows'] as const
+  return ['PUT', '/me/shows'] as const
 }
 
 /**
@@ -2261,10 +2261,10 @@ export function usePutMeShows(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/shows
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeShowsMutationKey() {
-  return ['/me/shows'] as const
+  return ['DELETE', '/me/shows'] as const
 }
 
 /**
@@ -2411,10 +2411,10 @@ export function useGetMeTracks(
 
 /**
  * Generates SWR mutation key for PUT /me/tracks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMeTracksMutationKey() {
-  return ['/me/tracks'] as const
+  return ['PUT', '/me/tracks'] as const
 }
 
 /**
@@ -2449,10 +2449,10 @@ export function usePutMeTracks(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/tracks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeTracksMutationKey() {
-  return ['/me/tracks'] as const
+  return ['DELETE', '/me/tracks'] as const
 }
 
 /**
@@ -2563,10 +2563,10 @@ export function useGetPlaylistsPlaylistId(
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutPlaylistsPlaylistIdMutationKey() {
-  return ['/playlists/:playlist_id'] as const
+  return ['PUT', '/playlists/:playlist_id'] as const
 }
 
 /**
@@ -2608,10 +2608,10 @@ export function usePutPlaylistsPlaylistId(options?: {
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}/followers
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutPlaylistsPlaylistIdFollowersMutationKey() {
-  return ['/playlists/:playlist_id/followers'] as const
+  return ['PUT', '/playlists/:playlist_id/followers'] as const
 }
 
 /**
@@ -2658,10 +2658,10 @@ export function usePutPlaylistsPlaylistIdFollowers(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /playlists/{playlist_id}/followers
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePlaylistsPlaylistIdFollowersMutationKey() {
-  return ['/playlists/:playlist_id/followers'] as const
+  return ['DELETE', '/playlists/:playlist_id/followers'] as const
 }
 
 /**
@@ -2792,10 +2792,10 @@ export function useGetPlaylistsPlaylistIdImages(
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}/images
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutPlaylistsPlaylistIdImagesMutationKey() {
-  return ['/playlists/:playlist_id/images'] as const
+  return ['PUT', '/playlists/:playlist_id/images'] as const
 }
 
 /**
@@ -2878,10 +2878,10 @@ export function useGetPlaylistsPlaylistIdTracks(
 
 /**
  * Generates SWR mutation key for PUT /playlists/{playlist_id}/tracks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutPlaylistsPlaylistIdTracksMutationKey() {
-  return ['/playlists/:playlist_id/tracks'] as const
+  return ['PUT', '/playlists/:playlist_id/tracks'] as const
 }
 
 /**
@@ -2932,10 +2932,10 @@ export function usePutPlaylistsPlaylistIdTracks(options?: {
 
 /**
  * Generates SWR mutation key for POST /playlists/{playlist_id}/tracks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPlaylistsPlaylistIdTracksMutationKey() {
-  return ['/playlists/:playlist_id/tracks'] as const
+  return ['POST', '/playlists/:playlist_id/tracks'] as const
 }
 
 /**
@@ -2980,10 +2980,10 @@ export function usePostPlaylistsPlaylistIdTracks(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /playlists/{playlist_id}/tracks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePlaylistsPlaylistIdTracksMutationKey() {
-  return ['/playlists/:playlist_id/tracks'] as const
+  return ['DELETE', '/playlists/:playlist_id/tracks'] as const
 }
 
 /**
@@ -3404,10 +3404,10 @@ export function useGetUsersUserIdPlaylists(
 
 /**
  * Generates SWR mutation key for POST /users/{user_id}/playlists
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersUserIdPlaylistsMutationKey() {
-  return ['/users/:user_id/playlists'] as const
+  return ['POST', '/users/:user_id/playlists'] as const
 }
 
 /**

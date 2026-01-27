@@ -37,10 +37,10 @@ export function useGetExtremeResponses(options?: {
 
 /**
  * Generates SWR mutation key for POST /multipart-variations
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMultipartVariationsMutationKey() {
-  return ['/multipart-variations'] as const
+  return ['POST', '/multipart-variations'] as const
 }
 
 /**
@@ -77,10 +77,10 @@ export function usePostMultipartVariations(options?: {
 
 /**
  * Generates SWR mutation key for POST /charset-variations
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCharsetVariationsMutationKey() {
-  return ['/charset-variations'] as const
+  return ['POST', '/charset-variations'] as const
 }
 
 /**

@@ -42,10 +42,10 @@ export function useGetProjects(
 
 /**
  * Generates SWR mutation key for POST /projects
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProjectsMutationKey() {
-  return ['/projects'] as const
+  return ['POST', '/projects'] as const
 }
 
 /**
@@ -114,10 +114,10 @@ export function useGetProjectsProjectId(
 
 /**
  * Generates SWR mutation key for PUT /projects/{projectId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutProjectsProjectIdMutationKey() {
-  return ['/projects/:projectId'] as const
+  return ['PUT', '/projects/:projectId'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutProjectsProjectId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /projects/{projectId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteProjectsProjectIdMutationKey() {
-  return ['/projects/:projectId'] as const
+  return ['DELETE', '/projects/:projectId'] as const
 }
 
 /**
@@ -237,10 +237,10 @@ export function useGetProjectsProjectIdMembers(
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/members
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProjectsProjectIdMembersMutationKey() {
-  return ['/projects/:projectId/members'] as const
+  return ['POST', '/projects/:projectId/members'] as const
 }
 
 /**
@@ -319,10 +319,10 @@ export function useGetProjectsProjectIdTasks(
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/tasks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProjectsProjectIdTasksMutationKey() {
-  return ['/projects/:projectId/tasks'] as const
+  return ['POST', '/projects/:projectId/tasks'] as const
 }
 
 /**
@@ -401,10 +401,10 @@ export function useGetTasksTaskId(
 
 /**
  * Generates SWR mutation key for PUT /tasks/{taskId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutTasksTaskIdMutationKey() {
-  return ['/tasks/:taskId'] as const
+  return ['PUT', '/tasks/:taskId'] as const
 }
 
 /**
@@ -443,10 +443,10 @@ export function usePutTasksTaskId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /tasks/{taskId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteTasksTaskIdMutationKey() {
-  return ['/tasks/:taskId'] as const
+  return ['DELETE', '/tasks/:taskId'] as const
 }
 
 /**
@@ -486,10 +486,10 @@ export function useDeleteTasksTaskId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /tasks/{taskId}/status
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchTasksTaskIdStatusMutationKey() {
-  return ['/tasks/:taskId/status'] as const
+  return ['PATCH', '/tasks/:taskId/status'] as const
 }
 
 /**
@@ -566,10 +566,10 @@ export function useGetTasksTaskIdComments(
 
 /**
  * Generates SWR mutation key for POST /tasks/{taskId}/comments
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTasksTaskIdCommentsMutationKey() {
-  return ['/tasks/:taskId/comments'] as const
+  return ['POST', '/tasks/:taskId/comments'] as const
 }
 
 /**
@@ -646,10 +646,10 @@ export function useGetTasksTaskIdTimeEntries(
 
 /**
  * Generates SWR mutation key for POST /tasks/{taskId}/time-entries
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTasksTaskIdTimeEntriesMutationKey() {
-  return ['/tasks/:taskId/time-entries'] as const
+  return ['POST', '/tasks/:taskId/time-entries'] as const
 }
 
 /**
@@ -728,10 +728,10 @@ export function useGetProjectsProjectIdMilestones(
 
 /**
  * Generates SWR mutation key for POST /projects/{projectId}/milestones
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProjectsProjectIdMilestonesMutationKey() {
-  return ['/projects/:projectId/milestones'] as const
+  return ['POST', '/projects/:projectId/milestones'] as const
 }
 
 /**
@@ -805,10 +805,10 @@ export function useGetTeams(options?: {
 
 /**
  * Generates SWR mutation key for POST /teams
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTeamsMutationKey() {
-  return ['/teams'] as const
+  return ['POST', '/teams'] as const
 }
 
 /**

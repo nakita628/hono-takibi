@@ -106,6 +106,25 @@ export function createGetResourcesId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /resources/{id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutResourcesIdMutationKey() {
+  return ['PUT', '/resources/:id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /resources/{id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutResourcesIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutResourcesIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.resources)[':id']['$put']>) =>
+    parseResponse(client.resources[':id'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /resources/{id}
  */
 export function createPutResourcesId(options?: {

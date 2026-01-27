@@ -8,10 +8,10 @@ import { client } from '../clients/08-links'
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOrdersMutationKey() {
-  return ['/orders'] as const
+  return ['POST', '/orders'] as const
 }
 
 /**
@@ -76,10 +76,10 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR mutation key for DELETE /orders/{orderId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteOrdersOrderIdMutationKey() {
-  return ['/orders/:orderId'] as const
+  return ['DELETE', '/orders/:orderId'] as const
 }
 
 /**

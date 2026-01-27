@@ -8,10 +8,10 @@ import { client } from '../clients/29-practical-user-api'
 
 /**
  * Generates SWR mutation key for POST /auth/register
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAuthRegisterMutationKey() {
-  return ['/auth/register'] as const
+  return ['POST', '/auth/register'] as const
 }
 
 /**
@@ -48,10 +48,10 @@ export function usePostAuthRegister(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/login
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAuthLoginMutationKey() {
-  return ['/auth/login'] as const
+  return ['POST', '/auth/login'] as const
 }
 
 /**
@@ -86,10 +86,10 @@ export function usePostAuthLogin(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/refresh
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAuthRefreshMutationKey() {
-  return ['/auth/refresh'] as const
+  return ['POST', '/auth/refresh'] as const
 }
 
 /**
@@ -126,10 +126,10 @@ export function usePostAuthRefresh(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/logout
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAuthLogoutMutationKey() {
-  return ['/auth/logout'] as const
+  return ['POST', '/auth/logout'] as const
 }
 
 /**
@@ -164,10 +164,10 @@ export function usePostAuthLogout(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/password/forgot
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAuthPasswordForgotMutationKey() {
-  return ['/auth/password/forgot'] as const
+  return ['POST', '/auth/password/forgot'] as const
 }
 
 /**
@@ -208,10 +208,10 @@ export function usePostAuthPasswordForgot(options?: {
 
 /**
  * Generates SWR mutation key for POST /auth/password/reset
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAuthPasswordResetMutationKey() {
-  return ['/auth/password/reset'] as const
+  return ['POST', '/auth/password/reset'] as const
 }
 
 /**
@@ -318,10 +318,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR mutation key for DELETE /users/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersUserIdMutationKey() {
-  return ['/users/:userId'] as const
+  return ['DELETE', '/users/:userId'] as const
 }
 
 /**
@@ -361,10 +361,10 @@ export function useDeleteUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /users/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchUsersUserIdMutationKey() {
-  return ['/users/:userId'] as const
+  return ['PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -434,10 +434,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /users/me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchUsersMeMutationKey() {
-  return ['/users/me'] as const
+  return ['PATCH', '/users/me'] as const
 }
 
 /**
@@ -470,10 +470,10 @@ export function usePatchUsersMe(options?: {
 
 /**
  * Generates SWR mutation key for PUT /users/me/password
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutUsersMePasswordMutationKey() {
-  return ['/users/me/password'] as const
+  return ['PUT', '/users/me/password'] as const
 }
 
 /**
@@ -508,10 +508,10 @@ export function usePutUsersMePassword(options?: {
 
 /**
  * Generates SWR mutation key for PUT /users/me/avatar
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutUsersMeAvatarMutationKey() {
-  return ['/users/me/avatar'] as const
+  return ['PUT', '/users/me/avatar'] as const
 }
 
 /**
@@ -546,10 +546,10 @@ export function usePutUsersMeAvatar(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/me/avatar
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersMeAvatarMutationKey() {
-  return ['/users/me/avatar'] as const
+  return ['DELETE', '/users/me/avatar'] as const
 }
 
 /**

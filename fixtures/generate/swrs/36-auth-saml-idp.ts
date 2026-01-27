@@ -44,10 +44,10 @@ export function useGetSamlSso(
 
 /**
  * Generates SWR mutation key for POST /saml/sso
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSamlSsoMutationKey() {
-  return ['/saml/sso'] as const
+  return ['POST', '/saml/sso'] as const
 }
 
 /**
@@ -118,10 +118,10 @@ export function useGetSamlSlo(
 
 /**
  * Generates SWR mutation key for POST /saml/slo
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSamlSloMutationKey() {
-  return ['/saml/slo'] as const
+  return ['POST', '/saml/slo'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePostSamlSlo(options?: {
 
 /**
  * Generates SWR mutation key for POST /saml/acs
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSamlAcsMutationKey() {
-  return ['/saml/acs'] as const
+  return ['POST', '/saml/acs'] as const
 }
 
 /**
@@ -263,10 +263,10 @@ export function useGetServiceProviders(
 
 /**
  * Generates SWR mutation key for POST /service-providers
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostServiceProvidersMutationKey() {
-  return ['/service-providers'] as const
+  return ['POST', '/service-providers'] as const
 }
 
 /**
@@ -341,10 +341,10 @@ export function useGetServiceProvidersSpId(
 
 /**
  * Generates SWR mutation key for PUT /service-providers/{spId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutServiceProvidersSpIdMutationKey() {
-  return ['/service-providers/:spId'] as const
+  return ['PUT', '/service-providers/:spId'] as const
 }
 
 /**
@@ -385,10 +385,10 @@ export function usePutServiceProvidersSpId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /service-providers/{spId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteServiceProvidersSpIdMutationKey() {
-  return ['/service-providers/:spId'] as const
+  return ['DELETE', '/service-providers/:spId'] as const
 }
 
 /**
@@ -469,10 +469,10 @@ export function useGetServiceProvidersSpIdMetadata(
 
 /**
  * Generates SWR mutation key for PUT /service-providers/{spId}/metadata
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutServiceProvidersSpIdMetadataMutationKey() {
-  return ['/service-providers/:spId/metadata'] as const
+  return ['PUT', '/service-providers/:spId/metadata'] as const
 }
 
 /**
@@ -554,10 +554,10 @@ export function useGetServiceProvidersSpIdAttributes(
 
 /**
  * Generates SWR mutation key for PUT /service-providers/{spId}/attributes
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutServiceProvidersSpIdAttributesMutationKey() {
-  return ['/service-providers/:spId/attributes'] as const
+  return ['PUT', '/service-providers/:spId/attributes'] as const
 }
 
 /**
@@ -664,10 +664,10 @@ export function useGetCertificates(options?: {
 
 /**
  * Generates SWR mutation key for POST /certificates
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCertificatesMutationKey() {
-  return ['/certificates'] as const
+  return ['POST', '/certificates'] as const
 }
 
 /**
@@ -702,10 +702,10 @@ export function usePostCertificates(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /certificates/{certId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteCertificatesCertIdMutationKey() {
-  return ['/certificates/:certId'] as const
+  return ['DELETE', '/certificates/:certId'] as const
 }
 
 /**
@@ -747,10 +747,10 @@ export function useDeleteCertificatesCertId(options?: {
 
 /**
  * Generates SWR mutation key for POST /certificates/{certId}/activate
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCertificatesCertIdActivateMutationKey() {
-  return ['/certificates/:certId/activate'] as const
+  return ['POST', '/certificates/:certId/activate'] as const
 }
 
 /**
@@ -827,10 +827,10 @@ export function useGetSessions(
 
 /**
  * Generates SWR mutation key for DELETE /sessions/{sessionId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSessionsSessionIdMutationKey() {
-  return ['/sessions/:sessionId'] as const
+  return ['DELETE', '/sessions/:sessionId'] as const
 }
 
 /**

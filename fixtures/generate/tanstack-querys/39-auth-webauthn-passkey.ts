@@ -9,6 +9,27 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/39-auth-webauthn-passkey'
 
 /**
+ * Generates TanStack Query mutation key for POST /webauthn/register/options
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebauthnRegisterOptionsMutationKey() {
+  return ['POST', '/webauthn/register/options'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/register/options
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnRegisterOptionsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnRegisterOptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.register.options.$post>) =>
+    parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
+})
+
+/**
  * POST /webauthn/register/options
  *
  * 登録オプション取得
@@ -34,6 +55,27 @@ export function usePostWebauthnRegisterOptions(options?: {
       parseResponse(client.webauthn.register.options.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webauthn/register/verify
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebauthnRegisterVerifyMutationKey() {
+  return ['POST', '/webauthn/register/verify'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/register/verify
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnRegisterVerifyMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnRegisterVerifyMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.register.verify.$post>) =>
+    parseResponse(client.webauthn.register.verify.$post(args, clientOptions)),
+})
 
 /**
  * POST /webauthn/register/verify
@@ -63,6 +105,27 @@ export function usePostWebauthnRegisterVerify(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /webauthn/authenticate/options
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebauthnAuthenticateOptionsMutationKey() {
+  return ['POST', '/webauthn/authenticate/options'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/authenticate/options
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnAuthenticateOptionsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnAuthenticateOptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.options.$post>) =>
+    parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
+})
+
+/**
  * POST /webauthn/authenticate/options
  *
  * 認証オプション取得
@@ -88,6 +151,27 @@ export function usePostWebauthnAuthenticateOptions(options?: {
       parseResponse(client.webauthn.authenticate.options.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webauthn/authenticate/verify
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebauthnAuthenticateVerifyMutationKey() {
+  return ['POST', '/webauthn/authenticate/verify'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webauthn/authenticate/verify
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebauthnAuthenticateVerifyMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebauthnAuthenticateVerifyMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.authenticate.verify.$post>) =>
+    parseResponse(client.webauthn.authenticate.verify.$post(args, clientOptions)),
+})
 
 /**
  * POST /webauthn/authenticate/verify
@@ -220,6 +304,28 @@ export function useGetWebauthnCredentialsCredentialId(
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /webauthn/credentials/{credentialId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteWebauthnCredentialsCredentialIdMutationKey() {
+  return ['DELETE', '/webauthn/credentials/:credentialId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /webauthn/credentials/{credentialId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteWebauthnCredentialsCredentialIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteWebauthnCredentialsCredentialIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$delete']>,
+  ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /webauthn/credentials/{credentialId}
  *
  * 認証情報削除
@@ -249,6 +355,28 @@ export function useDeleteWebauthnCredentialsCredentialId(options?: {
     ) => parseResponse(client.webauthn.credentials[':credentialId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for PATCH /webauthn/credentials/{credentialId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchWebauthnCredentialsCredentialIdMutationKey() {
+  return ['PATCH', '/webauthn/credentials/:credentialId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /webauthn/credentials/{credentialId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchWebauthnCredentialsCredentialIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchWebauthnCredentialsCredentialIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webauthn.credentials)[':credentialId']['$patch']>,
+  ) => parseResponse(client.webauthn.credentials[':credentialId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /webauthn/credentials/{credentialId}
@@ -367,6 +495,25 @@ export function useGetWebauthnSettingsRp(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetWebauthnSettingsRpQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for PUT /webauthn/settings/rp
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutWebauthnSettingsRpMutationKey() {
+  return ['PUT', '/webauthn/settings/rp'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /webauthn/settings/rp
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutWebauthnSettingsRpMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutWebauthnSettingsRpMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webauthn.settings.rp.$put>) =>
+    parseResponse(client.webauthn.settings.rp.$put(args, clientOptions)),
+})
 
 /**
  * PUT /webauthn/settings/rp

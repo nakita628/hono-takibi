@@ -106,6 +106,25 @@ export function createGetItemsItemId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /items/{itemId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteItemsItemIdMutationKey() {
+  return ['DELETE', '/items/:itemId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /items/{itemId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteItemsItemIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteItemsItemIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.items)[':itemId']['$delete']>) =>
+    parseResponse(client.items[':itemId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /items/{itemId}
  */
 export function createDeleteItemsItemId(options?: {

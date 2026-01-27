@@ -37,10 +37,10 @@ export function useGetApplicationsMe(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /applications/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchApplicationsMeMutationKey() {
-  return ['/applications/@me'] as const
+  return ['PATCH', '/applications/@me'] as const
 }
 
 /**
@@ -111,10 +111,10 @@ export function useGetApplicationsApplicationId(
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchApplicationsApplicationIdMutationKey() {
-  return ['/applications/:application_id'] as const
+  return ['PATCH', '/applications/:application_id'] as const
 }
 
 /**
@@ -204,10 +204,10 @@ export function useGetApplicationsApplicationIdActivityInstancesInstanceId(
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/attachment
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApplicationsApplicationIdAttachmentMutationKey() {
-  return ['/applications/:application_id/attachment'] as const
+  return ['POST', '/applications/:application_id/attachment'] as const
 }
 
 /**
@@ -290,10 +290,10 @@ export function useGetApplicationsApplicationIdCommands(
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/commands
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutApplicationsApplicationIdCommandsMutationKey() {
-  return ['/applications/:application_id/commands'] as const
+  return ['PUT', '/applications/:application_id/commands'] as const
 }
 
 /**
@@ -336,10 +336,10 @@ export function usePutApplicationsApplicationIdCommands(options?: {
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/commands
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApplicationsApplicationIdCommandsMutationKey() {
-  return ['/applications/:application_id/commands'] as const
+  return ['POST', '/applications/:application_id/commands'] as const
 }
 
 /**
@@ -429,10 +429,10 @@ export function useGetApplicationsApplicationIdCommandsCommandId(
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/commands/{command_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return ['/applications/:application_id/commands/:command_id'] as const
+  return ['DELETE', '/applications/:application_id/commands/:command_id'] as const
 }
 
 /**
@@ -490,10 +490,10 @@ export function useDeleteApplicationsApplicationIdCommandsCommandId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}/commands/{command_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchApplicationsApplicationIdCommandsCommandIdMutationKey() {
-  return ['/applications/:application_id/commands/:command_id'] as const
+  return ['PATCH', '/applications/:application_id/commands/:command_id'] as const
 }
 
 /**
@@ -582,10 +582,10 @@ export function useGetApplicationsApplicationIdEmojis(
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/emojis
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApplicationsApplicationIdEmojisMutationKey() {
-  return ['/applications/:application_id/emojis'] as const
+  return ['POST', '/applications/:application_id/emojis'] as const
 }
 
 /**
@@ -670,10 +670,10 @@ export function useGetApplicationsApplicationIdEmojisEmojiId(
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/emojis/{emoji_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return ['/applications/:application_id/emojis/:emoji_id'] as const
+  return ['DELETE', '/applications/:application_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -728,10 +728,10 @@ export function useDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}/emojis/{emoji_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey() {
-  return ['/applications/:application_id/emojis/:emoji_id'] as const
+  return ['PATCH', '/applications/:application_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -823,10 +823,10 @@ export function useGetApplicationsApplicationIdEntitlements(
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/entitlements
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApplicationsApplicationIdEntitlementsMutationKey() {
-  return ['/applications/:application_id/entitlements'] as const
+  return ['POST', '/applications/:application_id/entitlements'] as const
 }
 
 /**
@@ -925,10 +925,10 @@ export function useGetApplicationsApplicationIdEntitlementsEntitlementId(
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/entitlements/{entitlement_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey() {
-  return ['/applications/:application_id/entitlements/:entitlement_id'] as const
+  return ['DELETE', '/applications/:application_id/entitlements/:entitlement_id'] as const
 }
 
 /**
@@ -987,10 +987,10 @@ export function useDeleteApplicationsApplicationIdEntitlementsEntitlementId(opti
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/entitlements/{entitlement_id}/consume
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey() {
-  return ['/applications/:application_id/entitlements/:entitlement_id/consume'] as const
+  return ['POST', '/applications/:application_id/entitlements/:entitlement_id/consume'] as const
 }
 
 /**
@@ -1097,10 +1097,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommands(
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return ['/applications/:application_id/guilds/:guild_id/commands'] as const
+  return ['PUT', '/applications/:application_id/guilds/:guild_id/commands'] as const
 }
 
 /**
@@ -1157,10 +1157,10 @@ export function usePutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
 
 /**
  * Generates SWR mutation key for POST /applications/{application_id}/guilds/{guild_id}/commands
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
-  return ['/applications/:application_id/guilds/:guild_id/commands'] as const
+  return ['POST', '/applications/:application_id/guilds/:guild_id/commands'] as const
 }
 
 /**
@@ -1315,10 +1315,10 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId(
 
 /**
  * Generates SWR mutation key for DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
+  return ['DELETE', '/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
 }
 
 /**
@@ -1376,10 +1376,10 @@ export function useDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId
 
 /**
  * Generates SWR mutation key for PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
-  return ['/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
+  return ['PATCH', '/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
 }
 
 /**
@@ -1487,10 +1487,11 @@ export function useGetApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPer
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey() {
   return [
+    'PUT',
     '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
   ] as const
 }
@@ -1596,10 +1597,10 @@ export function useGetApplicationsApplicationIdRoleConnectionsMetadata(
 
 /**
  * Generates SWR mutation key for PUT /applications/{application_id}/role-connections/metadata
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey() {
-  return ['/applications/:application_id/role-connections/metadata'] as const
+  return ['PUT', '/applications/:application_id/role-connections/metadata'] as const
 }
 
 /**
@@ -1690,10 +1691,10 @@ export function useGetChannelsChannelId(
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdMutationKey() {
-  return ['/channels/:channel_id'] as const
+  return ['DELETE', '/channels/:channel_id'] as const
 }
 
 /**
@@ -1732,10 +1733,10 @@ export function useDeleteChannelsChannelId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /channels/{channel_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchChannelsChannelIdMutationKey() {
-  return ['/channels/:channel_id'] as const
+  return ['PATCH', '/channels/:channel_id'] as const
 }
 
 /**
@@ -1772,10 +1773,10 @@ export function usePatchChannelsChannelId(options?: {
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/followers
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdFollowersMutationKey() {
-  return ['/channels/:channel_id/followers'] as const
+  return ['POST', '/channels/:channel_id/followers'] as const
 }
 
 /**
@@ -1850,10 +1851,10 @@ export function useGetChannelsChannelIdInvites(
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/invites
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdInvitesMutationKey() {
-  return ['/channels/:channel_id/invites'] as const
+  return ['POST', '/channels/:channel_id/invites'] as const
 }
 
 /**
@@ -1929,10 +1930,10 @@ export function useGetChannelsChannelIdMessages(
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdMessagesMutationKey() {
-  return ['/channels/:channel_id/messages'] as const
+  return ['POST', '/channels/:channel_id/messages'] as const
 }
 
 /**
@@ -1973,10 +1974,10 @@ export function usePostChannelsChannelIdMessages(options?: {
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages/bulk-delete
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdMessagesBulkDeleteMutationKey() {
-  return ['/channels/:channel_id/messages/bulk-delete'] as const
+  return ['POST', '/channels/:channel_id/messages/bulk-delete'] as const
 }
 
 /**
@@ -2064,10 +2065,10 @@ export function useGetChannelsChannelIdMessagesPins(
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/messages/pins/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return ['/channels/:channel_id/messages/pins/:message_id'] as const
+  return ['PUT', '/channels/:channel_id/messages/pins/:message_id'] as const
 }
 
 /**
@@ -2122,10 +2123,10 @@ export function usePutChannelsChannelIdMessagesPinsMessageId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/pins/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey() {
-  return ['/channels/:channel_id/messages/pins/:message_id'] as const
+  return ['DELETE', '/channels/:channel_id/messages/pins/:message_id'] as const
 }
 
 /**
@@ -2221,10 +2222,10 @@ export function useGetChannelsChannelIdMessagesMessageId(
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id'] as const
+  return ['DELETE', '/channels/:channel_id/messages/:message_id'] as const
 }
 
 /**
@@ -2277,10 +2278,10 @@ export function useDeleteChannelsChannelIdMessagesMessageId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /channels/{channel_id}/messages/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchChannelsChannelIdMessagesMessageIdMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id'] as const
+  return ['PATCH', '/channels/:channel_id/messages/:message_id'] as const
 }
 
 /**
@@ -2330,10 +2331,10 @@ export function usePatchChannelsChannelIdMessagesMessageId(options?: {
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/crosspost
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id/crosspost'] as const
+  return ['POST', '/channels/:channel_id/messages/:message_id/crosspost'] as const
 }
 
 /**
@@ -2390,10 +2391,10 @@ export function usePostChannelsChannelIdMessagesMessageIdCrosspost(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id/reactions'] as const
+  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions'] as const
 }
 
 /**
@@ -2500,10 +2501,10 @@ export function useGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name'] as const
+  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name'] as const
 }
 
 /**
@@ -2562,10 +2563,10 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(op
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
+  return ['PUT', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
 }
 
 /**
@@ -2623,10 +2624,10 @@ export function usePutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(opt
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
+  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
 }
 
 /**
@@ -2684,10 +2685,13 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id/reactions/:emoji_name/:user_id'] as const
+  return [
+    'DELETE',
+    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/:user_id',
+  ] as const
 }
 
 /**
@@ -2745,10 +2749,10 @@ export function useDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUse
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/messages/{message_id}/threads
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey() {
-  return ['/channels/:channel_id/messages/:message_id/threads'] as const
+  return ['POST', '/channels/:channel_id/messages/:message_id/threads'] as const
 }
 
 /**
@@ -2802,10 +2806,10 @@ export function usePostChannelsChannelIdMessagesMessageIdThreads(options?: {
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/permissions/{overwrite_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return ['/channels/:channel_id/permissions/:overwrite_id'] as const
+  return ['PUT', '/channels/:channel_id/permissions/:overwrite_id'] as const
 }
 
 /**
@@ -2860,10 +2864,10 @@ export function usePutChannelsChannelIdPermissionsOverwriteId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/permissions/{overwrite_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey() {
-  return ['/channels/:channel_id/permissions/:overwrite_id'] as const
+  return ['DELETE', '/channels/:channel_id/permissions/:overwrite_id'] as const
 }
 
 /**
@@ -2952,10 +2956,10 @@ export function useGetChannelsChannelIdPins(
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/pins/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsChannelIdPinsMessageIdMutationKey() {
-  return ['/channels/:channel_id/pins/:message_id'] as const
+  return ['PUT', '/channels/:channel_id/pins/:message_id'] as const
 }
 
 /**
@@ -3004,10 +3008,10 @@ export function usePutChannelsChannelIdPinsMessageId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/pins/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdPinsMessageIdMutationKey() {
-  return ['/channels/:channel_id/pins/:message_id'] as const
+  return ['DELETE', '/channels/:channel_id/pins/:message_id'] as const
 }
 
 /**
@@ -3106,10 +3110,10 @@ export function useGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/polls/{message_id}/expire
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdPollsMessageIdExpireMutationKey() {
-  return ['/channels/:channel_id/polls/:message_id/expire'] as const
+  return ['POST', '/channels/:channel_id/polls/:message_id/expire'] as const
 }
 
 /**
@@ -3163,10 +3167,10 @@ export function usePostChannelsChannelIdPollsMessageIdExpire(options?: {
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/recipients/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsChannelIdRecipientsUserIdMutationKey() {
-  return ['/channels/:channel_id/recipients/:user_id'] as const
+  return ['PUT', '/channels/:channel_id/recipients/:user_id'] as const
 }
 
 /**
@@ -3217,10 +3221,10 @@ export function usePutChannelsChannelIdRecipientsUserId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/recipients/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdRecipientsUserIdMutationKey() {
-  return ['/channels/:channel_id/recipients/:user_id'] as const
+  return ['DELETE', '/channels/:channel_id/recipients/:user_id'] as const
 }
 
 /**
@@ -3273,10 +3277,10 @@ export function useDeleteChannelsChannelIdRecipientsUserId(options?: {
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/send-soundboard-sound
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdSendSoundboardSoundMutationKey() {
-  return ['/channels/:channel_id/send-soundboard-sound'] as const
+  return ['POST', '/channels/:channel_id/send-soundboard-sound'] as const
 }
 
 /**
@@ -3362,10 +3366,10 @@ export function useGetChannelsChannelIdThreadMembers(
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsChannelIdThreadMembersMeMutationKey() {
-  return ['/channels/:channel_id/thread-members/@me'] as const
+  return ['PUT', '/channels/:channel_id/thread-members/@me'] as const
 }
 
 /**
@@ -3416,10 +3420,10 @@ export function usePutChannelsChannelIdThreadMembersMe(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdThreadMembersMeMutationKey() {
-  return ['/channels/:channel_id/thread-members/@me'] as const
+  return ['DELETE', '/channels/:channel_id/thread-members/@me'] as const
 }
 
 /**
@@ -3514,10 +3518,10 @@ export function useGetChannelsChannelIdThreadMembersUserId(
 
 /**
  * Generates SWR mutation key for PUT /channels/{channel_id}/thread-members/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return ['/channels/:channel_id/thread-members/:user_id'] as const
+  return ['PUT', '/channels/:channel_id/thread-members/:user_id'] as const
 }
 
 /**
@@ -3570,10 +3574,10 @@ export function usePutChannelsChannelIdThreadMembersUserId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /channels/{channel_id}/thread-members/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteChannelsChannelIdThreadMembersUserIdMutationKey() {
-  return ['/channels/:channel_id/thread-members/:user_id'] as const
+  return ['DELETE', '/channels/:channel_id/thread-members/:user_id'] as const
 }
 
 /**
@@ -3628,10 +3632,10 @@ export function useDeleteChannelsChannelIdThreadMembersUserId(options?: {
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/threads
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdThreadsMutationKey() {
-  return ['/channels/:channel_id/threads'] as const
+  return ['POST', '/channels/:channel_id/threads'] as const
 }
 
 /**
@@ -3791,10 +3795,10 @@ export function useGetChannelsChannelIdThreadsSearch(
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/typing
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdTypingMutationKey() {
-  return ['/channels/:channel_id/typing'] as const
+  return ['POST', '/channels/:channel_id/typing'] as const
 }
 
 /**
@@ -3915,10 +3919,10 @@ export function useGetChannelsChannelIdWebhooks(
 
 /**
  * Generates SWR mutation key for POST /channels/{channel_id}/webhooks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostChannelsChannelIdWebhooksMutationKey() {
-  return ['/channels/:channel_id/webhooks'] as const
+  return ['POST', '/channels/:channel_id/webhooks'] as const
 }
 
 /**
@@ -4085,10 +4089,10 @@ export function useGetGuildsGuildId(
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdMutationKey() {
-  return ['/guilds/:guild_id'] as const
+  return ['PATCH', '/guilds/:guild_id'] as const
 }
 
 /**
@@ -4196,10 +4200,10 @@ export function useGetGuildsGuildIdAutoModerationRules(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/auto-moderation/rules
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdAutoModerationRulesMutationKey() {
-  return ['/guilds/:guild_id/auto-moderation/rules'] as const
+  return ['POST', '/guilds/:guild_id/auto-moderation/rules'] as const
 }
 
 /**
@@ -4294,10 +4298,10 @@ export function useGetGuildsGuildIdAutoModerationRulesRuleId(
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
+  return ['DELETE', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
 }
 
 /**
@@ -4355,10 +4359,10 @@ export function useDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
-  return ['/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
+  return ['PATCH', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
 }
 
 /**
@@ -4484,10 +4488,10 @@ export function useGetGuildsGuildIdBansUserId(
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/bans/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutGuildsGuildIdBansUserIdMutationKey() {
-  return ['/guilds/:guild_id/bans/:user_id'] as const
+  return ['PUT', '/guilds/:guild_id/bans/:user_id'] as const
 }
 
 /**
@@ -4531,10 +4535,10 @@ export function usePutGuildsGuildIdBansUserId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/bans/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdBansUserIdMutationKey() {
-  return ['/guilds/:guild_id/bans/:user_id'] as const
+  return ['DELETE', '/guilds/:guild_id/bans/:user_id'] as const
 }
 
 /**
@@ -4578,10 +4582,10 @@ export function useDeleteGuildsGuildIdBansUserId(options?: {
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/bulk-ban
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdBulkBanMutationKey() {
-  return ['/guilds/:guild_id/bulk-ban'] as const
+  return ['POST', '/guilds/:guild_id/bulk-ban'] as const
 }
 
 /**
@@ -4656,10 +4660,10 @@ export function useGetGuildsGuildIdChannels(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/channels
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdChannelsMutationKey() {
-  return ['/guilds/:guild_id/channels'] as const
+  return ['POST', '/guilds/:guild_id/channels'] as const
 }
 
 /**
@@ -4700,10 +4704,10 @@ export function usePostGuildsGuildIdChannels(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/channels
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdChannelsMutationKey() {
-  return ['/guilds/:guild_id/channels'] as const
+  return ['PATCH', '/guilds/:guild_id/channels'] as const
 }
 
 /**
@@ -4779,10 +4783,10 @@ export function useGetGuildsGuildIdEmojis(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/emojis
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdEmojisMutationKey() {
-  return ['/guilds/:guild_id/emojis'] as const
+  return ['POST', '/guilds/:guild_id/emojis'] as const
 }
 
 /**
@@ -4856,10 +4860,10 @@ export function useGetGuildsGuildIdEmojisEmojiId(
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/emojis/{emoji_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return ['/guilds/:guild_id/emojis/:emoji_id'] as const
+  return ['DELETE', '/guilds/:guild_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -4908,10 +4912,10 @@ export function useDeleteGuildsGuildIdEmojisEmojiId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/emojis/{emoji_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdEmojisEmojiIdMutationKey() {
-  return ['/guilds/:guild_id/emojis/:emoji_id'] as const
+  return ['PATCH', '/guilds/:guild_id/emojis/:emoji_id'] as const
 }
 
 /**
@@ -4990,10 +4994,10 @@ export function useGetGuildsGuildIdIntegrations(
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/integrations/{integration_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey() {
-  return ['/guilds/:guild_id/integrations/:integration_id'] as const
+  return ['DELETE', '/guilds/:guild_id/integrations/:integration_id'] as const
 }
 
 /**
@@ -5116,10 +5120,10 @@ export function useGetGuildsGuildIdMembers(
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdMembersMeMutationKey() {
-  return ['/guilds/:guild_id/members/@me'] as const
+  return ['PATCH', '/guilds/:guild_id/members/@me'] as const
 }
 
 /**
@@ -5232,10 +5236,10 @@ export function useGetGuildsGuildIdMembersUserId(
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutGuildsGuildIdMembersUserIdMutationKey() {
-  return ['/guilds/:guild_id/members/:user_id'] as const
+  return ['PUT', '/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -5279,10 +5283,10 @@ export function usePutGuildsGuildIdMembersUserId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdMembersUserIdMutationKey() {
-  return ['/guilds/:guild_id/members/:user_id'] as const
+  return ['DELETE', '/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -5331,10 +5335,10 @@ export function useDeleteGuildsGuildIdMembersUserId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/members/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdMembersUserIdMutationKey() {
-  return ['/guilds/:guild_id/members/:user_id'] as const
+  return ['PATCH', '/guilds/:guild_id/members/:user_id'] as const
 }
 
 /**
@@ -5382,10 +5386,10 @@ export function usePatchGuildsGuildIdMembersUserId(options?: {
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return ['/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
+  return ['PUT', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
 }
 
 /**
@@ -5440,10 +5444,10 @@ export function usePutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
-  return ['/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
+  return ['DELETE', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
 }
 
 /**
@@ -5605,10 +5609,10 @@ export function useGetGuildsGuildIdOnboarding(
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/onboarding
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutGuildsGuildIdOnboardingMutationKey() {
-  return ['/guilds/:guild_id/onboarding'] as const
+  return ['PUT', '/guilds/:guild_id/onboarding'] as const
 }
 
 /**
@@ -5717,10 +5721,10 @@ export function useGetGuildsGuildIdPrune(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/prune
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdPruneMutationKey() {
-  return ['/guilds/:guild_id/prune'] as const
+  return ['POST', '/guilds/:guild_id/prune'] as const
 }
 
 /**
@@ -5827,10 +5831,10 @@ export function useGetGuildsGuildIdRoles(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/roles
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdRolesMutationKey() {
-  return ['/guilds/:guild_id/roles'] as const
+  return ['POST', '/guilds/:guild_id/roles'] as const
 }
 
 /**
@@ -5869,10 +5873,10 @@ export function usePostGuildsGuildIdRoles(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdRolesMutationKey() {
-  return ['/guilds/:guild_id/roles'] as const
+  return ['PATCH', '/guilds/:guild_id/roles'] as const
 }
 
 /**
@@ -5981,10 +5985,10 @@ export function useGetGuildsGuildIdRolesRoleId(
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/roles/{role_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdRolesRoleIdMutationKey() {
-  return ['/guilds/:guild_id/roles/:role_id'] as const
+  return ['DELETE', '/guilds/:guild_id/roles/:role_id'] as const
 }
 
 /**
@@ -6028,10 +6032,10 @@ export function useDeleteGuildsGuildIdRolesRoleId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/roles/{role_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdRolesRoleIdMutationKey() {
-  return ['/guilds/:guild_id/roles/:role_id'] as const
+  return ['PATCH', '/guilds/:guild_id/roles/:role_id'] as const
 }
 
 /**
@@ -6109,10 +6113,10 @@ export function useGetGuildsGuildIdScheduledEvents(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/scheduled-events
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdScheduledEventsMutationKey() {
-  return ['/guilds/:guild_id/scheduled-events'] as const
+  return ['POST', '/guilds/:guild_id/scheduled-events'] as const
 }
 
 /**
@@ -6204,10 +6208,10 @@ export function useGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
+  return ['DELETE', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
 }
 
 /**
@@ -6266,10 +6270,10 @@ export function useDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(optio
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
-  return ['/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
+  return ['PATCH', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
 }
 
 /**
@@ -6410,10 +6414,10 @@ export function useGetGuildsGuildIdSoundboardSounds(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/soundboard-sounds
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdSoundboardSoundsMutationKey() {
-  return ['/guilds/:guild_id/soundboard-sounds'] as const
+  return ['POST', '/guilds/:guild_id/soundboard-sounds'] as const
 }
 
 /**
@@ -6498,10 +6502,10 @@ export function useGetGuildsGuildIdSoundboardSoundsSoundId(
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return ['/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
+  return ['DELETE', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
 }
 
 /**
@@ -6556,10 +6560,10 @@ export function useDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
-  return ['/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
+  return ['PATCH', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
 }
 
 /**
@@ -6647,10 +6651,10 @@ export function useGetGuildsGuildIdStickers(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/stickers
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdStickersMutationKey() {
-  return ['/guilds/:guild_id/stickers'] as const
+  return ['POST', '/guilds/:guild_id/stickers'] as const
 }
 
 /**
@@ -6726,10 +6730,10 @@ export function useGetGuildsGuildIdStickersStickerId(
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/stickers/{sticker_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdStickersStickerIdMutationKey() {
-  return ['/guilds/:guild_id/stickers/:sticker_id'] as const
+  return ['DELETE', '/guilds/:guild_id/stickers/:sticker_id'] as const
 }
 
 /**
@@ -6780,10 +6784,10 @@ export function useDeleteGuildsGuildIdStickersStickerId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/stickers/{sticker_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdStickersStickerIdMutationKey() {
-  return ['/guilds/:guild_id/stickers/:sticker_id'] as const
+  return ['PATCH', '/guilds/:guild_id/stickers/:sticker_id'] as const
 }
 
 /**
@@ -6867,10 +6871,10 @@ export function useGetGuildsGuildIdTemplates(
 
 /**
  * Generates SWR mutation key for POST /guilds/{guild_id}/templates
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGuildsGuildIdTemplatesMutationKey() {
-  return ['/guilds/:guild_id/templates'] as const
+  return ['POST', '/guilds/:guild_id/templates'] as const
 }
 
 /**
@@ -6911,10 +6915,10 @@ export function usePostGuildsGuildIdTemplates(options?: {
 
 /**
  * Generates SWR mutation key for PUT /guilds/{guild_id}/templates/{code}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutGuildsGuildIdTemplatesCodeMutationKey() {
-  return ['/guilds/:guild_id/templates/:code'] as const
+  return ['PUT', '/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -6957,10 +6961,10 @@ export function usePutGuildsGuildIdTemplatesCode(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /guilds/{guild_id}/templates/{code}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteGuildsGuildIdTemplatesCodeMutationKey() {
-  return ['/guilds/:guild_id/templates/:code'] as const
+  return ['DELETE', '/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -7005,10 +7009,10 @@ export function useDeleteGuildsGuildIdTemplatesCode(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/templates/{code}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdTemplatesCodeMutationKey() {
-  return ['/guilds/:guild_id/templates/:code'] as const
+  return ['PATCH', '/guilds/:guild_id/templates/:code'] as const
 }
 
 /**
@@ -7155,10 +7159,10 @@ export function useGetGuildsGuildIdVoiceStatesMe(
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdVoiceStatesMeMutationKey() {
-  return ['/guilds/:guild_id/voice-states/@me'] as const
+  return ['PATCH', '/guilds/:guild_id/voice-states/@me'] as const
 }
 
 /**
@@ -7244,10 +7248,10 @@ export function useGetGuildsGuildIdVoiceStatesUserId(
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/voice-states/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdVoiceStatesUserIdMutationKey() {
-  return ['/guilds/:guild_id/voice-states/:user_id'] as const
+  return ['PATCH', '/guilds/:guild_id/voice-states/:user_id'] as const
 }
 
 /**
@@ -7367,10 +7371,10 @@ export function useGetGuildsGuildIdWelcomeScreen(
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/welcome-screen
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdWelcomeScreenMutationKey() {
-  return ['/guilds/:guild_id/welcome-screen'] as const
+  return ['PATCH', '/guilds/:guild_id/welcome-screen'] as const
 }
 
 /**
@@ -7447,10 +7451,10 @@ export function useGetGuildsGuildIdWidget(
 
 /**
  * Generates SWR mutation key for PATCH /guilds/{guild_id}/widget
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchGuildsGuildIdWidgetMutationKey() {
-  return ['/guilds/:guild_id/widget'] as const
+  return ['PATCH', '/guilds/:guild_id/widget'] as const
 }
 
 /**
@@ -7558,10 +7562,10 @@ export function useGetGuildsGuildIdWidgetPng(
 
 /**
  * Generates SWR mutation key for POST /interactions/{interaction_id}/{interaction_token}/callback
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey() {
-  return ['/interactions/:interaction_id/:interaction_token/callback'] as const
+  return ['POST', '/interactions/:interaction_id/:interaction_token/callback'] as const
 }
 
 /**
@@ -7653,10 +7657,10 @@ export function useGetInvitesCode(
 
 /**
  * Generates SWR mutation key for DELETE /invites/{code}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteInvitesCodeMutationKey() {
-  return ['/invites/:code'] as const
+  return ['DELETE', '/invites/:code'] as const
 }
 
 /**
@@ -7693,10 +7697,10 @@ export function useDeleteInvitesCode(options?: {
 
 /**
  * Generates SWR mutation key for PUT /lobbies
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutLobbiesMutationKey() {
-  return ['/lobbies'] as const
+  return ['PUT', '/lobbies'] as const
 }
 
 /**
@@ -7727,10 +7731,10 @@ export function usePutLobbies(options?: {
 
 /**
  * Generates SWR mutation key for POST /lobbies
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostLobbiesMutationKey() {
-  return ['/lobbies'] as const
+  return ['POST', '/lobbies'] as const
 }
 
 /**
@@ -7795,10 +7799,10 @@ export function useGetLobbiesLobbyId(
 
 /**
  * Generates SWR mutation key for PATCH /lobbies/{lobby_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchLobbiesLobbyIdMutationKey() {
-  return ['/lobbies/:lobby_id'] as const
+  return ['PATCH', '/lobbies/:lobby_id'] as const
 }
 
 /**
@@ -7835,10 +7839,10 @@ export function usePatchLobbiesLobbyId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /lobbies/{lobby_id}/channel-linking
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchLobbiesLobbyIdChannelLinkingMutationKey() {
-  return ['/lobbies/:lobby_id/channel-linking'] as const
+  return ['PATCH', '/lobbies/:lobby_id/channel-linking'] as const
 }
 
 /**
@@ -7881,10 +7885,10 @@ export function usePatchLobbiesLobbyIdChannelLinking(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteLobbiesLobbyIdMembersMeMutationKey() {
-  return ['/lobbies/:lobby_id/members/@me'] as const
+  return ['DELETE', '/lobbies/:lobby_id/members/@me'] as const
 }
 
 /**
@@ -7928,10 +7932,10 @@ export function useDeleteLobbiesLobbyIdMembersMe(options?: {
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/@me/invites
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostLobbiesLobbyIdMembersMeInvitesMutationKey() {
-  return ['/lobbies/:lobby_id/members/@me/invites'] as const
+  return ['POST', '/lobbies/:lobby_id/members/@me/invites'] as const
 }
 
 /**
@@ -7979,10 +7983,10 @@ export function usePostLobbiesLobbyIdMembersMeInvites(options?: {
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/bulk
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostLobbiesLobbyIdMembersBulkMutationKey() {
-  return ['/lobbies/:lobby_id/members/bulk'] as const
+  return ['POST', '/lobbies/:lobby_id/members/bulk'] as const
 }
 
 /**
@@ -8025,10 +8029,10 @@ export function usePostLobbiesLobbyIdMembersBulk(options?: {
 
 /**
  * Generates SWR mutation key for PUT /lobbies/{lobby_id}/members/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutLobbiesLobbyIdMembersUserIdMutationKey() {
-  return ['/lobbies/:lobby_id/members/:user_id'] as const
+  return ['PUT', '/lobbies/:lobby_id/members/:user_id'] as const
 }
 
 /**
@@ -8071,10 +8075,10 @@ export function usePutLobbiesLobbyIdMembersUserId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /lobbies/{lobby_id}/members/{user_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteLobbiesLobbyIdMembersUserIdMutationKey() {
-  return ['/lobbies/:lobby_id/members/:user_id'] as const
+  return ['DELETE', '/lobbies/:lobby_id/members/:user_id'] as const
 }
 
 /**
@@ -8123,10 +8127,10 @@ export function useDeleteLobbiesLobbyIdMembersUserId(options?: {
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/members/{user_id}/invites
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey() {
-  return ['/lobbies/:lobby_id/members/:user_id/invites'] as const
+  return ['POST', '/lobbies/:lobby_id/members/:user_id/invites'] as const
 }
 
 /**
@@ -8214,10 +8218,10 @@ export function useGetLobbiesLobbyIdMessages(
 
 /**
  * Generates SWR mutation key for POST /lobbies/{lobby_id}/messages
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostLobbiesLobbyIdMessagesMutationKey() {
-  return ['/lobbies/:lobby_id/messages'] as const
+  return ['POST', '/lobbies/:lobby_id/messages'] as const
 }
 
 /**
@@ -8374,10 +8378,10 @@ export function useGetOauth2Userinfo(options?: {
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeMutationKey() {
-  return ['/partner-sdk/provisional-accounts/unmerge'] as const
+  return ['POST', '/partner-sdk/provisional-accounts/unmerge'] as const
 }
 
 /**
@@ -8428,10 +8432,10 @@ export function usePostPartnerSdkProvisionalAccountsUnmerge(options?: {
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/provisional-accounts/unmerge/bot
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey() {
-  return ['/partner-sdk/provisional-accounts/unmerge/bot'] as const
+  return ['POST', '/partner-sdk/provisional-accounts/unmerge/bot'] as const
 }
 
 /**
@@ -8486,10 +8490,10 @@ export function usePostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/token
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPartnerSdkTokenMutationKey() {
-  return ['/partner-sdk/token'] as const
+  return ['POST', '/partner-sdk/token'] as const
 }
 
 /**
@@ -8526,10 +8530,10 @@ export function usePostPartnerSdkToken(options?: {
 
 /**
  * Generates SWR mutation key for POST /partner-sdk/token/bot
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPartnerSdkTokenBotMutationKey() {
-  return ['/partner-sdk/token/bot'] as const
+  return ['POST', '/partner-sdk/token/bot'] as const
 }
 
 /**
@@ -8597,10 +8601,10 @@ export function useGetSoundboardDefaultSounds(options?: {
 
 /**
  * Generates SWR mutation key for POST /stage-instances
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostStageInstancesMutationKey() {
-  return ['/stage-instances'] as const
+  return ['POST', '/stage-instances'] as const
 }
 
 /**
@@ -8671,10 +8675,10 @@ export function useGetStageInstancesChannelId(
 
 /**
  * Generates SWR mutation key for DELETE /stage-instances/{channel_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteStageInstancesChannelIdMutationKey() {
-  return ['/stage-instances/:channel_id'] as const
+  return ['DELETE', '/stage-instances/:channel_id'] as const
 }
 
 /**
@@ -8716,10 +8720,10 @@ export function useDeleteStageInstancesChannelId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /stage-instances/{channel_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchStageInstancesChannelIdMutationKey() {
-  return ['/stage-instances/:channel_id'] as const
+  return ['PATCH', '/stage-instances/:channel_id'] as const
 }
 
 /**
@@ -8886,10 +8890,10 @@ export function useGetUsersMe(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /users/@me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchUsersMeMutationKey() {
-  return ['/users/@me'] as const
+  return ['PATCH', '/users/@me'] as const
 }
 
 /**
@@ -9012,10 +9016,10 @@ export function useGetUsersMeApplicationsApplicationIdRoleConnection(
 
 /**
  * Generates SWR mutation key for PUT /users/@me/applications/{application_id}/role-connection
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return ['/users/@me/applications/:application_id/role-connection'] as const
+  return ['PUT', '/users/@me/applications/:application_id/role-connection'] as const
 }
 
 /**
@@ -9072,10 +9076,10 @@ export function usePutUsersMeApplicationsApplicationIdRoleConnection(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/@me/applications/{application_id}/role-connection
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
-  return ['/users/@me/applications/:application_id/role-connection'] as const
+  return ['DELETE', '/users/@me/applications/:application_id/role-connection'] as const
 }
 
 /**
@@ -9133,10 +9137,10 @@ export function useDeleteUsersMeApplicationsApplicationIdRoleConnection(options?
 
 /**
  * Generates SWR mutation key for POST /users/@me/channels
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersMeChannelsMutationKey() {
-  return ['/users/@me/channels'] as const
+  return ['POST', '/users/@me/channels'] as const
 }
 
 /**
@@ -9236,10 +9240,10 @@ export function useGetUsersMeGuilds(
 
 /**
  * Generates SWR mutation key for DELETE /users/@me/guilds/{guild_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersMeGuildsGuildIdMutationKey() {
-  return ['/users/@me/guilds/:guild_id'] as const
+  return ['DELETE', '/users/@me/guilds/:guild_id'] as const
 }
 
 /**
@@ -9415,10 +9419,10 @@ export function useGetWebhooksWebhookId(
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteWebhooksWebhookIdMutationKey() {
-  return ['/webhooks/:webhook_id'] as const
+  return ['DELETE', '/webhooks/:webhook_id'] as const
 }
 
 /**
@@ -9458,10 +9462,10 @@ export function useDeleteWebhooksWebhookId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchWebhooksWebhookIdMutationKey() {
-  return ['/webhooks/:webhook_id'] as const
+  return ['PATCH', '/webhooks/:webhook_id'] as const
 }
 
 /**
@@ -9533,10 +9537,10 @@ export function useGetWebhooksWebhookIdWebhookToken(
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebhooksWebhookIdWebhookTokenMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token'] as const
+  return ['POST', '/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -9581,10 +9585,10 @@ export function usePostWebhooksWebhookIdWebhookToken(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token'] as const
+  return ['DELETE', '/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -9633,10 +9637,10 @@ export function useDeleteWebhooksWebhookIdWebhookToken(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token'] as const
+  return ['PATCH', '/webhooks/:webhook_id/:webhook_token'] as const
 }
 
 /**
@@ -9680,10 +9684,10 @@ export function usePatchWebhooksWebhookIdWebhookToken(options?: {
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/github
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebhooksWebhookIdWebhookTokenGithubMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token/github'] as const
+  return ['POST', '/webhooks/:webhook_id/:webhook_token/github'] as const
 }
 
 /**
@@ -9784,10 +9788,10 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
+  return ['DELETE', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
 }
 
 /**
@@ -9845,10 +9849,10 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?:
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
+  return ['PATCH', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
 }
 
 /**
@@ -9953,10 +9957,10 @@ export function useGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 
 /**
  * Generates SWR mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
+  return ['DELETE', '/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
 }
 
 /**
@@ -10014,10 +10018,10 @@ export function useDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?
 
 /**
  * Generates SWR mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
+  return ['PATCH', '/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
 }
 
 /**
@@ -10074,10 +10078,10 @@ export function usePatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?:
 
 /**
  * Generates SWR mutation key for POST /webhooks/{webhook_id}/{webhook_token}/slack
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebhooksWebhookIdWebhookTokenSlackMutationKey() {
-  return ['/webhooks/:webhook_id/:webhook_token/slack'] as const
+  return ['POST', '/webhooks/:webhook_id/:webhook_token/slack'] as const
 }
 
 /**

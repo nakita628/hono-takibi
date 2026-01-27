@@ -179,10 +179,10 @@ export function useGetMe(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /me
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchMeMutationKey() {
-  return ['/me'] as const
+  return ['PATCH', '/me'] as const
 }
 
 /**
@@ -215,10 +215,10 @@ export function usePatchMe(options?: {
 
 /**
  * Generates SWR mutation key for POST /me/avatar
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMeAvatarMutationKey() {
-  return ['/me/avatar'] as const
+  return ['POST', '/me/avatar'] as const
 }
 
 /**
@@ -251,10 +251,10 @@ export function usePostMeAvatar(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/avatar
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeAvatarMutationKey() {
-  return ['/me/avatar'] as const
+  return ['DELETE', '/me/avatar'] as const
 }
 
 /**
@@ -289,10 +289,10 @@ export function useDeleteMeAvatar(options?: {
 
 /**
  * Generates SWR mutation key for POST /me/banner
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMeBannerMutationKey() {
-  return ['/me/banner'] as const
+  return ['POST', '/me/banner'] as const
 }
 
 /**
@@ -325,10 +325,10 @@ export function usePostMeBanner(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /me/banner
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMeBannerMutationKey() {
-  return ['/me/banner'] as const
+  return ['DELETE', '/me/banner'] as const
 }
 
 /**
@@ -363,10 +363,10 @@ export function useDeleteMeBanner(options?: {
 
 /**
  * Generates SWR mutation key for POST /users/{userId}/follow
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersUserIdFollowMutationKey() {
-  return ['/users/:userId/follow'] as const
+  return ['POST', '/users/:userId/follow'] as const
 }
 
 /**
@@ -407,10 +407,10 @@ export function usePostUsersUserIdFollow(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/{userId}/follow
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersUserIdFollowMutationKey() {
-  return ['/users/:userId/follow'] as const
+  return ['DELETE', '/users/:userId/follow'] as const
 }
 
 /**
@@ -523,10 +523,10 @@ export function useGetUsersUserIdFollowing(
 
 /**
  * Generates SWR mutation key for POST /users/{userId}/followers/remove
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersUserIdFollowersRemoveMutationKey() {
-  return ['/users/:userId/followers/remove'] as const
+  return ['POST', '/users/:userId/followers/remove'] as const
 }
 
 /**
@@ -645,10 +645,10 @@ export function useGetFollowRequests(
 
 /**
  * Generates SWR mutation key for POST /follow-requests/{userId}/accept
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFollowRequestsUserIdAcceptMutationKey() {
-  return ['/follow-requests/:userId/accept'] as const
+  return ['POST', '/follow-requests/:userId/accept'] as const
 }
 
 /**
@@ -693,10 +693,10 @@ export function usePostFollowRequestsUserIdAccept(options?: {
 
 /**
  * Generates SWR mutation key for POST /follow-requests/{userId}/reject
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFollowRequestsUserIdRejectMutationKey() {
-  return ['/follow-requests/:userId/reject'] as const
+  return ['POST', '/follow-requests/:userId/reject'] as const
 }
 
 /**
@@ -741,10 +741,10 @@ export function usePostFollowRequestsUserIdReject(options?: {
 
 /**
  * Generates SWR mutation key for POST /users/{userId}/block
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersUserIdBlockMutationKey() {
-  return ['/users/:userId/block'] as const
+  return ['POST', '/users/:userId/block'] as const
 }
 
 /**
@@ -785,10 +785,10 @@ export function usePostUsersUserIdBlock(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/{userId}/block
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersUserIdBlockMutationKey() {
-  return ['/users/:userId/block'] as const
+  return ['DELETE', '/users/:userId/block'] as const
 }
 
 /**
@@ -829,10 +829,10 @@ export function useDeleteUsersUserIdBlock(options?: {
 
 /**
  * Generates SWR mutation key for POST /users/{userId}/mute
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersUserIdMuteMutationKey() {
-  return ['/users/:userId/mute'] as const
+  return ['POST', '/users/:userId/mute'] as const
 }
 
 /**
@@ -871,10 +871,10 @@ export function usePostUsersUserIdMute(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/{userId}/mute
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersUserIdMuteMutationKey() {
-  return ['/users/:userId/mute'] as const
+  return ['DELETE', '/users/:userId/mute'] as const
 }
 
 /**
@@ -1014,10 +1014,10 @@ export function useGetLists(options?: {
 
 /**
  * Generates SWR mutation key for POST /lists
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostListsMutationKey() {
-  return ['/lists'] as const
+  return ['POST', '/lists'] as const
 }
 
 /**
@@ -1086,10 +1086,10 @@ export function useGetListsListId(
 
 /**
  * Generates SWR mutation key for PUT /lists/{listId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutListsListIdMutationKey() {
-  return ['/lists/:listId'] as const
+  return ['PUT', '/lists/:listId'] as const
 }
 
 /**
@@ -1128,10 +1128,10 @@ export function usePutListsListId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /lists/{listId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteListsListIdMutationKey() {
-  return ['/lists/:listId'] as const
+  return ['DELETE', '/lists/:listId'] as const
 }
 
 /**
@@ -1207,10 +1207,10 @@ export function useGetListsListIdMembers(
 
 /**
  * Generates SWR mutation key for POST /lists/{listId}/members
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostListsListIdMembersMutationKey() {
-  return ['/lists/:listId/members'] as const
+  return ['POST', '/lists/:listId/members'] as const
 }
 
 /**
@@ -1251,10 +1251,10 @@ export function usePostListsListIdMembers(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /lists/{listId}/members/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteListsListIdMembersUserIdMutationKey() {
-  return ['/lists/:listId/members/:userId'] as const
+  return ['DELETE', '/lists/:listId/members/:userId'] as const
 }
 
 /**

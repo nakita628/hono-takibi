@@ -62,6 +62,25 @@ export function useGetPath(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /{path}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutPathMutationKey() {
+  return ['PUT', '/:path'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /{path}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutPathMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutPathMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)[':path']['$put']>) =>
+    parseResponse(client[':path'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /{path}
  *
  * Send requests to the Algolia REST API
@@ -90,6 +109,25 @@ export function usePutPath(options?: {
       parseResponse(client[':path'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /{path}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPathMutationKey() {
+  return ['POST', '/:path'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /{path}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPathMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPathMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)[':path']['$post']>) =>
+    parseResponse(client[':path'].$post(args, clientOptions)),
+})
 
 /**
  * POST /{path}
@@ -122,6 +160,25 @@ export function usePostPath(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /{path}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePathMutationKey() {
+  return ['DELETE', '/:path'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /{path}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePathMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeletePathMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)[':path']['$delete']>) =>
+    parseResponse(client[':path'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /{path}
  *
  * Send requests to the Algolia REST API
@@ -150,6 +207,28 @@ export function useDeletePath(options?: {
       parseResponse(client[':path'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/query
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameQueryMutationKey() {
+  return ['POST', '/1/indexes/:indexName/query'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/query
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameQueryMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameQueryMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['query']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/query
@@ -188,6 +267,26 @@ export function usePost1IndexesIndexNameQuery(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'].query.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/* /queries
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesQueriesMutationKey() {
+  return ['POST', '/1/indexes/*/queries'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/* /queries
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesQueriesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesQueriesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes']['*']['queries']['$post']>,
+  ) => parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/[*]/queries
@@ -230,6 +329,33 @@ export function usePost1IndexesQueries(options?: {
     ) => parseResponse(client['1'].indexes['*'].queries.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/facets/{facetName}/query
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey() {
+  return ['POST', '/1/indexes/:indexName/facets/:facetName/query'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/facets/{facetName}/query
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameFacetsFacetNameQueryMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameFacetsFacetNameQueryMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['facets'][':facetName']['query']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].facets[':facetName'].query.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /1/indexes/{indexName}/facets/{facetName}/query
@@ -280,6 +406,28 @@ export function usePost1IndexesIndexNameFacetsFacetNameQuery(options?: {
       ),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/browse
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameBrowseMutationKey() {
+  return ['POST', '/1/indexes/:indexName/browse'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/browse
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameBrowseMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameBrowseMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['browse']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].browse.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/browse
@@ -341,6 +489,26 @@ export function usePost1IndexesIndexNameBrowse(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameMutationKey() {
+  return ['POST', '/1/indexes/:indexName'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesIndexNameMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/{indexName}
  *
  * Add a new record (with auto-generated object ID)
@@ -384,6 +552,28 @@ export function usePost1IndexesIndexName(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'].$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /1/indexes/{indexName}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete1IndexesIndexNameMutationKey() {
+  return ['DELETE', '/1/indexes/:indexName'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /1/indexes/{indexName}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['$delete']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /1/indexes/{indexName}
@@ -498,6 +688,28 @@ export function useGet1IndexesIndexNameObjectID(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /1/indexes/{indexName}/{objectID}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPut1IndexesIndexNameObjectIDMutationKey() {
+  return ['PUT', '/1/indexes/:indexName/:objectID'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /1/indexes/{indexName}/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$put']>,
+  ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /1/indexes/{indexName}/{objectID}
  *
  * Add or replace a record
@@ -540,6 +752,28 @@ export function usePut1IndexesIndexNameObjectID(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /1/indexes/{indexName}/{objectID}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete1IndexesIndexNameObjectIDMutationKey() {
+  return ['DELETE', '/1/indexes/:indexName/:objectID'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /1/indexes/{indexName}/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName'][':objectID']['$delete']>,
+  ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /1/indexes/{indexName}/{objectID}
  *
  * Delete a record
@@ -578,6 +812,28 @@ export function useDelete1IndexesIndexNameObjectID(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'][':objectID'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/deleteByQuery
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameDeleteByQueryMutationKey() {
+  return ['POST', '/1/indexes/:indexName/deleteByQuery'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/deleteByQuery
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameDeleteByQueryMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameDeleteByQueryMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['deleteByQuery']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].deleteByQuery.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/deleteByQuery
@@ -626,6 +882,28 @@ export function usePost1IndexesIndexNameDeleteByQuery(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/clear
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameClearMutationKey() {
+  return ['POST', '/1/indexes/:indexName/clear'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/clear
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameClearMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameClearMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['clear']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/{indexName}/clear
  *
  * Delete all records from an index
@@ -660,6 +938,33 @@ export function usePost1IndexesIndexNameClear(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'].clear.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/{objectID}/partial
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameObjectIDPartialMutationKey() {
+  return ['POST', '/1/indexes/:indexName/:objectID/partial'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/{objectID}/partial
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameObjectIDPartialMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameObjectIDPartialMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName'][':objectID']['partial']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'][':objectID'].partial.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /1/indexes/{indexName}/{objectID}/partial
@@ -734,6 +1039,28 @@ export function usePost1IndexesIndexNameObjectIDPartial(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameBatchMutationKey() {
+  return ['POST', '/1/indexes/:indexName/batch'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['batch']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].batch.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/{indexName}/batch
  *
  * Batch indexing operations on one index
@@ -776,6 +1103,26 @@ export function usePost1IndexesIndexNameBatch(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/* /batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesBatchMutationKey() {
+  return ['POST', '/1/indexes/*/batch'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/* /batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesBatchMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes']['*']['batch']['$post']>,
+  ) => parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/[*]/batch
  *
  * Batch indexing operations on multiple indices
@@ -814,6 +1161,26 @@ export function usePost1IndexesBatch(options?: {
     ) => parseResponse(client['1'].indexes['*'].batch.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/* /objects
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesObjectsMutationKey() {
+  return ['POST', '/1/indexes/*/objects'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/* /objects
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesObjectsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1IndexesObjectsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes']['*']['objects']['$post']>,
+  ) => parseResponse(client['1'].indexes['*'].objects.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/[*]/objects
@@ -920,6 +1287,28 @@ export function useGet1IndexesIndexNameSettings(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for PUT /1/indexes/{indexName}/settings
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPut1IndexesIndexNameSettingsMutationKey() {
+  return ['PUT', '/1/indexes/:indexName/settings'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /1/indexes/{indexName}/settings
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameSettingsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameSettingsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['settings']['$put']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].settings.$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/indexes/{indexName}/settings
@@ -1039,6 +1428,33 @@ export function useGet1IndexesIndexNameSynonymsObjectID(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPut1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return ['PUT', '/1/indexes/:indexName/synonyms/:objectID'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameSynonymsObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameSynonymsObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$put(args, clientOptions),
+    ),
+})
+
+/**
  * PUT /1/indexes/{indexName}/synonyms/{objectID}
  *
  * Create or replace a synonym
@@ -1085,6 +1501,33 @@ export function usePut1IndexesIndexNameSynonymsObjectID(options?: {
       ),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /1/indexes/{indexName}/synonyms/{objectID}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete1IndexesIndexNameSynonymsObjectIDMutationKey() {
+  return ['DELETE', '/1/indexes/:indexName/synonyms/:objectID'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /1/indexes/{indexName}/synonyms/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameSynonymsObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameSynonymsObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms'][':objectID']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].synonyms[':objectID'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /1/indexes/{indexName}/synonyms/{objectID}
@@ -1134,6 +1577,30 @@ export function useDelete1IndexesIndexNameSynonymsObjectID(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/synonyms/batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameSynonymsBatchMutationKey() {
+  return ['POST', '/1/indexes/:indexName/synonyms/batch'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/synonyms/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameSynonymsBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameSynonymsBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms']['batch']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].synonyms.batch.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/{indexName}/synonyms/batch
  *
  * Create or replace synonyms
@@ -1180,6 +1647,30 @@ export function usePost1IndexesIndexNameSynonymsBatch(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/synonyms/clear
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameSynonymsClearMutationKey() {
+  return ['POST', '/1/indexes/:indexName/synonyms/clear'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/synonyms/clear
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameSynonymsClearMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameSynonymsClearMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms']['clear']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/{indexName}/synonyms/clear
  *
  * Delete all synonyms
@@ -1221,6 +1712,30 @@ export function usePost1IndexesIndexNameSynonymsClear(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'].synonyms.clear.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/synonyms/search
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameSynonymsSearchMutationKey() {
+  return ['POST', '/1/indexes/:indexName/synonyms/search'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/synonyms/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameSynonymsSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameSynonymsSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['synonyms']['search']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].synonyms.search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/synonyms/search
@@ -1317,6 +1832,25 @@ export function useGet1Keys(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGet1KeysQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/keys
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1KeysMutationKey() {
+  return ['POST', '/1/keys'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/keys
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1KeysMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1KeysMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['keys']['$post']>) =>
+    parseResponse(client['1'].keys.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/keys
@@ -1417,6 +1951,25 @@ export function useGet1KeysKey(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /1/keys/{key}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPut1KeysKeyMutationKey() {
+  return ['PUT', '/1/keys/:key'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /1/keys/{key}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1KeysKeyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPut1KeysKeyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$put']>) =>
+    parseResponse(client['1'].keys[':key'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /1/keys/{key}
  *
  * Update an API key
@@ -1451,6 +2004,25 @@ export function usePut1KeysKey(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /1/keys/{key}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete1KeysKeyMutationKey() {
+  return ['DELETE', '/1/keys/:key'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /1/keys/{key}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1KeysKeyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDelete1KeysKeyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['keys'][':key']['$delete']>) =>
+    parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /1/keys/{key}
  *
  * Delete an API key
@@ -1483,6 +2055,26 @@ export function useDelete1KeysKey(options?: {
       parseResponse(client['1'].keys[':key'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/keys/{key}/restore
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1KeysKeyRestoreMutationKey() {
+  return ['POST', '/1/keys/:key/restore'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/keys/{key}/restore
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1KeysKeyRestoreMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1KeysKeyRestoreMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['keys'][':key']['restore']['$post']>,
+  ) => parseResponse(client['1'].keys[':key'].restore.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/keys/{key}/restore
@@ -1601,6 +2193,31 @@ export function useGet1IndexesIndexNameRulesObjectID(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /1/indexes/{indexName}/rules/{objectID}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPut1IndexesIndexNameRulesObjectIDMutationKey() {
+  return ['PUT', '/1/indexes/:indexName/rules/:objectID'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1IndexesIndexNameRulesObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1IndexesIndexNameRulesObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$put']
+    >,
+  ) =>
+    parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /1/indexes/{indexName}/rules/{objectID}
  *
  * Create or replace a rule
@@ -1646,6 +2263,33 @@ export function usePut1IndexesIndexNameRulesObjectID(options?: {
       parseResponse(client['1'].indexes[':indexName'].rules[':objectID'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /1/indexes/{indexName}/rules/{objectID}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete1IndexesIndexNameRulesObjectIDMutationKey() {
+  return ['DELETE', '/1/indexes/:indexName/rules/:objectID'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /1/indexes/{indexName}/rules/{objectID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1IndexesIndexNameRulesObjectIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1IndexesIndexNameRulesObjectIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules'][':objectID']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['1'].indexes[':indexName'].rules[':objectID'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /1/indexes/{indexName}/rules/{objectID}
@@ -1696,6 +2340,30 @@ export function useDelete1IndexesIndexNameRulesObjectID(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/rules/batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameRulesBatchMutationKey() {
+  return ['POST', '/1/indexes/:indexName/rules/batch'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/rules/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameRulesBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameRulesBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules']['batch']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].rules.batch.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/{indexName}/rules/batch
  *
  * Create or update rules
@@ -1740,6 +2408,30 @@ export function usePost1IndexesIndexNameRulesBatch(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/rules/clear
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameRulesClearMutationKey() {
+  return ['POST', '/1/indexes/:indexName/rules/clear'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/rules/clear
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameRulesClearMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameRulesClearMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules']['clear']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/indexes/{indexName}/rules/clear
  *
  * Delete all rules
@@ -1777,6 +2469,30 @@ export function usePost1IndexesIndexNameRulesClear(options?: {
     ) => parseResponse(client['1'].indexes[':indexName'].rules.clear.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/rules/search
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameRulesSearchMutationKey() {
+  return ['POST', '/1/indexes/:indexName/rules/search'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/rules/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameRulesSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameRulesSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['indexes'][':indexName']['rules']['search']['$post']
+    >,
+  ) => parseResponse(client['1'].indexes[':indexName'].rules.search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/rules/search
@@ -1820,6 +2536,30 @@ export function usePost1IndexesIndexNameRulesSearch(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/dictionaries/{dictionaryName}/batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1DictionariesDictionaryNameBatchMutationKey() {
+  return ['POST', '/1/dictionaries/:dictionaryName/batch'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/dictionaries/{dictionaryName}/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1DictionariesDictionaryNameBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1DictionariesDictionaryNameBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['dictionaries'][':dictionaryName']['batch']['$post']
+    >,
+  ) => parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/dictionaries/{dictionaryName}/batch
  *
  * Add or delete dictionary entries
@@ -1860,6 +2600,30 @@ export function usePost1DictionariesDictionaryNameBatch(options?: {
       parseResponse(client['1'].dictionaries[':dictionaryName'].batch.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/dictionaries/{dictionaryName}/search
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1DictionariesDictionaryNameSearchMutationKey() {
+  return ['POST', '/1/dictionaries/:dictionaryName/search'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/dictionaries/{dictionaryName}/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1DictionariesDictionaryNameSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1DictionariesDictionaryNameSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['1']['dictionaries'][':dictionaryName']['search']['$post']
+    >,
+  ) => parseResponse(client['1'].dictionaries[':dictionaryName'].search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/dictionaries/{dictionaryName}/search
@@ -1957,6 +2721,28 @@ export function useGet1DictionariesSettings(options?: {
     getGet1DictionariesSettingsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for PUT /1/dictionaries/* /settings
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPut1DictionariesSettingsMutationKey() {
+  return ['PUT', '/1/dictionaries/*/settings'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /1/dictionaries/* /settings
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1DictionariesSettingsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPut1DictionariesSettingsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['dictionaries']['*']['settings']['$put']>,
+  ) => parseResponse(client['1'].dictionaries['*'].settings.$put(args, clientOptions)),
+})
 
 /**
  * PUT /1/dictionaries/[*]/settings
@@ -2117,6 +2903,26 @@ export function useGet1ClustersMapping(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/clusters/mapping
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1ClustersMappingMutationKey() {
+  return ['POST', '/1/clusters/mapping'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/clusters/mapping
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1ClustersMappingMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPost1ClustersMappingMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping']['$post']>,
+  ) => parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/clusters/mapping
  *
  * Assign or move a user ID
@@ -2152,6 +2958,28 @@ export function usePost1ClustersMapping(options?: {
     ) => parseResponse(client['1'].clusters.mapping.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/clusters/mapping/batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1ClustersMappingBatchMutationKey() {
+  return ['POST', '/1/clusters/mapping/batch'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/clusters/mapping/batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1ClustersMappingBatchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1ClustersMappingBatchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping']['batch']['$post']>,
+  ) => parseResponse(client['1'].clusters.mapping.batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/clusters/mapping/batch
@@ -2316,6 +3144,28 @@ export function useGet1ClustersMappingUserID(
 }
 
 /**
+ * Generates Vue Query mutation key for DELETE /1/clusters/mapping/{userID}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete1ClustersMappingUserIDMutationKey() {
+  return ['DELETE', '/1/clusters/mapping/:userID'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /1/clusters/mapping/{userID}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1ClustersMappingUserIDMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1ClustersMappingUserIDMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping'][':userID']['$delete']>,
+  ) => parseResponse(client['1'].clusters.mapping[':userID'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /1/clusters/mapping/{userID}
  *
  * Delete user ID
@@ -2401,6 +3251,28 @@ export function useGet1Clusters(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGet1ClustersQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/clusters/mapping/search
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1ClustersMappingSearchMutationKey() {
+  return ['POST', '/1/clusters/mapping/search'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/clusters/mapping/search
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1ClustersMappingSearchMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1ClustersMappingSearchMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['clusters']['mapping']['search']['$post']>,
+  ) => parseResponse(client['1'].clusters.mapping.search.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/clusters/mapping/search
@@ -2560,6 +3432,25 @@ export function useGet1SecuritySources(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /1/security/sources
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPut1SecuritySourcesMutationKey() {
+  return ['PUT', '/1/security/sources'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /1/security/sources
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPut1SecuritySourcesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPut1SecuritySourcesMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['1']['security']['sources']['$put']>) =>
+    parseResponse(client['1'].security.sources.$put(args, clientOptions)),
+})
+
+/**
  * PUT /1/security/sources
  *
  * Replace allowed sources
@@ -2595,6 +3486,28 @@ export function usePut1SecuritySources(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /1/security/sources/append
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1SecuritySourcesAppendMutationKey() {
+  return ['POST', '/1/security/sources/append'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/security/sources/append
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1SecuritySourcesAppendMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1SecuritySourcesAppendMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['security']['sources']['append']['$post']>,
+  ) => parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
+})
+
+/**
  * POST /1/security/sources/append
  *
  * Add a source
@@ -2628,6 +3541,28 @@ export function usePost1SecuritySourcesAppend(options?: {
     ) => parseResponse(client['1'].security.sources.append.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /1/security/sources/{source}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete1SecuritySourcesSourceMutationKey() {
+  return ['DELETE', '/1/security/sources/:source'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /1/security/sources/{source}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete1SecuritySourcesSourceMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete1SecuritySourcesSourceMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['security']['sources'][':source']['$delete']>,
+  ) => parseResponse(client['1'].security.sources[':source'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /1/security/sources/{source}
@@ -2863,6 +3798,28 @@ export function useGet1IndexesIndexNameTaskTaskID(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /1/indexes/{indexName}/operation
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost1IndexesIndexNameOperationMutationKey() {
+  return ['POST', '/1/indexes/:indexName/operation'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /1/indexes/{indexName}/operation
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost1IndexesIndexNameOperationMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost1IndexesIndexNameOperationMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['1']['indexes'][':indexName']['operation']['$post']>,
+  ) => parseResponse(client['1'].indexes[':indexName'].operation.$post(args, clientOptions)),
+})
 
 /**
  * POST /1/indexes/{indexName}/operation
@@ -3698,6 +4655,25 @@ export function useGetSaveObjectsWithTransformation(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /deleteObjects
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDeleteObjectsMutationKey() {
+  return ['POST', '/deleteObjects'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /deleteObjects
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDeleteObjectsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostDeleteObjectsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.deleteObjects.$post>) =>
+    parseResponse(client.deleteObjects.$post(args, clientOptions)),
+})
+
+/**
  * POST /deleteObjects
  *
  * Deletes every records for the given objectIDs
@@ -3726,6 +4702,27 @@ export function usePostDeleteObjects(options?: {
       parseResponse(client.deleteObjects.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /partialUpdateObjects
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPartialUpdateObjectsMutationKey() {
+  return ['POST', '/partialUpdateObjects'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /partialUpdateObjects
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartialUpdateObjectsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPartialUpdateObjectsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.partialUpdateObjects.$post>) =>
+    parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
+})
 
 /**
  * POST /partialUpdateObjects
@@ -3758,6 +4755,28 @@ export function usePostPartialUpdateObjects(options?: {
       parseResponse(client.partialUpdateObjects.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /partialUpdateObjectsWithTransformation
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPartialUpdateObjectsWithTransformationMutationKey() {
+  return ['POST', '/partialUpdateObjectsWithTransformation'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /partialUpdateObjectsWithTransformation
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartialUpdateObjectsWithTransformationMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPartialUpdateObjectsWithTransformationMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<typeof client.partialUpdateObjectsWithTransformation.$post>,
+  ) => parseResponse(client.partialUpdateObjectsWithTransformation.$post(args, clientOptions)),
+})
 
 /**
  * POST /partialUpdateObjectsWithTransformation

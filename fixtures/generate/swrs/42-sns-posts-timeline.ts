@@ -44,10 +44,10 @@ export function useGetPosts(
 
 /**
  * Generates SWR mutation key for POST /posts
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsMutationKey() {
-  return ['/posts'] as const
+  return ['POST', '/posts'] as const
 }
 
 /**
@@ -116,10 +116,10 @@ export function useGetPostsPostId(
 
 /**
  * Generates SWR mutation key for DELETE /posts/{postId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePostsPostIdMutationKey() {
-  return ['/posts/:postId'] as const
+  return ['DELETE', '/posts/:postId'] as const
 }
 
 /**
@@ -381,10 +381,10 @@ export function useGetTimelineHashtagHashtag(
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/like
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdLikeMutationKey() {
-  return ['/posts/:postId/like'] as const
+  return ['POST', '/posts/:postId/like'] as const
 }
 
 /**
@@ -423,10 +423,10 @@ export function usePostPostsPostIdLike(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /posts/{postId}/like
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePostsPostIdLikeMutationKey() {
-  return ['/posts/:postId/like'] as const
+  return ['DELETE', '/posts/:postId/like'] as const
 }
 
 /**
@@ -467,10 +467,10 @@ export function useDeletePostsPostIdLike(options?: {
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/repost
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdRepostMutationKey() {
-  return ['/posts/:postId/repost'] as const
+  return ['POST', '/posts/:postId/repost'] as const
 }
 
 /**
@@ -511,10 +511,10 @@ export function usePostPostsPostIdRepost(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /posts/{postId}/repost
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePostsPostIdRepostMutationKey() {
-  return ['/posts/:postId/repost'] as const
+  return ['DELETE', '/posts/:postId/repost'] as const
 }
 
 /**
@@ -555,10 +555,10 @@ export function useDeletePostsPostIdRepost(options?: {
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/quote
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdQuoteMutationKey() {
-  return ['/posts/:postId/quote'] as const
+  return ['POST', '/posts/:postId/quote'] as const
 }
 
 /**
@@ -599,10 +599,10 @@ export function usePostPostsPostIdQuote(options?: {
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/bookmark
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdBookmarkMutationKey() {
-  return ['/posts/:postId/bookmark'] as const
+  return ['POST', '/posts/:postId/bookmark'] as const
 }
 
 /**
@@ -643,10 +643,10 @@ export function usePostPostsPostIdBookmark(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /posts/{postId}/bookmark
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePostsPostIdBookmarkMutationKey() {
-  return ['/posts/:postId/bookmark'] as const
+  return ['DELETE', '/posts/:postId/bookmark'] as const
 }
 
 /**
@@ -865,10 +865,10 @@ export function useGetPostsPostIdReplies(
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/replies
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdRepliesMutationKey() {
-  return ['/posts/:postId/replies'] as const
+  return ['POST', '/posts/:postId/replies'] as const
 }
 
 /**
@@ -909,10 +909,10 @@ export function usePostPostsPostIdReplies(options?: {
 
 /**
  * Generates SWR mutation key for POST /media/upload
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMediaUploadMutationKey() {
-  return ['/media/upload'] as const
+  return ['POST', '/media/upload'] as const
 }
 
 /**
@@ -983,10 +983,10 @@ export function useGetMediaMediaId(
 
 /**
  * Generates SWR mutation key for PATCH /media/{mediaId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchMediaMediaIdMutationKey() {
-  return ['/media/:mediaId'] as const
+  return ['PATCH', '/media/:mediaId'] as const
 }
 
 /**

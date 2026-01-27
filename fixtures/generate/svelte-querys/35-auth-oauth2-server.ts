@@ -68,6 +68,25 @@ export function createGetOauthAuthorize(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /oauth/token
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOauthTokenMutationKey() {
+  return ['POST', '/oauth/token'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/token
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthTokenMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthTokenMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.token.$post>) =>
+    parseResponse(client.oauth.token.$post(args, clientOptions)),
+})
+
+/**
  * POST /oauth/token
  *
  * トークンエンドポイント
@@ -90,6 +109,25 @@ export function createPostOauthToken(options?: {
       parseResponse(client.oauth.token.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /oauth/revoke
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOauthRevokeMutationKey() {
+  return ['POST', '/oauth/revoke'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/revoke
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthRevokeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthRevokeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.revoke.$post>) =>
+    parseResponse(client.oauth.revoke.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/revoke
@@ -117,6 +155,25 @@ export function createPostOauthRevoke(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /oauth/introspect
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOauthIntrospectMutationKey() {
+  return ['POST', '/oauth/introspect'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/introspect
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthIntrospectMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthIntrospectMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.introspect.$post>) =>
+    parseResponse(client.oauth.introspect.$post(args, clientOptions)),
+})
+
+/**
  * POST /oauth/introspect
  *
  * トークン情報取得
@@ -140,6 +197,25 @@ export function createPostOauthIntrospect(options?: {
       parseResponse(client.oauth.introspect.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /oauth/device/code
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOauthDeviceCodeMutationKey() {
+  return ['POST', '/oauth/device/code'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/device/code
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthDeviceCodeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthDeviceCodeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.device.code.$post>) =>
+    parseResponse(client.oauth.device.code.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/device/code
@@ -373,6 +449,25 @@ export function createGetOauthClients(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /oauth/clients
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOauthClientsMutationKey() {
+  return ['POST', '/oauth/clients'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/clients
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthClientsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOauthClientsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.oauth.clients.$post>) =>
+    parseResponse(client.oauth.clients.$post(args, clientOptions)),
+})
+
+/**
  * POST /oauth/clients
  *
  * クライアント作成
@@ -456,6 +551,27 @@ export function createGetOauthClientsClientId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /oauth/clients/{clientId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutOauthClientsClientIdMutationKey() {
+  return ['PUT', '/oauth/clients/:clientId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /oauth/clients/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutOauthClientsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutOauthClientsClientIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$put']>) =>
+    parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /oauth/clients/{clientId}
  *
  * クライアント更新
@@ -482,6 +598,28 @@ export function createPutOauthClientsClientId(options?: {
     ) => parseResponse(client.oauth.clients[':clientId'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /oauth/clients/{clientId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteOauthClientsClientIdMutationKey() {
+  return ['DELETE', '/oauth/clients/:clientId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /oauth/clients/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteOauthClientsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteOauthClientsClientIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.clients)[':clientId']['$delete']>,
+  ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /oauth/clients/{clientId}
@@ -511,6 +649,28 @@ export function createDeleteOauthClientsClientId(options?: {
     ) => parseResponse(client.oauth.clients[':clientId'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /oauth/clients/{clientId}/secret
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOauthClientsClientIdSecretMutationKey() {
+  return ['POST', '/oauth/clients/:clientId/secret'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /oauth/clients/{clientId}/secret
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOauthClientsClientIdSecretMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostOauthClientsClientIdSecretMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.clients)[':clientId']['secret']['$post']>,
+  ) => parseResponse(client.oauth.clients[':clientId'].secret.$post(args, clientOptions)),
+})
 
 /**
  * POST /oauth/clients/{clientId}/secret
@@ -588,6 +748,28 @@ export function createGetOauthConsents(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /oauth/consents/{clientId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteOauthConsentsClientIdMutationKey() {
+  return ['DELETE', '/oauth/consents/:clientId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /oauth/consents/{clientId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteOauthConsentsClientIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteOauthConsentsClientIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.oauth.consents)[':clientId']['$delete']>,
+  ) => parseResponse(client.oauth.consents[':clientId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /oauth/consents/{clientId}

@@ -272,6 +272,111 @@ export function ${hookName}(${argsSig}options?:()=>${optionsType}){return ${conf
 export function ${hookName}(${argsSig}options?:${optionsType}){const{query:queryOptions,client:clientOptions}=options??{};const{queryKey,queryFn,...baseOptions}=${optionsGetterCall};return ${config.queryFn}({...baseOptions,...queryOptions,queryKey,queryFn})}`
 }
 
+/* ─────────────────────────────── Mutation Key Getter ─────────────────────────────── */
+
+/**
+ * Generates the mutation key getter function name.
+ *
+ * @param method - HTTP method
+ * @param pathStr - API path
+ * @returns Mutation key getter function name (e.g., "getPutPetMutationKey")
+ */
+function makeMutationKeyGetterName(method: string, pathStr: string): string {
+  const funcName = methodPath(method, pathStr)
+  return `get${upperFirst(funcName)}MutationKey`
+}
+
+/**
+ * Generates mutation key getter function code.
+ *
+ * Pattern: ['METHOD', '/path'] to avoid collisions between different methods on same path.
+ * e.g., PUT /pet and POST /pet get different keys: ['PUT', '/pet'] vs ['POST', '/pet']
+ *
+ * @param keyGetterName - Function name for key getter
+ * @param honoPath - Hono-style path (with :param)
+ * @param method - HTTP method
+ * @param config - Framework configuration
+ * @returns Mutation key getter function code
+ */
+function makeMutationKeyGetterCode(
+  keyGetterName: string,
+  honoPath: string,
+  method: string,
+  config: { frameworkName: string },
+): string {
+  const methodUpper = method.toUpperCase()
+  const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
+  return `/**
+ * Generates ${config.frameworkName} mutation key for ${methodUpper} ${safeCommentPath}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function ${keyGetterName}(){return['${methodUpper}','${honoPath}']as const}`
+}
+
+/* ─────────────────────────────── Mutation Options Getter ─────────────────────────────── */
+
+/**
+ * Generates the mutation options getter function name.
+ *
+ * @param method - HTTP method
+ * @param pathStr - API path
+ * @returns Mutation options getter function name (e.g., "getPutPetMutationOptions")
+ */
+function makeMutationOptionsGetterName(method: string, pathStr: string): string {
+  const funcName = methodPath(method, pathStr)
+  return `get${upperFirst(funcName)}MutationOptions`
+}
+
+/**
+ * Generates mutation options getter function code.
+ *
+ * This function returns an object with mutationKey and mutationFn,
+ * enabling reusability with useMutation, setMutationDefaults, etc.
+ *
+ * @param optionsGetterName - Function name for options getter
+ * @param keyGetterName - Function name for key getter
+ * @param hasArgs - Whether the operation has arguments
+ * @param inferRequestType - TypeScript type for request
+ * @param clientPath - Client path expression
+ * @param method - HTTP method
+ * @param honoPath - Hono-style path (with :param)
+ * @param config - Framework configuration
+ * @returns Mutation options getter function code
+ */
+function makeMutationOptionsGetterCode(
+  optionsGetterName: string,
+  keyGetterName: string,
+  hasArgs: boolean,
+  inferRequestType: string,
+  clientPath: string,
+  method: string,
+  honoPath: string,
+  config: { frameworkName: string },
+): string {
+  const methodUpper = method.toUpperCase()
+  const safeCommentPath = escapeCommentEnd(honoPath.replace(/:([^/]+)/g, '{$1}'))
+
+  const clientCall = hasArgs
+    ? `${clientPath}.$${method}(args,clientOptions)`
+    : `${clientPath}.$${method}(undefined,clientOptions)`
+  const fetcherBody = makeFetcher(clientCall)
+
+  if (hasArgs) {
+    return `/**
+ * Returns ${config.frameworkName} mutation options for ${methodUpper} ${safeCommentPath}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({mutationKey:${keyGetterName}(),mutationFn:async(args:${inferRequestType})=>${fetcherBody}})`
+  }
+  return `/**
+ * Returns ${config.frameworkName} mutation options for ${methodUpper} ${safeCommentPath}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const ${optionsGetterName}=(clientOptions?:ClientRequestOptions)=>({mutationKey:${keyGetterName}(),mutationFn:async()=>${fetcherBody}})`
+}
+
 /* ─────────────────────────────── Mutation Hook Code ─────────────────────────────── */
 
 function makeMutationHookCode(
@@ -398,6 +503,20 @@ function makeHookCode(
     }
   }
 
+  // Generate mutation key and options getters
+  const keyGetterName = makeMutationKeyGetterName(method, pathStr)
+  const optionsGetterName = makeMutationOptionsGetterName(method, pathStr)
+  const keyGetterCode = makeMutationKeyGetterCode(keyGetterName, honoPath, method, config)
+  const optionsGetterCode = makeMutationOptionsGetterCode(
+    optionsGetterName,
+    keyGetterName,
+    hasArgs,
+    inferRequestType,
+    clientPath,
+    method,
+    honoPath,
+    config,
+  )
   const hookCode = makeMutationHookCode(
     hookName,
     hasArgs,
@@ -409,7 +528,12 @@ function makeHookCode(
     config,
     hasNoContent,
   )
-  return { code: hookCode, isQuery: false, hasArgs }
+  // Combine in Orval order: key getter → options getter → hook
+  return {
+    code: `${keyGetterCode}\n\n${optionsGetterCode}\n\n${hookCode}`,
+    isQuery: false,
+    hasArgs,
+  }
 }
 
 /**

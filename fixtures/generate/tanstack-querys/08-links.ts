@@ -9,6 +9,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/08-links'
 
 /**
+ * Generates TanStack Query mutation key for POST /orders
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrdersMutationKey() {
+  return ['POST', '/orders'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /orders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOrdersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+    parseResponse(client.orders.$post(args, clientOptions)),
+})
+
+/**
  * POST /orders
  */
 export function usePostOrders(options?: {
@@ -77,6 +96,25 @@ export function useGetOrdersOrderId(
   const { queryKey, queryFn, ...baseOptions } = getGetOrdersOrderIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /orders/{orderId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteOrdersOrderIdMutationKey() {
+  return ['DELETE', '/orders/:orderId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /orders/{orderId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteOrdersOrderIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteOrdersOrderIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.orders)[':orderId']['$delete']>) =>
+    parseResponse(client.orders[':orderId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /orders/{orderId}

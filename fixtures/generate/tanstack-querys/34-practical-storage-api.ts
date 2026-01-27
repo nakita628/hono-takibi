@@ -53,6 +53,25 @@ export function useGetFiles(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /files/upload
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesUploadMutationKey() {
+  return ['POST', '/files/upload'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/upload
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesUploadMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFilesUploadMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.files.upload.$post>) =>
+    parseResponse(client.files.upload.$post(args, clientOptions)),
+})
+
+/**
  * POST /files/upload
  *
  * ファイルアップロード
@@ -74,6 +93,27 @@ export function usePostFilesUpload(options?: {
       parseResponse(client.files.upload.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /files/upload/multipart/init
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesUploadMultipartInitMutationKey() {
+  return ['POST', '/files/upload/multipart/init'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/upload/multipart/init
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesUploadMultipartInitMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostFilesUploadMultipartInitMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.files.upload.multipart.init.$post>) =>
+    parseResponse(client.files.upload.multipart.init.$post(args, clientOptions)),
+})
 
 /**
  * POST /files/upload/multipart/init
@@ -103,6 +143,28 @@ export function usePostFilesUploadMultipartInit(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /files/upload/multipart/{uploadId}/part
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesUploadMultipartUploadIdPartMutationKey() {
+  return ['POST', '/files/upload/multipart/:uploadId/part'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/upload/multipart/{uploadId}/part
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesUploadMultipartUploadIdPartMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostFilesUploadMultipartUploadIdPartMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.files.upload.multipart)[':uploadId']['part']['$post']>,
+  ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, clientOptions)),
+})
+
+/**
  * POST /files/upload/multipart/{uploadId}/part
  *
  * パートアップロード
@@ -129,6 +191,31 @@ export function usePostFilesUploadMultipartUploadIdPart(options?: {
     ) => parseResponse(client.files.upload.multipart[':uploadId'].part.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /files/upload/multipart/{uploadId}/complete
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesUploadMultipartUploadIdCompleteMutationKey() {
+  return ['POST', '/files/upload/multipart/:uploadId/complete'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/upload/multipart/{uploadId}/complete
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesUploadMultipartUploadIdCompleteMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostFilesUploadMultipartUploadIdCompleteMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.files.upload.multipart)[':uploadId']['complete']['$post']
+    >,
+  ) =>
+    parseResponse(client.files.upload.multipart[':uploadId'].complete.$post(args, clientOptions)),
+})
 
 /**
  * POST /files/upload/multipart/{uploadId}/complete
@@ -217,6 +304,25 @@ export function useGetFilesFileId(
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /files/{fileId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteFilesFileIdMutationKey() {
+  return ['DELETE', '/files/:fileId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /files/{fileId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteFilesFileIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteFilesFileIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$delete']>) =>
+    parseResponse(client.files[':fileId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /files/{fileId}
  *
  * ファイル削除（ゴミ箱へ移動）
@@ -241,6 +347,25 @@ export function useDeleteFilesFileId(options?: {
       parseResponse(client.files[':fileId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for PATCH /files/{fileId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchFilesFileIdMutationKey() {
+  return ['PATCH', '/files/:fileId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /files/{fileId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchFilesFileIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchFilesFileIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['$patch']>) =>
+    parseResponse(client.files[':fileId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /files/{fileId}
@@ -384,6 +509,25 @@ export function useGetFilesFileIdDownloadUrl(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /files/{fileId}/copy
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesFileIdCopyMutationKey() {
+  return ['POST', '/files/:fileId/copy'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/{fileId}/copy
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesFileIdCopyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFilesFileIdCopyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['copy']['$post']>) =>
+    parseResponse(client.files[':fileId'].copy.$post(args, clientOptions)),
+})
+
+/**
  * POST /files/{fileId}/copy
  *
  * ファイルコピー
@@ -407,6 +551,25 @@ export function usePostFilesFileIdCopy(options?: {
       parseResponse(client.files[':fileId'].copy.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /files/{fileId}/move
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesFileIdMoveMutationKey() {
+  return ['POST', '/files/:fileId/move'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/{fileId}/move
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesFileIdMoveMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFilesFileIdMoveMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['move']['$post']>) =>
+    parseResponse(client.files[':fileId'].move.$post(args, clientOptions)),
+})
 
 /**
  * POST /files/{fileId}/move
@@ -492,6 +655,25 @@ export function useGetFilesFileIdThumbnail(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /folders
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFoldersMutationKey() {
+  return ['POST', '/folders'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /folders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFoldersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFoldersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.folders.$post>) =>
+    parseResponse(client.folders.$post(args, clientOptions)),
+})
+
+/**
  * POST /folders
  *
  * フォルダ作成
@@ -569,6 +751,25 @@ export function useGetFoldersFolderId(
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /folders/{folderId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteFoldersFolderIdMutationKey() {
+  return ['DELETE', '/folders/:folderId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /folders/{folderId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteFoldersFolderIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteFoldersFolderIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$delete']>) =>
+    parseResponse(client.folders[':folderId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /folders/{folderId}
  *
  * フォルダ削除
@@ -593,6 +794,25 @@ export function useDeleteFoldersFolderId(options?: {
       parseResponse(client.folders[':folderId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for PATCH /folders/{folderId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchFoldersFolderIdMutationKey() {
+  return ['PATCH', '/folders/:folderId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /folders/{folderId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchFoldersFolderIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchFoldersFolderIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.folders)[':folderId']['$patch']>) =>
+    parseResponse(client.folders[':folderId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /folders/{folderId}
@@ -678,6 +898,25 @@ export function useGetFilesFileIdShare(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /files/{fileId}/share
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesFileIdShareMutationKey() {
+  return ['POST', '/files/:fileId/share'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/{fileId}/share
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesFileIdShareMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFilesFileIdShareMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.files)[':fileId']['share']['$post']>) =>
+    parseResponse(client.files[':fileId'].share.$post(args, clientOptions)),
+})
+
+/**
  * POST /files/{fileId}/share
  *
  * ファイル共有
@@ -704,6 +943,26 @@ export function usePostFilesFileIdShare(options?: {
     ) => parseResponse(client.files[':fileId'].share.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /files/{fileId}/share
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteFilesFileIdShareMutationKey() {
+  return ['DELETE', '/files/:fileId/share'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /files/{fileId}/share
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteFilesFileIdShareMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteFilesFileIdShareMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.files)[':fileId']['share']['$delete']>,
+  ) => parseResponse(client.files[':fileId'].share.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /files/{fileId}/share
@@ -733,6 +992,28 @@ export function useDeleteFilesFileIdShare(options?: {
     ) => parseResponse(client.files[':fileId'].share.$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /files/{fileId}/share/link
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesFileIdShareLinkMutationKey() {
+  return ['POST', '/files/:fileId/share/link'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/{fileId}/share/link
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesFileIdShareLinkMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostFilesFileIdShareLinkMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.files)[':fileId']['share']['link']['$post']>,
+  ) => parseResponse(client.files[':fileId'].share.link.$post(args, clientOptions)),
+})
 
 /**
  * POST /files/{fileId}/share/link
@@ -821,6 +1102,33 @@ export function useGetFilesFileIdVersions(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /files/{fileId}/versions/{versionId}/restore
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFilesFileIdVersionsVersionIdRestoreMutationKey() {
+  return ['POST', '/files/:fileId/versions/:versionId/restore'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /files/{fileId}/versions/{versionId}/restore
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFilesFileIdVersionsVersionIdRestoreMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostFilesFileIdVersionsVersionIdRestoreMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.files)[':fileId']['versions'][':versionId']['restore']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.files[':fileId'].versions[':versionId'].restore.$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /files/{fileId}/versions/{versionId}/restore
  *
  * バージョン復元
@@ -902,6 +1210,24 @@ export function useGetTrash(
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /trash
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteTrashMutationKey() {
+  return ['DELETE', '/trash'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /trash
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteTrashMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteTrashMutationKey(),
+  mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
+})
+
+/**
  * DELETE /trash
  *
  * ゴミ箱を空にする
@@ -921,6 +1247,26 @@ export function useDeleteTrash(options?: {
     mutationFn: async () => parseResponse(client.trash.$delete(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /trash/{fileId}/restore
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTrashFileIdRestoreMutationKey() {
+  return ['POST', '/trash/:fileId/restore'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /trash/{fileId}/restore
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTrashFileIdRestoreMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTrashFileIdRestoreMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.trash)[':fileId']['restore']['$post']>,
+  ) => parseResponse(client.trash[':fileId'].restore.$post(args, clientOptions)),
+})
 
 /**
  * POST /trash/{fileId}/restore

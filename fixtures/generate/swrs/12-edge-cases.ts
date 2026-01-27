@@ -37,10 +37,10 @@ export function useGetAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for PUT /all-methods
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutAllMethodsMutationKey() {
-  return ['/all-methods'] as const
+  return ['PUT', '/all-methods'] as const
 }
 
 /**
@@ -72,10 +72,10 @@ export function usePutAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for POST /all-methods
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAllMethodsMutationKey() {
-  return ['/all-methods'] as const
+  return ['POST', '/all-methods'] as const
 }
 
 /**
@@ -107,10 +107,10 @@ export function usePostAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /all-methods
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteAllMethodsMutationKey() {
-  return ['/all-methods'] as const
+  return ['DELETE', '/all-methods'] as const
 }
 
 /**
@@ -144,10 +144,10 @@ export function useDeleteAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for OPTIONS /all-methods
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getOptionsAllMethodsMutationKey() {
-  return ['/all-methods'] as const
+  return ['OPTIONS', '/all-methods'] as const
 }
 
 /**
@@ -181,10 +181,10 @@ export function useOptionsAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for HEAD /all-methods
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getHeadAllMethodsMutationKey() {
-  return ['/all-methods'] as const
+  return ['HEAD', '/all-methods'] as const
 }
 
 /**
@@ -216,10 +216,10 @@ export function useHeadAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /all-methods
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchAllMethodsMutationKey() {
-  return ['/all-methods'] as const
+  return ['PATCH', '/all-methods'] as const
 }
 
 /**
@@ -253,10 +253,10 @@ export function usePatchAllMethods(options?: {
 
 /**
  * Generates SWR mutation key for TRACE /all-methods
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getTraceAllMethodsMutationKey() {
-  return ['/all-methods'] as const
+  return ['TRACE', '/all-methods'] as const
 }
 
 /**
@@ -369,10 +369,10 @@ export function useGetParamsTestPathParam(
 
 /**
  * Generates SWR mutation key for POST /no-content
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostNoContentMutationKey() {
-  return ['/no-content'] as const
+  return ['POST', '/no-content'] as const
 }
 
 /**
@@ -436,10 +436,10 @@ export function useGetMultiContent(options?: {
 
 /**
  * Generates SWR mutation key for POST /multi-content
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMultiContentMutationKey() {
-  return ['/multi-content'] as const
+  return ['POST', '/multi-content'] as const
 }
 
 /**
@@ -567,10 +567,10 @@ export function useGetNoOperationId(options?: {
 
 /**
  * Generates SWR mutation key for POST /empty-body
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostEmptyBodyMutationKey() {
-  return ['/empty-body'] as const
+  return ['POST', '/empty-body'] as const
 }
 
 /**

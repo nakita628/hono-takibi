@@ -50,6 +50,24 @@ export function useGetAllMethods(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutAllMethodsMutationKey() {
+  return ['PUT', '/all-methods'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
+})
+
+/**
  * PUT /all-methods
  */
 export function usePutAllMethods(options?: {
@@ -70,6 +88,24 @@ export function usePutAllMethods(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAllMethodsMutationKey() {
+  return ['POST', '/all-methods'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
+})
+
+/**
  * POST /all-methods
  */
 export function usePostAllMethods(options?: {
@@ -88,6 +124,24 @@ export function usePostAllMethods(options?: {
     mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteAllMethodsMutationKey() {
+  return ['DELETE', '/all-methods'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /all-methods
@@ -112,6 +166,24 @@ export function useDeleteAllMethods(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for OPTIONS /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getOptionsAllMethodsMutationKey() {
+  return ['OPTIONS', '/all-methods'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for OPTIONS /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getOptionsAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getOptionsAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
+})
+
+/**
  * OPTIONS /all-methods
  */
 export function useOptionsAllMethods(options?: {
@@ -134,6 +206,24 @@ export function useOptionsAllMethods(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for HEAD /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getHeadAllMethodsMutationKey() {
+  return ['HEAD', '/all-methods'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for HEAD /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getHeadAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getHeadAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
+})
+
+/**
  * HEAD /all-methods
  */
 export function useHeadAllMethods(options?: {
@@ -152,6 +242,24 @@ export function useHeadAllMethods(options?: {
     mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for PATCH /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchAllMethodsMutationKey() {
+  return ['PATCH', '/all-methods'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
+})
 
 /**
  * PATCH /all-methods
@@ -174,6 +282,24 @@ export function usePatchAllMethods(options?: {
     mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for TRACE /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getTraceAllMethodsMutationKey() {
+  return ['TRACE', '/all-methods'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for TRACE /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getTraceAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getTraceAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
+})
 
 /**
  * TRACE /all-methods
@@ -318,6 +444,24 @@ export function useGetParamsTestPathParam(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /no-content
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostNoContentMutationKey() {
+  return ['POST', '/no-content'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /no-content
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNoContentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostNoContentMutationKey(),
+  mutationFn: async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
+})
+
+/**
  * POST /no-content
  */
 export function usePostNoContent(options?: {
@@ -382,6 +526,25 @@ export function useGetMultiContent(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetMultiContentQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /multi-content
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMultiContentMutationKey() {
+  return ['POST', '/multi-content'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /multi-content
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMultiContentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMultiContentMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['multi-content']['$post']>) =>
+    parseResponse(client['multi-content'].$post(args, clientOptions)),
+})
 
 /**
  * POST /multi-content
@@ -534,6 +697,25 @@ export function useGetNoOperationId(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetNoOperationIdQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /empty-body
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostEmptyBodyMutationKey() {
+  return ['POST', '/empty-body'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /empty-body
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEmptyBodyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostEmptyBodyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['empty-body']['$post']>) =>
+    parseResponse(client['empty-body'].$post(args, clientOptions)),
+})
 
 /**
  * POST /empty-body

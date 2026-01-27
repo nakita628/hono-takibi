@@ -8,10 +8,10 @@ import { client } from '../clients/16-complex-composition'
 
 /**
  * Generates SWR mutation key for POST /messages
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMessagesMutationKey() {
-  return ['/messages'] as const
+  return ['POST', '/messages'] as const
 }
 
 /**
@@ -42,10 +42,10 @@ export function usePostMessages(options?: {
 
 /**
  * Generates SWR mutation key for POST /events
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostEventsMutationKey() {
-  return ['/events'] as const
+  return ['POST', '/events'] as const
 }
 
 /**
@@ -105,10 +105,10 @@ export function useGetConfigs(options?: {
 
 /**
  * Generates SWR mutation key for PUT /configs
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutConfigsMutationKey() {
-  return ['/configs'] as const
+  return ['PUT', '/configs'] as const
 }
 
 /**
@@ -139,10 +139,10 @@ export function usePutConfigs(options?: {
 
 /**
  * Generates SWR mutation key for POST /resources
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostResourcesMutationKey() {
-  return ['/resources'] as const
+  return ['POST', '/resources'] as const
 }
 
 /**
@@ -173,10 +173,10 @@ export function usePostResources(options?: {
 
 /**
  * Generates SWR mutation key for POST /validations
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostValidationsMutationKey() {
-  return ['/validations'] as const
+  return ['POST', '/validations'] as const
 }
 
 /**

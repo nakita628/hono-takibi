@@ -7,10 +7,10 @@ import { client } from '../clients/25-pathological-schemas'
 
 /**
  * Generates SWR mutation key for POST /pathological
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPathologicalMutationKey() {
-  return ['/pathological'] as const
+  return ['POST', '/pathological'] as const
 }
 
 /**

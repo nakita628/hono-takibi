@@ -137,6 +137,25 @@ export function useGetSocialCallbackProvider(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /social/token
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSocialTokenMutationKey() {
+  return ['POST', '/social/token'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /social/token
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSocialTokenMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSocialTokenMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.social.token.$post>) =>
+    parseResponse(client.social.token.$post(args, clientOptions)),
+})
+
+/**
  * POST /social/token
  *
  * ソーシャルトークン交換
@@ -165,6 +184,25 @@ export function usePostSocialToken(options?: {
       parseResponse(client.social.token.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /social/token/native
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSocialTokenNativeMutationKey() {
+  return ['POST', '/social/token/native'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /social/token/native
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSocialTokenNativeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSocialTokenNativeMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.social.token.native.$post>) =>
+    parseResponse(client.social.token.native.$post(args, clientOptions)),
+})
 
 /**
  * POST /social/token/native
@@ -295,6 +333,25 @@ export function useGetProvidersAdmin(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /providers/admin
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProvidersAdminMutationKey() {
+  return ['POST', '/providers/admin'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /providers/admin
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProvidersAdminMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProvidersAdminMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.providers.admin.$post>) =>
+    parseResponse(client.providers.admin.$post(args, clientOptions)),
+})
+
+/**
  * POST /providers/admin
  *
  * プロバイダー追加
@@ -386,6 +443,25 @@ export function useGetProvidersProviderId(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /providers/{providerId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutProvidersProviderIdMutationKey() {
+  return ['PUT', '/providers/:providerId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /providers/{providerId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutProvidersProviderIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutProvidersProviderIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.providers)[':providerId']['$put']>) =>
+    parseResponse(client.providers[':providerId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /providers/{providerId}
  *
  * プロバイダー更新
@@ -416,6 +492,27 @@ export function usePutProvidersProviderId(options?: {
       parseResponse(client.providers[':providerId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /providers/{providerId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteProvidersProviderIdMutationKey() {
+  return ['DELETE', '/providers/:providerId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /providers/{providerId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteProvidersProviderIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteProvidersProviderIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.providers)[':providerId']['$delete']>) =>
+    parseResponse(client.providers[':providerId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /providers/{providerId}
@@ -450,6 +547,28 @@ export function useDeleteProvidersProviderId(options?: {
     ) => parseResponse(client.providers[':providerId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /providers/{providerId}/test
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProvidersProviderIdTestMutationKey() {
+  return ['POST', '/providers/:providerId/test'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /providers/{providerId}/test
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProvidersProviderIdTestMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostProvidersProviderIdTestMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.providers)[':providerId']['test']['$post']>,
+  ) => parseResponse(client.providers[':providerId'].test.$post(args, clientOptions)),
+})
 
 /**
  * POST /providers/{providerId}/test
@@ -533,6 +652,27 @@ export function useGetAccountLinked(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /account/link/{provider}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAccountLinkProviderMutationKey() {
+  return ['POST', '/account/link/:provider'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /account/link/{provider}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAccountLinkProviderMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostAccountLinkProviderMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.account.link)[':provider']['$post']>) =>
+    parseResponse(client.account.link[':provider'].$post(args, clientOptions)),
+})
+
+/**
  * POST /account/link/{provider}
  *
  * アカウント連携
@@ -566,6 +706,28 @@ export function usePostAccountLinkProvider(options?: {
     ) => parseResponse(client.account.link[':provider'].$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /account/link/{provider}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteAccountLinkProviderMutationKey() {
+  return ['DELETE', '/account/link/:provider'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /account/link/{provider}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteAccountLinkProviderMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteAccountLinkProviderMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.account.link)[':provider']['$delete']>,
+  ) => parseResponse(client.account.link[':provider'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /account/link/{provider}
@@ -648,6 +810,25 @@ export function useGetEnterpriseSso(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetEnterpriseSsoQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /enterprise/sso
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostEnterpriseSsoMutationKey() {
+  return ['POST', '/enterprise/sso'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /enterprise/sso
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEnterpriseSsoMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostEnterpriseSsoMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.enterprise.sso.$post>) =>
+    parseResponse(client.enterprise.sso.$post(args, clientOptions)),
+})
 
 /**
  * POST /enterprise/sso
@@ -741,6 +922,27 @@ export function useGetEnterpriseSsoConfigId(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /enterprise/sso/{configId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutEnterpriseSsoConfigIdMutationKey() {
+  return ['PUT', '/enterprise/sso/:configId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /enterprise/sso/{configId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutEnterpriseSsoConfigIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutEnterpriseSsoConfigIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$put']>) =>
+    parseResponse(client.enterprise.sso[':configId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /enterprise/sso/{configId}
  *
  * エンタープライズSSO設定更新
@@ -772,6 +974,28 @@ export function usePutEnterpriseSsoConfigId(options?: {
     ) => parseResponse(client.enterprise.sso[':configId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /enterprise/sso/{configId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteEnterpriseSsoConfigIdMutationKey() {
+  return ['DELETE', '/enterprise/sso/:configId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /enterprise/sso/{configId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteEnterpriseSsoConfigIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteEnterpriseSsoConfigIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.enterprise.sso)[':configId']['$delete']>,
+  ) => parseResponse(client.enterprise.sso[':configId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /enterprise/sso/{configId}

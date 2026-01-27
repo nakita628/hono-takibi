@@ -7,10 +7,10 @@ import { client } from '../clients/09-callbacks'
 
 /**
  * Generates SWR mutation key for POST /webhooks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebhooksMutationKey() {
-  return ['/webhooks'] as const
+  return ['POST', '/webhooks'] as const
 }
 
 /**
@@ -43,10 +43,10 @@ export function usePostWebhooks(options?: {
 
 /**
  * Generates SWR mutation key for POST /subscriptions
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSubscriptionsMutationKey() {
-  return ['/subscriptions'] as const
+  return ['POST', '/subscriptions'] as const
 }
 
 /**
@@ -81,10 +81,10 @@ export function usePostSubscriptions(options?: {
 
 /**
  * Generates SWR mutation key for POST /jobs
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostJobsMutationKey() {
-  return ['/jobs'] as const
+  return ['POST', '/jobs'] as const
 }
 
 /**
@@ -117,10 +117,10 @@ export function usePostJobs(options?: {
 
 /**
  * Generates SWR mutation key for POST /integrations/{integrationId}/sync
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostIntegrationsIntegrationIdSyncMutationKey() {
-  return ['/integrations/:integrationId/sync'] as const
+  return ['POST', '/integrations/:integrationId/sync'] as const
 }
 
 /**

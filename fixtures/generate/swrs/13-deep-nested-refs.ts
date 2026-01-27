@@ -57,10 +57,10 @@ export function useGetOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembers(
 
 /**
  * Generates SWR mutation key for POST /organizations/{orgId}/departments/{deptId}/teams/{teamId}/members
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOrganizationsOrgIdDepartmentsDeptIdTeamsTeamIdMembersMutationKey() {
-  return ['/organizations/:orgId/departments/:deptId/teams/:teamId/members'] as const
+  return ['POST', '/organizations/:orgId/departments/:deptId/teams/:teamId/members'] as const
 }
 
 /**

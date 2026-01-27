@@ -5,6 +5,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/09-callbacks'
 
 /**
+ * Generates Vue Query mutation key for POST /webhooks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksMutationKey() {
+  return ['POST', '/webhooks'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /webhooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostWebhooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+    parseResponse(client.webhooks.$post(args, clientOptions)),
+})
+
+/**
  * POST /webhooks
  *
  * Register a webhook endpoint
@@ -31,6 +50,25 @@ export function usePostWebhooks(options?: {
       parseResponse(client.webhooks.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /subscriptions
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostSubscriptionsMutationKey() {
+  return ['POST', '/subscriptions'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /subscriptions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostSubscriptionsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostSubscriptionsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.subscriptions.$post>) =>
+    parseResponse(client.subscriptions.$post(args, clientOptions)),
+})
 
 /**
  * POST /subscriptions
@@ -61,6 +99,25 @@ export function usePostSubscriptions(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /jobs
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostJobsMutationKey() {
+  return ['POST', '/jobs'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /jobs
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostJobsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostJobsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.jobs.$post>) =>
+    parseResponse(client.jobs.$post(args, clientOptions)),
+})
+
+/**
  * POST /jobs
  *
  * Create an async job with progress callbacks
@@ -85,6 +142,28 @@ export function usePostJobs(options?: {
       parseResponse(client.jobs.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /integrations/{integrationId}/sync
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostIntegrationsIntegrationIdSyncMutationKey() {
+  return ['POST', '/integrations/:integrationId/sync'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /integrations/{integrationId}/sync
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostIntegrationsIntegrationIdSyncMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostIntegrationsIntegrationIdSyncMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.integrations)[':integrationId']['sync']['$post']>,
+  ) => parseResponse(client.integrations[':integrationId'].sync.$post(args, clientOptions)),
+})
 
 /**
  * POST /integrations/{integrationId}/sync

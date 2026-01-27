@@ -51,6 +51,25 @@ export function useGetDocuments(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /documents
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDocumentsMutationKey() {
+  return ['POST', '/documents'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /documents
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDocumentsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostDocumentsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.documents.$post>) =>
+    parseResponse(client.documents.$post(args, clientOptions)),
+})
+
+/**
  * POST /documents
  */
 export function usePostDocuments(options?: {
@@ -124,6 +143,25 @@ export function useGetDocumentsDocumentId(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for PUT /documents/{documentId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutDocumentsDocumentIdMutationKey() {
+  return ['PUT', '/documents/:documentId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /documents/{documentId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutDocumentsDocumentIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutDocumentsDocumentIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.documents)[':documentId']['$put']>) =>
+    parseResponse(client.documents[':documentId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /documents/{documentId}
@@ -203,6 +241,28 @@ export function useGetDocumentsDocumentIdVersions(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /documents/{documentId}/share
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostDocumentsDocumentIdShareMutationKey() {
+  return ['POST', '/documents/:documentId/share'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /documents/{documentId}/share
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostDocumentsDocumentIdShareMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostDocumentsDocumentIdShareMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.documents)[':documentId']['share']['$post']>,
+  ) => parseResponse(client.documents[':documentId'].share.$post(args, clientOptions)),
+})
 
 /**
  * POST /documents/{documentId}/share
@@ -287,6 +347,25 @@ export function useGetUsersUserIdDocuments(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /compare
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCompareMutationKey() {
+  return ['POST', '/compare'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /compare
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCompareMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCompareMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.compare.$post>) =>
+    parseResponse(client.compare.$post(args, clientOptions)),
+})
+
+/**
  * POST /compare
  */
 export function usePostCompare(options?: {
@@ -345,6 +424,25 @@ export function useGetTemplates(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /templates
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTemplatesMutationKey() {
+  return ['POST', '/templates'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /templates
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTemplatesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTemplatesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
+    parseResponse(client.templates.$post(args, clientOptions)),
+})
+
+/**
  * POST /templates
  */
 export function usePostTemplates(options?: {
@@ -362,6 +460,25 @@ export function usePostTemplates(options?: {
       parseResponse(client.templates.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /workflows
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWorkflowsMutationKey() {
+  return ['POST', '/workflows'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /workflows
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWorkflowsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostWorkflowsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.workflows.$post>) =>
+    parseResponse(client.workflows.$post(args, clientOptions)),
+})
 
 /**
  * POST /workflows

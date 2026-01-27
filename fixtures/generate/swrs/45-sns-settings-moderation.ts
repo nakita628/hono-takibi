@@ -39,10 +39,10 @@ export function useGetSettingsAccount(options?: {
 
 /**
  * Generates SWR mutation key for PUT /settings/account
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutSettingsAccountMutationKey() {
-  return ['/settings/account'] as const
+  return ['PUT', '/settings/account'] as const
 }
 
 /**
@@ -144,10 +144,10 @@ export function useGetSettingsPrivacy(options?: {
 
 /**
  * Generates SWR mutation key for PUT /settings/privacy
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutSettingsPrivacyMutationKey() {
-  return ['/settings/privacy'] as const
+  return ['PUT', '/settings/privacy'] as const
 }
 
 /**
@@ -214,10 +214,10 @@ export function useGetSettingsContentPreferences(options?: {
 
 /**
  * Generates SWR mutation key for PUT /settings/content-preferences
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutSettingsContentPreferencesMutationKey() {
-  return ['/settings/content-preferences'] as const
+  return ['PUT', '/settings/content-preferences'] as const
 }
 
 /**
@@ -289,10 +289,10 @@ export function useGetSettingsMutedWords(options?: {
 
 /**
  * Generates SWR mutation key for POST /settings/muted-words
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSettingsMutedWordsMutationKey() {
-  return ['/settings/muted-words'] as const
+  return ['POST', '/settings/muted-words'] as const
 }
 
 /**
@@ -331,10 +331,10 @@ export function usePostSettingsMutedWords(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /settings/muted-words/{wordId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSettingsMutedWordsWordIdMutationKey() {
-  return ['/settings/muted-words/:wordId'] as const
+  return ['DELETE', '/settings/muted-words/:wordId'] as const
 }
 
 /**
@@ -409,10 +409,10 @@ export function useGetSettingsSessions(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /settings/sessions/{sessionId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSettingsSessionsSessionIdMutationKey() {
-  return ['/settings/sessions/:sessionId'] as const
+  return ['DELETE', '/settings/sessions/:sessionId'] as const
 }
 
 /**
@@ -487,10 +487,10 @@ export function useGetSettingsConnectedApps(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /settings/connected-apps/{appId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSettingsConnectedAppsAppIdMutationKey() {
-  return ['/settings/connected-apps/:appId'] as const
+  return ['DELETE', '/settings/connected-apps/:appId'] as const
 }
 
 /**
@@ -536,10 +536,10 @@ export function useDeleteSettingsConnectedAppsAppId(options?: {
 
 /**
  * Generates SWR mutation key for POST /settings/data-export
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSettingsDataExportMutationKey() {
-  return ['/settings/data-export'] as const
+  return ['POST', '/settings/data-export'] as const
 }
 
 /**
@@ -612,10 +612,10 @@ export function useGetSettingsDataExportRequestId(
 
 /**
  * Generates SWR mutation key for POST /settings/deactivate
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSettingsDeactivateMutationKey() {
-  return ['/settings/deactivate'] as const
+  return ['POST', '/settings/deactivate'] as const
 }
 
 /**
@@ -650,10 +650,10 @@ export function usePostSettingsDeactivate(options?: {
 
 /**
  * Generates SWR mutation key for POST /reports
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostReportsMutationKey() {
-  return ['/reports'] as const
+  return ['POST', '/reports'] as const
 }
 
 /**
@@ -796,10 +796,10 @@ export function useGetModerationItemsItemId(
 
 /**
  * Generates SWR mutation key for POST /moderation/items/{itemId}/action
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostModerationItemsItemIdActionMutationKey() {
-  return ['/moderation/items/:itemId/action'] as const
+  return ['POST', '/moderation/items/:itemId/action'] as const
 }
 
 /**
@@ -881,10 +881,10 @@ export function useGetModerationUsersUserIdHistory(
 
 /**
  * Generates SWR mutation key for POST /moderation/users/{userId}/suspend
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostModerationUsersUserIdSuspendMutationKey() {
-  return ['/moderation/users/:userId/suspend'] as const
+  return ['POST', '/moderation/users/:userId/suspend'] as const
 }
 
 /**
@@ -929,10 +929,10 @@ export function usePostModerationUsersUserIdSuspend(options?: {
 
 /**
  * Generates SWR mutation key for POST /moderation/users/{userId}/unsuspend
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostModerationUsersUserIdUnsuspendMutationKey() {
-  return ['/moderation/users/:userId/unsuspend'] as const
+  return ['POST', '/moderation/users/:userId/unsuspend'] as const
 }
 
 /**

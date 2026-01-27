@@ -53,6 +53,25 @@ export function useGetProjects(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /projects
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProjectsMutationKey() {
+  return ['POST', '/projects'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /projects
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProjectsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProjectsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.projects.$post>) =>
+    parseResponse(client.projects.$post(args, clientOptions)),
+})
+
+/**
  * POST /projects
  *
  * プロジェクト作成
@@ -130,6 +149,25 @@ export function useGetProjectsProjectId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /projects/{projectId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutProjectsProjectIdMutationKey() {
+  return ['PUT', '/projects/:projectId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /projects/{projectId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutProjectsProjectIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutProjectsProjectIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$put']>) =>
+    parseResponse(client.projects[':projectId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /projects/{projectId}
  *
  * プロジェクト更新
@@ -153,6 +191,27 @@ export function usePutProjectsProjectId(options?: {
       parseResponse(client.projects[':projectId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /projects/{projectId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteProjectsProjectIdMutationKey() {
+  return ['DELETE', '/projects/:projectId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /projects/{projectId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteProjectsProjectIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteProjectsProjectIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.projects)[':projectId']['$delete']>) =>
+    parseResponse(client.projects[':projectId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /projects/{projectId}
@@ -241,6 +300,28 @@ export function useGetProjectsProjectIdMembers(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /projects/{projectId}/members
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProjectsProjectIdMembersMutationKey() {
+  return ['POST', '/projects/:projectId/members'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /projects/{projectId}/members
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProjectsProjectIdMembersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostProjectsProjectIdMembersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.projects)[':projectId']['members']['$post']>,
+  ) => parseResponse(client.projects[':projectId'].members.$post(args, clientOptions)),
+})
+
+/**
  * POST /projects/{projectId}/members
  *
  * メンバー追加
@@ -327,6 +408,28 @@ export function useGetProjectsProjectIdTasks(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /projects/{projectId}/tasks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProjectsProjectIdTasksMutationKey() {
+  return ['POST', '/projects/:projectId/tasks'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /projects/{projectId}/tasks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProjectsProjectIdTasksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostProjectsProjectIdTasksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.projects)[':projectId']['tasks']['$post']>,
+  ) => parseResponse(client.projects[':projectId'].tasks.$post(args, clientOptions)),
+})
+
+/**
  * POST /projects/{projectId}/tasks
  *
  * タスク作成
@@ -408,6 +511,25 @@ export function useGetTasksTaskId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /tasks/{taskId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutTasksTaskIdMutationKey() {
+  return ['PUT', '/tasks/:taskId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /tasks/{taskId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutTasksTaskIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutTasksTaskIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$put']>) =>
+    parseResponse(client.tasks[':taskId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /tasks/{taskId}
  *
  * タスク更新
@@ -431,6 +553,25 @@ export function usePutTasksTaskId(options?: {
       parseResponse(client.tasks[':taskId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /tasks/{taskId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteTasksTaskIdMutationKey() {
+  return ['DELETE', '/tasks/:taskId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /tasks/{taskId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteTasksTaskIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteTasksTaskIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.tasks)[':taskId']['$delete']>) =>
+    parseResponse(client.tasks[':taskId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /tasks/{taskId}
@@ -457,6 +598,26 @@ export function useDeleteTasksTaskId(options?: {
       parseResponse(client.tasks[':taskId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for PATCH /tasks/{taskId}/status
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchTasksTaskIdStatusMutationKey() {
+  return ['PATCH', '/tasks/:taskId/status'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /tasks/{taskId}/status
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchTasksTaskIdStatusMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchTasksTaskIdStatusMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.tasks)[':taskId']['status']['$patch']>,
+  ) => parseResponse(client.tasks[':taskId'].status.$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /tasks/{taskId}/status
@@ -545,6 +706,28 @@ export function useGetTasksTaskIdComments(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /tasks/{taskId}/comments
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTasksTaskIdCommentsMutationKey() {
+  return ['POST', '/tasks/:taskId/comments'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /tasks/{taskId}/comments
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTasksTaskIdCommentsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostTasksTaskIdCommentsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.tasks)[':taskId']['comments']['$post']>,
+  ) => parseResponse(client.tasks[':taskId'].comments.$post(args, clientOptions)),
+})
+
+/**
  * POST /tasks/{taskId}/comments
  *
  * コメント追加
@@ -629,6 +812,28 @@ export function useGetTasksTaskIdTimeEntries(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /tasks/{taskId}/time-entries
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTasksTaskIdTimeEntriesMutationKey() {
+  return ['POST', '/tasks/:taskId/time-entries'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /tasks/{taskId}/time-entries
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTasksTaskIdTimeEntriesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostTasksTaskIdTimeEntriesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.tasks)[':taskId']['time-entries']['$post']>,
+  ) => parseResponse(client.tasks[':taskId']['time-entries'].$post(args, clientOptions)),
+})
 
 /**
  * POST /tasks/{taskId}/time-entries
@@ -717,6 +922,28 @@ export function useGetProjectsProjectIdMilestones(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /projects/{projectId}/milestones
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProjectsProjectIdMilestonesMutationKey() {
+  return ['POST', '/projects/:projectId/milestones'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /projects/{projectId}/milestones
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProjectsProjectIdMilestonesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostProjectsProjectIdMilestonesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.projects)[':projectId']['milestones']['$post']>,
+  ) => parseResponse(client.projects[':projectId'].milestones.$post(args, clientOptions)),
+})
+
+/**
  * POST /projects/{projectId}/milestones
  *
  * マイルストーン作成
@@ -781,6 +1008,25 @@ export function useGetTeams(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetTeamsQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /teams
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTeamsMutationKey() {
+  return ['POST', '/teams'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /teams
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTeamsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTeamsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.teams.$post>) =>
+    parseResponse(client.teams.$post(args, clientOptions)),
+})
 
 /**
  * POST /teams

@@ -50,6 +50,25 @@ export function useGetUsers(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /users
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostUsersMutationKey() {
+  return ['POST', '/users'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /users
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostUsersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+    parseResponse(client.users.$post(args, clientOptions)),
+})
+
+/**
  * POST /users
  *
  * Create a new user
@@ -134,6 +153,25 @@ export function useGetUsersUserId(
 }
 
 /**
+ * Generates Vue Query mutation key for PUT /users/{userId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutUsersUserIdMutationKey() {
+  return ['PUT', '/users/:userId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PUT /users/{userId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutUsersUserIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$put']>) =>
+    parseResponse(client.users[':userId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /users/{userId}
  *
  * Update an existing user
@@ -162,6 +200,25 @@ export function usePutUsersUserId(options?: {
       parseResponse(client.users[':userId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /users/{userId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteUsersUserIdMutationKey() {
+  return ['DELETE', '/users/:userId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /users/{userId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteUsersUserIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteUsersUserIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)[':userId']['$delete']>) =>
+    parseResponse(client.users[':userId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /users/{userId}
@@ -236,6 +293,25 @@ export function useGetOrders(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetOrdersQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /orders
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrdersMutationKey() {
+  return ['POST', '/orders'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /orders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOrdersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+    parseResponse(client.orders.$post(args, clientOptions)),
+})
 
 /**
  * POST /orders

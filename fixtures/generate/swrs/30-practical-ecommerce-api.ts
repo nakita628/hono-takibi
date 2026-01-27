@@ -42,10 +42,10 @@ export function useGetProducts(
 
 /**
  * Generates SWR mutation key for POST /products
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProductsMutationKey() {
-  return ['/products'] as const
+  return ['POST', '/products'] as const
 }
 
 /**
@@ -114,10 +114,10 @@ export function useGetProductsProductId(
 
 /**
  * Generates SWR mutation key for PUT /products/{productId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutProductsProductIdMutationKey() {
-  return ['/products/:productId'] as const
+  return ['PUT', '/products/:productId'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutProductsProductId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /products/{productId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteProductsProductIdMutationKey() {
-  return ['/products/:productId'] as const
+  return ['DELETE', '/products/:productId'] as const
 }
 
 /**
@@ -201,10 +201,10 @@ export function useDeleteProductsProductId(options?: {
 
 /**
  * Generates SWR mutation key for POST /products/{productId}/images
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProductsProductIdImagesMutationKey() {
-  return ['/products/:productId/images'] as const
+  return ['POST', '/products/:productId/images'] as const
 }
 
 /**
@@ -278,10 +278,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR mutation key for POST /categories
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCategoriesMutationKey() {
-  return ['/categories'] as const
+  return ['POST', '/categories'] as const
 }
 
 /**
@@ -345,10 +345,10 @@ export function useGetCart(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /cart
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteCartMutationKey() {
-  return ['/cart'] as const
+  return ['DELETE', '/cart'] as const
 }
 
 /**
@@ -381,10 +381,10 @@ export function useDeleteCart(options?: {
 
 /**
  * Generates SWR mutation key for POST /cart/items
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCartItemsMutationKey() {
-  return ['/cart/items'] as const
+  return ['POST', '/cart/items'] as const
 }
 
 /**
@@ -417,10 +417,10 @@ export function usePostCartItems(options?: {
 
 /**
  * Generates SWR mutation key for PUT /cart/items/{itemId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutCartItemsItemIdMutationKey() {
-  return ['/cart/items/:itemId'] as const
+  return ['PUT', '/cart/items/:itemId'] as const
 }
 
 /**
@@ -459,10 +459,10 @@ export function usePutCartItemsItemId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /cart/items/{itemId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteCartItemsItemIdMutationKey() {
-  return ['/cart/items/:itemId'] as const
+  return ['DELETE', '/cart/items/:itemId'] as const
 }
 
 /**
@@ -535,10 +535,10 @@ export function useGetOrders(
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOrdersMutationKey() {
-  return ['/orders'] as const
+  return ['POST', '/orders'] as const
 }
 
 /**
@@ -609,10 +609,10 @@ export function useGetOrdersOrderId(
 
 /**
  * Generates SWR mutation key for POST /orders/{orderId}/cancel
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOrdersOrderIdCancelMutationKey() {
-  return ['/orders/:orderId/cancel'] as const
+  return ['POST', '/orders/:orderId/cancel'] as const
 }
 
 /**
@@ -689,10 +689,10 @@ export function useGetInventoryProductId(
 
 /**
  * Generates SWR mutation key for PUT /inventory/{productId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutInventoryProductIdMutationKey() {
-  return ['/inventory/:productId'] as const
+  return ['PUT', '/inventory/:productId'] as const
 }
 
 /**

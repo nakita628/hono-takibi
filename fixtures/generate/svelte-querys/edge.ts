@@ -9,6 +9,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/edge'
 
 /**
+ * Generates Svelte Query mutation key for POST /polymorphic
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPolymorphicMutationKey() {
+  return ['POST', '/polymorphic'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /polymorphic
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPolymorphicMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPolymorphicMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.polymorphic.$post>) =>
+    parseResponse(client.polymorphic.$post(args, clientOptions)),
+})
+
+/**
  * POST /polymorphic
  *
  * Polymorphic object with discriminator
@@ -74,6 +93,25 @@ export function createGetSearch(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /multi-step
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutMultiStepMutationKey() {
+  return ['PUT', '/multi-step'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /multi-step
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutMultiStepMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutMultiStepMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['multi-step']['$put']>) =>
+    parseResponse(client['multi-step'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /multi-step

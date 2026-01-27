@@ -55,6 +55,25 @@ export function createGetProducts(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /products
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProductsMutationKey() {
+  return ['POST', '/products'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /products
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProductsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProductsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+    parseResponse(client.products.$post(args, clientOptions)),
+})
+
+/**
  * POST /products
  *
  * 商品作成
@@ -134,6 +153,25 @@ export function createGetProductsProductId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /products/{productId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutProductsProductIdMutationKey() {
+  return ['PUT', '/products/:productId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /products/{productId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutProductsProductIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutProductsProductIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
+    parseResponse(client.products[':productId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /products/{productId}
  *
  * 商品更新
@@ -157,6 +195,27 @@ export function createPutProductsProductId(options?: {
       parseResponse(client.products[':productId'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /products/{productId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteProductsProductIdMutationKey() {
+  return ['DELETE', '/products/:productId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /products/{productId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteProductsProductIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteProductsProductIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
+    parseResponse(client.products[':productId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /products/{productId}
@@ -185,6 +244,28 @@ export function createDeleteProductsProductId(options?: {
       parseResponse(client.products[':productId'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /products/{productId}/images
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProductsProductIdImagesMutationKey() {
+  return ['POST', '/products/:productId/images'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /products/{productId}/images
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProductsProductIdImagesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostProductsProductIdImagesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.products)[':productId']['images']['$post']>,
+  ) => parseResponse(client.products[':productId'].images.$post(args, clientOptions)),
+})
 
 /**
  * POST /products/{productId}/images
@@ -260,6 +341,25 @@ export function createGetCategories(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /categories
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCategoriesMutationKey() {
+  return ['POST', '/categories'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /categories
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCategoriesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCategoriesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.categories.$post>) =>
+    parseResponse(client.categories.$post(args, clientOptions)),
+})
+
+/**
  * POST /categories
  *
  * カテゴリ作成
@@ -323,6 +423,24 @@ export function createGetCart(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /cart
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteCartMutationKey() {
+  return ['DELETE', '/cart'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /cart
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteCartMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteCartMutationKey(),
+  mutationFn: async () => parseResponse(client.cart.$delete(undefined, clientOptions)),
+})
+
+/**
  * DELETE /cart
  *
  * カートをクリア
@@ -344,6 +462,25 @@ export function createDeleteCart(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /cart/items
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostCartItemsMutationKey() {
+  return ['POST', '/cart/items'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /cart/items
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostCartItemsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostCartItemsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.cart.items.$post>) =>
+    parseResponse(client.cart.items.$post(args, clientOptions)),
+})
+
+/**
  * POST /cart/items
  *
  * カートに商品追加
@@ -363,6 +500,25 @@ export function createPostCartItems(options?: {
       parseResponse(client.cart.items.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /cart/items/{itemId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutCartItemsItemIdMutationKey() {
+  return ['PUT', '/cart/items/:itemId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /cart/items/{itemId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutCartItemsItemIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutCartItemsItemIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$put']>) =>
+    parseResponse(client.cart.items[':itemId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /cart/items/{itemId}
@@ -388,6 +544,25 @@ export function createPutCartItemsItemId(options?: {
       parseResponse(client.cart.items[':itemId'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /cart/items/{itemId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteCartItemsItemIdMutationKey() {
+  return ['DELETE', '/cart/items/:itemId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /cart/items/{itemId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteCartItemsItemIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteCartItemsItemIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.cart.items)[':itemId']['$delete']>) =>
+    parseResponse(client.cart.items[':itemId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /cart/items/{itemId}
@@ -459,6 +634,25 @@ export function createGetOrders(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /orders
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrdersMutationKey() {
+  return ['POST', '/orders'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /orders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOrdersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+    parseResponse(client.orders.$post(args, clientOptions)),
+})
 
 /**
  * POST /orders
@@ -540,6 +734,28 @@ export function createGetOrdersOrderId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /orders/{orderId}/cancel
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrdersOrderIdCancelMutationKey() {
+  return ['POST', '/orders/:orderId/cancel'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /orders/{orderId}/cancel
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersOrderIdCancelMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostOrdersOrderIdCancelMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.orders)[':orderId']['cancel']['$post']>,
+  ) => parseResponse(client.orders[':orderId'].cancel.$post(args, clientOptions)),
+})
 
 /**
  * POST /orders/{orderId}/cancel
@@ -626,6 +842,25 @@ export function createGetInventoryProductId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /inventory/{productId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutInventoryProductIdMutationKey() {
+  return ['PUT', '/inventory/:productId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /inventory/{productId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutInventoryProductIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutInventoryProductIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.inventory)[':productId']['$put']>) =>
+    parseResponse(client.inventory[':productId'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /inventory/{productId}

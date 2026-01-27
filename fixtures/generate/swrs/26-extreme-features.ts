@@ -39,10 +39,10 @@ export function useGetStream(options?: {
 
 /**
  * Generates SWR mutation key for POST /graphql
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGraphqlMutationKey() {
-  return ['/graphql'] as const
+  return ['POST', '/graphql'] as const
 }
 
 /**
@@ -75,10 +75,10 @@ export function usePostGraphql(options?: {
 
 /**
  * Generates SWR mutation key for POST /grpc-gateway
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostGrpcGatewayMutationKey() {
-  return ['/grpc-gateway'] as const
+  return ['POST', '/grpc-gateway'] as const
 }
 
 /**

@@ -58,6 +58,25 @@ export function useGetPosts(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /posts
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsMutationKey() {
+  return ['POST', '/posts'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /posts
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.posts.$post>) =>
+    parseResponse(client.posts.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts
  *
  * 投稿作成
@@ -140,6 +159,25 @@ export function useGetPostsPostId(
   const { queryKey, queryFn, ...baseOptions } = getGetPostsPostIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /posts/{postId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePostsPostIdMutationKey() {
+  return ['DELETE', '/posts/:postId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /posts/{postId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePostsPostIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeletePostsPostIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['$delete']>) =>
+    parseResponse(client.posts[':postId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /posts/{postId}
@@ -550,6 +588,25 @@ export function useGetTimelineHashtagHashtag(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /posts/{postId}/like
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdLikeMutationKey() {
+  return ['POST', '/posts/:postId/like'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /posts/{postId}/like
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdLikeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsPostIdLikeMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['like']['$post']>) =>
+    parseResponse(client.posts[':postId'].like.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts/{postId}/like
  *
  * いいね
@@ -580,6 +637,25 @@ export function usePostPostsPostIdLike(options?: {
       parseResponse(client.posts[':postId'].like.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /posts/{postId}/like
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePostsPostIdLikeMutationKey() {
+  return ['DELETE', '/posts/:postId/like'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /posts/{postId}/like
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePostsPostIdLikeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeletePostsPostIdLikeMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['like']['$delete']>) =>
+    parseResponse(client.posts[':postId'].like.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /posts/{postId}/like
@@ -615,6 +691,25 @@ export function useDeletePostsPostIdLike(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /posts/{postId}/repost
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdRepostMutationKey() {
+  return ['POST', '/posts/:postId/repost'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /posts/{postId}/repost
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdRepostMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsPostIdRepostMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['repost']['$post']>) =>
+    parseResponse(client.posts[':postId'].repost.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts/{postId}/repost
  *
  * リポスト
@@ -646,6 +741,28 @@ export function usePostPostsPostIdRepost(options?: {
     ) => parseResponse(client.posts[':postId'].repost.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /posts/{postId}/repost
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePostsPostIdRepostMutationKey() {
+  return ['DELETE', '/posts/:postId/repost'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /posts/{postId}/repost
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePostsPostIdRepostMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeletePostsPostIdRepostMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.posts)[':postId']['repost']['$delete']>,
+  ) => parseResponse(client.posts[':postId'].repost.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /posts/{postId}/repost
@@ -681,6 +798,25 @@ export function useDeletePostsPostIdRepost(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /posts/{postId}/quote
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdQuoteMutationKey() {
+  return ['POST', '/posts/:postId/quote'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /posts/{postId}/quote
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdQuoteMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsPostIdQuoteMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.posts)[':postId']['quote']['$post']>) =>
+    parseResponse(client.posts[':postId'].quote.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts/{postId}/quote
  *
  * 引用投稿
@@ -714,6 +850,28 @@ export function usePostPostsPostIdQuote(options?: {
 }
 
 /**
+ * Generates Vue Query mutation key for POST /posts/{postId}/bookmark
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdBookmarkMutationKey() {
+  return ['POST', '/posts/:postId/bookmark'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /posts/{postId}/bookmark
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdBookmarkMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPostsPostIdBookmarkMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$post']>,
+  ) => parseResponse(client.posts[':postId'].bookmark.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts/{postId}/bookmark
  *
  * ブックマーク追加
@@ -745,6 +903,28 @@ export function usePostPostsPostIdBookmark(options?: {
     ) => parseResponse(client.posts[':postId'].bookmark.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for DELETE /posts/{postId}/bookmark
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeletePostsPostIdBookmarkMutationKey() {
+  return ['DELETE', '/posts/:postId/bookmark'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for DELETE /posts/{postId}/bookmark
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeletePostsPostIdBookmarkMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeletePostsPostIdBookmarkMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.posts)[':postId']['bookmark']['$delete']>,
+  ) => parseResponse(client.posts[':postId'].bookmark.$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /posts/{postId}/bookmark
@@ -1085,6 +1265,26 @@ export function useGetPostsPostIdReplies(
 }
 
 /**
+ * Generates Vue Query mutation key for POST /posts/{postId}/replies
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPostsPostIdRepliesMutationKey() {
+  return ['POST', '/posts/:postId/replies'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /posts/{postId}/replies
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPostsPostIdRepliesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPostsPostIdRepliesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.posts)[':postId']['replies']['$post']>,
+  ) => parseResponse(client.posts[':postId'].replies.$post(args, clientOptions)),
+})
+
+/**
  * POST /posts/{postId}/replies
  *
  * 返信投稿
@@ -1116,6 +1316,25 @@ export function usePostPostsPostIdReplies(options?: {
     ) => parseResponse(client.posts[':postId'].replies.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates Vue Query mutation key for POST /media/upload
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMediaUploadMutationKey() {
+  return ['POST', '/media/upload'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /media/upload
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMediaUploadMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMediaUploadMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.media.upload.$post>) =>
+    parseResponse(client.media.upload.$post(args, clientOptions)),
+})
 
 /**
  * POST /media/upload
@@ -1202,6 +1421,25 @@ export function useGetMediaMediaId(
   const { queryKey, queryFn, ...baseOptions } = getGetMediaMediaIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates Vue Query mutation key for PATCH /media/{mediaId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchMediaMediaIdMutationKey() {
+  return ['PATCH', '/media/:mediaId'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for PATCH /media/{mediaId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchMediaMediaIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchMediaMediaIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.media)[':mediaId']['$patch']>) =>
+    parseResponse(client.media[':mediaId'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /media/{mediaId}

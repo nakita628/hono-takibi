@@ -84,10 +84,10 @@ export function useGetSocialCallbackProvider(
 
 /**
  * Generates SWR mutation key for POST /social/token
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSocialTokenMutationKey() {
-  return ['/social/token'] as const
+  return ['POST', '/social/token'] as const
 }
 
 /**
@@ -124,10 +124,10 @@ export function usePostSocialToken(options?: {
 
 /**
  * Generates SWR mutation key for POST /social/token/native
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSocialTokenNativeMutationKey() {
-  return ['/social/token/native'] as const
+  return ['POST', '/social/token/native'] as const
 }
 
 /**
@@ -226,10 +226,10 @@ export function useGetProvidersAdmin(options?: {
 
 /**
  * Generates SWR mutation key for POST /providers/admin
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProvidersAdminMutationKey() {
-  return ['/providers/admin'] as const
+  return ['POST', '/providers/admin'] as const
 }
 
 /**
@@ -300,10 +300,10 @@ export function useGetProvidersProviderId(
 
 /**
  * Generates SWR mutation key for PUT /providers/{providerId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutProvidersProviderIdMutationKey() {
-  return ['/providers/:providerId'] as const
+  return ['PUT', '/providers/:providerId'] as const
 }
 
 /**
@@ -342,10 +342,10 @@ export function usePutProvidersProviderId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /providers/{providerId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteProvidersProviderIdMutationKey() {
-  return ['/providers/:providerId'] as const
+  return ['DELETE', '/providers/:providerId'] as const
 }
 
 /**
@@ -387,10 +387,10 @@ export function useDeleteProvidersProviderId(options?: {
 
 /**
  * Generates SWR mutation key for POST /providers/{providerId}/test
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProvidersProviderIdTestMutationKey() {
-  return ['/providers/:providerId/test'] as const
+  return ['POST', '/providers/:providerId/test'] as const
 }
 
 /**
@@ -464,10 +464,10 @@ export function useGetAccountLinked(options?: {
 
 /**
  * Generates SWR mutation key for POST /account/link/{provider}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostAccountLinkProviderMutationKey() {
-  return ['/account/link/:provider'] as const
+  return ['POST', '/account/link/:provider'] as const
 }
 
 /**
@@ -510,10 +510,10 @@ export function usePostAccountLinkProvider(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /account/link/{provider}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteAccountLinkProviderMutationKey() {
-  return ['/account/link/:provider'] as const
+  return ['DELETE', '/account/link/:provider'] as const
 }
 
 /**
@@ -586,10 +586,10 @@ export function useGetEnterpriseSso(options?: {
 
 /**
  * Generates SWR mutation key for POST /enterprise/sso
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostEnterpriseSsoMutationKey() {
-  return ['/enterprise/sso'] as const
+  return ['POST', '/enterprise/sso'] as const
 }
 
 /**
@@ -660,10 +660,10 @@ export function useGetEnterpriseSsoConfigId(
 
 /**
  * Generates SWR mutation key for PUT /enterprise/sso/{configId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutEnterpriseSsoConfigIdMutationKey() {
-  return ['/enterprise/sso/:configId'] as const
+  return ['PUT', '/enterprise/sso/:configId'] as const
 }
 
 /**
@@ -704,10 +704,10 @@ export function usePutEnterpriseSsoConfigId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /enterprise/sso/{configId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteEnterpriseSsoConfigIdMutationKey() {
-  return ['/enterprise/sso/:configId'] as const
+  return ['DELETE', '/enterprise/sso/:configId'] as const
 }
 
 /**

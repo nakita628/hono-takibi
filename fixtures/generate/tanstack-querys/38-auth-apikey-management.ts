@@ -55,6 +55,25 @@ export function useGetApiKeys(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /api-keys
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApiKeysMutationKey() {
+  return ['POST', '/api-keys'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['$post']>) =>
+    parseResponse(client['api-keys'].$post(args, clientOptions)),
+})
+
+/**
  * POST /api-keys
  *
  * APIキー作成
@@ -131,6 +150,25 @@ export function useGetApiKeysKeyId(
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /api-keys/{keyId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteApiKeysKeyIdMutationKey() {
+  return ['DELETE', '/api-keys/:keyId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /api-keys/{keyId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteApiKeysKeyIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteApiKeysKeyIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$delete']>) =>
+    parseResponse(client['api-keys'][':keyId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /api-keys/{keyId}
  *
  * APIキー削除
@@ -159,6 +197,25 @@ export function useDeleteApiKeysKeyId(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for PATCH /api-keys/{keyId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchApiKeysKeyIdMutationKey() {
+  return ['PATCH', '/api-keys/:keyId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PATCH /api-keys/{keyId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchApiKeysKeyIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchApiKeysKeyIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys'][':keyId']['$patch']>) =>
+    parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /api-keys/{keyId}
  *
  * APIキー更新
@@ -182,6 +239,26 @@ export function usePatchApiKeysKeyId(options?: {
       parseResponse(client['api-keys'][':keyId'].$patch(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /api-keys/{keyId}/revoke
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApiKeysKeyIdRevokeMutationKey() {
+  return ['POST', '/api-keys/:keyId/revoke'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys/{keyId}/revoke
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysKeyIdRevokeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysKeyIdRevokeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['api-keys'][':keyId']['revoke']['$post']>,
+  ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
+})
 
 /**
  * POST /api-keys/{keyId}/revoke
@@ -210,6 +287,26 @@ export function usePostApiKeysKeyIdRevoke(options?: {
     ) => parseResponse(client['api-keys'][':keyId'].revoke.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /api-keys/{keyId}/rotate
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApiKeysKeyIdRotateMutationKey() {
+  return ['POST', '/api-keys/:keyId/rotate'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys/{keyId}/rotate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysKeyIdRotateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysKeyIdRotateMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['api-keys'][':keyId']['rotate']['$post']>,
+  ) => parseResponse(client['api-keys'][':keyId'].rotate.$post(args, clientOptions)),
+})
 
 /**
  * POST /api-keys/{keyId}/rotate
@@ -356,6 +453,25 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /api-keys/verify
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApiKeysVerifyMutationKey() {
+  return ['POST', '/api-keys/verify'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /api-keys/verify
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApiKeysVerifyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostApiKeysVerifyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['api-keys']['verify']['$post']>) =>
+    parseResponse(client['api-keys'].verify.$post(args, clientOptions)),
+})
 
 /**
  * POST /api-keys/verify

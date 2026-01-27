@@ -42,10 +42,10 @@ export function useGetApiKeys(
 
 /**
  * Generates SWR mutation key for POST /api-keys
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApiKeysMutationKey() {
-  return ['/api-keys'] as const
+  return ['POST', '/api-keys'] as const
 }
 
 /**
@@ -116,10 +116,10 @@ export function useGetApiKeysKeyId(
 
 /**
  * Generates SWR mutation key for DELETE /api-keys/{keyId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteApiKeysKeyIdMutationKey() {
-  return ['/api-keys/:keyId'] as const
+  return ['DELETE', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -161,10 +161,10 @@ export function useDeleteApiKeysKeyId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /api-keys/{keyId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchApiKeysKeyIdMutationKey() {
-  return ['/api-keys/:keyId'] as const
+  return ['PATCH', '/api-keys/:keyId'] as const
 }
 
 /**
@@ -203,10 +203,10 @@ export function usePatchApiKeysKeyId(options?: {
 
 /**
  * Generates SWR mutation key for POST /api-keys/{keyId}/revoke
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApiKeysKeyIdRevokeMutationKey() {
-  return ['/api-keys/:keyId/revoke'] as const
+  return ['POST', '/api-keys/:keyId/revoke'] as const
 }
 
 /**
@@ -249,10 +249,10 @@ export function usePostApiKeysKeyIdRevoke(options?: {
 
 /**
  * Generates SWR mutation key for POST /api-keys/{keyId}/rotate
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApiKeysKeyIdRotateMutationKey() {
-  return ['/api-keys/:keyId/rotate'] as const
+  return ['POST', '/api-keys/:keyId/rotate'] as const
 }
 
 /**
@@ -368,10 +368,10 @@ export function useGetApiKeysKeyIdRateLimitCurrent(
 
 /**
  * Generates SWR mutation key for POST /api-keys/verify
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostApiKeysVerifyMutationKey() {
-  return ['/api-keys/verify'] as const
+  return ['POST', '/api-keys/verify'] as const
 }
 
 /**

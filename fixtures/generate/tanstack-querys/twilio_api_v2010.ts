@@ -69,6 +69,28 @@ export function useGet20100401AccountsJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['2010-04-01']['Accounts.json']['$post']>,
+  ) => parseResponse(client['2010-04-01']['Accounts.json'].$post(args, clientOptions)),
+})
+
+/**
  * POST /2010-04-01/Accounts.json
  *
  * Create a new Twilio Subaccount from the account making the request
@@ -157,6 +179,28 @@ export function useGet20100401AccountsSidJson(
   )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['2010-04-01']['Accounts'][':Sid.json']['$post']>,
+  ) => parseResponse(client['2010-04-01'].Accounts[':Sid.json'].$post(args, clientOptions)),
+})
 
 /**
  * POST /2010-04-01/Accounts/{Sid}.json
@@ -251,6 +295,33 @@ export function useGet20100401AccountsAccountSidAddressesJson(
     getGet20100401AccountsAccountSidAddressesJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidAddressesJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidAddressesJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidAddressesJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Addresses.json'].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses.json
@@ -354,6 +425,36 @@ export function useGet20100401AccountsAccountSidAddressesSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidAddressesSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidAddressesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidAddressesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
  */
 export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
@@ -392,6 +493,36 @@ export function usePost20100401AccountsAccountSidAddressesSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Addresses/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidAddressesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidAddressesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Addresses'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Addresses[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Addresses/{Sid}.json
@@ -501,6 +632,33 @@ export function useGet20100401AccountsAccountSidApplicationsJson(
     getGet20100401AccountsAccountSidApplicationsJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidApplicationsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Applications.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidApplicationsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidApplicationsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Applications.json'].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Applications.json
@@ -615,6 +773,36 @@ export function useGet20100401AccountsAccountSidApplicationsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidApplicationsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidApplicationsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
  *
  * Updates the application's properties
@@ -657,6 +845,36 @@ export function usePost20100401AccountsAccountSidApplicationsSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Applications/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidApplicationsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidApplicationsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Applications'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Applications[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Applications/{Sid}.json
@@ -1631,6 +1849,33 @@ export function useGet20100401AccountsAccountSidCallsJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Calls.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls.json
  *
  * Create a new outgoing call to phones, SIP-enabled endpoints or Twilio Client connections
@@ -1740,6 +1985,33 @@ export function useGet20100401AccountsAccountSidCallsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
  *
  * Initiates a call redirect or terminates a call
@@ -1779,6 +2051,33 @@ export function usePost20100401AccountsAccountSidCallsSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidCallsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidCallsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidCallsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':Sid.json'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{Sid}.json
@@ -2108,6 +2407,36 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidRecordingsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Recordings.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings.json
  *
  * Create a recording for the call
@@ -2224,6 +2553,36 @@ export function useGet20100401AccountsAccountSidCallsCallSidRecordingsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
  *
  * Changes the status of the recording to paused, stopped, or in-progress. Note: Pass `Twilio.CURRENT` instead of recording sid to reference current active recording.
@@ -2265,6 +2624,35 @@ export function usePost20100401AccountsAccountSidCallsCallSidRecordingsSidJson(o
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Recordings/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidCallsCallSidRecordingsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Recordings'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Recordings[
+        ':Sid.json'
+      ].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Recordings/{Sid}.json
@@ -2377,6 +2765,36 @@ export function useGet20100401AccountsAccountSidConferencesSidJson(
     getGet20100401AccountsAccountSidConferencesSidJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidConferencesSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Conferences/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidConferencesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidConferencesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Conferences[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{Sid}.json
@@ -2637,6 +3055,38 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidRecordin
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+          ':Sid.json'
+        ].$post(args, clientOptions),
+      ),
+  })
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
  *
  * Changes the status of the recording to paused, stopped, or in-progress. Note: To use `Twilio.CURRENT`, pass it as recording sid.
@@ -2678,6 +3128,38 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidRecordi
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Recordings/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidConferencesConferenceSidRecordingsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Recordings'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Recordings[
+          ':Sid.json'
+        ].$delete(args, clientOptions),
+      ),
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Recordings/{Sid}.json
@@ -2792,6 +3274,36 @@ export function useGet20100401AccountsAccountSidConnectAppsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidConnectAppsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidConnectAppsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
  *
  * Update a connect-app with the specified parameters
@@ -2834,6 +3346,36 @@ export function usePost20100401AccountsAccountSidConnectAppsSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/ConnectApps/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidConnectAppsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['ConnectApps'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].ConnectApps[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/ConnectApps/{Sid}.json
@@ -3093,6 +3635,36 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
  *
  * Update an incoming-phone-number instance.
@@ -3135,6 +3707,36 @@ export function usePost20100401AccountsAccountSidIncomingPhoneNumbersSidJson(opt
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidIncomingPhoneNumbersSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{Sid}.json
@@ -3248,6 +3850,36 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersJson(
     getGet20100401AccountsAccountSidIncomingPhoneNumbersJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidIncomingPhoneNumbersJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['IncomingPhoneNumbers.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers.json
@@ -3375,6 +4007,38 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[
+          ':ResourceSid'
+        ].AssignedAddOns[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
+
+/**
  * DELETE /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns/{Sid}.json
  *
  * Remove the assignment of an Add-on installation from the Number specified.
@@ -3495,6 +4159,38 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersResourceSidA
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/:ResourceSid/AssignedAddOns.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidIncomingPhoneNumbersResourceSidAssignedAddOnsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers'][':ResourceSid']['AssignedAddOns.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers[':ResourceSid'][
+          'AssignedAddOns.json'
+        ].$post(args, clientOptions),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/{ResourceSid}/AssignedAddOns.json
@@ -3770,6 +4466,36 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Local.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidIncomingPhoneNumbersLocalJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Local.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Local.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Local.json
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersLocalJson(options?: {
@@ -3876,6 +4602,36 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJson(
     getGet20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/Mobile.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidIncomingPhoneNumbersMobileJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['Mobile.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['Mobile.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/Mobile.json
@@ -3989,6 +4745,36 @@ export function useGet20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/IncomingPhoneNumbers/TollFree.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['IncomingPhoneNumbers']['TollFree.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].IncomingPhoneNumbers['TollFree.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/IncomingPhoneNumbers/TollFree.json
  */
 export function usePost20100401AccountsAccountSidIncomingPhoneNumbersTollFreeJson(options?: {
@@ -4093,6 +4879,33 @@ export function useGet20100401AccountsAccountSidKeysSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidKeysSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidKeysSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidKeysSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
  */
 export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
@@ -4128,6 +4941,33 @@ export function usePost20100401AccountsAccountSidKeysSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidKeysSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Keys/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidKeysSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidKeysSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Keys[':Sid.json'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Keys/{Sid}.json
@@ -4230,6 +5070,33 @@ export function useGet20100401AccountsAccountSidKeysJson(
     getGet20100401AccountsAccountSidKeysJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidKeysJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Keys.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Keys.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidKeysJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidKeysJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Keys.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Keys.json'].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Keys.json
@@ -4337,6 +5204,38 @@ export function useGet20100401AccountsAccountSidMessagesMessageSidMediaSidJson(
     getGet20100401AccountsAccountSidMessagesMessageSidMediaSidJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Media/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidMessagesMessageSidMediaSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Media'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid'].Media[
+        ':Sid.json'
+      ].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Media/{Sid}.json
@@ -4529,6 +5428,38 @@ export function useGet20100401AccountsAccountSidQueuesQueueSidMembersCallSidJson
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Queues/:QueueSid/Members/:CallSid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidQueuesQueueSidMembersCallSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':QueueSid']['Members'][':CallSid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Queues[':QueueSid'].Members[
+        ':CallSid.json'
+      ].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues/{QueueSid}/Members/{CallSid}.json
  *
  * Dequeue a member from a queue and have the member's call begin executing the TwiML document at that URL
@@ -4712,6 +5643,33 @@ export function useGet20100401AccountsAccountSidMessagesJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidMessagesJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Messages.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidMessagesJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidMessagesJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Messages.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Messages.json
  *
  * Send a message
@@ -4821,6 +5779,33 @@ export function useGet20100401AccountsAccountSidMessagesSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidMessagesSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidMessagesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidMessagesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
  *
  * Update a Message resource (used to redact Message `body` text and to cancel not-yet-sent messages)
@@ -4863,6 +5848,36 @@ export function usePost20100401AccountsAccountSidMessagesSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Messages/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidMessagesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidMessagesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Messages[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Messages/{Sid}.json
@@ -4908,6 +5923,36 @@ export function useDelete20100401AccountsAccountSidMessagesSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Messages/:MessageSid/Feedback.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidMessagesMessageSidFeedbackJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Messages'][':MessageSid']['Feedback.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Messages[':MessageSid']['Feedback.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Messages/{MessageSid}/Feedback.json
@@ -5016,6 +6061,33 @@ export function useGet20100401AccountsAccountSidSigningKeysJson(
     getGet20100401AccountsAccountSidSigningKeysJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSigningKeysJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSigningKeysJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSigningKeysJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['SigningKeys.json'].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys.json
@@ -5267,6 +6339,36 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
  *
  * Updates the caller-id
@@ -5309,6 +6411,36 @@ export function usePost20100401AccountsAccountSidOutgoingCallerIdsSidJson(option
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidOutgoingCallerIdsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].OutgoingCallerIds[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds/{Sid}.json
@@ -5422,6 +6554,36 @@ export function useGet20100401AccountsAccountSidOutgoingCallerIdsJson(
     getGet20100401AccountsAccountSidOutgoingCallerIdsJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/OutgoingCallerIds.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidOutgoingCallerIdsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['OutgoingCallerIds.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['OutgoingCallerIds.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/OutgoingCallerIds.json
@@ -5540,6 +6702,38 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+          ':CallSid.json'
+        ].$post(args, clientOptions),
+      ),
+  })
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
  *
  * Update the properties of the participant
@@ -5581,6 +6775,38 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants/:CallSid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidConferencesConferenceSidParticipantsCallSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants'][':CallSid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'].Participants[
+          ':CallSid.json'
+        ].$delete(args, clientOptions),
+      ),
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants/{CallSid}.json
@@ -5703,6 +6929,38 @@ export function useGet20100401AccountsAccountSidConferencesConferenceSidParticip
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Conferences/:ConferenceSid/Participants.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidConferencesConferenceSidParticipantsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Conferences'][':ConferenceSid']['Participants.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Conferences[':ConferenceSid'][
+          'Participants.json'
+        ].$post(args, clientOptions),
+      ),
+  })
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Conferences/{ConferenceSid}/Participants.json
  */
 export function usePost20100401AccountsAccountSidConferencesConferenceSidParticipantsJson(options?: {
@@ -5740,6 +6998,36 @@ export function usePost20100401AccountsAccountSidConferencesConferenceSidPartici
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidPaymentsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Payments.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments.json
@@ -5784,6 +7072,36 @@ export function usePost20100401AccountsAccountSidCallsCallSidPaymentsJson(option
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Payments/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidPaymentsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Payments'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Payments[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Payments/{Sid}.json
@@ -5898,6 +7216,33 @@ export function useGet20100401AccountsAccountSidQueuesSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidQueuesSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidQueuesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidQueuesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
  *
  * Update the queue with the new parameters
@@ -5937,6 +7282,33 @@ export function usePost20100401AccountsAccountSidQueuesSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Queues/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidQueuesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidQueuesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Queues[':Sid.json'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Queues/{Sid}.json
@@ -6052,6 +7424,33 @@ export function useGet20100401AccountsAccountSidQueuesJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidQueuesJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Queues.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Queues.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidQueuesJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidQueuesJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Queues.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Queues.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Queues.json
  *
  * Create a queue
@@ -6091,6 +7490,36 @@ export function usePost20100401AccountsAccountSidQueuesJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidTranscriptionsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Transcriptions.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions.json
@@ -6135,6 +7564,38 @@ export function usePost20100401AccountsAccountSidCallsCallSidTranscriptionsJson(
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Transcriptions/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidTranscriptionsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Transcriptions'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Transcriptions[
+        ':Sid.json'
+      ].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Transcriptions/{Sid}.json
@@ -6246,6 +7707,36 @@ export function useGet20100401AccountsAccountSidRecordingsSidJson(
     getGet20100401AccountsAccountSidRecordingsSidJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Recordings/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidRecordingsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidRecordingsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Recordings[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{Sid}.json
@@ -6435,6 +7926,38 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+          ':Sid.json'
+        ].$delete(args, clientOptions),
+      ),
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{Sid}.json
@@ -6634,6 +8157,38 @@ export function useGet20100401AccountsAccountSidRecordingsReferenceSidAddOnResul
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:ReferenceSid/AddOnResults/:AddOnResultSid/Payloads/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidRecordingsReferenceSidAddOnResultsAddOnResultSidPayloadsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':ReferenceSid']['AddOnResults'][':AddOnResultSid']['Payloads'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':ReferenceSid'].AddOnResults[
+          ':AddOnResultSid'
+        ].Payloads[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{ReferenceSid}/AddOnResults/{AddOnResultSid}/Payloads/{Sid}.json
@@ -6914,6 +8469,38 @@ export function useGet20100401AccountsAccountSidRecordingsRecordingSidTranscript
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Recordings/:RecordingSid/Transcriptions/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Recordings'][':RecordingSid']['Transcriptions'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Recordings[':RecordingSid'].Transcriptions[
+          ':Sid.json'
+        ].$delete(args, clientOptions),
+      ),
+  })
+
+/**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Recordings/{RecordingSid}/Transcriptions/{Sid}.json
  */
 export function useDelete20100401AccountsAccountSidRecordingsRecordingSidTranscriptionsSidJson(options?: {
@@ -7094,6 +8681,36 @@ export function useGet20100401AccountsAccountSidSMSShortCodesSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SMS/ShortCodes/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSMSShortCodesSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SMS']['ShortCodes'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SMS.ShortCodes[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SMS/ShortCodes/{Sid}.json
  *
  * Update a short code with the following parameters
@@ -7270,6 +8887,36 @@ export function useGet20100401AccountsAccountSidSigningKeysSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSigningKeysSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSigningKeysSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
  */
 export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
@@ -7308,6 +8955,36 @@ export function usePost20100401AccountsAccountSidSigningKeysSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SigningKeys/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidSigningKeysSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SigningKeys'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SigningKeys[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SigningKeys/{Sid}.json
@@ -7427,6 +9104,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+          'CredentialListMappings.json'
+        ].$post(args, clientOptions),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings.json
@@ -7553,6 +9262,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCred
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/CredentialListMappings/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsCredentialListMappingsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].Auth.Calls.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
+
+/**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/CredentialListMappings/{Sid}.json
  *
  * Delete a credential list mapping from the requested domain
@@ -7673,6 +9414,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Calls[
+          'IpAccessControlListMappings.json'
+        ].$post(args, clientOptions),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings.json
@@ -7799,6 +9572,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAc
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Calls/IpAccessControlListMappings/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthCallsIpAccessControlListMappingsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Calls']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].Auth.Calls.IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
+
+/**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Calls/IpAccessControlListMappings/{Sid}.json
  *
  * Delete an IP Access Control List mapping from the requested domain
@@ -7919,6 +9724,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'].Auth.Registrations[
+          'CredentialListMappings.json'
+        ].$post(args, clientOptions),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings.json
@@ -8045,6 +9882,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrat
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/Auth/Registrations/CredentialListMappings/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidAuthRegistrationsCredentialListMappingsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['Auth']['Registrations']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].Auth.Registrations.CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
+
+/**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/Auth/Registrations/CredentialListMappings/{Sid}.json
  *
  * Delete a credential list mapping from the requested domain
@@ -8165,6 +10034,38 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':CredentialListSid'][
+          'Credentials.json'
+        ].$post(args, clientOptions),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials.json
@@ -8291,6 +10192,38 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsCredentialList
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+          ':CredentialListSid'
+        ].Credentials[':Sid.json'].$post(args, clientOptions),
+      ),
+  })
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
  *
  * Update a credential resource.
@@ -8332,6 +10265,38 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsCredentialLis
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:CredentialListSid/Credentials/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidSIPCredentialListsCredentialListSidCredentialsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':CredentialListSid']['Credentials'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[
+          ':CredentialListSid'
+        ].Credentials[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{CredentialListSid}/Credentials/{Sid}.json
@@ -8444,6 +10409,36 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsJson(
     getGet20100401AccountsAccountSidSIPCredentialListsJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSIPCredentialListsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP['CredentialLists.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists.json
@@ -8562,6 +10557,36 @@ export function useGet20100401AccountsAccountSidSIPCredentialListsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
  *
  * Update a Credential List
@@ -8604,6 +10629,36 @@ export function usePost20100401AccountsAccountSidSIPCredentialListsSidJson(optio
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/CredentialLists/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidSIPCredentialListsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['CredentialLists'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.CredentialLists[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/CredentialLists/{Sid}.json
@@ -8725,6 +10780,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+          'CredentialListMappings.json'
+        ].$post(args, clientOptions),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings.json
@@ -8851,6 +10938,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidCredentialLis
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/CredentialListMappings/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidCredentialListMappingsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['CredentialListMappings'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].CredentialListMappings[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
+
+/**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/CredentialListMappings/{Sid}.json
  *
  * Delete a CredentialListMapping resource from an account.
@@ -8963,6 +11082,33 @@ export function useGet20100401AccountsAccountSidSIPDomainsJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPDomainsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSIPDomainsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP['Domains.json'].$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains.json
  *
  * Create a new Domain
@@ -9072,6 +11218,36 @@ export function useGet20100401AccountsAccountSidSIPDomainsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSIPDomainsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
  *
  * Update the attributes of a domain
@@ -9114,6 +11290,36 @@ export function usePost20100401AccountsAccountSidSIPDomainsSidJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidSIPDomainsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{Sid}.json
@@ -9233,6 +11439,36 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSIPIpAccessControlListsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP['IpAccessControlLists.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists.json
  *
  * Create a new IpAccessControlList resource
@@ -9349,6 +11585,36 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
  *
  * Rename an IpAccessControlList
@@ -9391,6 +11657,36 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsSidJson(
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidSIPIpAccessControlListsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{Sid}.json
@@ -9519,6 +11815,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[
+          ':DomainSid'
+        ].IpAccessControlListMappings[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
+
+/**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings/{Sid}.json
  *
  * Delete an IpAccessControlListMapping resource.
@@ -9639,6 +11967,38 @@ export function useGet20100401AccountsAccountSidSIPDomainsDomainSidIpAccessContr
     )
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/Domains/:DomainSid/IpAccessControlListMappings.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPDomainsDomainSidIpAccessControlListMappingsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['Domains'][':DomainSid']['IpAccessControlListMappings.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.Domains[':DomainSid'][
+          'IpAccessControlListMappings.json'
+        ].$post(args, clientOptions),
+      ),
+  })
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/Domains/{DomainSid}/IpAccessControlListMappings.json
@@ -9765,6 +12125,38 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+          ':IpAccessControlListSid'
+        ]['IpAddresses.json'].$post(args, clientOptions),
+      ),
+  })
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses.json
  *
  * Create a new IpAddress resource.
@@ -9889,6 +12281,38 @@ export function useGet20100401AccountsAccountSidSIPIpAccessControlListsIpAccessC
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+          ':IpAccessControlListSid'
+        ].IpAddresses[':Sid.json'].$post(args, clientOptions),
+      ),
+  })
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
  *
  * Update an IpAddress resource.
@@ -9930,6 +12354,38 @@ export function usePost20100401AccountsAccountSidSIPIpAccessControlListsIpAccess
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/SIP/IpAccessControlLists/:IpAccessControlListSid/IpAddresses/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAccessControlListSidIpAddressesSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['SIP']['IpAccessControlLists'][':IpAccessControlListSid']['IpAddresses'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].SIP.IpAccessControlLists[
+          ':IpAccessControlListSid'
+        ].IpAddresses[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/SIP/IpAccessControlLists/{IpAccessControlListSid}/IpAddresses/{Sid}.json
@@ -9976,6 +12432,36 @@ export function useDelete20100401AccountsAccountSidSIPIpAccessControlListsIpAcce
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidSiprecJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Siprec.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec.json
  *
  * Create a Siprec
@@ -10018,6 +12504,36 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecJson(options?
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Siprec/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidSiprecSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Siprec'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Siprec[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Siprec/{Sid}.json
@@ -10064,6 +12580,36 @@ export function usePost20100401AccountsAccountSidCallsCallSidSiprecSidJson(optio
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidStreamsJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid']['Streams.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams.json
  *
  * Create a Stream
@@ -10108,6 +12654,36 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsJson(options
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/Streams/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidStreamsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['Streams'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'].Streams[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/Streams/{Sid}.json
  *
  * Stop a Stream using either the SID of the Stream resource or the `name` used when creating the resource
@@ -10150,6 +12726,33 @@ export function usePost20100401AccountsAccountSidCallsCallSidStreamsSidJson(opti
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidTokensJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Tokens.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidTokensJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidTokensJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Tokens.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid']['Tokens.json'].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Tokens.json
@@ -10259,6 +12862,36 @@ export function useGet20100401AccountsAccountSidTranscriptionsSidJson(
     getGet20100401AccountsAccountSidTranscriptionsSidJsonQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Transcriptions/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidTranscriptionsSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Transcriptions'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Transcriptions[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Transcriptions/{Sid}.json
@@ -11042,6 +13675,36 @@ export function useGet20100401AccountsAccountSidUsageTriggersSidJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidUsageTriggersSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
  *
  * Update an instance of a usage trigger
@@ -11084,6 +13747,36 @@ export function usePost20100401AccountsAccountSidUsageTriggersSidJson(options?: 
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey() {
+  return ['DELETE', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers/:Sid.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDelete20100401AccountsAccountSidUsageTriggersSidJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers'][':Sid.json']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Usage.Triggers[':Sid.json'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Usage/Triggers/{Sid}.json
@@ -11195,6 +13888,36 @@ export function useGet20100401AccountsAccountSidUsageTriggersJson(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey() {
+  return ['POST', '/2010-04-01/Accounts/:AccountSid/Usage/Triggers.json'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidUsageTriggersJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidUsageTriggersJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Usage']['Triggers.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Usage['Triggers.json'].$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Usage/Triggers.json
  *
  * Create a new UsageTrigger
@@ -11237,6 +13960,38 @@ export function usePost20100401AccountsAccountSidUsageTriggersJson(options?: {
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessages.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessagesJsonMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessages.json']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
+        'UserDefinedMessages.json'
+      ].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessages.json
@@ -11282,6 +14037,38 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessages
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey() {
+  return [
+    'POST',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPost20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions.json']['$post']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Calls[':CallSid'][
+          'UserDefinedMessageSubscriptions.json'
+        ].$post(args, clientOptions),
+      ),
+  })
+
+/**
  * POST /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions.json
  *
  * Subscribe to User Defined Messages for a given Call SID.
@@ -11323,6 +14110,38 @@ export function usePost20100401AccountsAccountSidCallsCallSidUserDefinedMessageS
       ),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey() {
+  return [
+    'DELETE',
+    '/2010-04-01/Accounts/:AccountSid/Calls/:CallSid/UserDefinedMessageSubscriptions/:Sid.json',
+  ] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid.json}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getDelete20100401AccountsAccountSidCallsCallSidUserDefinedMessageSubscriptionsSidJsonMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client)['2010-04-01']['Accounts'][':AccountSid']['Calls'][':CallSid']['UserDefinedMessageSubscriptions'][':Sid.json']['$delete']
+      >,
+    ) =>
+      parseResponse(
+        client['2010-04-01'].Accounts[':AccountSid'].Calls[
+          ':CallSid'
+        ].UserDefinedMessageSubscriptions[':Sid.json'].$delete(args, clientOptions),
+      ),
+  })
 
 /**
  * DELETE /2010-04-01/Accounts/{AccountSid}/Calls/{CallSid}/UserDefinedMessageSubscriptions/{Sid}.json

@@ -53,6 +53,25 @@ export function createGetEntities(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /entities
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostEntitiesMutationKey() {
+  return ['POST', '/entities'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /entities
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEntitiesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostEntitiesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.entities.$post>) =>
+    parseResponse(client.entities.$post(args, clientOptions)),
+})
+
+/**
  * POST /entities
  */
 export function createPostEntities(options?: {
@@ -128,6 +147,25 @@ export function createGetEntitiesEntityId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /entities/{entityId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutEntitiesEntityIdMutationKey() {
+  return ['PUT', '/entities/:entityId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /entities/{entityId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutEntitiesEntityIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutEntitiesEntityIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$put']>) =>
+    parseResponse(client.entities[':entityId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /entities/{entityId}
  */
 export function createPutEntitiesEntityId(options?: {
@@ -149,6 +187,25 @@ export function createPutEntitiesEntityId(options?: {
       parseResponse(client.entities[':entityId'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /entities/{entityId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteEntitiesEntityIdMutationKey() {
+  return ['DELETE', '/entities/:entityId'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /entities/{entityId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteEntitiesEntityIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteEntitiesEntityIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.entities)[':entityId']['$delete']>) =>
+    parseResponse(client.entities[':entityId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /entities/{entityId}
@@ -235,6 +292,28 @@ export function createGetEntitiesEntityIdRelationships(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /entities/{entityId}/relationships
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostEntitiesEntityIdRelationshipsMutationKey() {
+  return ['POST', '/entities/:entityId/relationships'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /entities/{entityId}/relationships
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEntitiesEntityIdRelationshipsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostEntitiesEntityIdRelationshipsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.entities)[':entityId']['relationships']['$post']>,
+  ) => parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
+})
+
+/**
  * POST /entities/{entityId}/relationships
  */
 export function createPostEntitiesEntityIdRelationships(options?: {
@@ -259,6 +338,25 @@ export function createPostEntitiesEntityIdRelationships(options?: {
     ) => parseResponse(client.entities[':entityId'].relationships.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostBatchMutationKey() {
+  return ['POST', '/batch'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostBatchMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostBatchMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.batch.$post>) =>
+    parseResponse(client.batch.$post(args, clientOptions)),
+})
 
 /**
  * POST /batch

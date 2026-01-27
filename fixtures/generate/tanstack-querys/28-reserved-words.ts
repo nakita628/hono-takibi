@@ -120,6 +120,24 @@ export function useGetType(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /function
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostFunctionMutationKey() {
+  return ['POST', '/function'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /function
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostFunctionMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostFunctionMutationKey(),
+  mutationFn: async () => parseResponse(client.function.$post(undefined, clientOptions)),
+})
+
+/**
  * POST /function
  */
 export function usePostFunction(options?: {
@@ -285,6 +303,24 @@ export function useGetDefault(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /new
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostNewMutationKey() {
+  return ['POST', '/new'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /new
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNewMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostNewMutationKey(),
+  mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
+})
+
+/**
  * POST /new
  */
 export function usePostNew(options?: {
@@ -301,6 +337,24 @@ export function usePostNew(options?: {
     mutationFn: async () => parseResponse(client.new.$post(undefined, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /delete
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteDeleteMutationKey() {
+  return ['DELETE', '/delete'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /delete
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteDeleteMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteDeleteMutationKey(),
+  mutationFn: async () => parseResponse(client.delete.$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /delete

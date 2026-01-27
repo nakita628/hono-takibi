@@ -37,10 +37,10 @@ export function useGetTrees(options?: {
 
 /**
  * Generates SWR mutation key for POST /trees
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTreesMutationKey() {
-  return ['/trees'] as const
+  return ['POST', '/trees'] as const
 }
 
 /**

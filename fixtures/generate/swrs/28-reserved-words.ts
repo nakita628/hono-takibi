@@ -95,10 +95,10 @@ export function useGetType(options?: {
 
 /**
  * Generates SWR mutation key for POST /function
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostFunctionMutationKey() {
-  return ['/function'] as const
+  return ['POST', '/function'] as const
 }
 
 /**
@@ -244,10 +244,10 @@ export function useGetDefault(options?: {
 
 /**
  * Generates SWR mutation key for POST /new
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostNewMutationKey() {
-  return ['/new'] as const
+  return ['POST', '/new'] as const
 }
 
 /**
@@ -277,10 +277,10 @@ export function usePostNew(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /delete
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteDeleteMutationKey() {
-  return ['/delete'] as const
+  return ['DELETE', '/delete'] as const
 }
 
 /**

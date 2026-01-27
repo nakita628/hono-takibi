@@ -48,6 +48,25 @@ export function useGetEntities(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /process
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProcessMutationKey() {
+  return ['POST', '/process'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /process
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProcessMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProcessMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.process.$post>) =>
+    parseResponse(client.process.$post(args, clientOptions)),
+})
+
+/**
  * POST /process
  */
 export function usePostProcess(options?: {
@@ -101,6 +120,25 @@ export function useGetGraph(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetGraphQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /transform
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTransformMutationKey() {
+  return ['POST', '/transform'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /transform
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTransformMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTransformMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.transform.$post>) =>
+    parseResponse(client.transform.$post(args, clientOptions)),
+})
 
 /**
  * POST /transform

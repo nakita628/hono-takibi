@@ -49,6 +49,25 @@ export function createGetUsers(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /users
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostUsersMutationKey() {
+  return ['POST', '/users'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /users
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostUsersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+    parseResponse(client.users.$post(args, clientOptions)),
+})
+
+/**
  * POST /users
  */
 export function createPostUsers(options?: {

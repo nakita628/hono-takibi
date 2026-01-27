@@ -74,10 +74,10 @@ export function useGetResourcesId(
 
 /**
  * Generates SWR mutation key for PUT /resources/{id}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutResourcesIdMutationKey() {
-  return ['/resources/:id'] as const
+  return ['PUT', '/resources/:id'] as const
 }
 
 /**

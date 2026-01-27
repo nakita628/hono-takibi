@@ -37,10 +37,10 @@ export function useGetEntities(options?: {
 
 /**
  * Generates SWR mutation key for POST /process
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProcessMutationKey() {
-  return ['/process'] as const
+  return ['POST', '/process'] as const
 }
 
 /**
@@ -100,10 +100,10 @@ export function useGetGraph(options?: {
 
 /**
  * Generates SWR mutation key for POST /transform
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTransformMutationKey() {
-  return ['/transform'] as const
+  return ['POST', '/transform'] as const
 }
 
 /**

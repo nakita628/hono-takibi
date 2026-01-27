@@ -47,10 +47,10 @@ export function useGetOauthAuthorize(
 
 /**
  * Generates SWR mutation key for POST /oauth/token
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOauthTokenMutationKey() {
-  return ['/oauth/token'] as const
+  return ['POST', '/oauth/token'] as const
 }
 
 /**
@@ -86,10 +86,10 @@ export function usePostOauthToken(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/revoke
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOauthRevokeMutationKey() {
-  return ['/oauth/revoke'] as const
+  return ['POST', '/oauth/revoke'] as const
 }
 
 /**
@@ -126,10 +126,10 @@ export function usePostOauthRevoke(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/introspect
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOauthIntrospectMutationKey() {
-  return ['/oauth/introspect'] as const
+  return ['POST', '/oauth/introspect'] as const
 }
 
 /**
@@ -166,10 +166,10 @@ export function usePostOauthIntrospect(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/device/code
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOauthDeviceCodeMutationKey() {
-  return ['/oauth/device/code'] as const
+  return ['POST', '/oauth/device/code'] as const
 }
 
 /**
@@ -337,10 +337,10 @@ export function useGetOauthClients(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/clients
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOauthClientsMutationKey() {
-  return ['/oauth/clients'] as const
+  return ['POST', '/oauth/clients'] as const
 }
 
 /**
@@ -411,10 +411,10 @@ export function useGetOauthClientsClientId(
 
 /**
  * Generates SWR mutation key for PUT /oauth/clients/{clientId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutOauthClientsClientIdMutationKey() {
-  return ['/oauth/clients/:clientId'] as const
+  return ['PUT', '/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -455,10 +455,10 @@ export function usePutOauthClientsClientId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /oauth/clients/{clientId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteOauthClientsClientIdMutationKey() {
-  return ['/oauth/clients/:clientId'] as const
+  return ['DELETE', '/oauth/clients/:clientId'] as const
 }
 
 /**
@@ -500,10 +500,10 @@ export function useDeleteOauthClientsClientId(options?: {
 
 /**
  * Generates SWR mutation key for POST /oauth/clients/{clientId}/secret
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOauthClientsClientIdSecretMutationKey() {
-  return ['/oauth/clients/:clientId/secret'] as const
+  return ['POST', '/oauth/clients/:clientId/secret'] as const
 }
 
 /**
@@ -579,10 +579,10 @@ export function useGetOauthConsents(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /oauth/consents/{clientId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteOauthConsentsClientIdMutationKey() {
-  return ['/oauth/consents/:clientId'] as const
+  return ['DELETE', '/oauth/consents/:clientId'] as const
 }
 
 /**

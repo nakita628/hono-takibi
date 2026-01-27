@@ -7,10 +7,10 @@ import { client } from '../clients/05-request-bodies'
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersMutationKey() {
-  return ['/users'] as const
+  return ['POST', '/users'] as const
 }
 
 /**
@@ -41,10 +41,10 @@ export function usePostUsers(options?: {
 
 /**
  * Generates SWR mutation key for PUT /users/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutUsersUserIdMutationKey() {
-  return ['/users/:userId'] as const
+  return ['PUT', '/users/:userId'] as const
 }
 
 /**
@@ -81,10 +81,10 @@ export function usePutUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for PATCH /users/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPatchUsersUserIdMutationKey() {
-  return ['/users/:userId'] as const
+  return ['PATCH', '/users/:userId'] as const
 }
 
 /**
@@ -121,10 +121,10 @@ export function usePatchUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for POST /users/{userId}/avatar
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersUserIdAvatarMutationKey() {
-  return ['/users/:userId/avatar'] as const
+  return ['POST', '/users/:userId/avatar'] as const
 }
 
 /**
@@ -163,10 +163,10 @@ export function usePostUsersUserIdAvatar(options?: {
 
 /**
  * Generates SWR mutation key for POST /bulk/users
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostBulkUsersMutationKey() {
-  return ['/bulk/users'] as const
+  return ['POST', '/bulk/users'] as const
 }
 
 /**

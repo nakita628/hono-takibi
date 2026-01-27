@@ -74,10 +74,10 @@ export function useGetItemsItemId(
 
 /**
  * Generates SWR mutation key for DELETE /items/{itemId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteItemsItemIdMutationKey() {
-  return ['/items/:itemId'] as const
+  return ['DELETE', '/items/:itemId'] as const
 }
 
 /**

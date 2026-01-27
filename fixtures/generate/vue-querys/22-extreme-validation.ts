@@ -5,6 +5,25 @@ import { parseResponse } from 'hono/client'
 import { client } from '../clients/22-extreme-validation'
 
 /**
+ * Generates Vue Query mutation key for POST /validate
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostValidateMutationKey() {
+  return ['POST', '/validate'] as const
+}
+
+/**
+ * Returns Vue Query mutation options for POST /validate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostValidateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostValidateMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.validate.$post>) =>
+    parseResponse(client.validate.$post(args, clientOptions)),
+})
+
+/**
  * POST /validate
  */
 export function usePostValidate(options?: {

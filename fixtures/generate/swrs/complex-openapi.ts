@@ -39,10 +39,10 @@ export function useGetUsers(options?: {
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersMutationKey() {
-  return ['/users'] as const
+  return ['POST', '/users'] as const
 }
 
 /**
@@ -111,10 +111,10 @@ export function useGetUsersUserId(
 
 /**
  * Generates SWR mutation key for PUT /users/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutUsersUserIdMutationKey() {
-  return ['/users/:userId'] as const
+  return ['PUT', '/users/:userId'] as const
 }
 
 /**
@@ -153,10 +153,10 @@ export function usePutUsersUserId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /users/{userId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteUsersUserIdMutationKey() {
-  return ['/users/:userId'] as const
+  return ['DELETE', '/users/:userId'] as const
 }
 
 /**
@@ -227,10 +227,10 @@ export function useGetOrders(options?: {
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOrdersMutationKey() {
-  return ['/orders'] as const
+  return ['POST', '/orders'] as const
 }
 
 /**

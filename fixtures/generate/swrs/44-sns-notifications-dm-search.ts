@@ -74,10 +74,10 @@ export function useGetNotificationsUnreadCount(options?: {
 
 /**
  * Generates SWR mutation key for POST /notifications/mark-read
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostNotificationsMarkReadMutationKey() {
-  return ['/notifications/mark-read'] as const
+  return ['POST', '/notifications/mark-read'] as const
 }
 
 /**
@@ -149,10 +149,10 @@ export function useGetNotificationsSettings(options?: {
 
 /**
  * Generates SWR mutation key for PUT /notifications/settings
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutNotificationsSettingsMutationKey() {
-  return ['/notifications/settings'] as const
+  return ['PUT', '/notifications/settings'] as const
 }
 
 /**
@@ -227,10 +227,10 @@ export function useGetDmConversations(
 
 /**
  * Generates SWR mutation key for POST /dm/conversations
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDmConversationsMutationKey() {
-  return ['/dm/conversations'] as const
+  return ['POST', '/dm/conversations'] as const
 }
 
 /**
@@ -302,10 +302,10 @@ export function useGetDmConversationsConversationId(
 
 /**
  * Generates SWR mutation key for DELETE /dm/conversations/{conversationId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteDmConversationsConversationIdMutationKey() {
-  return ['/dm/conversations/:conversationId'] as const
+  return ['DELETE', '/dm/conversations/:conversationId'] as const
 }
 
 /**
@@ -391,10 +391,10 @@ export function useGetDmConversationsConversationIdMessages(
 
 /**
  * Generates SWR mutation key for POST /dm/conversations/{conversationId}/messages
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDmConversationsConversationIdMessagesMutationKey() {
-  return ['/dm/conversations/:conversationId/messages'] as const
+  return ['POST', '/dm/conversations/:conversationId/messages'] as const
 }
 
 /**
@@ -446,10 +446,10 @@ export function usePostDmConversationsConversationIdMessages(options?: {
 
 /**
  * Generates SWR mutation key for POST /dm/conversations/{conversationId}/read
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDmConversationsConversationIdReadMutationKey() {
-  return ['/dm/conversations/:conversationId/read'] as const
+  return ['POST', '/dm/conversations/:conversationId/read'] as const
 }
 
 /**
@@ -496,10 +496,10 @@ export function usePostDmConversationsConversationIdRead(options?: {
 
 /**
  * Generates SWR mutation key for POST /dm/conversations/{conversationId}/typing
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDmConversationsConversationIdTypingMutationKey() {
-  return ['/dm/conversations/:conversationId/typing'] as const
+  return ['POST', '/dm/conversations/:conversationId/typing'] as const
 }
 
 /**
@@ -549,10 +549,10 @@ export function usePostDmConversationsConversationIdTyping(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /dm/messages/{messageId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteDmMessagesMessageIdMutationKey() {
-  return ['/dm/messages/:messageId'] as const
+  return ['DELETE', '/dm/messages/:messageId'] as const
 }
 
 /**
@@ -594,10 +594,10 @@ export function useDeleteDmMessagesMessageId(options?: {
 
 /**
  * Generates SWR mutation key for POST /dm/messages/{messageId}/reactions
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostDmMessagesMessageIdReactionsMutationKey() {
-  return ['/dm/messages/:messageId/reactions'] as const
+  return ['POST', '/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -642,10 +642,10 @@ export function usePostDmMessagesMessageIdReactions(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /dm/messages/{messageId}/reactions
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteDmMessagesMessageIdReactionsMutationKey() {
-  return ['/dm/messages/:messageId/reactions'] as const
+  return ['DELETE', '/dm/messages/:messageId/reactions'] as const
 }
 
 /**
@@ -856,10 +856,10 @@ export function useGetSearchRecent(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /search/recent
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteSearchRecentMutationKey() {
-  return ['/search/recent'] as const
+  return ['DELETE', '/search/recent'] as const
 }
 
 /**
@@ -995,10 +995,10 @@ export function useGetSuggestionsUsers(
 
 /**
  * Generates SWR mutation key for POST /suggestions/users/{userId}/hide
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostSuggestionsUsersUserIdHideMutationKey() {
-  return ['/suggestions/users/:userId/hide'] as const
+  return ['POST', '/suggestions/users/:userId/hide'] as const
 }
 
 /**
@@ -1072,10 +1072,10 @@ export function useGetSuggestionsTopics(options?: {
 
 /**
  * Generates SWR mutation key for POST /topics/{topicId}/follow
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTopicsTopicIdFollowMutationKey() {
-  return ['/topics/:topicId/follow'] as const
+  return ['POST', '/topics/:topicId/follow'] as const
 }
 
 /**
@@ -1116,10 +1116,10 @@ export function usePostTopicsTopicIdFollow(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /topics/{topicId}/follow
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteTopicsTopicIdFollowMutationKey() {
-  return ['/topics/:topicId/follow'] as const
+  return ['DELETE', '/topics/:topicId/follow'] as const
 }
 
 /**

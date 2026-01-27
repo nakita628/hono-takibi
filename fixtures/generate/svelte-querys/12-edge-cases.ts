@@ -56,6 +56,24 @@ export function createGetAllMethods(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutAllMethodsMutationKey() {
+  return ['PUT', '/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$put(undefined, clientOptions)),
+})
+
+/**
  * PUT /all-methods
  */
 export function createPutAllMethods(options?: {
@@ -76,6 +94,24 @@ export function createPutAllMethods(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostAllMethodsMutationKey() {
+  return ['POST', '/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
+})
+
+/**
  * POST /all-methods
  */
 export function createPostAllMethods(options?: {
@@ -94,6 +130,24 @@ export function createPostAllMethods(options?: {
     mutationFn: async () => parseResponse(client['all-methods'].$post(undefined, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteAllMethodsMutationKey() {
+  return ['DELETE', '/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$delete(undefined, clientOptions)),
+})
 
 /**
  * DELETE /all-methods
@@ -118,6 +172,24 @@ export function createDeleteAllMethods(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for OPTIONS /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getOptionsAllMethodsMutationKey() {
+  return ['OPTIONS', '/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for OPTIONS /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getOptionsAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getOptionsAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$options(undefined, clientOptions)),
+})
+
+/**
  * OPTIONS /all-methods
  */
 export function createOptionsAllMethods(options?: {
@@ -140,6 +212,24 @@ export function createOptionsAllMethods(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for HEAD /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getHeadAllMethodsMutationKey() {
+  return ['HEAD', '/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for HEAD /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getHeadAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getHeadAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
+})
+
+/**
  * HEAD /all-methods
  */
 export function createHeadAllMethods(options?: {
@@ -158,6 +248,24 @@ export function createHeadAllMethods(options?: {
     mutationFn: async () => parseResponse(client['all-methods'].$head(undefined, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchAllMethodsMutationKey() {
+  return ['PATCH', '/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
+})
 
 /**
  * PATCH /all-methods
@@ -180,6 +288,24 @@ export function createPatchAllMethods(options?: {
     mutationFn: async () => parseResponse(client['all-methods'].$patch(undefined, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for TRACE /all-methods
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getTraceAllMethodsMutationKey() {
+  return ['TRACE', '/all-methods'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for TRACE /all-methods
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getTraceAllMethodsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getTraceAllMethodsMutationKey(),
+  mutationFn: async () => parseResponse(client['all-methods'].$trace(undefined, clientOptions)),
+})
 
 /**
  * TRACE /all-methods
@@ -328,6 +454,24 @@ export function createGetParamsTestPathParam(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /no-content
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostNoContentMutationKey() {
+  return ['POST', '/no-content'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /no-content
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNoContentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostNoContentMutationKey(),
+  mutationFn: async () => parseResponse(client['no-content'].$post(undefined, clientOptions)),
+})
+
+/**
  * POST /no-content
  */
 export function createPostNoContent(options?: {
@@ -396,6 +540,25 @@ export function createGetMultiContent(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /multi-content
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMultiContentMutationKey() {
+  return ['POST', '/multi-content'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /multi-content
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMultiContentMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMultiContentMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['multi-content']['$post']>) =>
+    parseResponse(client['multi-content'].$post(args, clientOptions)),
+})
 
 /**
  * POST /multi-content
@@ -560,6 +723,25 @@ export function createGetNoOperationId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /empty-body
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostEmptyBodyMutationKey() {
+  return ['POST', '/empty-body'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /empty-body
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostEmptyBodyMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostEmptyBodyMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['empty-body']['$post']>) =>
+    parseResponse(client['empty-body'].$post(args, clientOptions)),
+})
 
 /**
  * POST /empty-body

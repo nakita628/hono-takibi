@@ -42,10 +42,10 @@ export function useGetPosts(
 
 /**
  * Generates SWR mutation key for POST /posts
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsMutationKey() {
-  return ['/posts'] as const
+  return ['POST', '/posts'] as const
 }
 
 /**
@@ -114,10 +114,10 @@ export function useGetPostsPostId(
 
 /**
  * Generates SWR mutation key for PUT /posts/{postId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutPostsPostIdMutationKey() {
-  return ['/posts/:postId'] as const
+  return ['PUT', '/posts/:postId'] as const
 }
 
 /**
@@ -156,10 +156,10 @@ export function usePutPostsPostId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /posts/{postId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeletePostsPostIdMutationKey() {
-  return ['/posts/:postId'] as const
+  return ['DELETE', '/posts/:postId'] as const
 }
 
 /**
@@ -235,10 +235,10 @@ export function useGetPostsSlugSlug(
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/publish
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdPublishMutationKey() {
-  return ['/posts/:postId/publish'] as const
+  return ['POST', '/posts/:postId/publish'] as const
 }
 
 /**
@@ -279,10 +279,10 @@ export function usePostPostsPostIdPublish(options?: {
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/unpublish
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdUnpublishMutationKey() {
-  return ['/posts/:postId/unpublish'] as const
+  return ['POST', '/posts/:postId/unpublish'] as const
 }
 
 /**
@@ -359,10 +359,10 @@ export function useGetPostsPostIdComments(
 
 /**
  * Generates SWR mutation key for POST /posts/{postId}/comments
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostPostsPostIdCommentsMutationKey() {
-  return ['/posts/:postId/comments'] as const
+  return ['POST', '/posts/:postId/comments'] as const
 }
 
 /**
@@ -403,10 +403,10 @@ export function usePostPostsPostIdComments(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /comments/{commentId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteCommentsCommentIdMutationKey() {
-  return ['/comments/:commentId'] as const
+  return ['DELETE', '/comments/:commentId'] as const
 }
 
 /**
@@ -448,10 +448,10 @@ export function useDeleteCommentsCommentId(options?: {
 
 /**
  * Generates SWR mutation key for POST /comments/{commentId}/approve
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCommentsCommentIdApproveMutationKey() {
-  return ['/comments/:commentId/approve'] as const
+  return ['POST', '/comments/:commentId/approve'] as const
 }
 
 /**
@@ -525,10 +525,10 @@ export function useGetCategories(options?: {
 
 /**
  * Generates SWR mutation key for POST /categories
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostCategoriesMutationKey() {
-  return ['/categories'] as const
+  return ['POST', '/categories'] as const
 }
 
 /**
@@ -597,10 +597,10 @@ export function useGetCategoriesCategoryId(
 
 /**
  * Generates SWR mutation key for PUT /categories/{categoryId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutCategoriesCategoryIdMutationKey() {
-  return ['/categories/:categoryId'] as const
+  return ['PUT', '/categories/:categoryId'] as const
 }
 
 /**
@@ -639,10 +639,10 @@ export function usePutCategoriesCategoryId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /categories/{categoryId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteCategoriesCategoryIdMutationKey() {
-  return ['/categories/:categoryId'] as const
+  return ['DELETE', '/categories/:categoryId'] as const
 }
 
 /**
@@ -718,10 +718,10 @@ export function useGetTags(
 
 /**
  * Generates SWR mutation key for POST /tags
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostTagsMutationKey() {
-  return ['/tags'] as const
+  return ['POST', '/tags'] as const
 }
 
 /**
@@ -788,10 +788,10 @@ export function useGetMedia(
 
 /**
  * Generates SWR mutation key for POST /media
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostMediaMutationKey() {
-  return ['/media'] as const
+  return ['POST', '/media'] as const
 }
 
 /**
@@ -860,10 +860,10 @@ export function useGetMediaMediaId(
 
 /**
  * Generates SWR mutation key for PUT /media/{mediaId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutMediaMediaIdMutationKey() {
-  return ['/media/:mediaId'] as const
+  return ['PUT', '/media/:mediaId'] as const
 }
 
 /**
@@ -902,10 +902,10 @@ export function usePutMediaMediaId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /media/{mediaId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteMediaMediaIdMutationKey() {
-  return ['/media/:mediaId'] as const
+  return ['DELETE', '/media/:mediaId'] as const
 }
 
 /**

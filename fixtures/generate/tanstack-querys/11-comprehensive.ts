@@ -55,6 +55,25 @@ export function useGetProducts(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /products
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostProductsMutationKey() {
+  return ['POST', '/products'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /products
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostProductsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostProductsMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.products.$post>) =>
+    parseResponse(client.products.$post(args, clientOptions)),
+})
+
+/**
  * POST /products
  *
  * Create a new product
@@ -132,6 +151,25 @@ export function useGetProductsProductId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /products/{productId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutProductsProductIdMutationKey() {
+  return ['PUT', '/products/:productId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /products/{productId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutProductsProductIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutProductsProductIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$put']>) =>
+    parseResponse(client.products[':productId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /products/{productId}
  *
  * Update a product
@@ -155,6 +193,27 @@ export function usePutProductsProductId(options?: {
       parseResponse(client.products[':productId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /products/{productId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteProductsProductIdMutationKey() {
+  return ['DELETE', '/products/:productId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /products/{productId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteProductsProductIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteProductsProductIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.products)[':productId']['$delete']>) =>
+    parseResponse(client.products[':productId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /products/{productId}
@@ -185,6 +244,25 @@ export function useDeleteProductsProductId(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /orders
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrdersMutationKey() {
+  return ['POST', '/orders'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /orders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOrdersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+    parseResponse(client.orders.$post(args, clientOptions)),
+})
+
+/**
  * POST /orders
  *
  * Create a new order
@@ -204,6 +282,25 @@ export function usePostOrders(options?: {
       parseResponse(client.orders.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webhooks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksMutationKey() {
+  return ['POST', '/webhooks'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webhooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostWebhooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+    parseResponse(client.webhooks.$post(args, clientOptions)),
+})
 
 /**
  * POST /webhooks

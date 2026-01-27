@@ -51,6 +51,25 @@ export function useGetUsers(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /users
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostUsersMutationKey() {
+  return ['POST', '/users'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /users
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostUsersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.users.$post>) =>
+    parseResponse(client.users.$post(args, clientOptions)),
+})
+
+/**
  * POST /users
  */
 export function usePostUsers(options?: {
@@ -119,6 +138,25 @@ export function useGetUsersUserId(
   const { queryKey, queryFn, ...baseOptions } = getGetUsersUserIdQueryOptions(args, clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /orders
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostOrdersMutationKey() {
+  return ['POST', '/orders'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /orders
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostOrdersMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostOrdersMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.orders.$post>) =>
+    parseResponse(client.orders.$post(args, clientOptions)),
+})
 
 /**
  * POST /orders
@@ -196,6 +234,25 @@ export function useGetProductsProductIdVariants(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /reports/generate
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostReportsGenerateMutationKey() {
+  return ['POST', '/reports/generate'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /reports/generate
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostReportsGenerateMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostReportsGenerateMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.reports.generate.$post>) =>
+    parseResponse(client.reports.generate.$post(args, clientOptions)),
+})
+
+/**
  * POST /reports/generate
  */
 export function usePostReportsGenerate(options?: {
@@ -215,6 +272,25 @@ export function usePostReportsGenerate(options?: {
       parseResponse(client.reports.generate.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webhooks/test
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksTestMutationKey() {
+  return ['POST', '/webhooks/test'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webhooks/test
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksTestMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostWebhooksTestMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webhooks.test.$post>) =>
+    parseResponse(client.webhooks.test.$post(args, clientOptions)),
+})
 
 /**
  * POST /webhooks/test

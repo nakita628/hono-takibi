@@ -118,6 +118,28 @@ export function useGetNotificationsNotificationId(
 }
 
 /**
+ * Generates TanStack Query mutation key for DELETE /notifications/{notificationId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteNotificationsNotificationIdMutationKey() {
+  return ['DELETE', '/notifications/:notificationId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /notifications/{notificationId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteNotificationsNotificationIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteNotificationsNotificationIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.notifications)[':notificationId']['$delete']>,
+  ) => parseResponse(client.notifications[':notificationId'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /notifications/{notificationId}
  *
  * 通知削除
@@ -147,6 +169,28 @@ export function useDeleteNotificationsNotificationId(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /notifications/{notificationId}/read
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostNotificationsNotificationIdReadMutationKey() {
+  return ['POST', '/notifications/:notificationId/read'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /notifications/{notificationId}/read
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNotificationsNotificationIdReadMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostNotificationsNotificationIdReadMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.notifications)[':notificationId']['read']['$post']>,
+  ) => parseResponse(client.notifications[':notificationId'].read.$post(args, clientOptions)),
+})
+
+/**
  * POST /notifications/{notificationId}/read
  *
  * 既読にする
@@ -173,6 +217,27 @@ export function usePostNotificationsNotificationIdRead(options?: {
     ) => parseResponse(client.notifications[':notificationId'].read.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /notifications/read-all
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostNotificationsReadAllMutationKey() {
+  return ['POST', '/notifications/read-all'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /notifications/read-all
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostNotificationsReadAllMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostNotificationsReadAllMutationKey(),
+  mutationFn: async () =>
+    parseResponse(client.notifications['read-all'].$post(undefined, clientOptions)),
+})
 
 /**
  * POST /notifications/read-all
@@ -252,6 +317,25 @@ export function useGetNotificationsUnreadCount(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /messages/send
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMessagesSendMutationKey() {
+  return ['POST', '/messages/send'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /messages/send
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMessagesSendMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMessagesSendMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.messages.send.$post>) =>
+    parseResponse(client.messages.send.$post(args, clientOptions)),
+})
+
+/**
  * POST /messages/send
  *
  * メッセージ送信
@@ -275,6 +359,25 @@ export function usePostMessagesSend(options?: {
       parseResponse(client.messages.send.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /messages/send-batch
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostMessagesSendBatchMutationKey() {
+  return ['POST', '/messages/send-batch'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /messages/send-batch
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostMessagesSendBatchMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostMessagesSendBatchMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.messages)['send-batch']['$post']>) =>
+    parseResponse(client.messages['send-batch'].$post(args, clientOptions)),
+})
 
 /**
  * POST /messages/send-batch
@@ -402,6 +505,25 @@ export function useGetTemplates(
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /templates
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTemplatesMutationKey() {
+  return ['POST', '/templates'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /templates
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTemplatesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostTemplatesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.templates.$post>) =>
+    parseResponse(client.templates.$post(args, clientOptions)),
+})
+
+/**
  * POST /templates
  *
  * テンプレート作成
@@ -481,6 +603,25 @@ export function useGetTemplatesTemplateId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /templates/{templateId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutTemplatesTemplateIdMutationKey() {
+  return ['PUT', '/templates/:templateId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /templates/{templateId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutTemplatesTemplateIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutTemplatesTemplateIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.templates)[':templateId']['$put']>) =>
+    parseResponse(client.templates[':templateId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /templates/{templateId}
  *
  * テンプレート更新
@@ -504,6 +645,27 @@ export function usePutTemplatesTemplateId(options?: {
       parseResponse(client.templates[':templateId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /templates/{templateId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteTemplatesTemplateIdMutationKey() {
+  return ['DELETE', '/templates/:templateId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /templates/{templateId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteTemplatesTemplateIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteTemplatesTemplateIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.templates)[':templateId']['$delete']>) =>
+    parseResponse(client.templates[':templateId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /templates/{templateId}
@@ -533,6 +695,28 @@ export function useDeleteTemplatesTemplateId(options?: {
     ) => parseResponse(client.templates[':templateId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /templates/{templateId}/preview
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostTemplatesTemplateIdPreviewMutationKey() {
+  return ['POST', '/templates/:templateId/preview'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /templates/{templateId}/preview
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostTemplatesTemplateIdPreviewMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostTemplatesTemplateIdPreviewMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.templates)[':templateId']['preview']['$post']>,
+  ) => parseResponse(client.templates[':templateId'].preview.$post(args, clientOptions)),
+})
 
 /**
  * POST /templates/{templateId}/preview
@@ -606,6 +790,25 @@ export function useGetChannelsPreferences(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /channels/preferences
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsPreferencesMutationKey() {
+  return ['PUT', '/channels/preferences'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /channels/preferences
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsPreferencesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutChannelsPreferencesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.channels.preferences.$put>) =>
+    parseResponse(client.channels.preferences.$put(args, clientOptions)),
+})
+
+/**
  * PUT /channels/preferences
  *
  * チャンネル設定更新
@@ -672,6 +875,25 @@ export function useGetChannelsDevices(options?: {
 }
 
 /**
+ * Generates TanStack Query mutation key for POST /channels/devices
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsDevicesMutationKey() {
+  return ['POST', '/channels/devices'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /channels/devices
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsDevicesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostChannelsDevicesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.channels.devices.$post>) =>
+    parseResponse(client.channels.devices.$post(args, clientOptions)),
+})
+
+/**
  * POST /channels/devices
  *
  * デバイス登録
@@ -693,6 +915,28 @@ export function usePostChannelsDevices(options?: {
       parseResponse(client.channels.devices.$post(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /channels/devices/{deviceId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsDevicesDeviceIdMutationKey() {
+  return ['DELETE', '/channels/devices/:deviceId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /channels/devices/{deviceId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsDevicesDeviceIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsDevicesDeviceIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels.devices)[':deviceId']['$delete']>,
+  ) => parseResponse(client.channels.devices[':deviceId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /channels/devices/{deviceId}
@@ -763,6 +1007,25 @@ export function useGetWebhooks(options?: {
   const { queryKey, queryFn, ...baseOptions } = getGetWebhooksQueryOptions(clientOptions)
   return useQuery({ ...baseOptions, ...queryOptions, queryKey, queryFn })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webhooks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksMutationKey() {
+  return ['POST', '/webhooks'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webhooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostWebhooksMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.webhooks.$post>) =>
+    parseResponse(client.webhooks.$post(args, clientOptions)),
+})
 
 /**
  * POST /webhooks
@@ -842,6 +1105,25 @@ export function useGetWebhooksWebhookId(
 }
 
 /**
+ * Generates TanStack Query mutation key for PUT /webhooks/{webhookId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutWebhooksWebhookIdMutationKey() {
+  return ['PUT', '/webhooks/:webhookId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for PUT /webhooks/{webhookId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutWebhooksWebhookIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutWebhooksWebhookIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhookId']['$put']>) =>
+    parseResponse(client.webhooks[':webhookId'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /webhooks/{webhookId}
  *
  * Webhook更新
@@ -865,6 +1147,27 @@ export function usePutWebhooksWebhookId(options?: {
       parseResponse(client.webhooks[':webhookId'].$put(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for DELETE /webhooks/{webhookId}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteWebhooksWebhookIdMutationKey() {
+  return ['DELETE', '/webhooks/:webhookId'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for DELETE /webhooks/{webhookId}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteWebhooksWebhookIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteWebhooksWebhookIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhookId']['$delete']>) =>
+    parseResponse(client.webhooks[':webhookId'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /webhooks/{webhookId}
@@ -893,6 +1196,28 @@ export function useDeleteWebhooksWebhookId(options?: {
       parseResponse(client.webhooks[':webhookId'].$delete(args, clientOptions)),
   })
 }
+
+/**
+ * Generates TanStack Query mutation key for POST /webhooks/{webhookId}/test
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksWebhookIdTestMutationKey() {
+  return ['POST', '/webhooks/:webhookId/test'] as const
+}
+
+/**
+ * Returns TanStack Query mutation options for POST /webhooks/{webhookId}/test
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksWebhookIdTestMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebhooksWebhookIdTestMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webhooks)[':webhookId']['test']['$post']>,
+  ) => parseResponse(client.webhooks[':webhookId'].test.$post(args, clientOptions)),
+})
 
 /**
  * POST /webhooks/{webhookId}/test

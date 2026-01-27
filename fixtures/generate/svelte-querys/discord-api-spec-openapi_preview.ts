@@ -56,6 +56,25 @@ export function createGetApplicationsMe(
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /applications/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchApplicationsMeMutationKey() {
+  return ['PATCH', '/applications/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /applications/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchApplicationsMeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchApplicationsMeMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.applications)['@me']['$patch']>) =>
+    parseResponse(client.applications['@me'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /applications/@me
  */
 export function createPatchApplicationsMe(options?: {
@@ -135,6 +154,28 @@ export function createGetApplicationsApplicationId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /applications/{application_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchApplicationsApplicationIdMutationKey() {
+  return ['PATCH', '/applications/:application_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /applications/{application_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchApplicationsApplicationIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchApplicationsApplicationIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.applications)[':application_id']['$patch']>,
+  ) => parseResponse(client.applications[':application_id'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /applications/{application_id}
@@ -233,6 +274,28 @@ export function createGetApplicationsApplicationIdActivityInstancesInstanceId(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /applications/{application_id}/attachment
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApplicationsApplicationIdAttachmentMutationKey() {
+  return ['POST', '/applications/:application_id/attachment'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /applications/{application_id}/attachment
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApplicationsApplicationIdAttachmentMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostApplicationsApplicationIdAttachmentMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.applications)[':application_id']['attachment']['$post']>,
+  ) => parseResponse(client.applications[':application_id'].attachment.$post(args, clientOptions)),
+})
+
+/**
  * POST /applications/{application_id}/attachment
  */
 export function createPostApplicationsApplicationIdAttachment(options?: {
@@ -320,6 +383,28 @@ export function createGetApplicationsApplicationIdCommands(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /applications/{application_id}/commands
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutApplicationsApplicationIdCommandsMutationKey() {
+  return ['PUT', '/applications/:application_id/commands'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /applications/{application_id}/commands
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutApplicationsApplicationIdCommandsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutApplicationsApplicationIdCommandsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$put']>,
+  ) => parseResponse(client.applications[':application_id'].commands.$put(args, clientOptions)),
+})
+
+/**
  * PUT /applications/{application_id}/commands
  */
 export function createPutApplicationsApplicationIdCommands(options?: {
@@ -344,6 +429,28 @@ export function createPutApplicationsApplicationIdCommands(options?: {
     ) => parseResponse(client.applications[':application_id'].commands.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /applications/{application_id}/commands
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApplicationsApplicationIdCommandsMutationKey() {
+  return ['POST', '/applications/:application_id/commands'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /applications/{application_id}/commands
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApplicationsApplicationIdCommandsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostApplicationsApplicationIdCommandsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.applications)[':application_id']['commands']['$post']>,
+  ) => parseResponse(client.applications[':application_id'].commands.$post(args, clientOptions)),
+})
 
 /**
  * POST /applications/{application_id}/commands
@@ -438,6 +545,33 @@ export function createGetApplicationsApplicationIdCommandsCommandId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /applications/{application_id}/commands/{command_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey() {
+  return ['DELETE', '/applications/:application_id/commands/:command_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /applications/{application_id}/commands/{command_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteApplicationsApplicationIdCommandsCommandIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteApplicationsApplicationIdCommandsCommandIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['commands'][':command_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].commands[':command_id'].$delete(args, clientOptions),
+    ),
+})
+
+/**
  * DELETE /applications/{application_id}/commands/{command_id}
  */
 export function createDeleteApplicationsApplicationIdCommandsCommandId(options?: {
@@ -474,6 +608,33 @@ export function createDeleteApplicationsApplicationIdCommandsCommandId(options?:
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /applications/{application_id}/commands/{command_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchApplicationsApplicationIdCommandsCommandIdMutationKey() {
+  return ['PATCH', '/applications/:application_id/commands/:command_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /applications/{application_id}/commands/{command_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchApplicationsApplicationIdCommandsCommandIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchApplicationsApplicationIdCommandsCommandIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['commands'][':command_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].commands[':command_id'].$patch(args, clientOptions),
+    ),
+})
 
 /**
  * PATCH /applications/{application_id}/commands/{command_id}
@@ -571,6 +732,28 @@ export function createGetApplicationsApplicationIdEmojis(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /applications/{application_id}/emojis
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApplicationsApplicationIdEmojisMutationKey() {
+  return ['POST', '/applications/:application_id/emojis'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /applications/{application_id}/emojis
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApplicationsApplicationIdEmojisMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostApplicationsApplicationIdEmojisMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.applications)[':application_id']['emojis']['$post']>,
+  ) => parseResponse(client.applications[':application_id'].emojis.$post(args, clientOptions)),
+})
+
+/**
  * POST /applications/{application_id}/emojis
  */
 export function createPostApplicationsApplicationIdEmojis(options?: {
@@ -663,6 +846,33 @@ export function createGetApplicationsApplicationIdEmojisEmojiId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /applications/{application_id}/emojis/{emoji_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey() {
+  return ['DELETE', '/applications/:application_id/emojis/:emoji_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /applications/{application_id}/emojis/{emoji_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteApplicationsApplicationIdEmojisEmojiIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteApplicationsApplicationIdEmojisEmojiIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].emojis[':emoji_id'].$delete(args, clientOptions),
+    ),
+})
+
+/**
  * DELETE /applications/{application_id}/emojis/{emoji_id}
  */
 export function createDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
@@ -699,6 +909,33 @@ export function createDeleteApplicationsApplicationIdEmojisEmojiId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /applications/{application_id}/emojis/{emoji_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey() {
+  return ['PATCH', '/applications/:application_id/emojis/:emoji_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /applications/{application_id}/emojis/{emoji_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchApplicationsApplicationIdEmojisEmojiIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchApplicationsApplicationIdEmojisEmojiIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['emojis'][':emoji_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].emojis[':emoji_id'].$patch(args, clientOptions),
+    ),
+})
 
 /**
  * PATCH /applications/{application_id}/emojis/{emoji_id}
@@ -794,6 +1031,31 @@ export function createGetApplicationsApplicationIdEntitlements(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /applications/{application_id}/entitlements
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApplicationsApplicationIdEntitlementsMutationKey() {
+  return ['POST', '/applications/:application_id/entitlements'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /applications/{application_id}/entitlements
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApplicationsApplicationIdEntitlementsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostApplicationsApplicationIdEntitlementsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['entitlements']['$post']
+    >,
+  ) =>
+    parseResponse(client.applications[':application_id'].entitlements.$post(args, clientOptions)),
+})
 
 /**
  * POST /applications/{application_id}/entitlements
@@ -897,6 +1159,36 @@ export function createGetApplicationsApplicationIdEntitlementsEntitlementId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /applications/{application_id}/entitlements/{entitlement_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey() {
+  return ['DELETE', '/applications/:application_id/entitlements/:entitlement_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /applications/{application_id}/entitlements/{entitlement_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteApplicationsApplicationIdEntitlementsEntitlementIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].entitlements[':entitlement_id'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * DELETE /applications/{application_id}/entitlements/{entitlement_id}
  */
 export function createDeleteApplicationsApplicationIdEntitlementsEntitlementId(options?: {
@@ -936,6 +1228,36 @@ export function createDeleteApplicationsApplicationIdEntitlementsEntitlementId(o
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /applications/{application_id}/entitlements/{entitlement_id}/consume
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey() {
+  return ['POST', '/applications/:application_id/entitlements/:entitlement_id/consume'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /applications/{application_id}/entitlements/{entitlement_id}/consume
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostApplicationsApplicationIdEntitlementsEntitlementIdConsumeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['entitlements'][':entitlement_id']['consume']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].entitlements[':entitlement_id'].consume.$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /applications/{application_id}/entitlements/{entitlement_id}/consume
@@ -1045,6 +1367,33 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommands(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
+  return ['PUT', '/applications/:application_id/guilds/:guild_id/commands'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /applications/{application_id}/guilds/{guild_id}/commands
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutApplicationsApplicationIdGuildsGuildIdCommandsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].guilds[':guild_id'].commands.$put(args, clientOptions),
+    ),
+})
+
+/**
  * PUT /applications/{application_id}/guilds/{guild_id}/commands
  */
 export function createPutApplicationsApplicationIdGuildsGuildIdCommands(options?: {
@@ -1083,6 +1432,36 @@ export function createPutApplicationsApplicationIdGuildsGuildIdCommands(options?
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /applications/{application_id}/guilds/{guild_id}/commands
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey() {
+  return ['POST', '/applications/:application_id/guilds/:guild_id/commands'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /applications/{application_id}/guilds/{guild_id}/commands
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostApplicationsApplicationIdGuildsGuildIdCommandsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].guilds[':guild_id'].commands.$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * POST /applications/{application_id}/guilds/{guild_id}/commands
@@ -1268,6 +1647,36 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
+  return ['DELETE', '/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * DELETE /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
  */
 export function createDeleteApplicationsApplicationIdGuildsGuildIdCommandsCommandId(options?: {
@@ -1307,6 +1716,36 @@ export function createDeleteApplicationsApplicationIdGuildsGuildIdCommandsComman
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey() {
+  return ['PATCH', '/applications/:application_id/guilds/:guild_id/commands/:command_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchApplicationsApplicationIdGuildsGuildIdCommandsCommandIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id'].guilds[':guild_id'].commands[':command_id'].$patch(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * PATCH /applications/{application_id}/guilds/{guild_id}/commands/{command_id}
@@ -1423,6 +1862,38 @@ export function createGetApplicationsApplicationIdGuildsGuildIdCommandsCommandId
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey() {
+  return [
+    'PUT',
+    '/applications/:application_id/guilds/:guild_id/commands/:command_id/permissions',
+  ] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationOptions =
+  (clientOptions?: ClientRequestOptions) => ({
+    mutationKey:
+      getPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissionsMutationKey(),
+    mutationFn: async (
+      args: InferRequestType<
+        (typeof client.applications)[':application_id']['guilds'][':guild_id']['commands'][':command_id']['permissions']['$put']
+      >,
+    ) =>
+      parseResponse(
+        client.applications[':application_id'].guilds[':guild_id'].commands[
+          ':command_id'
+        ].permissions.$put(args, clientOptions),
+      ),
+  })
+
+/**
  * PUT /applications/{application_id}/guilds/{guild_id}/commands/{command_id}/permissions
  */
 export function createPutApplicationsApplicationIdGuildsGuildIdCommandsCommandIdPermissions(options?: {
@@ -1528,6 +1999,33 @@ export function createGetApplicationsApplicationIdRoleConnectionsMetadata(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /applications/{application_id}/role-connections/metadata
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey() {
+  return ['PUT', '/applications/:application_id/role-connections/metadata'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /applications/{application_id}/role-connections/metadata
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutApplicationsApplicationIdRoleConnectionsMetadataMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutApplicationsApplicationIdRoleConnectionsMetadataMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.applications)[':application_id']['role-connections']['metadata']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.applications[':application_id']['role-connections'].metadata.$put(args, clientOptions),
+    ),
+})
+
+/**
  * PUT /applications/{application_id}/role-connections/metadata
  */
 export function createPutApplicationsApplicationIdRoleConnectionsMetadata(options?: {
@@ -1624,6 +2122,27 @@ export function createGetChannelsChannelId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdMutationKey() {
+  return ['DELETE', '/channels/:channel_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.channels)[':channel_id']['$delete']>) =>
+    parseResponse(client.channels[':channel_id'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /channels/{channel_id}
  */
 export function createDeleteChannelsChannelId(options?: {
@@ -1650,6 +2169,25 @@ export function createDeleteChannelsChannelId(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /channels/{channel_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchChannelsChannelIdMutationKey() {
+  return ['PATCH', '/channels/:channel_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /channels/{channel_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchChannelsChannelIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchChannelsChannelIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.channels)[':channel_id']['$patch']>) =>
+    parseResponse(client.channels[':channel_id'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /channels/{channel_id}
  */
 export function createPatchChannelsChannelId(options?: {
@@ -1671,6 +2209,28 @@ export function createPatchChannelsChannelId(options?: {
       parseResponse(client.channels[':channel_id'].$patch(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/followers
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdFollowersMutationKey() {
+  return ['POST', '/channels/:channel_id/followers'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/followers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdFollowersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdFollowersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels)[':channel_id']['followers']['$post']>,
+  ) => parseResponse(client.channels[':channel_id'].followers.$post(args, clientOptions)),
+})
 
 /**
  * POST /channels/{channel_id}/followers
@@ -1755,6 +2315,28 @@ export function createGetChannelsChannelIdInvites(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/invites
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdInvitesMutationKey() {
+  return ['POST', '/channels/:channel_id/invites'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/invites
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdInvitesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdInvitesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels)[':channel_id']['invites']['$post']>,
+  ) => parseResponse(client.channels[':channel_id'].invites.$post(args, clientOptions)),
+})
 
 /**
  * POST /channels/{channel_id}/invites
@@ -1842,6 +2424,28 @@ export function createGetChannelsChannelIdMessages(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/messages
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdMessagesMutationKey() {
+  return ['POST', '/channels/:channel_id/messages'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/messages
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdMessagesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdMessagesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels)[':channel_id']['messages']['$post']>,
+  ) => parseResponse(client.channels[':channel_id'].messages.$post(args, clientOptions)),
+})
+
+/**
  * POST /channels/{channel_id}/messages
  */
 export function createPostChannelsChannelIdMessages(options?: {
@@ -1866,6 +2470,33 @@ export function createPostChannelsChannelIdMessages(options?: {
     ) => parseResponse(client.channels[':channel_id'].messages.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/messages/bulk-delete
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdMessagesBulkDeleteMutationKey() {
+  return ['POST', '/channels/:channel_id/messages/bulk-delete'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/messages/bulk-delete
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdMessagesBulkDeleteMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdMessagesBulkDeleteMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages']['bulk-delete']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages['bulk-delete'].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /channels/{channel_id}/messages/bulk-delete
@@ -1962,6 +2593,33 @@ export function createGetChannelsChannelIdMessagesPins(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /channels/{channel_id}/messages/pins/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsChannelIdMessagesPinsMessageIdMutationKey() {
+  return ['PUT', '/channels/:channel_id/messages/pins/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /channels/{channel_id}/messages/pins/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsChannelIdMessagesPinsMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutChannelsChannelIdMessagesPinsMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages.pins[':message_id'].$put(args, clientOptions),
+    ),
+})
+
+/**
  * PUT /channels/{channel_id}/messages/pins/{message_id}
  */
 export function createPutChannelsChannelIdMessagesPinsMessageId(options?: {
@@ -1998,6 +2656,33 @@ export function createPutChannelsChannelIdMessagesPinsMessageId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/messages/pins/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey() {
+  return ['DELETE', '/channels/:channel_id/messages/pins/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/messages/pins/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdMessagesPinsMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdMessagesPinsMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages']['pins'][':message_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages.pins[':message_id'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /channels/{channel_id}/messages/pins/{message_id}
@@ -2102,6 +2787,33 @@ export function createGetChannelsChannelIdMessagesMessageId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdMessagesMessageIdMutationKey() {
+  return ['DELETE', '/channels/:channel_id/messages/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/messages/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdMessagesMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdMessagesMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].$delete(args, clientOptions),
+    ),
+})
+
+/**
  * DELETE /channels/{channel_id}/messages/{message_id}
  */
 export function createDeleteChannelsChannelIdMessagesMessageId(options?: {
@@ -2138,6 +2850,33 @@ export function createDeleteChannelsChannelIdMessagesMessageId(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /channels/{channel_id}/messages/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchChannelsChannelIdMessagesMessageIdMutationKey() {
+  return ['PATCH', '/channels/:channel_id/messages/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /channels/{channel_id}/messages/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchChannelsChannelIdMessagesMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchChannelsChannelIdMessagesMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].$patch(args, clientOptions),
+    ),
+})
+
+/**
  * PATCH /channels/{channel_id}/messages/{message_id}
  */
 export function createPatchChannelsChannelIdMessagesMessageId(options?: {
@@ -2169,6 +2908,33 @@ export function createPatchChannelsChannelIdMessagesMessageId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/messages/{message_id}/crosspost
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey() {
+  return ['POST', '/channels/:channel_id/messages/:message_id/crosspost'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/messages/{message_id}/crosspost
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdMessagesMessageIdCrosspostMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdMessagesMessageIdCrosspostMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['crosspost']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].crosspost.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /channels/{channel_id}/messages/{message_id}/crosspost
@@ -2206,6 +2972,33 @@ export function createPostChannelsChannelIdMessagesMessageIdCrosspost(options?: 
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey() {
+  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/messages/{message_id}/reactions
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdMessagesMessageIdReactionsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].reactions.$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions
@@ -2319,6 +3112,36 @@ export function createGetChannelsChannelIdMessagesMessageIdReactionsEmojiName(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey() {
+  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}
  */
 export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName(options?: {
@@ -2358,6 +3181,36 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
+  return ['PUT', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name']['@me'].$put(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * PUT /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
@@ -2401,6 +3254,35 @@ export function createPutChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey() {
+  return ['DELETE', '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name']['@me']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
+        '@me'
+      ].$delete(args, clientOptions),
+    ),
+})
+
+/**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/@me
  */
 export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameMe(options?: {
@@ -2439,6 +3321,38 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey() {
+  return [
+    'DELETE',
+    '/channels/:channel_id/messages/:message_id/reactions/:emoji_name/:user_id',
+  ] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiNameUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['reactions'][':emoji_name'][':user_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].reactions[':emoji_name'][
+        ':user_id'
+      ].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /channels/{channel_id}/messages/{message_id}/reactions/{emoji_name}/{user_id}
@@ -2481,6 +3395,33 @@ export function createDeleteChannelsChannelIdMessagesMessageIdReactionsEmojiName
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/messages/{message_id}/threads
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey() {
+  return ['POST', '/channels/:channel_id/messages/:message_id/threads'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/messages/{message_id}/threads
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdMessagesMessageIdThreadsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdMessagesMessageIdThreadsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['messages'][':message_id']['threads']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].messages[':message_id'].threads.$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /channels/{channel_id}/messages/{message_id}/threads
  */
 export function createPostChannelsChannelIdMessagesMessageIdThreads(options?: {
@@ -2516,6 +3457,33 @@ export function createPostChannelsChannelIdMessagesMessageIdThreads(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /channels/{channel_id}/permissions/{overwrite_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsChannelIdPermissionsOverwriteIdMutationKey() {
+  return ['PUT', '/channels/:channel_id/permissions/:overwrite_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /channels/{channel_id}/permissions/{overwrite_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsChannelIdPermissionsOverwriteIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutChannelsChannelIdPermissionsOverwriteIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].permissions[':overwrite_id'].$put(args, clientOptions),
+    ),
+})
 
 /**
  * PUT /channels/{channel_id}/permissions/{overwrite_id}
@@ -2554,6 +3522,33 @@ export function createPutChannelsChannelIdPermissionsOverwriteId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/permissions/{overwrite_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey() {
+  return ['DELETE', '/channels/:channel_id/permissions/:overwrite_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/permissions/{overwrite_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdPermissionsOverwriteIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdPermissionsOverwriteIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['permissions'][':overwrite_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].permissions[':overwrite_id'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /channels/{channel_id}/permissions/{overwrite_id}
@@ -2652,6 +3647,28 @@ export function createGetChannelsChannelIdPins(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /channels/{channel_id}/pins/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsChannelIdPinsMessageIdMutationKey() {
+  return ['PUT', '/channels/:channel_id/pins/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /channels/{channel_id}/pins/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsChannelIdPinsMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutChannelsChannelIdPinsMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels)[':channel_id']['pins'][':message_id']['$put']>,
+  ) => parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /channels/{channel_id}/pins/{message_id}
  */
 export function createPutChannelsChannelIdPinsMessageId(options?: {
@@ -2682,6 +3699,31 @@ export function createPutChannelsChannelIdPinsMessageId(options?: {
       parseResponse(client.channels[':channel_id'].pins[':message_id'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/pins/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdPinsMessageIdMutationKey() {
+  return ['DELETE', '/channels/:channel_id/pins/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/pins/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdPinsMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdPinsMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['pins'][':message_id']['$delete']
+    >,
+  ) =>
+    parseResponse(client.channels[':channel_id'].pins[':message_id'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /channels/{channel_id}/pins/{message_id}
@@ -2784,6 +3826,33 @@ export function createGetChannelsChannelIdPollsMessageIdAnswersAnswerId(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/polls/{message_id}/expire
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdPollsMessageIdExpireMutationKey() {
+  return ['POST', '/channels/:channel_id/polls/:message_id/expire'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/polls/{message_id}/expire
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdPollsMessageIdExpireMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdPollsMessageIdExpireMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['polls'][':message_id']['expire']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].polls[':message_id'].expire.$post(args, clientOptions),
+    ),
+})
+
+/**
  * POST /channels/{channel_id}/polls/{message_id}/expire
  */
 export function createPostChannelsChannelIdPollsMessageIdExpire(options?: {
@@ -2821,6 +3890,31 @@ export function createPostChannelsChannelIdPollsMessageIdExpire(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /channels/{channel_id}/recipients/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsChannelIdRecipientsUserIdMutationKey() {
+  return ['PUT', '/channels/:channel_id/recipients/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /channels/{channel_id}/recipients/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsChannelIdRecipientsUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutChannelsChannelIdRecipientsUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['recipients'][':user_id']['$put']
+    >,
+  ) =>
+    parseResponse(client.channels[':channel_id'].recipients[':user_id'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /channels/{channel_id}/recipients/{user_id}
  */
 export function createPutChannelsChannelIdRecipientsUserId(options?: {
@@ -2853,6 +3947,33 @@ export function createPutChannelsChannelIdRecipientsUserId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/recipients/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdRecipientsUserIdMutationKey() {
+  return ['DELETE', '/channels/:channel_id/recipients/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/recipients/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdRecipientsUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdRecipientsUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['recipients'][':user_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id'].recipients[':user_id'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /channels/{channel_id}/recipients/{user_id}
@@ -2889,6 +4010,33 @@ export function createDeleteChannelsChannelIdRecipientsUserId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/send-soundboard-sound
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdSendSoundboardSoundMutationKey() {
+  return ['POST', '/channels/:channel_id/send-soundboard-sound'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/send-soundboard-sound
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdSendSoundboardSoundMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdSendSoundboardSoundMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['send-soundboard-sound']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id']['send-soundboard-sound'].$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /channels/{channel_id}/send-soundboard-sound
@@ -2983,6 +4131,33 @@ export function createGetChannelsChannelIdThreadMembers(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /channels/{channel_id}/thread-members/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsChannelIdThreadMembersMeMutationKey() {
+  return ['PUT', '/channels/:channel_id/thread-members/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /channels/{channel_id}/thread-members/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsChannelIdThreadMembersMeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutChannelsChannelIdThreadMembersMeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['thread-members']['@me']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id']['thread-members']['@me'].$put(args, clientOptions),
+    ),
+})
+
+/**
  * PUT /channels/{channel_id}/thread-members/@me
  */
 export function createPutChannelsChannelIdThreadMembersMe(options?: {
@@ -3015,6 +4190,33 @@ export function createPutChannelsChannelIdThreadMembersMe(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/thread-members/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdThreadMembersMeMutationKey() {
+  return ['DELETE', '/channels/:channel_id/thread-members/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/thread-members/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdThreadMembersMeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdThreadMembersMeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['thread-members']['@me']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id']['thread-members']['@me'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /channels/{channel_id}/thread-members/@me
@@ -3119,6 +4321,33 @@ export function createGetChannelsChannelIdThreadMembersUserId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /channels/{channel_id}/thread-members/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutChannelsChannelIdThreadMembersUserIdMutationKey() {
+  return ['PUT', '/channels/:channel_id/thread-members/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /channels/{channel_id}/thread-members/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutChannelsChannelIdThreadMembersUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutChannelsChannelIdThreadMembersUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id']['thread-members'][':user_id'].$put(args, clientOptions),
+    ),
+})
+
+/**
  * PUT /channels/{channel_id}/thread-members/{user_id}
  */
 export function createPutChannelsChannelIdThreadMembersUserId(options?: {
@@ -3153,6 +4382,33 @@ export function createPutChannelsChannelIdThreadMembersUserId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /channels/{channel_id}/thread-members/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteChannelsChannelIdThreadMembersUserIdMutationKey() {
+  return ['DELETE', '/channels/:channel_id/thread-members/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /channels/{channel_id}/thread-members/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteChannelsChannelIdThreadMembersUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteChannelsChannelIdThreadMembersUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.channels)[':channel_id']['thread-members'][':user_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.channels[':channel_id']['thread-members'][':user_id'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /channels/{channel_id}/thread-members/{user_id}
@@ -3191,6 +4447,28 @@ export function createDeleteChannelsChannelIdThreadMembersUserId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/threads
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdThreadsMutationKey() {
+  return ['POST', '/channels/:channel_id/threads'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/threads
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdThreadsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdThreadsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels)[':channel_id']['threads']['$post']>,
+  ) => parseResponse(client.channels[':channel_id'].threads.$post(args, clientOptions)),
+})
 
 /**
  * POST /channels/{channel_id}/threads
@@ -3411,6 +4689,28 @@ export function createGetChannelsChannelIdThreadsSearch(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/typing
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdTypingMutationKey() {
+  return ['POST', '/channels/:channel_id/typing'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/typing
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdTypingMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdTypingMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels)[':channel_id']['typing']['$post']>,
+  ) => parseResponse(client.channels[':channel_id'].typing.$post(args, clientOptions)),
+})
+
+/**
  * POST /channels/{channel_id}/typing
  */
 export function createPostChannelsChannelIdTyping(options?: {
@@ -3560,6 +4860,28 @@ export function createGetChannelsChannelIdWebhooks(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /channels/{channel_id}/webhooks
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostChannelsChannelIdWebhooksMutationKey() {
+  return ['POST', '/channels/:channel_id/webhooks'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /channels/{channel_id}/webhooks
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostChannelsChannelIdWebhooksMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostChannelsChannelIdWebhooksMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.channels)[':channel_id']['webhooks']['$post']>,
+  ) => parseResponse(client.channels[':channel_id'].webhooks.$post(args, clientOptions)),
+})
 
 /**
  * POST /channels/{channel_id}/webhooks
@@ -3790,6 +5112,25 @@ export function createGetGuildsGuildId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchGuildsGuildIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.guilds)[':guild_id']['$patch']>) =>
+    parseResponse(client.guilds[':guild_id'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /guilds/{guild_id}
  */
 export function createPatchGuildsGuildId(options?: {
@@ -3929,6 +5270,31 @@ export function createGetGuildsGuildIdAutoModerationRules(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/auto-moderation/rules
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdAutoModerationRulesMutationKey() {
+  return ['POST', '/guilds/:guild_id/auto-moderation/rules'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/auto-moderation/rules
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdAutoModerationRulesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdAutoModerationRulesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['auto-moderation']['rules']['$post']
+    >,
+  ) =>
+    parseResponse(client.guilds[':guild_id']['auto-moderation'].rules.$post(args, clientOptions)),
+})
+
+/**
  * POST /guilds/{guild_id}/auto-moderation/rules
  */
 export function createPostGuildsGuildIdAutoModerationRules(options?: {
@@ -4026,6 +5392,33 @@ export function createGetGuildsGuildIdAutoModerationRulesRuleId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdAutoModerationRulesRuleIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$delete(args, clientOptions),
+    ),
+})
+
+/**
  * DELETE /guilds/{guild_id}/auto-moderation/rules/{rule_id}
  */
 export function createDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
@@ -4065,6 +5458,33 @@ export function createDeleteGuildsGuildIdAutoModerationRulesRuleId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/auto-moderation/rules/:rule_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdAutoModerationRulesRuleIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['auto-moderation']['rules'][':rule_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id']['auto-moderation'].rules[':rule_id'].$patch(args, clientOptions),
+    ),
+})
 
 /**
  * PATCH /guilds/{guild_id}/auto-moderation/rules/{rule_id}
@@ -4220,6 +5640,28 @@ export function createGetGuildsGuildIdBansUserId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /guilds/{guild_id}/bans/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutGuildsGuildIdBansUserIdMutationKey() {
+  return ['PUT', '/guilds/:guild_id/bans/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /guilds/{guild_id}/bans/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutGuildsGuildIdBansUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutGuildsGuildIdBansUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$put']>,
+  ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /guilds/{guild_id}/bans/{user_id}
  */
 export function createPutGuildsGuildIdBansUserId(options?: {
@@ -4247,6 +5689,28 @@ export function createPutGuildsGuildIdBansUserId(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/bans/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdBansUserIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/bans/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/bans/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdBansUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdBansUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['bans'][':user_id']['$delete']>,
+  ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /guilds/{guild_id}/bans/{user_id}
  */
 export function createDeleteGuildsGuildIdBansUserId(options?: {
@@ -4272,6 +5736,28 @@ export function createDeleteGuildsGuildIdBansUserId(options?: {
     ) => parseResponse(client.guilds[':guild_id'].bans[':user_id'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/bulk-ban
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdBulkBanMutationKey() {
+  return ['POST', '/guilds/:guild_id/bulk-ban'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/bulk-ban
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdBulkBanMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdBulkBanMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['bulk-ban']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id']['bulk-ban'].$post(args, clientOptions)),
+})
 
 /**
  * POST /guilds/{guild_id}/bulk-ban
@@ -4358,6 +5844,28 @@ export function createGetGuildsGuildIdChannels(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/channels
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdChannelsMutationKey() {
+  return ['POST', '/guilds/:guild_id/channels'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/channels
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdChannelsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdChannelsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, clientOptions)),
+})
+
+/**
  * POST /guilds/{guild_id}/channels
  */
 export function createPostGuildsGuildIdChannels(options?: {
@@ -4382,6 +5890,28 @@ export function createPostGuildsGuildIdChannels(options?: {
     ) => parseResponse(client.guilds[':guild_id'].channels.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/channels
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdChannelsMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/channels'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/channels
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdChannelsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdChannelsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['channels']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].channels.$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /guilds/{guild_id}/channels
@@ -4469,6 +5999,28 @@ export function createGetGuildsGuildIdEmojis(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/emojis
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdEmojisMutationKey() {
+  return ['POST', '/guilds/:guild_id/emojis'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/emojis
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdEmojisMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdEmojisMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id'].emojis.$post(args, clientOptions)),
+})
+
+/**
  * POST /guilds/{guild_id}/emojis
  */
 export function createPostGuildsGuildIdEmojis(options?: {
@@ -4553,6 +6105,28 @@ export function createGetGuildsGuildIdEmojisEmojiId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/emojis/{emoji_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdEmojisEmojiIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/emojis/:emoji_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/emojis/{emoji_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdEmojisEmojiIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdEmojisEmojiIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$delete']>,
+  ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /guilds/{guild_id}/emojis/{emoji_id}
  */
 export function createDeleteGuildsGuildIdEmojisEmojiId(options?: {
@@ -4580,6 +6154,28 @@ export function createDeleteGuildsGuildIdEmojisEmojiId(options?: {
     ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/emojis/{emoji_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdEmojisEmojiIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/emojis/:emoji_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/emojis/{emoji_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdEmojisEmojiIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdEmojisEmojiIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['emojis'][':emoji_id']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].emojis[':emoji_id'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /guilds/{guild_id}/emojis/{emoji_id}
@@ -4664,6 +6260,33 @@ export function createGetGuildsGuildIdIntegrations(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/integrations/{integration_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/integrations/:integration_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/integrations/{integration_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdIntegrationsIntegrationIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['integrations'][':integration_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id'].integrations[':integration_id'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /guilds/{guild_id}/integrations/{integration_id}
@@ -4820,6 +6443,28 @@ export function createGetGuildsGuildIdMembers(
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/members/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdMembersMeMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/members/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/members/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdMembersMeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdMembersMeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['members']['@me']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].members['@me'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /guilds/{guild_id}/members/@me
  */
 export function createPatchGuildsGuildIdMembersMe(options?: {
@@ -4962,6 +6607,28 @@ export function createGetGuildsGuildIdMembersUserId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /guilds/{guild_id}/members/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutGuildsGuildIdMembersUserIdMutationKey() {
+  return ['PUT', '/guilds/:guild_id/members/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /guilds/{guild_id}/members/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutGuildsGuildIdMembersUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutGuildsGuildIdMembersUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$put']>,
+  ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /guilds/{guild_id}/members/{user_id}
  */
 export function createPutGuildsGuildIdMembersUserId(options?: {
@@ -4987,6 +6654,28 @@ export function createPutGuildsGuildIdMembersUserId(options?: {
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/members/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdMembersUserIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/members/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/members/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdMembersUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdMembersUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$delete']>,
+  ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /guilds/{guild_id}/members/{user_id}
@@ -5018,6 +6707,28 @@ export function createDeleteGuildsGuildIdMembersUserId(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/members/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdMembersUserIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/members/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/members/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdMembersUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdMembersUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['members'][':user_id']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /guilds/{guild_id}/members/{user_id}
  */
 export function createPatchGuildsGuildIdMembersUserId(options?: {
@@ -5045,6 +6756,33 @@ export function createPatchGuildsGuildIdMembersUserId(options?: {
     ) => parseResponse(client.guilds[':guild_id'].members[':user_id'].$patch(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
+  return ['PUT', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutGuildsGuildIdMembersUserIdRolesRoleIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$put(args, clientOptions),
+    ),
+})
 
 /**
  * PUT /guilds/{guild_id}/members/{user_id}/roles/{role_id}
@@ -5083,6 +6821,33 @@ export function createPutGuildsGuildIdMembersUserIdRolesRoleId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/members/:user_id/roles/:role_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdMembersUserIdRolesRoleIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['members'][':user_id']['roles'][':role_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id'].members[':user_id'].roles[':role_id'].$delete(args, clientOptions),
+    ),
+})
 
 /**
  * DELETE /guilds/{guild_id}/members/{user_id}/roles/{role_id}
@@ -5300,6 +7065,28 @@ export function createGetGuildsGuildIdOnboarding(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /guilds/{guild_id}/onboarding
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutGuildsGuildIdOnboardingMutationKey() {
+  return ['PUT', '/guilds/:guild_id/onboarding'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /guilds/{guild_id}/onboarding
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutGuildsGuildIdOnboardingMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutGuildsGuildIdOnboardingMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['onboarding']['$put']>,
+  ) => parseResponse(client.guilds[':guild_id'].onboarding.$put(args, clientOptions)),
+})
+
+/**
  * PUT /guilds/{guild_id}/onboarding
  */
 export function createPutGuildsGuildIdOnboarding(options?: {
@@ -5440,6 +7227,26 @@ export function createGetGuildsGuildIdPrune(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/prune
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdPruneMutationKey() {
+  return ['POST', '/guilds/:guild_id/prune'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/prune
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdPruneMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGuildsGuildIdPruneMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['prune']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id'].prune.$post(args, clientOptions)),
+})
 
 /**
  * POST /guilds/{guild_id}/prune
@@ -5584,6 +7391,26 @@ export function createGetGuildsGuildIdRoles(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/roles
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdRolesMutationKey() {
+  return ['POST', '/guilds/:guild_id/roles'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/roles
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdRolesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostGuildsGuildIdRolesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, clientOptions)),
+})
+
+/**
  * POST /guilds/{guild_id}/roles
  */
 export function createPostGuildsGuildIdRoles(options?: {
@@ -5608,6 +7435,28 @@ export function createPostGuildsGuildIdRoles(options?: {
     ) => parseResponse(client.guilds[':guild_id'].roles.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/roles
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdRolesMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/roles'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/roles
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdRolesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdRolesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['roles']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].roles.$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /guilds/{guild_id}/roles
@@ -5754,6 +7603,28 @@ export function createGetGuildsGuildIdRolesRoleId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/roles/{role_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdRolesRoleIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/roles/:role_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/roles/{role_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdRolesRoleIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdRolesRoleIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$delete']>,
+  ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /guilds/{guild_id}/roles/{role_id}
  */
 export function createDeleteGuildsGuildIdRolesRoleId(options?: {
@@ -5779,6 +7650,28 @@ export function createDeleteGuildsGuildIdRolesRoleId(options?: {
     ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/roles/{role_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdRolesRoleIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/roles/:role_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/roles/{role_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdRolesRoleIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdRolesRoleIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['roles'][':role_id']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].roles[':role_id'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /guilds/{guild_id}/roles/{role_id}
@@ -5863,6 +7756,28 @@ export function createGetGuildsGuildIdScheduledEvents(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/scheduled-events
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdScheduledEventsMutationKey() {
+  return ['POST', '/guilds/:guild_id/scheduled-events'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/scheduled-events
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdScheduledEventsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdScheduledEventsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['scheduled-events']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id']['scheduled-events'].$post(args, clientOptions)),
+})
 
 /**
  * POST /guilds/{guild_id}/scheduled-events
@@ -5957,6 +7872,36 @@ export function createGetGuildsGuildIdScheduledEventsGuildScheduledEventId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * DELETE /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
  */
 export function createDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(options?: {
@@ -5996,6 +7941,36 @@ export function createDeleteGuildsGuildIdScheduledEventsGuildScheduledEventId(op
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/scheduled-events/:guild_scheduled_event_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdScheduledEventsGuildScheduledEventIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['scheduled-events'][':guild_scheduled_event_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id']['scheduled-events'][':guild_scheduled_event_id'].$patch(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * PATCH /guilds/{guild_id}/scheduled-events/{guild_scheduled_event_id}
@@ -6166,6 +8141,28 @@ export function createGetGuildsGuildIdSoundboardSounds(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/soundboard-sounds
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdSoundboardSoundsMutationKey() {
+  return ['POST', '/guilds/:guild_id/soundboard-sounds'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/soundboard-sounds
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdSoundboardSoundsMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdSoundboardSoundsMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['soundboard-sounds']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id']['soundboard-sounds'].$post(args, clientOptions)),
+})
+
+/**
  * POST /guilds/{guild_id}/soundboard-sounds
  */
 export function createPostGuildsGuildIdSoundboardSounds(options?: {
@@ -6258,6 +8255,33 @@ export function createGetGuildsGuildIdSoundboardSoundsSoundId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdSoundboardSoundsSoundIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$delete(args, clientOptions),
+    ),
+})
+
+/**
  * DELETE /guilds/{guild_id}/soundboard-sounds/{sound_id}
  */
 export function createDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
@@ -6294,6 +8318,33 @@ export function createDeleteGuildsGuildIdSoundboardSoundsSoundId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/soundboard-sounds/:sound_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdSoundboardSoundsSoundIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['soundboard-sounds'][':sound_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id']['soundboard-sounds'][':sound_id'].$patch(args, clientOptions),
+    ),
+})
 
 /**
  * PATCH /guilds/{guild_id}/soundboard-sounds/{sound_id}
@@ -6391,6 +8442,28 @@ export function createGetGuildsGuildIdStickers(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/stickers
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdStickersMutationKey() {
+  return ['POST', '/guilds/:guild_id/stickers'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/stickers
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdStickersMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdStickersMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['stickers']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id'].stickers.$post(args, clientOptions)),
+})
+
+/**
  * POST /guilds/{guild_id}/stickers
  */
 export function createPostGuildsGuildIdStickers(options?: {
@@ -6477,6 +8550,31 @@ export function createGetGuildsGuildIdStickersStickerId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/stickers/{sticker_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdStickersStickerIdMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/stickers/:sticker_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/stickers/{sticker_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdStickersStickerIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdStickersStickerIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$delete']
+    >,
+  ) =>
+    parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /guilds/{guild_id}/stickers/{sticker_id}
  */
 export function createDeleteGuildsGuildIdStickersStickerId(options?: {
@@ -6509,6 +8607,31 @@ export function createDeleteGuildsGuildIdStickersStickerId(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/stickers/{sticker_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdStickersStickerIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/stickers/:sticker_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/stickers/{sticker_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdStickersStickerIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdStickersStickerIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['stickers'][':sticker_id']['$patch']
+    >,
+  ) =>
+    parseResponse(client.guilds[':guild_id'].stickers[':sticker_id'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /guilds/{guild_id}/stickers/{sticker_id}
@@ -6600,6 +8723,28 @@ export function createGetGuildsGuildIdTemplates(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /guilds/{guild_id}/templates
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostGuildsGuildIdTemplatesMutationKey() {
+  return ['POST', '/guilds/:guild_id/templates'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /guilds/{guild_id}/templates
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostGuildsGuildIdTemplatesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostGuildsGuildIdTemplatesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['templates']['$post']>,
+  ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, clientOptions)),
+})
+
+/**
  * POST /guilds/{guild_id}/templates
  */
 export function createPostGuildsGuildIdTemplates(options?: {
@@ -6624,6 +8769,28 @@ export function createPostGuildsGuildIdTemplates(options?: {
     ) => parseResponse(client.guilds[':guild_id'].templates.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PUT /guilds/{guild_id}/templates/{code}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutGuildsGuildIdTemplatesCodeMutationKey() {
+  return ['PUT', '/guilds/:guild_id/templates/:code'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /guilds/{guild_id}/templates/{code}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutGuildsGuildIdTemplatesCodeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutGuildsGuildIdTemplatesCodeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$put']>,
+  ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$put(args, clientOptions)),
+})
 
 /**
  * PUT /guilds/{guild_id}/templates/{code}
@@ -6652,6 +8819,28 @@ export function createPutGuildsGuildIdTemplatesCode(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /guilds/{guild_id}/templates/{code}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteGuildsGuildIdTemplatesCodeMutationKey() {
+  return ['DELETE', '/guilds/:guild_id/templates/:code'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /guilds/{guild_id}/templates/{code}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteGuildsGuildIdTemplatesCodeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteGuildsGuildIdTemplatesCodeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$delete']>,
+  ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /guilds/{guild_id}/templates/{code}
  */
 export function createDeleteGuildsGuildIdTemplatesCode(options?: {
@@ -6676,6 +8865,28 @@ export function createDeleteGuildsGuildIdTemplatesCode(options?: {
     ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/templates/{code}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdTemplatesCodeMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/templates/:code'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/templates/{code}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdTemplatesCodeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdTemplatesCodeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['templates'][':code']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].templates[':code'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /guilds/{guild_id}/templates/{code}
@@ -6878,6 +9089,28 @@ export function createGetGuildsGuildIdVoiceStatesMe(
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/voice-states/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdVoiceStatesMeMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/voice-states/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/voice-states/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdVoiceStatesMeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdVoiceStatesMeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['voice-states']['@me']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id']['voice-states']['@me'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /guilds/{guild_id}/voice-states/@me
  */
 export function createPatchGuildsGuildIdVoiceStatesMe(options?: {
@@ -6966,6 +9199,33 @@ export function createGetGuildsGuildIdVoiceStatesUserId(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/voice-states/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdVoiceStatesUserIdMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/voice-states/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/voice-states/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdVoiceStatesUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdVoiceStatesUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.guilds)[':guild_id']['voice-states'][':user_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.guilds[':guild_id']['voice-states'][':user_id'].$patch(args, clientOptions),
+    ),
+})
 
 /**
  * PATCH /guilds/{guild_id}/voice-states/{user_id}
@@ -7118,6 +9378,28 @@ export function createGetGuildsGuildIdWelcomeScreen(
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/welcome-screen
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdWelcomeScreenMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/welcome-screen'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/welcome-screen
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdWelcomeScreenMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdWelcomeScreenMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['welcome-screen']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id']['welcome-screen'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /guilds/{guild_id}/welcome-screen
  */
 export function createPatchGuildsGuildIdWelcomeScreen(options?: {
@@ -7200,6 +9482,28 @@ export function createGetGuildsGuildIdWidget(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /guilds/{guild_id}/widget
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchGuildsGuildIdWidgetMutationKey() {
+  return ['PATCH', '/guilds/:guild_id/widget'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /guilds/{guild_id}/widget
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchGuildsGuildIdWidgetMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchGuildsGuildIdWidgetMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.guilds)[':guild_id']['widget']['$patch']>,
+  ) => parseResponse(client.guilds[':guild_id'].widget.$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /guilds/{guild_id}/widget
@@ -7344,6 +9648,36 @@ export function createGetGuildsGuildIdWidgetPng(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /interactions/{interaction_id}/{interaction_token}/callback
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey() {
+  return ['POST', '/interactions/:interaction_id/:interaction_token/callback'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /interactions/{interaction_id}/{interaction_token}/callback
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostInteractionsInteractionIdInteractionTokenCallbackMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostInteractionsInteractionIdInteractionTokenCallbackMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.interactions)[':interaction_id'][':interaction_token']['callback']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.interactions[':interaction_id'][':interaction_token'].callback.$post(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * POST /interactions/{interaction_id}/{interaction_token}/callback
  */
 export function createPostInteractionsInteractionIdInteractionTokenCallback(options?: {
@@ -7438,6 +9772,25 @@ export function createGetInvitesCode(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /invites/{code}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteInvitesCodeMutationKey() {
+  return ['DELETE', '/invites/:code'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /invites/{code}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteInvitesCodeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getDeleteInvitesCodeMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.invites)[':code']['$delete']>) =>
+    parseResponse(client.invites[':code'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /invites/{code}
  */
 export function createDeleteInvitesCode(options?: {
@@ -7461,6 +9814,25 @@ export function createDeleteInvitesCode(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /lobbies
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutLobbiesMutationKey() {
+  return ['PUT', '/lobbies'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /lobbies
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutLobbiesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPutLobbiesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.lobbies.$put>) =>
+    parseResponse(client.lobbies.$put(args, clientOptions)),
+})
+
+/**
  * PUT /lobbies
  */
 export function createPutLobbies(options?: {
@@ -7478,6 +9850,25 @@ export function createPutLobbies(options?: {
       parseResponse(client.lobbies.$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /lobbies
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostLobbiesMutationKey() {
+  return ['POST', '/lobbies'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /lobbies
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostLobbiesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostLobbiesMutationKey(),
+  mutationFn: async (args: InferRequestType<typeof client.lobbies.$post>) =>
+    parseResponse(client.lobbies.$post(args, clientOptions)),
+})
 
 /**
  * POST /lobbies
@@ -7555,6 +9946,25 @@ export function createGetLobbiesLobbyId(
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /lobbies/{lobby_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchLobbiesLobbyIdMutationKey() {
+  return ['PATCH', '/lobbies/:lobby_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /lobbies/{lobby_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchLobbiesLobbyIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchLobbiesLobbyIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.lobbies)[':lobby_id']['$patch']>) =>
+    parseResponse(client.lobbies[':lobby_id'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /lobbies/{lobby_id}
  */
 export function createPatchLobbiesLobbyId(options?: {
@@ -7576,6 +9986,28 @@ export function createPatchLobbiesLobbyId(options?: {
       parseResponse(client.lobbies[':lobby_id'].$patch(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /lobbies/{lobby_id}/channel-linking
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchLobbiesLobbyIdChannelLinkingMutationKey() {
+  return ['PATCH', '/lobbies/:lobby_id/channel-linking'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /lobbies/{lobby_id}/channel-linking
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchLobbiesLobbyIdChannelLinkingMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchLobbiesLobbyIdChannelLinkingMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.lobbies)[':lobby_id']['channel-linking']['$patch']>,
+  ) => parseResponse(client.lobbies[':lobby_id']['channel-linking'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /lobbies/{lobby_id}/channel-linking
@@ -7604,6 +10036,28 @@ export function createPatchLobbiesLobbyIdChannelLinking(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /lobbies/{lobby_id}/members/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteLobbiesLobbyIdMembersMeMutationKey() {
+  return ['DELETE', '/lobbies/:lobby_id/members/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /lobbies/{lobby_id}/members/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteLobbiesLobbyIdMembersMeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteLobbiesLobbyIdMembersMeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['@me']['$delete']>,
+  ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /lobbies/{lobby_id}/members/@me
  */
 export function createDeleteLobbiesLobbyIdMembersMe(options?: {
@@ -7629,6 +10083,30 @@ export function createDeleteLobbiesLobbyIdMembersMe(options?: {
     ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /lobbies/{lobby_id}/members/@me/invites
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostLobbiesLobbyIdMembersMeInvitesMutationKey() {
+  return ['POST', '/lobbies/:lobby_id/members/@me/invites'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /lobbies/{lobby_id}/members/@me/invites
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostLobbiesLobbyIdMembersMeInvitesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostLobbiesLobbyIdMembersMeInvitesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.lobbies)[':lobby_id']['members']['@me']['invites']['$post']
+    >,
+  ) => parseResponse(client.lobbies[':lobby_id'].members['@me'].invites.$post(args, clientOptions)),
+})
 
 /**
  * POST /lobbies/{lobby_id}/members/@me/invites
@@ -7662,6 +10140,28 @@ export function createPostLobbiesLobbyIdMembersMeInvites(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /lobbies/{lobby_id}/members/bulk
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostLobbiesLobbyIdMembersBulkMutationKey() {
+  return ['POST', '/lobbies/:lobby_id/members/bulk'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /lobbies/{lobby_id}/members/bulk
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostLobbiesLobbyIdMembersBulkMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostLobbiesLobbyIdMembersBulkMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members']['bulk']['$post']>,
+  ) => parseResponse(client.lobbies[':lobby_id'].members.bulk.$post(args, clientOptions)),
+})
+
+/**
  * POST /lobbies/{lobby_id}/members/bulk
  */
 export function createPostLobbiesLobbyIdMembersBulk(options?: {
@@ -7688,6 +10188,28 @@ export function createPostLobbiesLobbyIdMembersBulk(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /lobbies/{lobby_id}/members/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutLobbiesLobbyIdMembersUserIdMutationKey() {
+  return ['PUT', '/lobbies/:lobby_id/members/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /lobbies/{lobby_id}/members/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutLobbiesLobbyIdMembersUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutLobbiesLobbyIdMembersUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$put']>,
+  ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, clientOptions)),
+})
+
+/**
  * PUT /lobbies/{lobby_id}/members/{user_id}
  */
 export function createPutLobbiesLobbyIdMembersUserId(options?: {
@@ -7712,6 +10234,28 @@ export function createPutLobbiesLobbyIdMembersUserId(options?: {
     ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$put(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /lobbies/{lobby_id}/members/{user_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteLobbiesLobbyIdMembersUserIdMutationKey() {
+  return ['DELETE', '/lobbies/:lobby_id/members/:user_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /lobbies/{lobby_id}/members/{user_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteLobbiesLobbyIdMembersUserIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteLobbiesLobbyIdMembersUserIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.lobbies)[':lobby_id']['members'][':user_id']['$delete']>,
+  ) => parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /lobbies/{lobby_id}/members/{user_id}
@@ -7744,6 +10288,33 @@ export function createDeleteLobbiesLobbyIdMembersUserId(options?: {
       parseResponse(client.lobbies[':lobby_id'].members[':user_id'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /lobbies/{lobby_id}/members/{user_id}/invites
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey() {
+  return ['POST', '/lobbies/:lobby_id/members/:user_id/invites'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /lobbies/{lobby_id}/members/{user_id}/invites
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostLobbiesLobbyIdMembersUserIdInvitesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostLobbiesLobbyIdMembersUserIdInvitesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.lobbies)[':lobby_id']['members'][':user_id']['invites']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.lobbies[':lobby_id'].members[':user_id'].invites.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /lobbies/{lobby_id}/members/{user_id}/invites
@@ -7839,6 +10410,28 @@ export function createGetLobbiesLobbyIdMessages(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /lobbies/{lobby_id}/messages
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostLobbiesLobbyIdMessagesMutationKey() {
+  return ['POST', '/lobbies/:lobby_id/messages'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /lobbies/{lobby_id}/messages
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostLobbiesLobbyIdMessagesMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostLobbiesLobbyIdMessagesMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.lobbies)[':lobby_id']['messages']['$post']>,
+  ) => parseResponse(client.lobbies[':lobby_id'].messages.$post(args, clientOptions)),
+})
 
 /**
  * POST /lobbies/{lobby_id}/messages
@@ -8053,6 +10646,31 @@ export function createGetOauth2Userinfo(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /partner-sdk/provisional-accounts/unmerge
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPartnerSdkProvisionalAccountsUnmergeMutationKey() {
+  return ['POST', '/partner-sdk/provisional-accounts/unmerge'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /partner-sdk/provisional-accounts/unmerge
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartnerSdkProvisionalAccountsUnmergeMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPartnerSdkProvisionalAccountsUnmergeMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['$post']
+    >,
+  ) =>
+    parseResponse(client['partner-sdk']['provisional-accounts'].unmerge.$post(args, clientOptions)),
+})
+
+/**
  * POST /partner-sdk/provisional-accounts/unmerge
  */
 export function createPostPartnerSdkProvisionalAccountsUnmerge(options?: {
@@ -8085,6 +10703,33 @@ export function createPostPartnerSdkProvisionalAccountsUnmerge(options?: {
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /partner-sdk/provisional-accounts/unmerge/bot
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey() {
+  return ['POST', '/partner-sdk/provisional-accounts/unmerge/bot'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /partner-sdk/provisional-accounts/unmerge/bot
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartnerSdkProvisionalAccountsUnmergeBotMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostPartnerSdkProvisionalAccountsUnmergeBotMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client)['partner-sdk']['provisional-accounts']['unmerge']['bot']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client['partner-sdk']['provisional-accounts'].unmerge.bot.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /partner-sdk/provisional-accounts/unmerge/bot
@@ -8125,6 +10770,25 @@ export function createPostPartnerSdkProvisionalAccountsUnmergeBot(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /partner-sdk/token
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPartnerSdkTokenMutationKey() {
+  return ['POST', '/partner-sdk/token'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /partner-sdk/token
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartnerSdkTokenMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPartnerSdkTokenMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['partner-sdk']['token']['$post']>) =>
+    parseResponse(client['partner-sdk'].token.$post(args, clientOptions)),
+})
+
+/**
  * POST /partner-sdk/token
  */
 export function createPostPartnerSdkToken(options?: {
@@ -8146,6 +10810,26 @@ export function createPostPartnerSdkToken(options?: {
       parseResponse(client['partner-sdk'].token.$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /partner-sdk/token/bot
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostPartnerSdkTokenBotMutationKey() {
+  return ['POST', '/partner-sdk/token/bot'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /partner-sdk/token/bot
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostPartnerSdkTokenBotMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostPartnerSdkTokenBotMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['partner-sdk']['token']['bot']['$post']>,
+  ) => parseResponse(client['partner-sdk'].token.bot.$post(args, clientOptions)),
+})
 
 /**
  * POST /partner-sdk/token/bot
@@ -8225,6 +10909,25 @@ export function createGetSoundboardDefaultSounds(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /stage-instances
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostStageInstancesMutationKey() {
+  return ['POST', '/stage-instances'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /stage-instances
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostStageInstancesMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostStageInstancesMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client)['stage-instances']['$post']>) =>
+    parseResponse(client['stage-instances'].$post(args, clientOptions)),
+})
 
 /**
  * POST /stage-instances
@@ -8308,6 +11011,28 @@ export function createGetStageInstancesChannelId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /stage-instances/{channel_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteStageInstancesChannelIdMutationKey() {
+  return ['DELETE', '/stage-instances/:channel_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /stage-instances/{channel_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteStageInstancesChannelIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteStageInstancesChannelIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$delete']>,
+  ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /stage-instances/{channel_id}
  */
 export function createDeleteStageInstancesChannelId(options?: {
@@ -8333,6 +11058,28 @@ export function createDeleteStageInstancesChannelId(options?: {
     ) => parseResponse(client['stage-instances'][':channel_id'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /stage-instances/{channel_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchStageInstancesChannelIdMutationKey() {
+  return ['PATCH', '/stage-instances/:channel_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /stage-instances/{channel_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchStageInstancesChannelIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchStageInstancesChannelIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client)['stage-instances'][':channel_id']['$patch']>,
+  ) => parseResponse(client['stage-instances'][':channel_id'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /stage-instances/{channel_id}
@@ -8567,6 +11314,25 @@ export function createGetUsersMe(
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /users/@me
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchUsersMeMutationKey() {
+  return ['PATCH', '/users/@me'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /users/@me
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchUsersMeMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchUsersMeMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['$patch']>) =>
+    parseResponse(client.users['@me'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /users/@me
  */
 export function createPatchUsersMe(options?: {
@@ -8720,6 +11486,36 @@ export function createGetUsersMeApplicationsApplicationIdRoleConnection(
 }
 
 /**
+ * Generates Svelte Query mutation key for PUT /users/@me/applications/{application_id}/role-connection
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
+  return ['PUT', '/users/@me/applications/:application_id/role-connection'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PUT /users/@me/applications/{application_id}/role-connection
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPutUsersMeApplicationsApplicationIdRoleConnectionMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPutUsersMeApplicationsApplicationIdRoleConnectionMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$put']
+    >,
+  ) =>
+    parseResponse(
+      client.users['@me'].applications[':application_id']['role-connection'].$put(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * PUT /users/@me/applications/{application_id}/role-connection
  */
 export function createPutUsersMeApplicationsApplicationIdRoleConnection(options?: {
@@ -8758,6 +11554,36 @@ export function createPutUsersMeApplicationsApplicationIdRoleConnection(options?
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /users/@me/applications/{application_id}/role-connection
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey() {
+  return ['DELETE', '/users/@me/applications/:application_id/role-connection'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /users/@me/applications/{application_id}/role-connection
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteUsersMeApplicationsApplicationIdRoleConnectionMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.users)['@me']['applications'][':application_id']['role-connection']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.users['@me'].applications[':application_id']['role-connection'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * DELETE /users/@me/applications/{application_id}/role-connection
@@ -8799,6 +11625,25 @@ export function createDeleteUsersMeApplicationsApplicationIdRoleConnection(optio
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /users/@me/channels
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostUsersMeChannelsMutationKey() {
+  return ['POST', '/users/@me/channels'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /users/@me/channels
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostUsersMeChannelsMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPostUsersMeChannelsMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.users)['@me']['channels']['$post']>) =>
+    parseResponse(client.users['@me'].channels.$post(args, clientOptions)),
+})
 
 /**
  * POST /users/@me/channels
@@ -8927,6 +11772,28 @@ export function createGetUsersMeGuilds(
     return { ...baseOptions, ...opts?.query, queryKey, queryFn }
   })
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /users/@me/guilds/{guild_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteUsersMeGuildsGuildIdMutationKey() {
+  return ['DELETE', '/users/@me/guilds/:guild_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /users/@me/guilds/{guild_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteUsersMeGuildsGuildIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteUsersMeGuildsGuildIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.users)['@me']['guilds'][':guild_id']['$delete']>,
+  ) => parseResponse(client.users['@me'].guilds[':guild_id'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /users/@me/guilds/{guild_id}
@@ -9170,6 +12037,27 @@ export function createGetWebhooksWebhookId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /webhooks/{webhook_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteWebhooksWebhookIdMutationKey() {
+  return ['DELETE', '/webhooks/:webhook_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /webhooks/{webhook_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteWebhooksWebhookIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteWebhooksWebhookIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$delete']>) =>
+    parseResponse(client.webhooks[':webhook_id'].$delete(args, clientOptions)),
+})
+
+/**
  * DELETE /webhooks/{webhook_id}
  */
 export function createDeleteWebhooksWebhookId(options?: {
@@ -9195,6 +12083,25 @@ export function createDeleteWebhooksWebhookId(options?: {
     ) => parseResponse(client.webhooks[':webhook_id'].$delete(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /webhooks/{webhook_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchWebhooksWebhookIdMutationKey() {
+  return ['PATCH', '/webhooks/:webhook_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /webhooks/{webhook_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchWebhooksWebhookIdMutationOptions = (clientOptions?: ClientRequestOptions) => ({
+  mutationKey: getPatchWebhooksWebhookIdMutationKey(),
+  mutationFn: async (args: InferRequestType<(typeof client.webhooks)[':webhook_id']['$patch']>) =>
+    parseResponse(client.webhooks[':webhook_id'].$patch(args, clientOptions)),
+})
 
 /**
  * PATCH /webhooks/{webhook_id}
@@ -9278,6 +12185,28 @@ export function createGetWebhooksWebhookIdWebhookToken(
 }
 
 /**
+ * Generates Svelte Query mutation key for POST /webhooks/{webhook_id}/{webhook_token}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksWebhookIdWebhookTokenMutationKey() {
+  return ['POST', '/webhooks/:webhook_id/:webhook_token'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /webhooks/{webhook_id}/{webhook_token}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksWebhookIdWebhookTokenMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebhooksWebhookIdWebhookTokenMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$post']>,
+  ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(args, clientOptions)),
+})
+
+/**
  * POST /webhooks/{webhook_id}/{webhook_token}
  */
 export function createPostWebhooksWebhookIdWebhookToken(options?: {
@@ -9303,6 +12232,28 @@ export function createPostWebhooksWebhookIdWebhookToken(options?: {
     ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$post(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteWebhooksWebhookIdWebhookTokenMutationKey() {
+  return ['DELETE', '/webhooks/:webhook_id/:webhook_token'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /webhooks/{webhook_id}/{webhook_token}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteWebhooksWebhookIdWebhookTokenMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteWebhooksWebhookIdWebhookTokenMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$delete']>,
+  ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$delete(args, clientOptions)),
+})
 
 /**
  * DELETE /webhooks/{webhook_id}/{webhook_token}
@@ -9335,6 +12286,28 @@ export function createDeleteWebhooksWebhookIdWebhookToken(options?: {
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchWebhooksWebhookIdWebhookTokenMutationKey() {
+  return ['PATCH', '/webhooks/:webhook_id/:webhook_token'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /webhooks/{webhook_id}/{webhook_token}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchWebhooksWebhookIdWebhookTokenMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchWebhooksWebhookIdWebhookTokenMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<(typeof client.webhooks)[':webhook_id'][':webhook_token']['$patch']>,
+  ) => parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(args, clientOptions)),
+})
+
+/**
  * PATCH /webhooks/{webhook_id}/{webhook_token}
  */
 export function createPatchWebhooksWebhookIdWebhookToken(options?: {
@@ -9360,6 +12333,33 @@ export function createPatchWebhooksWebhookIdWebhookToken(options?: {
       parseResponse(client.webhooks[':webhook_id'][':webhook_token'].$patch(args, clientOptions)),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /webhooks/{webhook_id}/{webhook_token}/github
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksWebhookIdWebhookTokenGithubMutationKey() {
+  return ['POST', '/webhooks/:webhook_id/:webhook_token/github'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /webhooks/{webhook_id}/{webhook_token}/github
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksWebhookIdWebhookTokenGithubMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebhooksWebhookIdWebhookTokenGithubMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.webhooks)[':webhook_id'][':webhook_token']['github']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.webhooks[':webhook_id'][':webhook_token'].github.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}/github
@@ -9464,6 +12464,36 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesOriginal(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
+  return ['DELETE', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/@original
  */
 export function createDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(options?: {
@@ -9503,6 +12533,36 @@ export function createDeleteWebhooksWebhookIdWebhookTokenMessagesOriginal(option
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey() {
+  return ['PATCH', '/webhooks/:webhook_id/:webhook_token/messages/@original'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchWebhooksWebhookIdWebhookTokenMessagesOriginalMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages']['@original']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.webhooks[':webhook_id'][':webhook_token'].messages['@original'].$patch(
+        args,
+        clientOptions,
+      ),
+    ),
+})
 
 /**
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/@original
@@ -9611,6 +12671,36 @@ export function createGetWebhooksWebhookIdWebhookTokenMessagesMessageId(
 }
 
 /**
+ * Generates Svelte Query mutation key for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
+  return ['DELETE', '/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getDeleteWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$delete']
+    >,
+  ) =>
+    parseResponse(
+      client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$delete(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * DELETE /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function createDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
@@ -9652,6 +12742,36 @@ export function createDeleteWebhooksWebhookIdWebhookTokenMessagesMessageId(optio
 }
 
 /**
+ * Generates Svelte Query mutation key for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey() {
+  return ['PATCH', '/webhooks/:webhook_id/:webhook_token/messages/:message_id'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPatchWebhooksWebhookIdWebhookTokenMessagesMessageIdMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.webhooks)[':webhook_id'][':webhook_token']['messages'][':message_id']['$patch']
+    >,
+  ) =>
+    parseResponse(
+      client.webhooks[':webhook_id'][':webhook_token'].messages[':message_id'].$patch(
+        args,
+        clientOptions,
+      ),
+    ),
+})
+
+/**
  * PATCH /webhooks/{webhook_id}/{webhook_token}/messages/{message_id}
  */
 export function createPatchWebhooksWebhookIdWebhookTokenMessagesMessageId(options?: {
@@ -9690,6 +12810,33 @@ export function createPatchWebhooksWebhookIdWebhookTokenMessagesMessageId(option
       ),
   }))
 }
+
+/**
+ * Generates Svelte Query mutation key for POST /webhooks/{webhook_id}/{webhook_token}/slack
+ * Returns key [method, path] for mutation state tracking and cache operations
+ */
+export function getPostWebhooksWebhookIdWebhookTokenSlackMutationKey() {
+  return ['POST', '/webhooks/:webhook_id/:webhook_token/slack'] as const
+}
+
+/**
+ * Returns Svelte Query mutation options for POST /webhooks/{webhook_id}/{webhook_token}/slack
+ *
+ * Use with useMutation, setMutationDefaults, or isMutating.
+ */
+export const getPostWebhooksWebhookIdWebhookTokenSlackMutationOptions = (
+  clientOptions?: ClientRequestOptions,
+) => ({
+  mutationKey: getPostWebhooksWebhookIdWebhookTokenSlackMutationKey(),
+  mutationFn: async (
+    args: InferRequestType<
+      (typeof client.webhooks)[':webhook_id'][':webhook_token']['slack']['$post']
+    >,
+  ) =>
+    parseResponse(
+      client.webhooks[':webhook_id'][':webhook_token'].slack.$post(args, clientOptions),
+    ),
+})
 
 /**
  * POST /webhooks/{webhook_id}/{webhook_token}/slack

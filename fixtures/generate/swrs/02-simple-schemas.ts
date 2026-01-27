@@ -37,10 +37,10 @@ export function useGetUsers(options?: {
 
 /**
  * Generates SWR mutation key for POST /users
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostUsersMutationKey() {
-  return ['/users'] as const
+  return ['POST', '/users'] as const
 }
 
 /**

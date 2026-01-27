@@ -44,10 +44,10 @@ export function useGetProducts(
 
 /**
  * Generates SWR mutation key for POST /products
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostProductsMutationKey() {
-  return ['/products'] as const
+  return ['POST', '/products'] as const
 }
 
 /**
@@ -116,10 +116,10 @@ export function useGetProductsProductId(
 
 /**
  * Generates SWR mutation key for PUT /products/{productId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPutProductsProductIdMutationKey() {
-  return ['/products/:productId'] as const
+  return ['PUT', '/products/:productId'] as const
 }
 
 /**
@@ -158,10 +158,10 @@ export function usePutProductsProductId(options?: {
 
 /**
  * Generates SWR mutation key for DELETE /products/{productId}
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getDeleteProductsProductIdMutationKey() {
-  return ['/products/:productId'] as const
+  return ['DELETE', '/products/:productId'] as const
 }
 
 /**
@@ -203,10 +203,10 @@ export function useDeleteProductsProductId(options?: {
 
 /**
  * Generates SWR mutation key for POST /orders
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostOrdersMutationKey() {
-  return ['/orders'] as const
+  return ['POST', '/orders'] as const
 }
 
 /**
@@ -239,10 +239,10 @@ export function usePostOrders(options?: {
 
 /**
  * Generates SWR mutation key for POST /webhooks
- * Returns Orval-style key [templatePath] - args passed via trigger's { arg }
+ * Returns key [method, path] to avoid collisions between different methods on same path
  */
 export function getPostWebhooksMutationKey() {
-  return ['/webhooks'] as const
+  return ['POST', '/webhooks'] as const
 }
 
 /**
